@@ -55,9 +55,11 @@ const NavGroup = ({
         className={`overflow-hidden transition-all duration-250 ease-in-out
           ${expanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <ul className="mt-0.5 mb-1 space-y-0.5 pl-9">
+        <div className="mt-0.5 mb-1 ml-3.5 border-l border-stone-200/90 pl-2">
+          <ul className="space-y-0.5">
           {items.map((item: any) => {
             const active = isActive(item.id);
+            const ItemIcon = item.icon;
             return (
               <li key={item.id}>
                 <button
@@ -69,16 +71,17 @@ const NavGroup = ({
                       : 'font-medium text-stone-500 hover:text-stone-800'
                     }`}
                 >
-                  {active && (
-                    <span className="h-px w-4 shrink-0 bg-stone-400" aria-hidden />
-                  )}
-                  {!active && (
-                    <span className="h-px w-4 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity" aria-hidden>
-                      <span className="block h-px w-full bg-stone-400" />
-                    </span>
-                  )}
                   <span
-                    className={`min-w-0 truncate text-xs transition-colors ${active ? 'text-stone-900' : ''}`}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
+                    style={{ color: active ? '#78716c' : '#a8a29e' }}
+                    aria-hidden
+                  >
+                    {ItemIcon ? (
+                      <ItemIcon size={14} strokeWidth={1.25} />
+                    ) : null}
+                  </span>
+                  <span
+                    className={`min-w-0 flex-1 truncate leading-tight transition-colors ${active ? 'text-stone-900' : ''}`}
                   >
                     {item.label}
                   </span>
@@ -86,7 +89,8 @@ const NavGroup = ({
               </li>
             );
           })}
-        </ul>
+          </ul>
+        </div>
       </div>
     </div>
   );
@@ -146,6 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'MOCKUP_GENERATOR', label: 'Mockup Generator', icon: MonitorPlay },
     { id: 'KEY_VISUALS_CREATE', label: 'Tạo dự án KV', icon: PlusSquare },
     { id: 'KEY_VISUALS_LIST', label: 'Danh sách KV', icon: List },
+    { id: 'CHAIN_LINK', label: 'Chain Link', icon: Link2 },
   ];
 
   const adsItems = [
@@ -255,10 +260,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
         {/* Single items */}
         {[
           { id: 'TODO', label: 'To-Do List', icon: CheckSquare },
-          { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe, badge: 'Mới', badgeColor: '#BE123C' },
+          { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe },
           { id: 'MARKETING_KNOWLEDGE', label: 'Kho Kiến Thức', icon: BookOpen },
-          { id: 'TOOLKIT', label: 'Bộ Công Cụ', icon: Zap, badge: 'Mới', badgeColor: '#047857' },
-        ].map(({ id, label, icon: Icon, badge, badgeColor }) => {
+          { id: 'TOOLKIT', label: 'Bộ Công Cụ', icon: Zap },
+        ].map(({ id, label, icon: Icon }) => {
           const active = currentView === id;
           return (
             <button
@@ -271,20 +276,14 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
                   : 'font-medium text-stone-500 hover:text-stone-800 hover:bg-stone-100/60'
                 }`}
             >
-              <Icon
-                size={14}
-                strokeWidth={1.25}
-                className="shrink-0"
+              <span
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
                 style={{ color: active ? '#78716c' : '#a8a29e' }}
-              />
-              <span className={`min-w-0 flex-1 truncate leading-tight transition-colors ${active ? 'text-stone-900 font-medium' : 'text-stone-600'}`}>{label}</span>
-              {badge && (
-                <span
-                  className="shrink-0 rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-500"
-                >
-                  {badge}
-                </span>
-              )}
+                aria-hidden
+              >
+                <Icon size={14} strokeWidth={1.25} />
+              </span>
+              <span className={`min-w-0 flex-1 truncate text-left leading-tight transition-colors ${active ? 'text-stone-900 font-medium' : 'text-stone-600'}`}>{label}</span>
             </button>
           );
         })}
