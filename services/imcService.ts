@@ -1,8 +1,6 @@
-import { GoogleGenAI } from '@google/genai';
+import { getGeminiClient } from '../lib/geminiClient';
 import { supabase } from '../lib/supabase';
 import { IMCPlan, IMCStrategicFoundation, IMCExecutionPhase } from '../types';
-
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const SAFETY_SETTINGS = [
     { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -536,6 +534,12 @@ export const IMCService = {
      */
     async generateIMCPlan(input: IMCInput): Promise<IMCPlan | null> {
         try {
+            const ai = getGeminiClient();
+            if (!ai) {
+                alert('Chưa cấu hình Gemini. Thêm VITE_GEMINI_API_KEY vào file .env.local.');
+                return null;
+            }
+
             // Calculate metrics based on planning mode
             let metrics: CalculatedMetrics;
 

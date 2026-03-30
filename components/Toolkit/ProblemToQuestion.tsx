@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { HelpCircle, Sparkles, Loader2, Copy, Check, RefreshCw, Lightbulb } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+import { getGeminiClient } from '../../lib/geminiClient';
 
 const ProblemToQuestion: React.FC = () => {
     const [problem, setProblem] = useState('');
@@ -14,6 +12,12 @@ const ProblemToQuestion: React.FC = () => {
     const handleGenerate = async () => {
         if (!problem.trim()) {
             toast.error('Vui lòng nhập vấn đề!');
+            return;
+        }
+
+        const ai = getGeminiClient();
+        if (!ai) {
+            toast.error('Thêm VITE_GEMINI_API_KEY vào .env.local (Google AI Studio).');
             return;
         }
 

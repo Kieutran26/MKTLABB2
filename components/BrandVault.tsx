@@ -3,9 +3,7 @@ import { Plus, Trash2, Edit2, ShieldCheck, Image as ImageIcon, Palette, Type, Us
 import { useBrand } from './BrandContext';
 import { Brand, BrandColor, BrandLogo } from '../types';
 import { Toast, ToastType } from './Toast';
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+import { getGeminiClient } from '../lib/geminiClient';
 
 // --- SUB-COMPONENT: LIST EDITOR (Moved outside to prevent re-render/focus issues) ---
 interface ListEditorProps {
@@ -326,6 +324,11 @@ const BrandVault: React.FC = () => {
 
     const handleAiGenerate = async (promptType: string, targetField: string, section: 'strategy' | 'audience', isList: boolean = false) => {
         if (!editingBrand) return;
+        const ai = getGeminiClient();
+        if (!ai) {
+            showToast('Thêm VITE_GEMINI_API_KEY vào .env.local (Google AI Studio).', 'error');
+            return;
+        }
         setIsGenerating(true);
         try {
             let prompt = "";

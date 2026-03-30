@@ -1,15 +1,26 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase Configuration
-// Get these from: Supabase Dashboard > Project Settings > API
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Supabase Configuration — Dashboard: Project Settings → API
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('⚠️ Supabase credentials not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local');
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+// Valid placeholders so createClient never throws; real data needs .env.local
+const PLACEHOLDER_URL = 'https://placeholder.supabase.co';
+const PLACEHOLDER_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDE3NjkyMDAsImV4cCI6MTk1NzM0NTYwMH0.EcM8WzmdKYTQG7oUxY_NoA';
+
+if (!isSupabaseConfigured) {
+    console.warn(
+        '⚠️ Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local (see .env.example).'
+    );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase: SupabaseClient = createClient(
+    isSupabaseConfigured ? supabaseUrl : PLACEHOLDER_URL,
+    isSupabaseConfigured ? supabaseAnonKey : PLACEHOLDER_ANON_KEY
+);
 
 // Helper function to check connection
 export const checkSupabaseConnection = async (): Promise<boolean> => {
