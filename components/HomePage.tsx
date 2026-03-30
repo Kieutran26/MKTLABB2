@@ -95,12 +95,15 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         return `conic-gradient(${segments.join(', ')})`;
     };
 
-    // Feature guides — Neubrutalism cards (icon #48B9A7, black badge, hard shadow)
+    // Feature guides — mỗi thẻ một màu soft (pastel), bullet đậm cùng tông
     const featureGuides = [
         {
             id: 'SCAMPER_TOOL',
             name: 'SCAMPER V2',
             icon: Lightbulb,
+            accentSoftBg: '#FDE2E4',
+            accentIcon: '#BE123C',
+            accentBullet: '#BE123C',
             hashBadge: '#IDEATE',
             stackTag: '#MKTStack',
             tips: [
@@ -113,6 +116,9 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'MINDMAP_GENERATOR',
             name: 'Mindmap AI V2',
             icon: Brain,
+            accentSoftBg: '#EDE9FE',
+            accentIcon: '#5B21B6',
+            accentBullet: '#5B21B6',
             hashBadge: '#AI',
             stackTag: '#MKTStack',
             tips: [
@@ -125,6 +131,9 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'AUTO_BRIEF',
             name: 'Auto Brief V2',
             icon: FileText,
+            accentSoftBg: '#D1FAE5',
+            accentIcon: '#047857',
+            accentBullet: '#047857',
             hashBadge: '#BRIEF',
             stackTag: '#MKTStack',
             tips: [
@@ -137,6 +146,9 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'INSIGHT_FINDER',
             name: 'Insight Finder V2',
             icon: Sparkles,
+            accentSoftBg: '#FEF3C7',
+            accentIcon: '#B45309',
+            accentBullet: '#B45309',
             hashBadge: '#INSIGHT',
             stackTag: '#MKTStack',
             tips: [
@@ -151,8 +163,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         {
             title: 'Strategy & Research',
             icon: Brain,
-            color: 'text-indigo-600',
-            bgColor: 'bg-indigo-50',
+            accentSoftBg: '#EDE9FE',
+            accentIcon: '#5B21B6',
             description: 'Phân tích thị trường và thấu hiểu khách hàng.',
             tools: [
                 { id: 'MASTERMIND_STRATEGY', name: 'Mastermind Strategy', icon: Brain },
@@ -164,8 +176,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         {
             title: 'Ideation & Content',
             icon: Lightbulb,
-            color: 'text-amber-600',
-            bgColor: 'bg-amber-50',
+            accentSoftBg: '#FEF3C7',
+            accentIcon: '#B45309',
             description: 'Tìm ý tưởng và viết nội dung sáng tạo.',
             tools: [
                 { id: 'HOOK_GENERATOR', name: 'Hook Generator', icon: Zap },
@@ -177,8 +189,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         {
             title: 'Design & Visuals',
             icon: ImageIcon,
-            color: 'text-pink-600',
-            bgColor: 'bg-pink-50',
+            accentSoftBg: '#FDE2E4',
+            accentIcon: '#BE123C',
             description: 'Tạo mockup và thiết kế hình ảnh.',
             tools: [
                 { id: 'VISUAL_EMAIL', name: 'Visual Email', icon: Mail },
@@ -189,8 +201,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         {
             title: 'Ads & Performance',
             icon: TrendingUp,
-            color: 'text-emerald-600',
-            bgColor: 'bg-emerald-50',
+            accentSoftBg: '#D1FAE5',
+            accentIcon: '#047857',
             description: 'Tính toán ngân sách và đo hiệu suất.',
             tools: [
                 { id: 'BUDGET_ALLOCATOR', name: 'Budget Allocator', icon: PieChart },
@@ -203,35 +215,47 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
 
     return (
         <div className="min-h-screen bg-soft-bg">
-            {/* Translation Section - Primary */}
-            <div className="border-b border-soft-border bg-white">
+            {/* Translation — nền kem khớp các section Neubrutalism */}
+            <div className="border-b border-slate-200 bg-[#F5F5F0]">
                 <TranslationView />
             </div>
 
-            {/* Dashboard Overview - Tasks + Chart */}
-            <div className="p-8 border-b border-soft-border">
+            {/* Dashboard — Neubrutalism (khớp Feature V2 / Khám phá công cụ) */}
+            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
                 <div className="max-w-6xl mx-auto">
                     <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <BarChart3 className="text-indigo-500" /> Dashboard
+                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-3">
+                            <span
+                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black bg-[#FEF3C7] text-[#B45309] shadow-[1px_1px_0_0_#000]"
+                                aria-hidden
+                            >
+                                <BarChart3 size={22} strokeWidth={1.5} />
+                            </span>
+                            Dashboard
                         </h2>
-                        <p className="text-slate-500">Quản lý công việc và theo dõi tiến trình sử dụng công cụ.</p>
+                        <p className="text-slate-600 font-semibold text-sm">
+                            Quản lý công việc và theo dõi tiến trình sử dụng công cụ.
+                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
                         {/* To-Do List */}
-                        <div className="bg-white rounded-2xl border border-soft-border p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                    <CheckCircle2 size={18} className="text-emerald-500" />
+                        <div className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
+                            <div className="flex items-center justify-between gap-2 mb-5">
+                                <h3 className="font-black text-black flex items-center gap-2 text-base">
+                                    <span
+                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-black bg-[#D1FAE5] text-[#047857] shadow-[1px_1px_0_0_#000]"
+                                        aria-hidden
+                                    >
+                                        <CheckCircle2 size={20} strokeWidth={1.5} />
+                                    </span>
                                     To-Do List
                                 </h3>
-                                <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-medium">
+                                <span className="rounded-full border border-black bg-[#D1FAE5] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#047857]">
                                     {completedTasks}/{tasks.length} hoàn thành
                                 </span>
                             </div>
 
-                            {/* Add Task Input */}
                             <div className="flex gap-2 mb-4">
                                 <input
                                     type="text"
@@ -239,95 +263,95 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                                     onChange={(e) => setNewTaskText(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                                     placeholder="Thêm công việc mới..."
-                                    className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all"
+                                    className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-black bg-white text-sm font-semibold text-black placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                                 />
                                 <button
+                                    type="button"
                                     onClick={handleAddTask}
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-xl hover:bg-indigo-700 transition-all"
+                                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-black bg-[#48b9a7] text-white shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-x-[1px] active:translate-y-[1px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                    aria-label="Thêm công việc"
                                 >
-                                    <Plus size={18} />
+                                    <Plus size={20} strokeWidth={1.5} />
                                 </button>
                             </div>
 
-                            {/* Task List */}
                             <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
                                 {tasks.length === 0 ? (
-                                    <div className="text-center py-8 text-slate-400">
-                                        <Circle size={32} className="mx-auto mb-2 opacity-50" />
-                                        <p className="text-sm">Chưa có công việc nào</p>
+                                    <div className="text-center py-10 text-slate-500 border-t border-black pt-6">
+                                        <Circle size={36} strokeWidth={1.5} className="mx-auto mb-2 text-black/25" />
+                                        <p className="text-sm font-semibold">Chưa có công việc nào</p>
                                     </div>
                                 ) : (
                                     tasks.map(task => (
                                         <div
                                             key={task.id}
-                                            className={`flex items-center gap-3 p-3 rounded-xl border transition-all group ${task.completed
-                                                ? 'bg-emerald-50 border-emerald-100'
-                                                : 'bg-white border-slate-100 hover:border-slate-200'
+                                            className={`flex items-center gap-3 p-3 rounded-xl border border-black transition-colors group ${task.completed
+                                                ? 'bg-[#D1FAE5]/40'
+                                                : 'bg-white hover:bg-black/[0.03]'
                                                 }`}
                                         >
                                             <button
+                                                type="button"
                                                 onClick={() => toggleTask(task.id)}
-                                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${task.completed
-                                                    ? 'bg-emerald-500 border-emerald-500 text-white'
-                                                    : 'border-slate-300 hover:border-indigo-500'
+                                                className={`w-5 h-5 shrink-0 rounded-full border border-black flex items-center justify-center transition-colors ${task.completed
+                                                    ? 'bg-[#48b9a7] text-white'
+                                                    : 'bg-white hover:bg-[#F5F5F0]'
                                                     }`}
                                             >
-                                                {task.completed && <Check size={12} />}
+                                                {task.completed && <Check size={12} strokeWidth={2.5} />}
                                             </button>
-                                            <span className={`flex-1 text-sm ${task.completed ? 'text-slate-400 line-through' : 'text-slate-700'
+                                            <span className={`flex-1 text-sm font-semibold ${task.completed ? 'text-slate-500 line-through' : 'text-slate-800'
                                                 }`}>
                                                 {task.text}
                                             </span>
                                             <button
+                                                type="button"
                                                 onClick={() => deleteTask(task.id)}
-                                                className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
+                                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-opacity p-1"
+                                                aria-label="Xóa công việc"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={14} strokeWidth={1.5} />
                                             </button>
                                         </div>
                                     ))
                                 )}
                             </div>
 
-                            {/* Task Stats & Chart */}
                             {tasks.length > 0 && (
-                                <div className="mt-4 pt-4 border-t border-slate-100">
+                                <div className="mt-5 pt-5 border-t border-black">
                                     <div className="flex items-center gap-4">
-                                        {/* Mini Donut Chart */}
                                         <div className="relative w-16 h-16 flex-shrink-0">
                                             <div
-                                                className="w-full h-full rounded-full"
+                                                className="w-full h-full rounded-full border border-black"
                                                 style={{
-                                                    background: `conic-gradient(#10b981 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
+                                                    background: `conic-gradient(#48b9a7 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
                                                 }}
                                             />
-                                            <div className="absolute inset-1.5 bg-white rounded-full flex items-center justify-center">
-                                                <span className="text-sm font-bold text-slate-700">{taskCompletionRate}%</span>
+                                            <div className="absolute inset-1.5 bg-white rounded-full flex items-center justify-center border border-black/10">
+                                                <span className="text-sm font-black text-black">{taskCompletionRate}%</span>
                                             </div>
                                         </div>
 
-                                        {/* Stats Grid */}
                                         <div className="flex-1 grid grid-cols-3 gap-2">
-                                            <div className="text-center p-2 bg-emerald-50 rounded-lg">
-                                                <div className="text-lg font-bold text-emerald-600">{completedTasks}</div>
-                                                <div className="text-xs text-emerald-500">Hoàn thành</div>
+                                            <div className="text-center p-2 rounded-xl border border-black bg-[#D1FAE5]">
+                                                <div className="text-lg font-black text-[#047857]">{completedTasks}</div>
+                                                <div className="text-[10px] font-bold text-[#047857]/80 uppercase tracking-wide">Hoàn thành</div>
                                             </div>
-                                            <div className="text-center p-2 bg-amber-50 rounded-lg">
-                                                <div className="text-lg font-bold text-amber-500">{pendingTasks}</div>
-                                                <div className="text-xs text-amber-400">Chờ xử lý</div>
+                                            <div className="text-center p-2 rounded-xl border border-black bg-[#FEF3C7]">
+                                                <div className="text-lg font-black text-[#B45309]">{pendingTasks}</div>
+                                                <div className="text-[10px] font-bold text-[#B45309]/80 uppercase tracking-wide">Chờ xử lý</div>
                                             </div>
-                                            <div className="text-center p-2 bg-slate-50 rounded-lg">
-                                                <div className="text-lg font-bold text-slate-600">{tasks.length}</div>
-                                                <div className="text-xs text-slate-400">Tổng cộng</div>
+                                            <div className="text-center p-2 rounded-xl border border-black bg-[#F5F5F0]">
+                                                <div className="text-lg font-black text-black">{tasks.length}</div>
+                                                <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Tổng cộng</div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Progress Bar */}
-                                    <div className="mt-3">
-                                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="mt-4">
+                                        <div className="h-3 rounded-full border border-black bg-white overflow-hidden">
                                             <div
-                                                className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
+                                                className="h-full bg-[#48b9a7] transition-all duration-500"
                                                 style={{ width: `${taskCompletionRate}%` }}
                                             />
                                         </div>
@@ -336,116 +360,113 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                             )}
                         </div>
 
-                        {/* Combined Progress Charts */}
-                        <div className="bg-white rounded-2xl border border-soft-border p-6">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                    <PieChart size={18} className="text-indigo-500" />
+                        {/* Thống kê tổng quan */}
+                        <div className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
+                            <div className="flex items-center justify-between mb-5">
+                                <h3 className="font-black text-black flex items-center gap-2 text-base">
+                                    <span
+                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-black bg-[#EDE9FE] text-[#5B21B6] shadow-[1px_1px_0_0_#000]"
+                                        aria-hidden
+                                    >
+                                        <PieChart size={20} strokeWidth={1.5} />
+                                    </span>
                                     Thống kê tổng quan
                                 </h3>
                             </div>
 
-                            {/* Two Charts Row */}
                             <div className="grid grid-cols-2 gap-6 mb-4">
-                                {/* To-Do Progress Chart */}
                                 <div className="text-center">
                                     <div className="relative w-24 h-24 mx-auto mb-3">
                                         <div
-                                            className="w-full h-full rounded-full"
+                                            className="w-full h-full rounded-full border border-black"
                                             style={{
                                                 background: tasks.length > 0
-                                                    ? `conic-gradient(#10b981 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
-                                                    : 'conic-gradient(#e2e8f0 0deg 360deg)'
+                                                    ? `conic-gradient(#48b9a7 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
+                                                    : '#e2e8f0'
                                             }}
                                         />
-                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-slate-800">{taskCompletionRate}%</div>
-                                            </div>
+                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center border border-black/10">
+                                            <div className="text-lg font-black text-black">{taskCompletionRate}%</div>
                                         </div>
                                     </div>
-                                    <div className="text-xs font-medium text-slate-600 mb-2">To-Do Progress</div>
-                                    <div className="flex justify-center gap-4 text-xs">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-slate-500">Xong ({completedTasks})</span>
+                                    <div className="text-xs font-black text-black mb-2">To-Do Progress</div>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700">
+                                        <div className="flex items-center justify-center gap-1.5">
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#48b9a7]" />
+                                            <span>Xong ({completedTasks})</span>
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-amber-400"></div>
-                                            <span className="text-slate-500">Chờ ({pendingTasks})</span>
+                                        <div className="flex items-center justify-center gap-1.5">
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" />
+                                            <span>Chờ ({pendingTasks})</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Tool Usage Chart */}
                                 <div className="text-center">
                                     <div className="relative w-24 h-24 mx-auto mb-3">
                                         <div
-                                            className="w-full h-full rounded-full"
+                                            className="w-full h-full rounded-full border border-black"
                                             style={{ background: generateDonutGradient() }}
                                         />
-                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                                            <div className="text-center">
-                                                <div className="text-lg font-bold text-slate-800">{totalItems}</div>
-                                            </div>
+                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center border border-black/10">
+                                            <div className="text-lg font-black text-black">{totalItems}</div>
                                         </div>
                                     </div>
-                                    <div className="text-xs font-medium text-slate-600 mb-2">Dữ liệu đã lưu</div>
-                                    <div className="flex justify-center gap-4 text-xs">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                                            <span className="text-slate-500">Tools ({activeTools.length})</span>
+                                    <div className="text-xs font-black text-black mb-2">Dữ liệu đã lưu</div>
+                                    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700">
+                                        <div className="flex items-center justify-center gap-1.5">
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#48b9a7]" />
+                                            <span>Tools ({activeTools.length})</span>
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-slate-300"></div>
-                                            <span className="text-slate-500">Còn lại ({trackedTools.length - activeTools.length})</span>
+                                        <div className="flex items-center justify-center gap-1.5">
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+                                            <span>Còn lại ({trackedTools.length - activeTools.length})</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Legend for tools */}
-                            <div className="pt-4 border-t border-slate-100">
-                                <div className="text-xs font-medium text-slate-500 mb-2">Công cụ đang dùng</div>
+                            <div className="pt-4 border-t border-black">
+                                <div className="text-xs font-black text-black mb-2">Công cụ đang dùng</div>
                                 <div className="flex flex-wrap gap-2">
                                     {activeTools.length === 0 ? (
-                                        <div className="text-xs text-slate-400">Chưa có dữ liệu</div>
+                                        <div className="text-xs font-semibold text-slate-500">Chưa có dữ liệu</div>
                                     ) : (
                                         activeTools.map(tool => (
                                             <button
                                                 key={tool.id}
+                                                type="button"
                                                 onClick={() => setView(tool.viewId)}
-                                                className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 transition-all text-xs"
+                                                className="flex items-center gap-1.5 rounded-full border border-black bg-white px-2.5 py-1 text-xs font-bold text-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                                             >
-                                                <div
-                                                    className="w-2 h-2 rounded-full"
+                                                <span
+                                                    className="h-2 w-2 shrink-0 rounded-full border border-black"
                                                     style={{ backgroundColor: tool.color }}
                                                 />
-                                                <span className="text-slate-600">{tool.name}</span>
-                                                <span className="font-bold text-slate-800">{progressData[tool.id]}</span>
+                                                <span>{tool.name}</span>
+                                                <span className="font-black">{progressData[tool.id]}</span>
                                             </button>
                                         ))
                                     )}
                                 </div>
                             </div>
 
-                            {/* Quick Stats Row */}
-                            <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-4 gap-4">
+                            <div className="mt-4 pt-4 border-t border-black grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 <div className="text-center">
-                                    <div className="text-xl font-bold text-emerald-600">{completedTasks}</div>
-                                    <div className="text-xs text-slate-400">Task xong</div>
+                                    <div className="text-xl font-black text-[#047857]">{completedTasks}</div>
+                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Task xong</div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-bold text-amber-500">{pendingTasks}</div>
-                                    <div className="text-xs text-slate-400">Task chờ</div>
+                                    <div className="text-xl font-black text-[#B45309]">{pendingTasks}</div>
+                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Task chờ</div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-bold text-indigo-600">{activeTools.length}</div>
-                                    <div className="text-xs text-slate-400">Tools dùng</div>
+                                    <div className="text-xl font-black text-[#5B21B6]">{activeTools.length}</div>
+                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Tools dùng</div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-bold text-slate-400">{totalItems}</div>
-                                    <div className="text-xs text-slate-400">Mục lưu</div>
+                                    <div className="text-xl font-black text-black">{totalItems}</div>
+                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Mục lưu</div>
                                 </div>
                             </div>
                         </div>
@@ -458,7 +479,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                 <div className="max-w-6xl mx-auto">
                     <div className="mb-6">
                         <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-2">
-                            <BookOpen className="text-[#48B9A7]" size={26} strokeWidth={2.5} /> Hướng dẫn tính năng V2
+                            <BookOpen className="text-black" size={26} strokeWidth={1.5} /> Hướng dẫn tính năng V2
                         </h2>
                         <p className="text-slate-600 font-semibold text-sm">Nâng cấp AI — click thẻ để mở công cụ.</p>
                     </div>
@@ -473,10 +494,11 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                             >
                                 <div className="flex items-start justify-between gap-2 mb-5">
                                     <div
-                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-[#48B9A7] text-white shadow-[2px_2px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-none"
+                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none"
+                                        style={{ backgroundColor: feature.accentSoftBg, color: feature.accentIcon }}
                                         aria-hidden
                                     >
-                                        <feature.icon size={28} strokeWidth={2.25} />
+                                        <feature.icon size={28} strokeWidth={1.5} />
                                     </div>
                                     <span className="rounded-full border border-black bg-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
                                         {feature.hashBadge}
@@ -489,14 +511,14 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                                 <ul className="mt-4 space-y-2.5 border-t border-black pt-4">
                                     {feature.tips.map((tip, idx) => (
                                         <li key={idx} className="flex items-start gap-2 text-xs font-medium leading-snug text-slate-700">
-                                            <span className="mt-0.5 shrink-0 font-black text-[#48B9A7]">›</span>
+                                            <span className="mt-0.5 shrink-0 font-black" style={{ color: feature.accentBullet }}>›</span>
                                             <span>{tip}</span>
                                         </li>
                                     ))}
                                 </ul>
 
                                 <div className="mt-6 flex items-center gap-1 text-sm font-black text-black">
-                                    Khám phá <ArrowRight size={16} strokeWidth={2.5} className="shrink-0" />
+                                    Khám phá <ArrowRight size={16} strokeWidth={1.5} className="shrink-0" />
                                 </div>
                             </button>
                         ))}
@@ -504,47 +526,60 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                 </div>
             </div>
 
-            {/* Tools Overview Section */}
-            <div className="p-8">
+            {/* Tools Overview — Neubrutalism (khớp Feature V2: kem, shadow cứng, hover nhấn xuống) */}
+            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
                 <div className="max-w-6xl mx-auto">
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <Layers className="text-indigo-500" /> Khám phá công cụ
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-2">
+                            <Layers className="text-black" size={26} strokeWidth={1.5} /> Khám phá công cụ
                         </h2>
-                        <p className="text-slate-500">Truy cập nhanh các công cụ Marketing AI theo luồng công việc.</p>
+                        <p className="text-slate-600 font-semibold text-sm">
+                            Truy cập nhanh các công cụ Marketing AI theo luồng công việc.
+                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                         {categories.map((category) => (
                             <div
                                 key={category.title}
-                                className="bg-white rounded-2xl border border-soft-border p-6 hover:shadow-soft transition-all duration-300"
+                                className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
                             >
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className={`p-3 rounded-xl ${category.bgColor}`}>
-                                        <category.icon size={24} className={category.color} strokeWidth={1.5} />
+                                <div className="flex items-start gap-3 mb-5">
+                                    <div
+                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none"
+                                        style={{ backgroundColor: category.accentSoftBg, color: category.accentIcon }}
+                                        aria-hidden
+                                    >
+                                        <category.icon size={26} strokeWidth={1.5} />
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-slate-800">{category.title}</h3>
-                                        <p className="text-sm text-slate-500">{category.description}</p>
+                                    <div className="min-w-0">
+                                        <h3 className="font-black text-black text-base leading-tight">{category.title}</h3>
+                                        <p className="mt-1 text-sm font-semibold text-slate-600">{category.description}</p>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+                                <ul className="border-t border-black pt-4">
                                     {category.tools.map((tool) => (
-                                        <button
-                                            key={tool.id}
-                                            onClick={() => setView(tool.id as ViewState)}
-                                            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-soft-bg hover:bg-slate-100 transition-all duration-200 group"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <tool.icon size={18} className="text-slate-400 group-hover:text-slate-600" strokeWidth={1.5} />
-                                                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800">{tool.name}</span>
-                                            </div>
-                                            <ArrowRight size={16} className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
-                                        </button>
+                                        <li key={tool.id} className="border-b border-black/10 last:border-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => setView(tool.id as ViewState)}
+                                                className="w-full flex items-center justify-between gap-2 py-2.5 text-left rounded-lg px-1 -mx-1 transition-colors duration-100 hover:bg-black/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                            >
+                                                <span className="flex items-center gap-2 min-w-0">
+                                                    <tool.icon
+                                                        size={18}
+                                                        strokeWidth={1.5}
+                                                        className="shrink-0"
+                                                        style={{ color: category.accentIcon }}
+                                                    />
+                                                    <span className="text-xs font-bold text-slate-800 truncate">{tool.name}</span>
+                                                </span>
+                                                <ArrowRight size={16} strokeWidth={1.5} className="shrink-0 text-black" />
+                                            </button>
+                                        </li>
                                     ))}
-                                </div>
+                                </ul>
                             </div>
                         ))}
                     </div>

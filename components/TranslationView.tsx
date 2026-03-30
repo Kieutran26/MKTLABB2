@@ -5,6 +5,9 @@ import { translateText } from '../services/geminiService';
 import { StorageService } from '../services/storageService';
 import { TranslationRecord } from '../types';
 
+const neoBtn =
+  'transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2';
+
 const TranslationView: React.FC = () => {
   const [sourceText, setSourceText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
@@ -47,39 +50,52 @@ const TranslationView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pt-10 px-6">
-      <div className="flex justify-between items-center mb-8">
+    <div className="max-w-5xl mx-auto px-4 py-8 md:px-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 mb-6">
         <div>
-          <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
+          <h2 className="text-2xl font-black text-black flex items-center gap-3">
+            <span
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black bg-[#FEF3C7] text-[#B45309] shadow-[2px_2px_0_0_#000]"
+              aria-hidden
+            >
+              <Sparkles size={22} strokeWidth={2.25} />
+            </span>
             Dịch thuật AI
-            <Sparkles size={24} strokeWidth={1.5} className="text-yellow-400" />
           </h2>
-          <p className="text-slate-500 mt-1">Dịch văn bản nhanh chóng với công nghệ Gemini</p>
+          <p className="text-slate-600 font-semibold text-sm mt-2">
+            Dịch văn bản nhanh chóng với công nghệ Gemini
+          </p>
         </div>
         <button
+          type="button"
           onClick={() => setShowHistory(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white rounded-2xl shadow-sm border border-slate-200 hover:bg-slate-50 transition-all text-slate-600 font-medium hover:text-indigo-600"
+          className={`inline-flex items-center justify-center gap-2 rounded-full border border-black bg-white px-5 py-2.5 text-sm font-bold text-black shadow-[2px_2px_0_0_#000] ${neoBtn}`}
         >
-          <History size={18} strokeWidth={1.5} />
+          <History size={18} strokeWidth={2.25} />
           <span>Lịch sử</span>
         </button>
       </div>
 
-      <div className="bg-white p-8 rounded-3xl shadow-soft border border-slate-100">
-        <div className="flex flex-col md:flex-row gap-6 items-stretch h-[450px]">
+      <div className="rounded-[20px] bg-white p-6 shadow-[3px_3px_0_0_#000] md:p-8">
+        <div className="flex h-[min(450px,70vh)] flex-col items-stretch gap-6 md:flex-row">
 
-          {/* Source Input */}
-          <div className="flex-1 flex flex-col bg-slate-50 rounded-2xl border border-slate-100 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-300 transition-all overflow-hidden group">
-            <div className="px-4 py-3 bg-white border-b border-slate-100 flex justify-between items-center">
-              <span className="font-semibold text-slate-500 text-xs uppercase tracking-wider">
+          <div className="group flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-xl border border-black bg-white focus-within:ring-2 focus-within:ring-black focus-within:ring-offset-2">
+            <div className="flex items-center justify-between border-b border-black bg-[#F5F5F0] px-4 py-3">
+              <span className="text-xs font-black uppercase tracking-wide text-black">
                 {direction === 'en_vi' ? 'Tiếng Anh (English)' : 'Tiếng Việt'}
               </span>
               {sourceText && (
-                <button onClick={() => setSourceText('')} className="text-slate-400 hover:text-red-400 text-xs font-medium">Xóa</button>
+                <button
+                  type="button"
+                  onClick={() => setSourceText('')}
+                  className="text-xs font-bold text-slate-500 hover:text-red-600"
+                >
+                  Xóa
+                </button>
               )}
             </div>
             <textarea
-              className="flex-1 w-full p-5 bg-transparent border-none focus:ring-0 resize-none text-lg text-slate-800 leading-relaxed placeholder:text-slate-300"
+              className="min-h-0 flex-1 w-full resize-none border-none bg-white p-5 text-base font-semibold leading-relaxed text-slate-800 placeholder:text-slate-400 focus:ring-0"
               placeholder="Nhập văn bản cần dịch..."
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
@@ -92,47 +108,49 @@ const TranslationView: React.FC = () => {
             />
           </div>
 
-          {/* Controls */}
-          <div className="flex md:flex-col justify-center items-center gap-4">
+          <div className="flex flex-row items-center justify-center gap-4 md:w-auto md:flex-col md:justify-center">
             <button
+              type="button"
               onClick={swapLanguages}
-              className="p-3 rounded-full bg-white shadow-sm border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 transition-all active:scale-95 hover:shadow-md"
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-black bg-white text-black shadow-[2px_2px_0_0_#000] ${neoBtn}`}
               title="Chuyển đổi ngôn ngữ"
             >
-              <ArrowRightLeft size={20} strokeWidth={1.5} />
+              <ArrowRightLeft size={20} strokeWidth={2.25} />
             </button>
             <button
+              type="button"
               onClick={handleTranslate}
               disabled={isLoading || !sourceText}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-700 shadow-[0_4px_14px_0_rgba(79,70,229,0.3)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px] disabled:shadow-none"
+              className={`flex min-w-[140px] items-center justify-center gap-2 rounded-xl border border-black bg-[#48b9a7] px-6 py-3 text-sm font-black text-white shadow-[2px_2px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[2px_2px_0_0_#000] ${neoBtn}`}
             >
-              {isLoading ? <Loader2 className="animate-spin" size={20} strokeWidth={1.5} /> : 'Dịch ngay'}
+              {isLoading ? <Loader2 className="animate-spin" size={20} strokeWidth={2.25} /> : 'Dịch ngay'}
             </button>
           </div>
 
-          {/* Target Output */}
-          <div className="flex-1 flex flex-col bg-indigo-50/30 rounded-2xl border border-indigo-100/50 overflow-hidden relative group">
-            <div className="px-4 py-3 bg-indigo-50/50 border-b border-indigo-100/50 flex justify-between items-center">
-              <span className="font-semibold text-indigo-500 text-xs uppercase tracking-wider">
+          <div className="relative flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-xl border border-black bg-white">
+            <div className="flex items-center justify-between border-b border-black bg-[#EDE9FE] px-4 py-3">
+              <span className="text-xs font-black uppercase tracking-wide text-[#5B21B6]">
                 {direction === 'en_vi' ? 'Tiếng Việt' : 'Tiếng Anh (English)'}
               </span>
             </div>
-            <div className="flex-1 w-full p-5 text-lg text-slate-800 leading-relaxed overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto p-5 text-base font-semibold leading-relaxed text-slate-800">
               {translatedText ? (
                 <div className="whitespace-pre-wrap">{translatedText}</div>
               ) : (
-                <span className="text-indigo-300/60 italic flex items-center gap-2 mt-20 justify-center">
-                  <Sparkles size={16} strokeWidth={1.5} /> Bản dịch sẽ hiện ở đây...
+                <span className="mt-16 flex items-center justify-center gap-2 text-center text-sm font-semibold text-slate-400 md:mt-20">
+                  <Sparkles size={16} strokeWidth={2.25} className="shrink-0 text-[#48b9a7]" />
+                  Bản dịch sẽ hiện ở đây...
                 </span>
               )}
             </div>
             {translatedText && (
               <button
+                type="button"
                 onClick={() => navigator.clipboard.writeText(translatedText)}
-                className="absolute bottom-4 right-4 p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-slate-500 hover:text-indigo-600 transition-all hover:scale-105"
+                className={`absolute bottom-4 right-4 flex h-10 w-10 items-center justify-center rounded-xl border border-black bg-white text-black shadow-[2px_2px_0_0_#000] ${neoBtn}`}
                 title="Sao chép"
               >
-                <Copy size={18} strokeWidth={1.5} />
+                <Copy size={18} strokeWidth={2.25} />
               </button>
             )}
           </div>
@@ -140,60 +158,75 @@ const TranslationView: React.FC = () => {
         </div>
       </div>
 
-      {/* History Modal */}
       {showHistory && (
-        <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl animate-fade-in border border-slate-100">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-slate-800">Lịch sử dịch</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4 backdrop-blur-[2px]">
+          <div
+            className="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-[20px] border border-black bg-white shadow-[4px_4px_0_0_#000]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="translation-history-title"
+          >
+            <div className="flex items-center justify-between gap-3 border-b border-black px-6 py-4">
+              <h3 id="translation-history-title" className="text-lg font-black text-black">
+                Lịch sử dịch
+              </h3>
               <div className="flex items-center gap-2">
                 {history.length > 0 && (
                   <button
+                    type="button"
                     onClick={() => {
                       if (confirm('Bạn có chắc muốn xóa tất cả lịch sử?')) {
                         StorageService.clearAllHistory();
                         setHistory([]);
                       }
                     }}
-                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className={`flex items-center gap-1 rounded-lg border border-black bg-white px-3 py-1.5 text-xs font-bold text-red-600 shadow-[2px_2px_0_0_#000] ${neoBtn}`}
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={14} strokeWidth={2} />
                     Xóa tất cả
                   </button>
                 )}
-                <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-600 bg-slate-50 p-2 rounded-full transition-colors">
-                  <span className="sr-only">Close</span>
-                  &times;
+                <button
+                  type="button"
+                  onClick={() => setShowHistory(false)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border border-black bg-[#F5F5F0] text-lg font-black leading-none text-black shadow-[2px_2px_0_0_#000] ${neoBtn}`}
+                  aria-label="Đóng"
+                >
+                  ×
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 space-y-4 overflow-y-auto p-6">
               {history.length === 0 ? (
-                <p className="text-center text-slate-400 py-10">Chưa có lịch sử dịch.</p>
+                <p className="py-10 text-center text-sm font-semibold text-slate-500">Chưa có lịch sử dịch.</p>
               ) : (
                 history.map((record) => (
-                  <div key={record.id} className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md hover:border-indigo-100 transition-all group">
-                    <div className="flex justify-between text-xs text-slate-400 mb-3">
-                      <span className="bg-slate-100 px-2 py-1 rounded-md text-slate-500 font-medium">
+                  <div
+                    key={record.id}
+                    className="group rounded-xl border border-black bg-white p-5 shadow-[2px_2px_0_0_#000]"
+                  >
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-slate-600">
+                      <span className="rounded-full border border-black bg-[#F5F5F0] px-2.5 py-1 font-black text-black">
                         {record.fromLang === 'en' ? 'Anh → Việt' : 'Việt → Anh'}
                       </span>
                       <div className="flex items-center gap-3">
                         <span>{new Date(record.timestamp).toLocaleString('vi-VN')}</span>
                         <button
+                          type="button"
                           onClick={() => {
                             StorageService.deleteHistory(record.id);
                             setHistory(prev => prev.filter(h => h.id !== record.id));
                           }}
-                          className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all p-1 rounded hover:bg-red-50"
+                          className="rounded-lg p-1 text-slate-400 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
                           title="Xóa mục này"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={14} strokeWidth={2} />
                         </button>
                       </div>
                     </div>
-                    <p className="font-medium text-slate-800 mb-2">{record.sourceText}</p>
-                    <div className="h-px bg-slate-50 my-2"></div>
-                    <p className="text-indigo-700">{record.translatedText}</p>
+                    <p className="mb-2 font-bold text-slate-900">{record.sourceText}</p>
+                    <div className="my-2 h-px bg-black/10" />
+                    <p className="font-semibold text-[#047857]">{record.translatedText}</p>
                   </div>
                 ))
               )}
