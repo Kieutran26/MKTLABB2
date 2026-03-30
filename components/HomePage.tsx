@@ -6,9 +6,9 @@ import {
     Brain, Lightbulb, Image as ImageIcon, TrendingUp,
     Target, Users, Map, Heart, Zap, PenTool, CalendarDays,
     Mail, MonitorPlay, PieChart, Calculator, Activity,
-    ArrowRight, Clock, FileText, CheckCircle2, Circle,
+    ArrowRight, FileText, CheckCircle2, Circle,
     Plus, Trash2, Check, BarChart3, Layers, Sparkles,
-    BookOpen, ChevronRight, Cloud
+    BookOpen
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -95,15 +95,14 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
         return `conic-gradient(${segments.join(', ')})`;
     };
 
-    // Feature guides for upgraded features
+    // Feature guides — Neubrutalism cards (icon #48B9A7, black badge, hard shadow)
     const featureGuides = [
         {
             id: 'SCAMPER_TOOL',
             name: 'SCAMPER V2',
             icon: Lightbulb,
-            color: 'text-amber-600',
-            bgColor: 'bg-amber-50',
-            badge: 'Design Thinking',
+            hashBadge: '#IDEATE',
+            stackTag: '#MKTStack',
             tips: [
                 'Nhập Pain Point cụ thể để AI tập trung giải quyết',
                 'Ý tưởng theo format Idea Card: Tên + Cách làm + Ví dụ',
@@ -114,9 +113,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'MINDMAP_GENERATOR',
             name: 'Mindmap AI V2',
             icon: Brain,
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
-            badge: 'MECE Logic',
+            hashBadge: '#AI',
+            stackTag: '#MKTStack',
             tips: [
                 'Nhập Mục tiêu (VD: Kinh doanh) để AI phân nhánh phù hợp',
                 'Tuân thủ MECE: Không trùng lặp, Không bỏ sót',
@@ -127,9 +125,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'AUTO_BRIEF',
             name: 'Auto Brief V2',
             icon: FileText,
-            color: 'text-violet-600',
-            bgColor: 'bg-violet-50',
-            badge: 'Budget-Conscious',
+            hashBadge: '#BRIEF',
+            stackTag: '#MKTStack',
             tips: [
                 'AI tự động điều chỉnh mục tiêu theo ngân sách',
                 'Insight theo format: Desire - Barrier - Opportunity',
@@ -140,9 +137,8 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             id: 'INSIGHT_FINDER',
             name: 'Insight Finder V2',
             icon: Sparkles,
-            color: 'text-cyan-600',
-            bgColor: 'bg-cyan-50',
-            badge: 'Consumer Psychology',
+            hashBadge: '#INSIGHT',
+            stackTag: '#MKTStack',
             tips: [
                 'Output theo công thức: Desire + Barrier = Opportunity',
                 'Thêm trường Target Audience để insight chính xác hơn',
@@ -457,48 +453,52 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                 </div>
             </div>
 
-            {/* Feature Guides - V2 Updated */}
-            <div className="p-8 border-b border-soft-border bg-gradient-to-br from-indigo-50/50 to-white">
+            {/* Feature Guides V2 — Neubrutalism: mảnh viền + hover nhấn xuống (shadow → 0, translate theo offset) */}
+            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
                 <div className="max-w-6xl mx-auto">
                     <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-slate-800 mb-2 flex items-center gap-2">
-                            <BookOpen className="text-indigo-500" /> Hướng dẫn tính năng V2
+                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-2">
+                            <BookOpen className="text-[#48B9A7]" size={26} strokeWidth={2.5} /> Hướng dẫn tính năng V2
                         </h2>
-                        <p className="text-slate-500">Các tính năng đã được nâng cấp với AI thông minh hơn.</p>
+                        <p className="text-slate-600 font-semibold text-sm">Nâng cấp AI — click thẻ để mở công cụ.</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6">
                         {featureGuides.map(feature => (
-                            <div
+                            <button
+                                type="button"
                                 key={feature.id}
-                                className="bg-white rounded-2xl border border-soft-border p-5 hover:shadow-soft transition-all duration-300 cursor-pointer group"
+                                className="group text-left bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] cursor-pointer transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                                 onClick={() => setView(feature.id as ViewState)}
                             >
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className={`p-2.5 rounded-xl ${feature.bgColor}`}>
-                                        <feature.icon size={20} className={feature.color} />
+                                <div className="flex items-start justify-between gap-2 mb-5">
+                                    <div
+                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-[#48B9A7] text-white shadow-[2px_2px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[2px] group-hover:translate-y-[2px] group-hover:shadow-none"
+                                        aria-hidden
+                                    >
+                                        <feature.icon size={28} strokeWidth={2.25} />
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-slate-800 text-sm">{feature.name}</h4>
-                                        <span className={`text-xs ${feature.color} ${feature.bgColor} px-2 py-0.5 rounded-full`}>
-                                            {feature.badge}
-                                        </span>
-                                    </div>
+                                    <span className="rounded-full border border-black bg-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                                        {feature.hashBadge}
+                                    </span>
                                 </div>
 
-                                <ul className="space-y-2">
+                                <h4 className="font-black text-black text-base leading-tight">{feature.name}</h4>
+                                <p className="mt-1 text-sm font-semibold text-slate-500">{feature.stackTag}</p>
+
+                                <ul className="mt-4 space-y-2.5 border-t border-black pt-4">
                                     {feature.tips.map((tip, idx) => (
-                                        <li key={idx} className="flex items-start gap-2 text-xs text-slate-500">
-                                            <ChevronRight size={12} className={`mt-0.5 flex-shrink-0 ${feature.color}`} />
+                                        <li key={idx} className="flex items-start gap-2 text-xs font-medium leading-snug text-slate-700">
+                                            <span className="mt-0.5 shrink-0 font-black text-[#48B9A7]">›</span>
                                             <span>{tip}</span>
                                         </li>
                                     ))}
                                 </ul>
 
-                                <div className="mt-4 flex items-center gap-1 text-xs font-medium text-indigo-600 group-hover:translate-x-1 transition-all">
-                                    Dùng ngay <ArrowRight size={12} />
+                                <div className="mt-6 flex items-center gap-1 text-sm font-black text-black">
+                                    Khám phá <ArrowRight size={16} strokeWidth={2.5} className="shrink-0" />
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </div>
