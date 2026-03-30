@@ -1,0 +1,135 @@
+export const analyzeEmotionalJourney = async (
+    input: AudienceEmotionMapInput,
+    onProgress?: (message: string) => void
+): Promise<AudienceEmotionMapResult | null> => {
+    try {
+        onProgress?.('🧠 Đang phân tích tâm lý khách hàng...');
+
+        const systemPrompt = `### ROLE & OBJECTIVE
+Bạn là một Chuyên gia Tâm lý học Hành vi (Behavioral Psychologist) và Nhà nghiên cứu Trải nghiệm Khách hàng (CX Researcher). Nhiệm vụ của bạn là xây dựng "Bản đồ Cảm xúc Khách hàng" (Audience Emotion Map) dựa trên mô hình Bánh xe cảm xúc của Plutchik, mô tả chính xác diễn biến tâm lý qua 4 giai đoạn mua hàng.
+
+### INPUT DATA
+- Industry: ${input.industry}
+${input.productCategory ? `- Product Category: ${input.productCategory}` : ''}
+${input.targetAudience ? `- Target Audience: ${input.targetAudience}` : ''}
+- Key Pain Point/Need: ${input.painPoint}
+${input.positioning ? `- Brand Positioning: ${input.positioning}` : ''}
+
+### EMOTIONAL LOGIC (CHAIN OF THOUGHT - PLUTCHIK'S WHEEL)
+Hãy phân tích sự biến thiên cảm xúc dựa trên logic sau:
+
+**Giai đoạn 1 - Awareness (Nhận biết):**
+- Cảm xúc bắt nguồn từ "${input.painPoint}"
+- Nếu là vấn đề đau đớn (sức khỏe, tài chính, an toàn) → Lo lắng/Sợ hãi (Anxiety/Fear)
+- Nếu là nhu cầu giải trí/cải thiện → Tò mò/Hào hứng (Curiosity/Anticipation)
+- Intensity Score: Tùy mức độ nghiêm trọng của pain point (1-10)
+
+**Giai đoạn 2 - Journey (Tìm kiếm/Cân nhắc):**
+- Khi họ tìm giải pháp, cảm xúc thường hỗn loạn
+- Quá tải thông tin → Bối rối (Confusion)
+- So sánh nhiều lựa chọn → Nghi ngờ (Skepticism)
+- Intensity Score: Thường cao hơn Awareness vì áp lực quyết định
+
+**Giai đoạn 3 - Buy (Mua hàng):**
+- Thời điểm xuống tiền - cảm xúc phức tạp nhất
+${input.positioning === 'premium' ? '- Giá trị cao (Premium) → Căng thẳng (Stress) cao nhưng đi kèm Hy vọng (Hope)' : ''}
+${input.positioning === 'budget' ? '- Giá rẻ → An tâm (Relief), Hài lòng (Satisfaction)' : ''}
+- Nếu không có positioning info, suy luận dựa trên industry
+- Intensity Score: Đỉnh điểm của hành trình (thường 7-9)
+
+**Giai đoạn 4 - Loyal (Sau mua/Trung thành):**
+- Kết quả cuối cùng - PHẢI là cảm xúc tích cực
+- Hài lòng (Joy), Tự hào (Pride), Tin tưởng (Trust)
+- Intensity Score: Giảm xuống nhưng vẫn tích cực (6-8)
+
+### PLUTCHIK'S WHEEL EMOTIONS (Chỉ dùng các cảm xúc này)
+**Primary Emotions:**
+- Joy (Vui vẻ), Sadness (Buồn bã), Anger (Tức giận), Fear (Sợ hãi)
+- Trust (Tin tưởng), Disgust (Ghê tởm), Surprise (Ngạc nhiên), Anticipation (Mong đợi)
+
+**Secondary Emotions:**
+- Anxiety (Lo âu), Hope (Hy vọng), Relief (Nhẹ nhõm), Pride (Tự hào)
+- Confusion (Bối rối), Skepticism (Nghi ngờ), Excitement (Phấn khích)
+
+### OUTPUT FORMAT (STRICT JSON)
+{
+  "industry": "${input.industry}",
+  "emotion_journey": [
+    {
+      "stage": "Awareness",
+      "dominant_emotion": "Emotion Name (Tiếng Việt) - VD: Anxiety (Lo âu)",
+      "intensity_score": 1-10,
+      "trigger": "Điều gì kích hoạt cảm xúc này (liên quan đến ${input.painPoint})",
+      "internal_monologue": "Độc thoại nội tâm của khách hàng (VD: 'Tôi lo lắng về...')",
+      "recommended_tone": "Giọng điệu thương hiệu nên dùng (VD: Thấu hiểu, An ủi)",
+      "content_hook": "Câu hook nội dung cụ thể",
+      "emoji": "🤯",
+      "keywords_to_use": ["Từ khóa nên dùng"],
+      "keywords_to_avoid": ["Từ khóa nên tránh"]
+    },
+    {
+      "stage": "Journey",
+      "dominant_emotion": "...",
+      "intensity_score": ...,
+      "trigger": "...",
+      "internal_monologue": "...",
+      "recommended_tone": "...",
+      "content_hook": "...",
+      "emoji": "🤔",
+      "keywords_to_use": [],
+      "keywords_to_avoid": []
+    },
+    {
+      "stage": "Buy",
+      "dominant_emotion": "...",
+      "intensity_score": ...,
+      "emoji": "😬"
+    },
+    {
+      "stage": "Loyal",
+      "dominant_emotion": "...",
+      "intensity_score": ...,
+      "emoji": "😎"
+    }
+  ]
+}
+
+### QUALITY CONTROL
+- Tuyệt đối tuân thủ Plutchik's Wheel emotions
+- Nếu painPoint không rõ, suy luận dựa trên nỗi đau phổ biến của ${input.industry}
+- Intensity Score phải khớp với mức độ nghiêm trọng (Sức khỏe/Tài chính > Giải trí)
+- Biểu đồ phải có sự lên xuống logic, không phải đường thẳng
+- Giai đoạn Loyal PHẢI là cảm xúc tích cực
+- Output PHẢI là JSON valid, không có markdown`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: `Analyze emotional journey with Plutchik's Wheel framework`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.8
+            },
+        });
+
+        onProgress?.('✨ Đang hoàn thiện bản đồ cảm xúc...');
+
+        const text = response.text?.trim();
+        if (!text) return null;
+
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        const result = JSON.parse(jsonStr) as AudienceEmotionMapResult;
+
+        // Ensure exactly 4 stages
+        if (!result.emotion_journey || result.emotion_journey.length !== 4) {
+            console.error('Invalid emotion journey structure');
+            return null;
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Emotion Map Error:', error);
+        return null;
+    }
+};

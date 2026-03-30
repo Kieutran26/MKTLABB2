@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OptiMKT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            soft: {
+              bg: '#F8FAFC',       // Slate 50 - Nền chính mát mẻ
+              surface: '#FFFFFF',  // Trắng cho thẻ
+              primary: '#6366F1',  // Indigo 500 - Màu chủ đạo mềm
+              secondary: '#EC4899',// Pink 500
+              text: '#334155',     // Slate 700 - Chữ chính dịu mắt
+              muted: '#64748B',    // Slate 500 - Chữ phụ
+              border: '#F1F5F9',   // Slate 100 - Viền siêu nhạt
+              hover: '#F1F5F9',    // Hover state
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          boxShadow: {
+            'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)', // Bóng đổ siêu mềm
+            'glow': '0 0 15px rgba(99, 102, 241, 0.3)',    // Hiệu ứng phát sáng nhẹ
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" crossorigin="anonymous">
+
+  <!-- React Flow Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/reactflow@11.10.1/dist/style.min.css" rel="stylesheet"
+    crossorigin="anonymous">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      background-color: #F8FAFC;
+      color: #334155;
+    }
+
+    /* Custom scrollbar for a cleaner look */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      /* Slate 300 */
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+      /* Slate 400 */
+    }
+
+    /* Animation Utilities */
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* FullCalendar Customization */
+    .fc {
+      --fc-border-color: #f1f5f9;
+      --fc-button-bg-color: #ffffff;
+      --fc-button-border-color: #e2e8f0;
+      --fc-button-text-color: #64748b;
+      --fc-button-active-bg-color: #f8fafc;
+      --fc-button-active-border-color: #cbd5e1;
+      --fc-today-bg-color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .fc-daygrid-day-number {
+      color: #64748b;
+      font-weight: 600;
+      text-decoration: none !important;
+    }
+
+    .fc-col-header-cell-cushion {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #94a3b8;
+      padding: 10px 0;
+      text-decoration: none !important;
+    }
+
+    .fc-button {
+      font-weight: 600 !important;
+      text-transform: capitalize;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.5rem !important;
+      font-weight: 800;
+      color: #1e293b;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

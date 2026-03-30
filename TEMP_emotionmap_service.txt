@@ -1,0 +1,119 @@
+
+// Audience Emotion Map - Consumer Psychology Analysis
+export const analyzeEmotionalJourney = async (
+    input: AudienceEmotionMapInput,
+    onProgress?: (message: string) => void
+): Promise<AudienceEmotionMapResult | null> => {
+    try {
+        onProgress?.('Đang phân tích hành trình cảm xúc...');
+
+        const systemPrompt = `Bạn là Senior Consumer Psychologist chuyên về Plutchik's Wheel of Emotions.
+
+NHIỆM VỤ: Phân tích hành trình cảm xúc của khách hàng qua 4 giai đoạn mua hàng.
+
+NGÀNH HÀNG: ${input.industry}
+${input.productCategory ? `DANH MỤC SẢN PHẨM: ${input.productCategory}` : ''}
+${input.targetAudience ? `ĐỐI TƯỢNG KHÁCH HÀNG: ${input.targetAudience}` : ''}
+
+FRAMEWORK: Plutchik's Wheel of Emotions
+- 8 cảm xúc cơ bản: Joy, Trust, Fear, Surprise, Sadness, Disgust, Anger, Anticipation
+- Mỗi cảm xúc có 3 mức độ: Mild → Moderate → Intense
+
+4 GIAI ĐOẠN BẮT BUỘC (PHẢI TRẢ VỀ ĐỦ 4):
+
+1. AWARENESS (Nhận biết)
+   - Tâm lý: Insecurity & Curiosity
+   - Cảm xúc phổ biến: Anxiety (Lo lắng), Shame (Xấu hổ), Curiosity (Tò mò), Envy (Ghen tị)
+   - Brand Role: Empathizer (Người đồng cảm)
+   - Intensity Score: 6-8/10
+   - Emoji: 🤔
+
+2. JOURNEY (Cân nhắc/Tìm hiểu)
+   - Tâm lý: Overwhelm & Skepticism
+   - Cảm xúc phổ biến: Confusion (Bối rối), Doubt (Nghi ngờ), Overwhelmed (Choáng ngợp)
+   - Brand Role: Guide (Chuyên gia dẫn dắt)
+   - Intensity Score: 7-9/10
+   - Emoji: 🤯
+
+3. BUY (Mua hàng)
+   - Tâm lý: Fear of Loss vs. Hope
+   - Cảm xúc phổ biến: Tension (Căng thẳng), Anxiety (Lo lắng) → Relief (Nhẹ nhõm), Excitement (Hào hứng)
+   - Brand Role: Guarantor (Người bảo lãnh)
+   - Intensity Score: 7-8/10
+   - Emoji: 😬
+
+4. LOYAL (Trung thành)
+   - Tâm lý: Pride & Belonging
+   - Cảm xúc phổ biến: Pride (Tự hào), Belonging (Thuộc về), Joy (Vui vẻ)
+   - Brand Role: Partner (Người tri kỷ)
+   - Intensity Score: 9-10/10
+   - Emoji: 😎
+
+YÊU CẦU CHO MỖI GIAI ĐOẠN:
+
+1. **trigger**: Tình huống cụ thể kích hoạt cảm xúc (VD: "Nhìn thấy bạn bè đăng ảnh du lịch trên Instagram")
+
+2. **internal_monologue**: Độc thoại nội tâm của khách hàng (VD: "Tại sao mình chưa đi đâu cả năm nay?")
+
+3. **recommended_tone**: Giọng văn phù hợp (VD: "Inspirational", "Educational", "Reassuring", "Celebrating")
+
+4. **content_hook**: Ví dụ content cụ thể cho giai đoạn này (VD: "5 điểm đến chill chỉ 2 triệu cho người lần đầu đi du lịch")
+
+5. **keywords_to_use**: 3-5 từ khóa/cụm từ NÊN DÙNG trong content (VD: ["Dễ dàng", "An tâm", "Phù hợp với bạn"])
+
+6. **keywords_to_avoid**: 3-5 từ khóa/cụm từ NÊN TRÁNH (VD: ["Phức tạp", "Rủi ro", "Không chắc chắn"])
+
+LƯU Ý QUAN TRỌNG:
+- Phân tích phải dựa trên tâm lý thực tế của ngành hàng cụ thể
+- Intensity score phải hợp lý với từng giai đoạn
+- Cảm xúc phải phù hợp với Plutchik's framework
+- Keywords phải thực tế và có thể áp dụng ngay
+
+TRẢ VỀ JSON (chỉ JSON, không markdown):
+{
+  "industry": "string",
+  "emotion_journey": [
+    {
+      "stage": "Awareness" | "Journey" | "Buy" | "Loyal",
+      "dominant_emotion": "string",
+      "intensity_score": number (1-10),
+      "trigger": "string",
+      "internal_monologue": "string",
+      "recommended_tone": "string",
+      "content_hook": "string",
+      "emoji": "string",
+      "keywords_to_use": ["string"],
+      "keywords_to_avoid": ["string"]
+    }
+  ]
+}`;
+
+        onProgress?.('Đang áp dụng Plutchik\'s Wheel of Emotions...');
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
+            config: {
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.8,
+                responseMimeType: 'application/json'
+            }
+        });
+
+        const text = response.text?.trim();
+        if (!text) return null;
+
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        const result = JSON.parse(jsonStr) as AudienceEmotionMapResult;
+
+        // Ensure we have exactly 4 stages
+        if (result.emotion_journey.length !== 4) {
+            console.warn('Expected 4 emotion stages, got:', result.emotion_journey.length);
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Audience Emotion Map Error:', error);
+        return null;
+    }
+};

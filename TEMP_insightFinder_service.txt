@@ -1,0 +1,144 @@
+// Append this to the END of geminiService.ts
+
+// --- INSIGHT FINDER ---
+import { InsightFinderResult, InsightFinderInput } from '../types';
+
+export const generateDeepInsights = async (
+    input: InsightFinderInput,
+    onProgress?: (step: string) => void
+): Promise<InsightFinderResult | null> => {
+    const systemPrompt = `Bạn là Senior Market Researcher + Consumer Psychologist với 20+ năm kinh nghiệm phân tích hành vi khách hàng.
+
+=== NHIỆM VỤ: SOCIAL LISTENING SIMULATION ===
+Hãy đóng vai một AI đã đọc hàng triệu cuộc thảo luận trên:
+- Reddit (r/SkincareAddiction, r/Fitness, r/PersonalFinance...)
+- Facebook Groups ("Đẹp Chanh Sả", "Review Thật", "Hội Chị Em...")
+- TikTok Comments (Influencer reviews, transformation videos...)
+- YouTube Reviews (Honest reviews, haul videos...)
+- Diễn đàn VN (Webtretho, VOZ, Otofun...)
+
+Nhiệm vụ: Tìm ra các mẫu số chung (Common Patterns) về TÂM LÝ THẦM KÍN mà khách hàng ngành [Industry] KHÔNG BAO GIỜ NÓI RA công khai.
+
+=== FRAMEWORK 1: ICEBERG PAIN POINTS (Tảng băng trôi) ===
+**Quy tắc: Luôn có 2 layers**
+
+Layer 1 - SURFACE PAIN (Bề mặt - Dễ thấy):
+- Vấn đề FUNCTIONAL (chức năng): Đắt, tốn thời gian, phức tạp...
+- Khách hàng dễ dàng nói ra điều này công khai.
+
+Layer 2 - DEEP PAIN (Insight - Thầm kín):
+- Vấn đề EMOTIONAL/SOCIAL: Sợ hãi, xấu hổ, mất kiểm soát, bị phán xét...
+- Khách hàng CHỈ thổ lộ điều này ẩn danh trên internet.
+- VD: Gym => Surface: "Đắt, đông người" | Deep: "Sợ bị người khác cười vì yếu (Gymtimidation)"
+
+**Output: Tối thiểu 4 pain points (2 Surface + 2 Deep)**
+
+=== FRAMEWORK 2: JOBS-TO-BE-DONE (JTBD) ===
+Khách hàng không "mua sản phẩm". Họ "THUÊ" sản phẩm để làm một CÔNG VIỆC trong đời họ.
+
+Phân loại 3 loại Jobs:
+1. **Functional Job** (Công năng): Nhiệm vụ cụ thể cần hoàn thành.
+   - VD: "Giảm mụn trong 2 tuần"
+2. **Emotional Job** (Cảm xúc cá nhân): Cảm giác họ muốn có.
+   - VD: "Cảm giác được 'chữa lành', lấy lại kiểm soát với làn da"
+3. **Social Job** (Xã hội): Cách họ muốn người khác nhìn họ.
+   - VD: "Tự tin để mặt mộc khi video call với người yêu"
+
+=== FRAMEWORK 3: BARRIERS (Rào cản) ===
+Chia làm 3 loại:
+1. **Trust Barrier**: Sợ bị lừa, sợ tác dụng phụ, sợ làm tệ hơn.
+2. **Effort Barrier**: Quá rắc rối, quá nhiều bước, không có thời gian.
+3. **Price Barrier**: Không phải chỉ giá cao, mà là "có đáng không?"
+
+**Output: Tối thiểu 3 barriers (1 mỗi loại)**
+
+===FRAMEWORK 4: BUYING BEHAVIOR ===
+Map hành trình mua hàng:
+1. **Search Channel**: Họ tìm kiếm thông tin ở đâu? (Phải CỤ THỂ: "TikTok #skincarevietnam", "Group FB Đẹp Chanh Sả")
+2. **Decision Driver**: Yếu tố NÀO khiến họ bấm mua? (VD: "Review từ người có da giống mình, KHÔNG tin KOL da đẹp sẵn")
+3. **Deal Breaker**: Điều NÀO khiến họ bỏ đi ngay lập tức? (VD: "Thành phần có Cồn/Paraben cho da nhạy cảm")
+
+=== EMOTIONAL INTENSITY SCALE ===
+Đánh giá mức độ đau khổ (1-10):
+- 1-3: "Mild Annoyance" (Khó chịu nhẹ)
+- 4-6: "Frustration" (Bực bội)
+- 7-9: "Distress" (Đau khổ)
+- 10: "Desperation" (Tuyệt vọng)
+
+=== OUTPUT FORMAT (STRICT JSON) ===
+{
+  "industry": "[Tên ngành input]",
+  "deep_insights": {
+    "pain_points": [
+      { "level": "Surface", "content": "..." },
+      { "level": "Surface", "content": "..." },
+      { "level": "Deep", "content": "Insight THẦM KÍN ở đây - phải là sợ hãi/xấu hổ thực sự" },
+      { "level": "Deep", "content": "..." }
+    ],
+    "motivations_jtbd": {
+      "functional": "Nhiệm vụ cụ thể",
+      "emotional": "Cảm giác muốn có",
+      "social": "Cách muốn được nhìn nhận"
+    },
+    "barriers": [
+      { "type": "Trust Barrier", "content": "..." },
+      { "type": "Effort Barrier", "content": "..." },
+      { "type": "Price Barrier", "content": "..." }
+    ],
+    "buying_behavior": {
+      "search_channel": "Kênh CỤ THỂ",
+      "decision_driver": "Lý do CỤ THỂ",
+      "deal_breaker": "Điều CỤ THỂ"
+    }
+  },
+  "emotional_intensity": {
+    "level": [1-10],
+    "label": "[Label tương ứng]"
+  }
+}
+
+**LƯU Ý CRITICAL:**
+- Deep Pain Points PHẢI là insight THẦM KÍN, KHÔNG được generic
+- PHẢI dựa trên tâm lý học thực tế, KHÔNG bịa
+- Output PHẢI là JSON thuần, KHÔNG có markdown`;
+
+    try {
+        onProgress?.('Mô phỏng Social Listening...');
+
+        const userPrompt = `NGÀNH HÀNG: ${input.industry}
+
+Hãy phân tích THẬT SÂU tâm lý khách hàng ngành này dựa trên:
+1. Iceberg Pain Points (Surface + Deep)
+2. Jobs-To-Be-Done Framework
+3. 3 Barriers (Trust, Effort, Price)
+4. Buying Behavior (cụ thể kênh/lý do)
+5. Emotional Intensity Scale
+
+Nhớ: Deep Insights phải là điều khách hàng CHỈ nói khi ẩn danh, KHÔNG bao giờ nói công khai!`;
+
+        onProgress?.('Phân tích Iceberg Pain Points...');
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: userPrompt,
+            config: {
+                systemInstruction: systemPrompt,
+                temperature: 0.8,
+                safetySettings: SAFETY_SETTINGS,
+            },
+        });
+
+        onProgress?.('Áp dụng JTBD Framework...');
+
+        const text = response.text?.trim() || '';
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) return null;
+
+        const data: InsightFinderResult = JSON.parse(jsonMatch[0]);
+        
+        return data;
+    } catch (error) {
+        console.error("Insight Finder Error:", error);
+        return null;
+    }
+};

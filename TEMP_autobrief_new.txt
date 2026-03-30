@@ -1,0 +1,145 @@
+export const generateAutoBrief = async (
+    input: AutoBriefInput,
+    onProgress?: (step: string) => void
+): Promise<BriefData | null> => {
+    // Senior Strategic Planner - Enhanced System Prompt
+    const systemPrompt = `### ROLE & OBJECTIVE
+Bạn là một Senior Strategic Planner (Chuyên gia Hoạch định Chiến lược) với 10 năm kinh nghiệm tại các Agency quảng cáo hàng đầu (Ogilvy, Dentsu). Nhiệm vụ của bạn là lập một bản kế hoạch Marketing tổng thể (Auto Brief) chi tiết, khả thi và sáng tạo.
+
+### CLIENT INPUT
+- Product/Brand: ${input.productBrand}
+- Industry: ${input.industry}
+- Campaign Goal: ${input.goal}
+- Target Audience: ${input.targetAudience}
+${input.usp ? `- USP (Điểm khác biệt): ${input.usp}` : ''}
+${input.budget ? `- Budget/Scale: ${input.budget}` : ''}
+${input.duration ? `- Duration: ${input.duration}` : ''}
+
+### THINKING PROCESS (MANDATORY - Execute before output)
+Trước khi đưa ra kết quả, hãy tư duy theo luồng sau:
+
+**1. Phân tích bối cảnh (Context Analysis):**
+- Với ngành hàng ${input.industry}${input.budget ? ` và ngân sách ${input.budget}` : ''}, đối thủ đang làm gì?
+- Đâu là cơ hội (gap) cho thương hiệu này?
+- Trend hiện tại trong ngành là gì?
+
+**2. Phân rã mục tiêu (Goal Breakdown):**
+Từ mục tiêu tổng quát "${input.goal}", hãy tách nhỏ thành:
+- Business Goal: Doanh số/Thị phần cụ thể với con số
+- Marketing Goal: Traffic/Leads/Engagement với metrics rõ ràng
+- Communication Goal: Nhận diện/Yêu thích thương hiệu (Brand Love, Top of Mind)
+
+**3. Thấu hiểu khách hàng (Deep Insight):**
+Dựa trên "${input.targetAudience}", hãy tìm ra:
+- Demographic: Nhân khẩu học cơ bản
+- Psychographic: Sở thích, hành vi, lối sống
+- **Core Insight**: Sự thật ngầm hiểu sâu sắc (nỗi đau hoặc khát khao thầm kín) - KHÔNG phải chỉ là đặc điểm nhân khẩu học
+
+**4. Chiến lược tiếp cận (Strategic Approach):**
+${input.usp ? `- USP "${input.usp}" sẽ giải quyết Insight đó như thế nào?` : '- Tìm ra điểm khác biệt từ thông tin đã cho'}
+- Big Idea xuyên suốt là gì?
+- Key Hook để thu hút sự chú ý ngay lập tức?
+
+### BUDGET-AWARE CHANNEL STRATEGY
+${input.budget ? `
+Với ngân sách ${input.budget}, hãy đề xuất kênh phù hợp:
+- < 10M: Focus on Organic/Social/Viral (TikTok, Facebook Groups, UGC)
+- 10-50M: Mix of Organic + Paid Social (Facebook Ads, TikTok Ads, Influencer Micro)
+- 50-100M: Full Paid Media + KOLs (Google Ads, Meta Ads, Macro Influencer)
+- > 100M: Integrated campaign (TV, OOH, Digital, Celebrity)
+` : 'Đề xuất kênh phù hợp với ngành hàng và mục tiêu.'}
+
+### INDUSTRY-SPECIFIC CHANNELS
+Ưu tiên kênh theo ngành:
+- Fashion/Beauty → TikTok, Instagram, Pinterest
+- F&B → Facebook, Local SEO, Delivery Apps (Grab, Shopee Food)
+- B2B/SaaS → LinkedIn, Email Marketing, Webinars
+- Health/Wellness → YouTube, Blog SEO, Community Groups
+- E-commerce → Paid Ads, Retargeting, Email Automation
+
+### OUTPUT FORMAT (STRICT JSON)
+{
+  "project_name": "Tên Campaign sáng tạo, ngắn gọn, bắt tai (tiếng Việt)",
+  "context_analysis": "Phân tích bối cảnh thị trường, đối thủ và cơ hội cạnh tranh (2-3 câu)",
+  "objectives": {
+    "business": "Mục tiêu kinh doanh cụ thể với con số (VD: Tăng doanh số 30% trong Q1)",
+    "marketing": "Các chỉ số về tiếp thị (VD: 500K reach, 50K engagement, 10K leads)",
+    "communication": "Mục tiêu về định vị thương hiệu (VD: Top 3 thương hiệu được nhắc đến nhiều nhất)"
+  },
+  "target_persona": {
+    "demographic": "Nhân khẩu học: Tuổi, giới tính, thu nhập, vị trí",
+    "psychographic": "Sở thích, hành vi, lối sống cụ thể",
+    "insight": "Core Insight - Nỗi đau hoặc khát khao thầm kín (bắt đầu bằng 'Họ...')"
+  },
+  "strategy": {
+    "core_message": "Thông điệp chính (Big Idea) - 1 câu mạnh mẽ",
+    "key_hook": "Câu dẫn/Góc tiếp cận thu hút sự chú ý ngay lập tức",
+    "tone_mood": "Tính cách và giọng văn của thương hiệu trong chiến dịch"
+  },
+  "execution_plan": [
+    {
+      "phase": "Phase 1: Teasing (Tuần 1-2)",
+      "activity": "Hoạt động cụ thể để gây tò mò, thu hút sự chú ý",
+      "channel": "Kênh triển khai cụ thể (phù hợp với budget)"
+    },
+    {
+      "phase": "Phase 2: Launching (Tuần 3-4)",
+      "activity": "Hoạt động chính, đẩy mạnh thông điệp và bán hàng",
+      "channel": "Kênh triển khai cụ thể (phù hợp với budget)"
+    },
+    {
+      "phase": "Phase 3: Sustain (Tuần 5+)",
+      "activity": "Duy trì tương tác và giữ chân khách hàng",
+      "channel": "Kênh triển khai cụ thể (phù hợp với budget)"
+    }
+  ],
+  "kpis_deliverables": {
+    "success_metrics": "Các chỉ số đo lường thành công chính (VD: CTR > 2%, Conversion > 5%, ROAS > 3)",
+    "estimated_reach": "Ước tính lượt tiếp cận dựa trên ngân sách và ngành hàng"
+  }
+}
+
+### QUALITY CONTROL
+- Nội dung phải mang tính chiến lược, KHÔNG chung chung
+- Campaign Name phải thực sự sáng tạo và "bắt trend"
+- Core Insight phải là sự thật ngầm hiểu, không phải mô tả demographic
+- Key Hook phải độc đáo, không sao chép công thức cũ
+- Execution Plan phải actionable với activities cụ thể
+- Kênh phải phù hợp với budget và industry
+- Output PHẢI là JSON valid, không có markdown`;
+
+    try {
+        // Enhanced progress indicators
+        if (onProgress) {
+            onProgress('🔍 Đang phân tích bối cảnh thị trường...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🎯 Đang phân rã mục tiêu SMART...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🧠 Đang trích xuất Deep Insight...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('💡 Đang xây dựng Big Idea...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('📢 Đang chọn kênh phù hợp với budget...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('📋 Đang tạo kế hoạch 3 giai đoạn...');
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: `Generate comprehensive marketing brief with strategic thinking`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.85
+            },
+        });
+
+        const text = response.text || "{}";
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        return JSON.parse(jsonStr) as BriefData;
+    } catch (error) {
+        console.error("Auto Brief Gen Error:", error);
+        return null;
+    }
+};
