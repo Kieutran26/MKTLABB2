@@ -240,7 +240,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
                         {/* To-Do List */}
-                        <div className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
+                        <div className="group bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
                             <div className="flex items-center justify-between gap-2 mb-5">
                                 <h3 className="font-black text-black flex items-center gap-2 text-base">
                                     <span
@@ -361,7 +361,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                         </div>
 
                         {/* Thống kê tổng quan */}
-                        <div className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
+                        <div className="group bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
                             <div className="flex items-center justify-between mb-5">
                                 <h3 className="font-black text-black flex items-center gap-2 text-base">
                                     <span
@@ -489,7 +489,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                             <button
                                 type="button"
                                 key={feature.id}
-                                className="group text-left bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] cursor-pointer transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                className="group text-left bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] cursor-pointer transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
                                 onClick={() => setView(feature.id as ViewState)}
                             >
                                 <div className="flex items-start justify-between gap-2 mb-5">
@@ -526,61 +526,77 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                 </div>
             </div>
 
-            {/* Tools Overview — Neubrutalism (khớp Feature V2: kem, shadow cứng, hover nhấn xuống) */}
-            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
-                <div className="max-w-6xl mx-auto">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-2">
-                            <Layers className="text-black" size={26} strokeWidth={1.5} /> Khám phá công cụ
+            {/* Khám phá công cụ — Editorial Minimalism (chỉ section này) */}
+            <div className="border-b border-stone-200/70 bg-[#FAF9F7] px-5 py-14 md:px-10 md:py-20">
+                <div className="mx-auto max-w-6xl">
+                    <header className="mb-12 md:mb-16 max-w-2xl">
+                        <div className="mb-4 flex items-center gap-3 text-stone-400">
+                            <Layers size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                Marketing stack
+                            </span>
+                        </div>
+                        <h2 className="font-serif text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                            Khám phá công cụ
                         </h2>
-                        <p className="text-slate-600 font-semibold text-sm">
+                        <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
                             Truy cập nhanh các công cụ Marketing AI theo luồng công việc.
                         </p>
-                    </div>
+                    </header>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                    <div className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-14">
                         {categories.map((category) => (
-                            <div
+                            <article
                                 key={category.title}
-                                className="group bg-white rounded-[20px] p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none"
+                                className="group/card rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-300 md:p-10 hover:border-stone-300"
                             >
-                                <div className="flex items-start gap-3 mb-5">
+                                <div className="mb-8 flex items-start gap-5">
                                     <div
-                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none"
+                                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
                                         style={{ backgroundColor: category.accentSoftBg, color: category.accentIcon }}
                                         aria-hidden
                                     >
-                                        <category.icon size={26} strokeWidth={1.5} />
+                                        <category.icon size={22} strokeWidth={1.25} />
                                     </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-black text-black text-base leading-tight">{category.title}</h3>
-                                        <p className="mt-1 text-sm font-semibold text-slate-600">{category.description}</p>
+                                    <div className="min-w-0 pt-0.5">
+                                        <h3 className="font-serif text-xl font-medium tracking-tight text-stone-900">
+                                            {category.title}
+                                        </h3>
+                                        <p className="mt-2 text-sm font-normal leading-relaxed text-stone-500">
+                                            {category.description}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <ul className="border-t border-black pt-4">
+                                <ul className="border-t border-stone-100 pt-6">
                                     {category.tools.map((tool) => (
-                                        <li key={tool.id} className="border-b border-black/10 last:border-0">
+                                        <li key={tool.id} className="border-b border-stone-100 last:border-0">
                                             <button
                                                 type="button"
                                                 onClick={() => setView(tool.id as ViewState)}
-                                                className="w-full flex items-center justify-between gap-2 py-2.5 text-left rounded-lg px-1 -mx-1 transition-colors duration-100 hover:bg-black/[0.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                                className="group -mx-2 flex w-full items-center justify-between gap-3 rounded-lg px-2 py-3.5 text-left transition-colors duration-200 hover:bg-stone-50/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:ring-offset-2"
                                             >
-                                                <span className="flex items-center gap-2 min-w-0">
+                                                <span className="flex min-w-0 items-center gap-3">
                                                     <tool.icon
-                                                        size={18}
-                                                        strokeWidth={1.5}
-                                                        className="shrink-0"
+                                                        size={17}
+                                                        strokeWidth={1.25}
+                                                        className="shrink-0 opacity-60 transition-opacity group-hover:opacity-80"
                                                         style={{ color: category.accentIcon }}
                                                     />
-                                                    <span className="text-xs font-bold text-slate-800 truncate">{tool.name}</span>
+                                                    <span className="truncate text-sm font-medium text-stone-600 transition-colors group-hover:text-stone-900">
+                                                        {tool.name}
+                                                    </span>
                                                 </span>
-                                                <ArrowRight size={16} strokeWidth={1.5} className="shrink-0 text-black" />
+                                                <ArrowRight
+                                                    size={15}
+                                                    strokeWidth={1.25}
+                                                    className="shrink-0 text-stone-300 transition-colors group-hover:text-stone-500"
+                                                />
                                             </button>
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
+                            </article>
                         ))}
                     </div>
                 </div>

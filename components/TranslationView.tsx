@@ -76,7 +76,7 @@ const TranslationView: React.FC = () => {
         </button>
       </div>
 
-      <div className="rounded-[20px] bg-white p-6 shadow-[3px_3px_0_0_#000] md:p-8">
+      <div className="rounded-[20px] border border-black bg-white p-6 shadow-[3px_3px_0_0_#000] md:p-8">
         <div className="flex h-[min(450px,70vh)] flex-col items-stretch gap-6 md:flex-row">
 
           <div className="group flex min-h-[200px] flex-1 flex-col overflow-hidden rounded-xl border border-black bg-white focus-within:ring-2 focus-within:ring-black focus-within:ring-offset-2">

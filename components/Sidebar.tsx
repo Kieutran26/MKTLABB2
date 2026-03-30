@@ -2,20 +2,20 @@ import React, { useState } from 'react';
 import { ViewState } from '../types';
 import {
   Home, GraduationCap, Library, Star, ChevronDown, ChevronRight, BookOpen, CreditCard, Calendar, List,
-  Terminal, CheckSquare, Megaphone, PenTool, Image as ImageIcon, PlusSquare, Briefcase, Mail, Film, Link2,
+  CheckSquare, PenTool, Image as ImageIcon, PlusSquare, Mail, Film, Link2,
   MonitorPlay, Calculator, TrendingUp, ShieldCheck, Radar, Users, BrainCircuit, Lightbulb, Target,
-  CalendarDays, Brain, Banknote, FileText, FileCheck, Zap, Map, PieChart, Activity, Compass, DollarSign, Heart,
-  HelpCircle, Globe, Layers, Search, Rocket
+  CalendarDays, Brain, FileText, FileCheck, Zap, Map, PieChart, Activity, Compass, DollarSign, Heart,
+  HelpCircle, Globe, Layers, Rocket
 } from 'lucide-react';
-
 
 interface SidebarProps {
   currentView: ViewState;
   setView: (view: ViewState) => void;
 }
 
-// Extracted NavGroup to avoid closure scope issues and improve performance
-const NavGroup = ({ title, icon: Icon, expanded, setExpanded, items, setView, currentView }: any) => {
+const NavGroup = ({
+  title, icon: Icon, expanded, setExpanded, items, setView, currentView
+}: any) => {
   const isActive = (id: string) => {
     if (currentView === id) return true;
     if (id === 'LEARN_SELECT' && currentView === 'LEARN_SESSION') return true;
@@ -23,40 +23,70 @@ const NavGroup = ({ title, icon: Icon, expanded, setExpanded, items, setView, cu
     return false;
   };
 
+  const hasActive = items.some((item: any) => isActive(item.id));
+
   return (
-    <div className="mb-2">
+    <div className="py-0.5">
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
-        className={`w-full flex items-center justify-between px-4 py-3 mx-2 rounded-xl font-medium transition-all duration-200 w-[calc(100%-16px)]
-            ${expanded ? 'text-slate-800 bg-white shadow-soft' : 'text-slate-600 hover:bg-slate-50'}`}
+        className="group w-full flex items-center gap-2 px-2.5 py-2 text-left transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1 rounded-lg hover:bg-stone-100/60"
       >
-        <div className="flex items-center gap-3">
-          <div className={`p-1.5 rounded-lg ${expanded ? 'bg-indigo-50 text-indigo-600' : 'bg-transparent text-slate-400'}`}>
-            <Icon size={18} strokeWidth={1.5} />
-          </div>
-          <span className="text-xs font-semibold">{title}</span>
-        </div>
-        {expanded ? <ChevronDown size={14} strokeWidth={1.5} className="text-slate-400" /> : <ChevronRight size={14} strokeWidth={1.5} className="text-slate-400" />}
+        <span
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
+          style={{ color: '#78716c' }}
+          aria-hidden
+        >
+          <Icon size={14} strokeWidth={1.25} />
+        </span>
+        <span className="min-w-0 flex-1 text-xs font-normal leading-tight tracking-tight text-stone-600 transition-colors group-hover:text-stone-800">
+          {title}
+        </span>
+        {hasActive && (
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-stone-400" aria-hidden />
+        )}
+        {expanded
+          ? <ChevronDown size={13} strokeWidth={1.25} className="shrink-0 text-stone-400" />
+          : <ChevronRight size={13} strokeWidth={1.25} className="shrink-0 text-stone-400" />
+        }
       </button>
 
-      <div className={`space-y-1 overflow-hidden transition-all duration-500 ease-in-out ${expanded ? 'max-h-[1000px] opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
-        {items.map((item: any) => {
-          const active = isActive(item.id);
-          return (
-            <button
-              key={item.id}
-              onClick={() => setView(item.id as ViewState)}
-              className={`w-[calc(100%-32px)] ml-8 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 border border-transparent
-                  ${active
-                  ? 'bg-indigo-50 text-indigo-700 border-indigo-100 shadow-sm translate-x-1'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-            >
-              <item.icon size={16} strokeWidth={1.5} className={active ? 'text-indigo-600' : item.color || 'text-slate-400'} />
-              {item.label}
-            </button>
-          );
-        })}
+      <div
+        className={`overflow-hidden transition-all duration-250 ease-in-out
+          ${expanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <ul className="mt-0.5 mb-1 space-y-0.5 pl-9">
+          {items.map((item: any) => {
+            const active = isActive(item.id);
+            return (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  onClick={() => setView(item.id as ViewState)}
+                  className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1
+                    ${active
+                      ? 'font-semibold'
+                      : 'font-medium text-stone-500 hover:text-stone-800'
+                    }`}
+                >
+                  {active && (
+                    <span className="h-px w-4 shrink-0 bg-stone-400" aria-hidden />
+                  )}
+                  {!active && (
+                    <span className="h-px w-4 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity" aria-hidden>
+                      <span className="block h-px w-full bg-stone-400" />
+                    </span>
+                  )}
+                  <span
+                    className={`min-w-0 truncate text-xs transition-colors ${active ? 'text-stone-900' : ''}`}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
@@ -65,94 +95,100 @@ const NavGroup = ({ title, icon: Icon, expanded, setExpanded, items, setView, cu
 const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
   const [learnExpanded, setLearnExpanded] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
-
-  // New Categories State
   const [strategyExpanded, setStrategyExpanded] = useState(true);
-
   const [ideationExpanded, setIdeationExpanded] = useState(false);
   const [designExpanded, setDesignExpanded] = useState(false);
   const [adsExpanded, setAdsExpanded] = useState(false);
 
   const learnItems = [
-    { id: 'HOME', label: 'Dịch văn bản', icon: Home, color: 'text-blue-500' },
-    { id: 'LEARN_SELECT', label: 'Bắt đầu học', icon: GraduationCap, color: 'text-indigo-500' },
-    { id: 'VOCAB_MANAGER', label: 'Quản lý từ vựng', icon: Library, color: 'text-emerald-500' },
-    { id: 'STARRED', label: 'Từ đã đánh dấu', icon: Star, color: 'text-amber-400' },
+    { id: 'HOME', label: 'Dịch văn bản', icon: Home },
+    { id: 'LEARN_SELECT', label: 'Bắt đầu học', icon: GraduationCap },
+    { id: 'VOCAB_MANAGER', label: 'Quản lý từ vựng', icon: Library },
+    { id: 'STARRED', label: 'Từ đã đánh dấu', icon: Star },
   ];
 
   const planItems = [
-    { id: 'PLAN_CALENDAR', label: 'Lịch thanh toán', icon: Calendar, color: 'text-rose-500' },
-    { id: 'PLAN_LIST', label: 'Danh sách Plans', icon: List, color: 'text-rose-400' },
+    { id: 'PLAN_CALENDAR', label: 'Lịch thanh toán', icon: Calendar },
+    { id: 'PLAN_LIST', label: 'Danh sách Plans', icon: List },
   ];
 
-  // 1. Strategy & Research
   const strategyItems = [
-    { id: 'MASTERMIND_STRATEGY', label: 'Mastermind Strategy', icon: Brain, color: 'text-indigo-600' },
-    { id: 'IMC_PLANNER', label: 'IMC Planner', icon: Target, color: 'text-purple-600' },
-    { id: 'STP_MODEL', label: 'STP Model', icon: Layers, color: 'text-violet-600' },
-    { id: 'PESTEL_BUILDER', label: 'PESTEL Builder', icon: Globe, color: 'text-teal-600' },
-    { id: 'PORTER_ANALYZER', label: "Porter's Analyzer", icon: Target, color: 'text-rose-600' },
-    { id: 'STRATEGIC_MODELS', label: 'Strategic Models', icon: Target, color: 'text-blue-600' },
-    { id: 'INSIGHT_FINDER', label: 'Insight Finder', icon: BrainCircuit, color: 'text-cyan-600' },
-    { id: 'CUSTOMER_JOURNEY_MAPPER', label: 'Customer Journey', icon: Map, color: 'text-indigo-500' },
-    { id: 'BRAND_VAULT', label: 'Brand Vault', icon: ShieldCheck, color: 'text-indigo-600' },
-    { id: 'PERSONA_BUILDER', label: 'Persona Builder', icon: Users, color: 'text-purple-600' },
-    { id: 'RIVAL_RADAR', label: 'Rival Radar', icon: Radar, color: 'text-red-600' },
-    { id: 'BRAND_POSITIONING_BUILDER', label: 'Brand Positioning', icon: Compass, color: 'text-teal-600' },
-    { id: 'PRICING_ANALYZER', label: 'Pricing Analyzer', icon: DollarSign, color: 'text-emerald-600' },
-    { id: 'AUDIENCE_EMOTION_MAP', label: 'Audience Emotion Map', icon: Heart, color: 'text-pink-600' },
+    { id: 'MASTERMIND_STRATEGY', label: 'Mastermind Strategy', icon: Brain },
+    { id: 'IMC_PLANNER', label: 'IMC Planner', icon: Target },
+    { id: 'STP_MODEL', label: 'STP Model', icon: Layers },
+    { id: 'PESTEL_BUILDER', label: 'PESTEL Builder', icon: Globe },
+    { id: 'PORTER_ANALYZER', label: "Porter's Analyzer", icon: Target },
+    { id: 'STRATEGIC_MODELS', label: 'Strategic Models', icon: Target },
+    { id: 'INSIGHT_FINDER', label: 'Insight Finder', icon: BrainCircuit },
+    { id: 'CUSTOMER_JOURNEY_MAPPER', label: 'Customer Journey', icon: Map },
+    { id: 'BRAND_VAULT', label: 'Brand Vault', icon: ShieldCheck },
+    { id: 'PERSONA_BUILDER', label: 'Persona Builder', icon: Users },
+    { id: 'RIVAL_RADAR', label: 'Rival Radar', icon: Radar },
+    { id: 'BRAND_POSITIONING_BUILDER', label: 'Brand Positioning', icon: Compass },
+    { id: 'PRICING_ANALYZER', label: 'Pricing Analyzer', icon: DollarSign },
+    { id: 'AUDIENCE_EMOTION_MAP', label: 'Audience Emotion Map', icon: Heart },
   ];
 
-
-
-
-  // 2. Ideation & Content Creation
   const ideationItems = [
-    { id: 'HOOK_GENERATOR', label: 'Hook Generator', icon: Zap, color: 'text-amber-500' },
-    { id: 'CONTENT_WRITER', label: 'Viết Content', icon: PenTool, color: 'text-violet-500' },
-    { id: 'MINDMAP_GENERATOR', label: 'Mindmap AI', icon: BrainCircuit, color: 'text-cyan-500' },
-    { id: 'SCAMPER_TOOL', label: 'SCAMPER Ideation', icon: Lightbulb, color: 'text-yellow-500' },
-    { id: 'SMART_CALENDAR', label: 'Smart Content Calendar', icon: CalendarDays, color: 'text-indigo-500' },
-    { id: 'AUTO_BRIEF', label: 'Auto Brief', icon: FileText, color: 'text-violet-600' },
-    { id: 'SOP_BUILDER', label: 'SOP Builder', icon: FileCheck, color: 'text-emerald-600' },
-    { id: 'CREATIVE_ANGLE_EXPLORER', label: 'Creative Angle Explorer', icon: Lightbulb, color: 'text-amber-600' },
+    { id: 'HOOK_GENERATOR', label: 'Hook Generator', icon: Zap },
+    { id: 'CONTENT_WRITER', label: 'Viết Content', icon: PenTool },
+    { id: 'MINDMAP_GENERATOR', label: 'Mindmap AI', icon: BrainCircuit },
+    { id: 'SCAMPER_TOOL', label: 'SCAMPER Ideation', icon: Lightbulb },
+    { id: 'SMART_CALENDAR', label: 'Smart Content Calendar', icon: CalendarDays },
+    { id: 'AUTO_BRIEF', label: 'Auto Brief', icon: FileText },
+    { id: 'SOP_BUILDER', label: 'SOP Builder', icon: FileCheck },
+    { id: 'CREATIVE_ANGLE_EXPLORER', label: 'Creative Angle Explorer', icon: Lightbulb },
   ];
 
-  // 3. Design & Visuals
   const designItems = [
-    { id: 'VISUAL_EMAIL', label: 'Visual Email', icon: Mail, color: 'text-pink-500' },
-    { id: 'FRAME_VISUAL', label: 'Frame Visual', icon: Film, color: 'text-orange-500' },
-    { id: 'MOCKUP_GENERATOR', label: 'Mockup Generator', icon: MonitorPlay, color: 'text-fuchsia-600' },
-    { id: 'KEY_VISUALS_CREATE', label: 'Tạo dự án KV', icon: PlusSquare, color: 'text-cyan-500' },
-    { id: 'KEY_VISUALS_LIST', label: 'Danh sách KV', icon: List, color: 'text-cyan-600' },
+    { id: 'VISUAL_EMAIL', label: 'Visual Email', icon: Mail },
+    { id: 'FRAME_VISUAL', label: 'Frame Visual', icon: Film },
+    { id: 'MOCKUP_GENERATOR', label: 'Mockup Generator', icon: MonitorPlay },
+    { id: 'KEY_VISUALS_CREATE', label: 'Tạo dự án KV', icon: PlusSquare },
+    { id: 'KEY_VISUALS_LIST', label: 'Danh sách KV', icon: List },
   ];
 
-  // 4. Ads & Performance
   const adsItems = [
-    { id: 'BUDGET_ALLOCATOR', label: 'Budget Allocator', icon: PieChart, color: 'text-purple-600' },
-    { id: 'UTM_BUILDER', label: 'UTM Builder', icon: Link2, color: 'text-indigo-500' },
-    { id: 'AB_TESTING', label: 'A/B Testing Calc', icon: Calculator, color: 'text-teal-600' },
-    { id: 'ROAS_FORECASTER', label: 'ROAS Forecaster', icon: TrendingUp, color: 'text-green-600' },
-    { id: 'ADS_HEALTH_CHECKER', label: 'Ads Health Checker', icon: Activity, color: 'text-rose-500' },
+    { id: 'BUDGET_ALLOCATOR', label: 'Budget Allocator', icon: PieChart },
+    { id: 'UTM_BUILDER', label: 'UTM Builder', icon: Link2 },
+    { id: 'AB_TESTING', label: 'A/B Testing Calc', icon: Calculator },
+    { id: 'ROAS_FORECASTER', label: 'ROAS Forecaster', icon: TrendingUp },
+    { id: 'ADS_HEALTH_CHECKER', label: 'Ads Health Checker', icon: Activity },
   ];
+
+  const logoActive = currentView === 'HOME_DASHBOARD' || currentView === 'HOME';
+  const footerActive = currentView === 'LANDING_INTRO' || currentView === 'FEATURES_GUIDE';
 
   return (
-    <div className="w-64 bg-soft-surface h-screen fixed left-0 top-0 border-r border-soft-border flex flex-col shadow-soft z-20">
-      <div className="p-6 pb-2">
+    <aside className="w-60 bg-[#FAF9F7] h-screen fixed left-0 top-0 border-r border-stone-200/80 flex flex-col z-20 font-sans text-xs">
+      {/* Logo */}
+      <div className="px-5 py-6">
         <button
+          type="button"
           onClick={() => setView('HOME_DASHBOARD')}
-          className="flex items-center gap-2 group"
+          className="group flex w-full items-center gap-3 px-1 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1 rounded-lg hover:bg-stone-100/60 transition-colors duration-150"
         >
-          <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white group-hover:bg-indigo-700 transition-colors">
-            <GraduationCap size={20} strokeWidth={1.5} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-800 group-hover:text-indigo-600 transition-colors">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            aria-hidden
+          >
+            <GraduationCap
+              size={18}
+              strokeWidth={1.25}
+              className="text-stone-600"
+            />
+          </span>
+          <span className="text-lg font-normal tracking-tight text-stone-800">
             OptiMKT
-          </h1>
+          </span>
         </button>
       </div>
 
-      <nav className="flex-1 min-h-0 py-4 pb-20 space-y-1 overflow-y-auto custom-scrollbar px-2">
+      {/* Divider */}
+      <div className="mx-5 border-t border-stone-200/80" />
+
+      {/* Nav */}
+      <nav className="flex-1 min-h-0 py-3 pb-24 overflow-y-auto custom-scrollbar px-2.5 space-y-0.5">
 
         <NavGroup
           title="Strategy & Research"
@@ -163,8 +199,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           setView={setView}
           currentView={currentView}
         />
-
-
 
         <NavGroup
           title="Ideation & Content"
@@ -196,7 +230,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           currentView={currentView}
         />
 
-        <div className="my-4 border-t border-slate-100 mx-4"></div>
+        <div className="my-3 mx-1 border-t border-stone-200/80" />
 
         <NavGroup
           title="Học Tiếng Anh"
@@ -218,106 +252,75 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           currentView={currentView}
         />
 
-
-        {/* Single Item: To-Do List */}
-        <div className="mt-4 px-2">
-          <button
-            onClick={() => setView('TODO')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200
-                  ${currentView === 'TODO'
-                ? 'bg-white shadow-soft text-indigo-700 border border-indigo-50'
-                : 'text-slate-600 hover:bg-slate-50'
-              }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-1.5 rounded-lg ${currentView === 'TODO' ? 'bg-indigo-50 text-indigo-600' : 'bg-transparent text-slate-400'}`}>
-                <CheckSquare size={18} strokeWidth={1.5} />
-              </div>
-              <span className="text-xs font-semibold">To-Do List</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Single Item: Tin Tức Tổng Hợp */}
-        <div className="px-2 mb-1">
-          <button
-            onClick={() => setView('NEWS_AGGREGATOR')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200
-                  ${currentView === 'NEWS_AGGREGATOR'
-                ? 'bg-white shadow-soft text-indigo-700 border border-indigo-50'
-                : 'text-slate-600 hover:bg-slate-50'
-              }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-1.5 rounded-lg ${currentView === 'NEWS_AGGREGATOR' ? 'bg-indigo-50 text-indigo-600' : 'bg-transparent text-slate-400'}`}>
-                <Globe size={18} strokeWidth={1.5} />
-              </div>
-              <span className="text-xs font-semibold">Tin Tức Tổng Hợp</span>
-            </div>
-            {/* Optional "New" Badge */}
-            <span className="text-[10px] font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded">Mới</span>
-          </button>
-        </div>
-
-        {/* Single Item: Kho Kiến Thức */}
-        <div className="px-2">
-          <button
-            onClick={() => setView('MARKETING_KNOWLEDGE')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200
-                  ${currentView === 'MARKETING_KNOWLEDGE'
-                ? 'bg-white shadow-soft text-indigo-700 border border-indigo-50'
-                : 'text-slate-600 hover:bg-slate-50'
-              }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-1.5 rounded-lg ${currentView === 'MARKETING_KNOWLEDGE' ? 'bg-indigo-50 text-indigo-600' : 'bg-transparent text-slate-400'}`}>
-                <BookOpen size={18} strokeWidth={1.5} />
-              </div>
-              <span className="text-xs font-semibold">Kho Kiến Thức</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Single Item: Bộ Công Cụ */}
-        <div className="px-2">
-          <button
-            onClick={() => setView('TOOLKIT')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-200
-                  ${currentView === 'TOOLKIT'
-                ? 'bg-white shadow-soft text-indigo-700 border border-indigo-50'
-                : 'text-slate-600 hover:bg-slate-50'
-              }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-1.5 rounded-lg ${currentView === 'TOOLKIT' ? 'bg-indigo-50 text-indigo-600' : 'bg-transparent text-slate-400'}`}>
-                <Zap size={18} strokeWidth={1.5} />
-              </div>
-              <span className="text-xs font-semibold">Bộ Công Cụ</span>
-            </div>
-            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded">Mới</span>
-          </button>
-        </div>
-
+        {/* Single items */}
+        {[
+          { id: 'TODO', label: 'To-Do List', icon: CheckSquare },
+          { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe, badge: 'Mới', badgeColor: '#BE123C' },
+          { id: 'MARKETING_KNOWLEDGE', label: 'Kho Kiến Thức', icon: BookOpen },
+          { id: 'TOOLKIT', label: 'Bộ Công Cụ', icon: Zap, badge: 'Mới', badgeColor: '#047857' },
+        ].map(({ id, label, icon: Icon, badge, badgeColor }) => {
+          const active = currentView === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setView(id as ViewState)}
+              className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1
+                ${active
+                  ? 'font-semibold text-stone-900'
+                  : 'font-medium text-stone-500 hover:text-stone-800 hover:bg-stone-100/60'
+                }`}
+            >
+              <Icon
+                size={14}
+                strokeWidth={1.25}
+                className="shrink-0"
+                style={{ color: active ? '#78716c' : '#a8a29e' }}
+              />
+              <span className={`min-w-0 flex-1 truncate leading-tight transition-colors ${active ? 'text-stone-900 font-medium' : 'text-stone-600'}`}>{label}</span>
+              {badge && (
+                <span
+                  className="shrink-0 rounded-full bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-500"
+                >
+                  {badge}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </nav>
 
-      <div className="p-4 border-t border-slate-50 bg-slate-50/50">
+      {/* Footer */}
+      <div className="border-t border-stone-200/80 px-4 py-4 bg-[#FAF9F7] space-y-1">
         <button
+          type="button"
           onClick={() => setView('LANDING_INTRO')}
-          className="w-full flex items-center justify-center gap-2 text-xs text-slate-500 hover:text-indigo-600 transition-colors mb-3"
+          className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none
+            ${currentView === 'LANDING_INTRO'
+              ? 'text-stone-900 font-semibold'
+              : 'text-stone-400 hover:text-stone-700'
+            }`}
         >
-          <Rocket size={14} />
-          <span>Xem Landing Page</span>
+          <Rocket size={13} strokeWidth={1.25} className="shrink-0 text-stone-500" />
+          <span className="min-w-0 leading-tight text-stone-600">Xem Landing Page</span>
         </button>
         <button
+          type="button"
           onClick={() => setView('FEATURES_GUIDE')}
-          className="w-full flex items-center justify-center gap-2 text-xs text-slate-500 hover:text-indigo-600 transition-colors mb-2"
+          className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none
+            ${currentView === 'FEATURES_GUIDE'
+              ? 'text-stone-900 font-semibold'
+              : 'text-stone-400 hover:text-stone-700'
+            }`}
         >
-          <HelpCircle size={14} />
-          <span>Hướng dẫn sử dụng</span>
+          <HelpCircle size={13} strokeWidth={1.25} className="shrink-0 text-stone-500" />
+          <span className="min-w-0 leading-tight text-stone-600">Hướng dẫn sử dụng</span>
         </button>
-        <div className="text-xs text-slate-400 text-center">v1.7.0 • Soft Line Edition</div>
+        <div className="pt-1 text-center text-[10px] font-medium text-stone-400 tracking-wide">
+          v1.7.0 &middot; OptiMKT
+        </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
