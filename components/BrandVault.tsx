@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, ShieldCheck, Image as ImageIcon, Palette, Type, Users, Target, Rocket, Wand2, Copy, Check, ChevronLeft, Save, ListPlus, X, LayoutList, Clock, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ShieldCheck, Image as ImageIcon, Palette, Type, Users, Target, Rocket, Wand2, ChevronLeft, Save, ListPlus, LayoutList, Clock } from 'lucide-react';
 import { useBrand } from './BrandContext';
 import { Brand, BrandColor, BrandLogo } from '../types';
 import { Toast, ToastType } from './Toast';
 import { getGeminiClient } from '../lib/geminiClient';
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+const textareaClass = `${inputClass} resize-none`;
 
 // --- SUB-COMPONENT: LIST EDITOR (Moved outside to prevent re-render/focus issues) ---
 interface ListEditorProps {
@@ -22,44 +30,47 @@ const ListEditor: React.FC<ListEditorProps> = ({
     items, title, placeholder, icon: Icon,
     onAdd, onUpdate, onRemove, onAiSuggest, isGenerating
 }) => (
-    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-        <div className="flex justify-between items-center mb-4">
-            <label className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                {Icon && <Icon className="text-indigo-500" size={20} strokeWidth={1.5} />} {title}
+    <div className={`${cardClass} p-6 md:p-8`}>
+        <div className="mb-4 flex items-center justify-between">
+            <label className="flex items-center gap-2 text-base font-medium tracking-tight text-stone-900">
+                {Icon && <Icon className="text-stone-400" size={20} strokeWidth={1.25} />} {title}
             </label>
             <button
+                type="button"
                 onClick={onAiSuggest}
                 disabled={isGenerating}
-                className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 flex items-center gap-1 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:opacity-50"
             >
-                <Wand2 size={12} /> AI Suggest
+                <Wand2 size={12} strokeWidth={1.25} /> AI Suggest
             </button>
         </div>
         <div className="space-y-2">
             {items.map((item, idx) => (
-                <div key={idx} className="flex gap-2 group">
-                    <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-xs font-bold mt-2 shrink-0">
+                <div key={idx} className="group flex gap-2">
+                    <div className="mt-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-xs font-semibold text-stone-500">
                         {idx + 1}
                     </div>
                     <textarea
-                        className="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all resize-none h-[46px]"
+                        className={`${textareaClass} h-[46px] min-h-[46px]`}
                         value={item}
                         onChange={(e) => onUpdate(idx, e.target.value)}
                         placeholder={placeholder}
                     />
                     <button
+                        type="button"
                         onClick={() => onRemove(idx)}
-                        className="p-2 text-slate-300 hover:text-red-500 rounded-lg hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all h-[46px]"
+                        className="h-[46px] rounded-lg p-2 text-stone-300 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} strokeWidth={1.25} />
                     </button>
                 </div>
             ))}
             <button
+                type="button"
                 onClick={onAdd}
-                className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 mt-2 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors"
+                className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-800"
             >
-                <Plus size={16} /> Thêm ý mới
+                <Plus size={16} strokeWidth={1.25} /> Thêm ý mới
             </button>
         </div>
     </div>
@@ -382,68 +393,103 @@ const BrandVault: React.FC = () => {
 
     if (viewMode === 'list') {
         return (
-            <div className="max-w-6xl mx-auto pt-10 px-6 pb-20">
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                            <ShieldCheck className="text-indigo-600" strokeWidth={1.5} />
-                            Brand Vault
-                        </h2>
-                        <p className="text-slate-500 mt-1">Quản lý tài sản và hồ sơ đa thương hiệu.</p>
-                    </div>
-                    <button
-                        onClick={handleCreateNew}
-                        className="bg-indigo-600 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
-                    >
-                        <Plus size={20} strokeWidth={1.5} /> Thêm Thương hiệu
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {brands.length === 0 ? (
-                        <div className="col-span-full p-16 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-white/50">
-                            <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4 text-indigo-400">
-                                <ShieldCheck size={40} strokeWidth={1.5} />
+            <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
+                <header className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:px-8">
+                    <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div className="max-w-2xl">
+                            <div className="mb-2 flex items-center gap-2 text-stone-400">
+                                <ShieldCheck size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                    Brand system
+                                </span>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-700 mb-2">Chưa có thương hiệu nào</h3>
-                            <button onClick={handleCreateNew} className="text-indigo-600 font-bold hover:underline">Tạo hồ sơ đầu tiên &rarr;</button>
+                            <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                                Brand Vault
+                            </h1>
+                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                                Quản lý tài sản và hồ sơ đa thương hiệu.
+                            </p>
                         </div>
-                    ) : (
-                        brands.map(brand => {
-                            // Fallback for main logo display
-                            const displayLogo = brand.identity.logos?.[0]?.url || brand.identity.logoMain;
+                        <button
+                            type="button"
+                            onClick={handleCreateNew}
+                            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                        >
+                            <Plus size={18} strokeWidth={1.25} /> Thêm Thương hiệu
+                        </button>
+                    </div>
+                </header>
 
-                            return (
-                                <div
-                                    key={brand.id}
-                                    onClick={() => handleEdit(brand)}
-                                    className="group bg-white rounded-3xl border border-slate-200 shadow-soft hover:shadow-xl transition-all cursor-pointer overflow-hidden p-6 flex flex-col relative"
-                                >
-                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={(e) => handleDelete(e, brand.id)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 size={18} strokeWidth={1.5} />
-                                        </button>
-                                    </div>
-
-                                    <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 mb-4 overflow-hidden flex items-center justify-center">
-                                        {displayLogo ? (
-                                            <img src={displayLogo} alt="Logo" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ShieldCheck size={32} className="text-slate-300" strokeWidth={1.5} />
-                                        )}
-                                    </div>
-                                    <h3 className="font-bold text-xl text-slate-800 mb-1">{brand.identity.name}</h3>
-                                    <p className="text-sm text-slate-500 line-clamp-2 mb-4 h-10">{brand.strategy.vision || 'Chưa có thông tin chiến lược.'}</p>
-
-                                    <div className="flex gap-2 mt-auto">
-                                        {brand.identity.colors.slice(0, 4).map((c, i) => (
-                                            <div key={i} className="w-6 h-6 rounded-full border border-slate-100 shadow-sm" style={{ backgroundColor: c.code }} title={c.type}></div>
-                                        ))}
-                                    </div>
+                <div className="mx-auto max-w-6xl px-5 pt-8 md:px-8">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {brands.length === 0 ? (
+                            <div className={`${cardClass} col-span-full flex min-h-[320px] flex-col items-center justify-center p-12 text-center md:p-16`}>
+                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                    <ShieldCheck size={28} strokeWidth={1.25} className="text-stone-300" />
                                 </div>
-                            )
-                        })
-                    )}
+                                <p className="text-base font-medium text-stone-700">Chưa có thương hiệu nào</p>
+                                <p className="mt-1 max-w-sm text-sm font-normal text-stone-500">
+                                    Tạo hồ sơ đầu tiên để lưu logo, màu sắc và chiến lược thương hiệu.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleCreateNew}
+                                    className="mt-6 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-800 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                                >
+                                    Tạo hồ sơ đầu tiên
+                                    <span aria-hidden className="text-stone-400">→</span>
+                                </button>
+                            </div>
+                        ) : (
+                            brands.map(brand => {
+                                const displayLogo = brand.identity.logos?.[0]?.url || brand.identity.logoMain;
+
+                                return (
+                                    <div
+                                        key={brand.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleEdit(brand)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleEdit(brand)}
+                                        className={`${cardClass} group relative flex cursor-pointer flex-col overflow-hidden p-6 transition-all hover:border-stone-300 hover:shadow-[0_4px_12px_rgba(15,23,42,0.06)]`}
+                                    >
+                                        <div className="absolute right-4 top-4 opacity-0 transition-opacity group-hover:opacity-100">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => handleDelete(e, brand.id)}
+                                                className="rounded-lg p-2 text-stone-300 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                            >
+                                                <Trash2 size={18} strokeWidth={1.25} />
+                                            </button>
+                                        </div>
+
+                                        <div className="mb-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-stone-100 bg-stone-50/80">
+                                            {displayLogo ? (
+                                                <img src={displayLogo} alt="Logo" className="h-full w-full object-cover" />
+                                            ) : (
+                                                <ShieldCheck size={28} className="text-stone-300" strokeWidth={1.25} />
+                                            )}
+                                        </div>
+                                        <h3 className="mb-1 text-lg font-medium tracking-tight text-stone-900">{brand.identity.name}</h3>
+                                        <p className="mb-4 line-clamp-2 h-10 text-sm font-normal text-stone-500">
+                                            {brand.strategy.vision || 'Chưa có thông tin chiến lược.'}
+                                        </p>
+
+                                        <div className="mt-auto flex gap-2">
+                                            {brand.identity.colors.slice(0, 4).map((c, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="h-6 w-6 rounded-full border border-stone-200 shadow-sm"
+                                                    style={{ backgroundColor: c.code }}
+                                                    title={c.type}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
                 </div>
             </div>
         );
@@ -453,31 +499,36 @@ const BrandVault: React.FC = () => {
     if (!editingBrand) return null;
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-            {/* Header */}
-            <div className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => setViewMode('list')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
-                        <ChevronLeft size={24} strokeWidth={1.5} />
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            <div className="z-20 flex h-16 shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-4 md:px-6">
+                <div className="flex min-w-0 items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('list')}
+                        className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100/80 hover:text-stone-800"
+                        aria-label="Quay lại danh sách"
+                    >
+                        <ChevronLeft size={22} strokeWidth={1.25} />
                     </button>
                     <input
-                        className="font-bold text-xl text-slate-800 bg-transparent border-none focus:ring-0 placeholder:text-slate-300 w-64"
+                        className="min-w-0 max-w-[min(100%,20rem)] border-none bg-transparent font-sans text-lg font-medium tracking-tight text-stone-900 placeholder:text-stone-300 focus:outline-none focus:ring-0 md:max-w-md"
                         value={editingBrand.identity.name}
                         onChange={(e) => setEditingBrand({ ...editingBrand, identity: { ...editingBrand.identity, name: e.target.value } })}
                         placeholder="Tên thương hiệu..."
                     />
                 </div>
                 <button
+                    type="button"
                     onClick={handleSave}
-                    className="text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-indigo-200 flex items-center gap-2"
+                    disabled={isSaving}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 md:px-5 md:py-2.5"
                 >
-                    <Save size={18} strokeWidth={1.5} /> Lưu thay đổi
+                    <Save size={17} strokeWidth={1.25} /> {isSaving ? 'Đang lưu…' : 'Lưu thay đổi'}
                 </button>
             </div>
 
-            <div className="flex-1 flex overflow-hidden">
-                {/* Tabs Sidebar */}
-                <div className="w-64 bg-white border-r border-slate-200 flex flex-col pt-6">
+            <div className="flex min-h-0 flex-1 overflow-hidden">
+                <div className="flex w-60 shrink-0 flex-col border-r border-stone-200/80 bg-white pt-4 md:w-64">
                     {[
                         { id: 'identity', label: 'Visual Identity', icon: Palette },
                         { id: 'strategy', label: 'Chiến lược', icon: Rocket },
@@ -485,41 +536,41 @@ const BrandVault: React.FC = () => {
                     ].map(tab => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={`flex items-center gap-3 px-6 py-4 border-l-4 transition-all
+                            type="button"
+                            onClick={() => setActiveTab(tab.id as 'identity' | 'strategy' | 'audience')}
+                            className={`flex items-center gap-3 border-l-[3px] px-5 py-3.5 text-left text-sm transition-all md:px-6 md:py-4
                                 ${activeTab === tab.id
-                                    ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 font-bold'
-                                    : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-800 font-medium'}`}
+                                    ? 'border-stone-900 bg-stone-50/80 font-medium text-stone-900'
+                                    : 'border-transparent font-normal text-stone-500 hover:bg-stone-50/50 hover:text-stone-800'}`}
                         >
-                            <tab.icon size={20} strokeWidth={1.5} />
+                            <tab.icon size={19} strokeWidth={1.25} className="shrink-0 text-stone-400" />
                             {tab.label}
                         </button>
                     ))}
                 </div>
 
-                {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-10">
+                <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-10">
                     <div className="max-w-4xl mx-auto space-y-8 pb-20">
 
                         {/* TAB: IDENTITY */}
                         {activeTab === 'identity' && (
                             <div className="space-y-8 animate-fade-in">
                                 {/* Logos */}
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                                    <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                        <ImageIcon className="text-slate-400" /> Thư viện Logo
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 text-base font-medium tracking-tight text-stone-900">
+                                        <ImageIcon className="text-stone-400" size={20} strokeWidth={1.25} /> Thư viện Logo
                                     </h3>
 
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
                                         {editingBrand.identity.logos.map((logo) => (
-                                            <div key={logo.id} className="relative group">
-                                                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:bg-slate-50 transition-colors relative h-48 flex items-center justify-center bg-slate-50/30 overflow-hidden">
+                                            <div key={logo.id} className="group relative">
+                                                <div className="relative flex h-48 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-stone-200 bg-stone-50/40 p-4 text-center transition-colors hover:border-stone-300 hover:bg-stone-50/80">
                                                     {logo.url ? (
                                                         <img src={logo.url} className="max-w-full max-h-full object-contain" alt={logo.variantName} />
                                                     ) : (
-                                                        <div className="text-slate-400 flex flex-col items-center pointer-events-none">
-                                                            <ImageIcon size={32} strokeWidth={1} className="mb-2" />
-                                                            <span className="text-xs font-medium">Click để tải ảnh</span>
+                                                        <div className="pointer-events-none flex flex-col items-center text-stone-400">
+                                                            <ImageIcon size={28} strokeWidth={1.25} className="mb-2" />
+                                                            <span className="text-xs font-normal">Click để tải ảnh</span>
                                                         </div>
                                                     )}
                                                     <input
@@ -531,14 +582,15 @@ const BrandVault: React.FC = () => {
 
                                                     {/* Remove Button */}
                                                     <button
+                                                        type="button"
                                                         onClick={() => removeLogo(logo.id)}
-                                                        className="absolute top-2 right-2 bg-white p-1.5 rounded-full text-slate-400 hover:text-red-500 shadow-sm z-20 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="absolute right-2 top-2 z-20 rounded-full bg-white p-1.5 text-stone-400 opacity-0 shadow-sm transition-opacity hover:text-rose-600 group-hover:opacity-100"
                                                     >
-                                                        <Trash2 size={14} />
+                                                        <Trash2 size={14} strokeWidth={1.25} />
                                                     </button>
                                                 </div>
                                                 <input
-                                                    className="w-full mt-2 text-center text-sm font-bold text-slate-600 bg-transparent border border-transparent hover:border-slate-200 rounded px-2 focus:border-indigo-300 focus:outline-none"
+                                                    className="mt-2 w-full rounded-lg border border-transparent bg-transparent px-2 text-center text-sm font-medium text-stone-700 hover:border-stone-200 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     value={logo.variantName}
                                                     onChange={(e) => updateLogoName(logo.id, e.target.value)}
                                                     placeholder="Tên phiên bản..."
@@ -548,57 +600,66 @@ const BrandVault: React.FC = () => {
 
                                         {/* Add New Logo Button */}
                                         <button
+                                            type="button"
                                             onClick={addLogoVariant}
-                                            className="border-2 border-dashed border-indigo-200 rounded-2xl p-4 text-center hover:bg-indigo-50 transition-colors h-48 flex flex-col items-center justify-center text-indigo-500 group"
+                                            className="group flex h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-white p-4 text-center text-stone-500 transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                                         >
-                                            <Plus size={32} className="mb-2 group-hover:scale-110 transition-transform" />
-                                            <span className="font-bold">Thêm Logo</span>
+                                            <Plus size={28} strokeWidth={1.25} className="mb-2 transition-transform group-hover:scale-105" />
+                                            <span className="text-sm font-medium">Thêm Logo</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Colors */}
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                                    <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                        <Palette className="text-slate-400" /> Bảng màu (Color Palette)
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 text-base font-medium tracking-tight text-stone-900">
+                                        <Palette className="text-stone-400" size={20} strokeWidth={1.25} /> Bảng màu (Color Palette)
                                     </h3>
                                     <div className="space-y-3">
                                         {editingBrand.identity.colors.map((color, index) => (
-                                            <div key={index} className="flex gap-4 items-center group">
-                                                <div className="relative w-12 h-12 rounded-xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 cursor-pointer transition-transform hover:scale-105">
+                                            <div key={index} className="group flex items-center gap-4">
+                                                <div className="relative h-12 w-12 shrink-0 cursor-pointer overflow-hidden rounded-xl border border-stone-200 shadow-sm transition-transform hover:scale-105">
                                                     <div className="absolute inset-0" style={{ backgroundColor: color.code }}></div>
                                                     <input type="color" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" value={color.code} onChange={(e) => handleColorChange(index, 'code', e.target.value)} />
                                                 </div>
                                                 <input
-                                                    className="w-32 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700"
+                                                    className="w-32 cursor-pointer rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-sm font-medium text-stone-800"
                                                     value={color.code.toUpperCase()}
                                                     readOnly
                                                     onClick={() => copyToClipboard(color.code)}
                                                 />
                                                 <input
-                                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-sm"
+                                                    className={inputClass}
                                                     placeholder="Tên màu (Primary, Secondary...)"
                                                     value={color.type}
                                                     onChange={(e) => handleColorChange(index, 'type', e.target.value)}
                                                 />
-                                                <button onClick={() => removeColor(index)} className="p-3 text-slate-300 hover:text-red-500 rounded-xl hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
-                                                    <Trash2 size={18} />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeColor(index)}
+                                                    className="rounded-xl p-3 text-stone-300 opacity-0 transition-colors hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                                >
+                                                    <Trash2 size={18} strokeWidth={1.25} />
                                                 </button>
                                             </div>
                                         ))}
-                                        <button onClick={addColor} className="mt-2 text-sm font-bold text-indigo-600 hover:bg-indigo-50 px-4 py-2 rounded-xl transition-colors flex items-center gap-2">
-                                            <Plus size={16} /> Thêm màu
+                                        <button
+                                            type="button"
+                                            onClick={addColor}
+                                            className="mt-2 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                                        >
+                                            <Plus size={16} strokeWidth={1.25} /> Thêm màu
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Typography */}
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                                    <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                        <Type className="text-slate-400" /> Typography
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 text-base font-medium tracking-tight text-stone-900">
+                                        <Type className="text-stone-400" size={20} strokeWidth={1.25} /> Typography
                                     </h3>
                                     <input
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                                        className={inputClass}
                                         placeholder="Tên Font chữ chủ đạo (VD: Inter, Roboto...)"
                                         value={editingBrand.identity.fontFamily}
                                         onChange={(e) => setEditingBrand({ ...editingBrand, identity: { ...editingBrand.identity, fontFamily: e.target.value } })}
@@ -616,19 +677,20 @@ const BrandVault: React.FC = () => {
                                     { key: 'vision', label: 'Tầm nhìn (Vision)', ph: 'Mục tiêu dài hạn của thương hiệu...' },
                                     { key: 'mission', label: 'Sứ mệnh (Mission)', ph: 'Lý do thương hiệu tồn tại...' },
                                 ].map((item) => (
-                                    <div key={item.key} className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <label className="text-lg font-bold text-slate-800">{item.label}</label>
+                                    <div key={item.key} className={`${cardClass} p-6 md:p-8`}>
+                                        <div className="mb-4 flex items-center justify-between">
+                                            <label className="text-base font-medium tracking-tight text-stone-900">{item.label}</label>
                                             <button
+                                                type="button"
                                                 onClick={() => handleAiGenerate(item.key, item.key, 'strategy', false)}
                                                 disabled={isGenerating}
-                                                className="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 flex items-center gap-1 transition-colors"
+                                                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:opacity-50"
                                             >
-                                                <Wand2 size={12} /> AI Writer
+                                                <Wand2 size={12} strokeWidth={1.25} /> AI Writer
                                             </button>
                                         </div>
                                         <textarea
-                                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm leading-relaxed min-h-[100px] focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all"
+                                            className={`${textareaClass} min-h-[100px] leading-relaxed`}
                                             placeholder={item.ph}
                                             value={(editingBrand.strategy as any)[item.key]}
                                             onChange={(e) => setEditingBrand({
@@ -689,10 +751,10 @@ const BrandVault: React.FC = () => {
                                     icon={Target}
                                 />
 
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-                                    <label className="text-lg font-bold text-slate-800 mb-4 block">Giọng văn (Tone of Voice)</label>
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <label className="mb-4 block text-base font-medium tracking-tight text-stone-900">Giọng văn (Tone of Voice)</label>
                                     <input
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                                        className={inputClass}
                                         placeholder="VD: Chuyên nghiệp, Thân thiện, Hài hước..."
                                         value={editingBrand.strategy.toneOfVoice}
                                         onChange={(e) => setEditingBrand({

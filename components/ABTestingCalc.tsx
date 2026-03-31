@@ -37,6 +37,12 @@ interface TestResult {
     statusMessage: string;
 }
 
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
 // Sub-component for Animated Circular Progress
 const AnimatedCircularProgress = ({ percentage, colorClass, icon: Icon, label, isWinner }: { percentage: number, colorClass: string, icon: any, label: string, isWinner?: boolean }) => {
     const radius = 40;
@@ -624,14 +630,14 @@ const ABTestingCalc: React.FC = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto pt-10 px-6 pb-20">
+        <div className="mx-auto max-w-6xl bg-[#FCFDFC] px-6 pb-20 pt-10 font-sans">
             <div className="mb-8 flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                        <Calculator className="text-teal-600" strokeWidth={1.5} />
+                    <h2 className="flex items-center gap-3 text-3xl font-normal tracking-tight text-stone-900">
+                        <Calculator className="text-stone-400" strokeWidth={1.25} />
                         Kiểm định A/B Testing
                     </h2>
-                    <p className="text-slate-500 mt-2">Công cụ thống kê giúp bạn quyết định phiên bản quảng cáo/landing page hiệu quả nhất.</p>
+                    <p className="mt-2 text-sm text-stone-500">Công cụ thống kê giúp bạn quyết định phiên bản quảng cáo/landing page hiệu quả nhất.</p>
                 </div>
 
                 {/* Action Buttons */}
@@ -647,7 +653,7 @@ const ABTestingCalc: React.FC = () => {
                             setSelectedTestId('');
                             setError(null);
                         }}
-                        className="px-4 py-2.5 bg-slate-600 hover:bg-slate-700 text-white font-semibold rounded-xl shadow-lg shadow-slate-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2 whitespace-nowrap"
+                        className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-stone-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                     >
                         <Calculator className="w-4 h-4" />
                         Tạo mới
@@ -655,7 +661,7 @@ const ABTestingCalc: React.FC = () => {
                     {result && (
                         <button
                             onClick={() => setShowSaveModal(true)}
-                            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2 whitespace-nowrap"
+                            className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                         >
                             <Save className="w-4 h-4" />
                             Lưu Test
@@ -663,7 +669,7 @@ const ABTestingCalc: React.FC = () => {
                     )}
                     <button
                         onClick={() => setShowHistoryModal(true)}
-                        className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-teal-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2 whitespace-nowrap"
+                        className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50"
                     >
                         <FolderOpen className="w-4 h-4" />
                         Lịch sử ({savedTests.length})
@@ -674,31 +680,31 @@ const ABTestingCalc: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* --- INPUT SECTION --- */}
                 <div className="lg:col-span-5 flex flex-col gap-6">
-                    <div className="bg-white rounded-3xl shadow-soft border border-slate-100 p-6">
-                        <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            <BarChart3 size={20} className="text-slate-400" /> Dữ liệu đầu vào
+                    <div className={`${cardClass} p-6`}>
+                        <h3 className="mb-6 flex items-center gap-2 text-lg font-medium tracking-tight text-stone-900">
+                            <BarChart3 size={20} className="text-stone-400" /> Dữ liệu đầu vào
                         </h3>
 
                         {/* Control Group A */}
-                        <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 mb-4 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 bg-slate-200 text-slate-500 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                        <div className="relative mb-4 overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                            <div className="absolute right-0 top-0 rounded-bl-xl bg-stone-200 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-stone-500">
                                 Control (A)
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Khách truy cập</label>
+                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Khách truy cập</label>
                                     <input
                                         type="number" min="0"
-                                        className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all font-medium text-slate-800"
+                                        className={`${inputClass} font-medium`}
                                         value={visitorsA}
                                         onChange={(e) => setVisitorsA(Number(e.target.value))}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Chuyển đổi</label>
+                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Chuyển đổi</label>
                                     <input
                                         type="number" min="0"
-                                        className="w-full p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all font-medium text-slate-800"
+                                        className={`${inputClass} font-medium`}
                                         value={conversionsA}
                                         onChange={(e) => setConversionsA(Number(e.target.value))}
                                     />
@@ -707,25 +713,25 @@ const ABTestingCalc: React.FC = () => {
                         </div>
 
                         {/* Variation Group B */}
-                        <div className="bg-teal-50/30 rounded-2xl p-5 border border-teal-100 mb-6 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 bg-teal-100 text-teal-700 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+                        <div className="relative mb-6 overflow-hidden rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                            <div className="absolute right-0 top-0 rounded-bl-xl bg-stone-200 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-stone-600">
                                 Variation (B)
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Khách truy cập</label>
+                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Khách truy cập</label>
                                     <input
                                         type="number" min="0"
-                                        className="w-full p-3 bg-white border border-teal-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all font-medium text-teal-900"
+                                        className={`${inputClass} font-medium`}
                                         value={visitorsB}
                                         onChange={(e) => setVisitorsB(Number(e.target.value))}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1.5">Chuyển đổi</label>
+                                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Chuyển đổi</label>
                                     <input
                                         type="number" min="0"
-                                        className="w-full p-3 bg-white border border-teal-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all font-medium text-teal-900"
+                                        className={`${inputClass} font-medium`}
                                         value={conversionsB}
                                         onChange={(e) => setConversionsB(Number(e.target.value))}
                                     />
@@ -761,7 +767,7 @@ const ABTestingCalc: React.FC = () => {
                         {/* Traffic Split Setting */}
                         <div className="mb-6">
                             <div className="flex justify-between items-center mb-1.5">
-                                <label className="block text-xs font-bold text-slate-500 uppercase">Traffic Split (A/B)</label>
+                            <label className="block text-xs font-semibold uppercase tracking-wide text-stone-500">Traffic Split (A/B)</label>
                                 <div className="group relative">
                                     <HelpCircle size={14} className="text-slate-400 cursor-help" />
                                     <div className="absolute bottom-full right-0 mb-2 w-52 bg-slate-800 text-white text-xs p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -769,7 +775,7 @@ const ABTestingCalc: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 rounded-xl">
+                            <div className="grid grid-cols-3 gap-2 rounded-xl border border-stone-200 bg-stone-50 p-1">
                                 {[
                                     { value: 0.5, label: '50/50' },
                                     { value: 0.7, label: '70/30' },
@@ -778,7 +784,7 @@ const ABTestingCalc: React.FC = () => {
                                     <button
                                         key={opt.value}
                                         onClick={() => setExpectedSplit(opt.value)}
-                                        className={`py-2 rounded-lg text-sm font-bold transition-all ${expectedSplit === opt.value ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                        className={`rounded-lg py-2 text-sm font-medium transition-all ${expectedSplit === opt.value ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
                                     >
                                         {opt.label}
                                     </button>
@@ -789,26 +795,26 @@ const ABTestingCalc: React.FC = () => {
                         {/* Financial Input */}
                         <div className="mb-6">
                             <div className="flex justify-between items-center mb-1.5">
-                                <label className="block text-xs font-bold text-slate-500 uppercase">Giá trị đơn hàng TB (AOV)</label>
-                                <span className="text-[10px] text-slate-400 italic font-medium">Tùy chọn</span>
+                                <label className="block text-xs font-semibold uppercase tracking-wide text-stone-500">Giá trị đơn hàng TB (AOV)</label>
+                                <span className="text-[10px] font-medium italic text-stone-400">Tùy chọn</span>
                             </div>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-3 text-slate-400" size={16} />
+                                <DollarSign className="absolute left-3 top-3 text-stone-400" size={16} />
                                 <input
                                     type="number" min="0"
-                                    className="w-full pl-9 pr-3 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100 transition-all text-sm font-medium"
+                                    className={`${inputClass} pl-9 pr-3 font-medium`}
                                     placeholder="Nhập số tiền (VD: 500000)"
                                     value={avgOrderValue || ''}
                                     onChange={(e) => setAvgOrderValue(Number(e.target.value))}
                                 />
                             </div>
-                            <p className="text-[10px] text-slate-400 mt-1">Nhập AOV để mở khóa tính năng dự báo doanh thu.</p>
+                            <p className="mt-1 text-[10px] text-stone-400">Nhập AOV để mở khóa tính năng dự báo doanh thu.</p>
                         </div>
 
                         {/* Confidence Settings */}
                         <div className="mb-6">
                             <div className="flex justify-between items-center mb-2">
-                                <label className="text-sm font-bold text-slate-700">Độ tin cậy (Confidence Level)</label>
+                                <label className="text-sm font-medium text-stone-700">Độ tin cậy (Confidence Level)</label>
                                 <div className="group relative">
                                     <HelpCircle size={16} className="text-slate-400 cursor-help" />
                                     <div className="absolute bottom-full right-0 mb-2 w-48 bg-slate-800 text-white text-xs p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -816,12 +822,12 @@ const ABTestingCalc: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 rounded-xl">
+                            <div className="grid grid-cols-3 gap-2 rounded-xl border border-stone-200 bg-stone-50 p-1">
                                 {[0.90, 0.95, 0.99].map(level => (
                                     <button
                                         key={level}
                                         onClick={() => setConfidence(level)}
-                                        className={`py-2 rounded-lg text-sm font-bold transition-all ${confidence === level ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                        className={`rounded-lg py-2 text-sm font-medium transition-all ${confidence === level ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
                                     >
                                         {level * 100}%
                                     </button>
@@ -830,18 +836,18 @@ const ABTestingCalc: React.FC = () => {
                         </div>
 
                         {/* NEW: Pre-test Planning Section */}
-                        <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-5 space-y-4">
+                        <div className="space-y-4 rounded-2xl border border-stone-200 bg-stone-50 p-5">
                             <div className="flex items-center gap-2 mb-2">
                                 <Target size={18} className="text-amber-600" />
-                                <h4 className="text-sm font-bold text-amber-800">Pre-test Planning</h4>
+                                <h4 className="text-sm font-medium text-stone-800">Pre-test Planning</h4>
                             </div>
 
                             {/* Hypothesis */}
                             <div>
-                                <label className="block text-xs font-bold text-amber-700 uppercase mb-1.5">Giả thuyết Test</label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Giả thuyết Test</label>
                                 <input
                                     type="text"
-                                    className="w-full p-3 bg-white border border-amber-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm"
+                                    className={inputClass}
                                     placeholder="VD: Đổi CTA từ Xanh sang Cam..."
                                     value={testHypothesis}
                                     onChange={(e) => setTestHypothesis(e.target.value)}
@@ -850,22 +856,22 @@ const ABTestingCalc: React.FC = () => {
 
                             {/* Daily Traffic */}
                             <div>
-                                <label className="block text-xs font-bold text-amber-700 uppercase mb-1.5">Traffic hàng ngày (mỗi biến thể)</label>
+                                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-stone-500">Traffic hàng ngày (mỗi biến thể)</label>
                                 <input
                                     type="number"
                                     min="1"
-                                    className="w-full p-3 bg-white border border-amber-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all text-sm font-medium"
+                                    className={`${inputClass} font-medium`}
                                     placeholder="VD: 500"
                                     value={dailyTraffic}
                                     onChange={(e) => setDailyTraffic(Number(e.target.value))}
                                 />
-                                <p className="text-[10px] text-amber-600 mt-1">Dùng để ước tính số ngày cần chạy test.</p>
+                                <p className="mt-1 text-[10px] text-stone-400">Dùng để ước tính số ngày cần chạy test.</p>
                             </div>
 
                             {/* MDE - Minimum Detectable Effect */}
                             <div>
                                 <div className="flex justify-between items-center mb-1.5">
-                                    <label className="text-xs font-bold text-amber-700 uppercase">MDE (Thay đổi tối thiểu muốn phát hiện)</label>
+                                    <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">MDE (Thay đổi tối thiểu muốn phát hiện)</label>
                                     <div className="group relative">
                                         <HelpCircle size={14} className="text-amber-500 cursor-help" />
                                         <div className="absolute bottom-full right-0 mb-2 w-56 bg-slate-800 text-white text-xs p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
@@ -873,12 +879,12 @@ const ABTestingCalc: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-3 gap-2 p-1 bg-white border border-amber-200 rounded-xl">
+                                <div className="grid grid-cols-3 gap-2 rounded-xl border border-stone-200 bg-white p-1">
                                     {[0.05, 0.10, 0.20].map(effect => (
                                         <button
                                             key={effect}
                                             onClick={() => setMde(effect)}
-                                            className={`py-2 rounded-lg text-sm font-bold transition-all ${mde === effect ? 'bg-amber-500 text-white shadow-sm' : 'text-amber-700 hover:bg-amber-100'}`}
+                                            className={`rounded-lg py-2 text-sm font-medium transition-all ${mde === effect ? 'bg-stone-900 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-100'}`}
                                         >
                                             {(effect * 100).toFixed(0)}%
                                         </button>
@@ -901,10 +907,10 @@ const ABTestingCalc: React.FC = () => {
                 <div className="lg:col-span-7 space-y-6">
 
                     {/* Visual Chart Card */}
-                    <div className="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
+                    <div className={`${cardClass} overflow-hidden`}>
                         <div className="p-6 pb-2">
-                            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <Activity size={20} className="text-teal-500" />
+                            <h3 className="flex items-center gap-2 text-lg font-medium tracking-tight text-stone-900">
+                                <Activity size={20} className="text-stone-400" />
                                 So sánh Tỷ lệ Chuyển đổi
                             </h3>
                         </div>
@@ -913,9 +919,9 @@ const ABTestingCalc: React.FC = () => {
                     </div>
 
                     {/* Stats & Conclusion Card */}
-                    <div className="bg-white rounded-3xl shadow-soft border border-slate-100 p-6">
+                    <div className={`${cardClass} p-6`}>
                         <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold text-slate-800">Kết luận kiểm định</h3>
+                            <h3 className="text-lg font-medium tracking-tight text-stone-900">Kết luận kiểm định</h3>
                             {result && (
                                 <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${result.testStatus === 'WINNER'
                                     ? 'bg-green-100 text-green-700'
@@ -923,7 +929,7 @@ const ABTestingCalc: React.FC = () => {
                                         ? 'bg-red-100 text-red-700'
                                         : result.testStatus === 'POTENTIAL'
                                             ? 'bg-amber-100 text-amber-700'
-                                            : 'bg-slate-100 text-slate-500' // INCONCLUSIVE - Gray/Neutral
+                                            : 'bg-stone-100 text-stone-500' // INCONCLUSIVE - Gray/Neutral
                                     }`}>
                                     Uplift: {result.uplift > 0 ? '+' : ''}{result.uplift.toFixed(2)}%
                                 </div>
@@ -934,7 +940,7 @@ const ABTestingCalc: React.FC = () => {
 
                         {/* Detailed Stats (Collapsible or Small) */}
                         {result && (
-                            <div className="mt-6 pt-6 border-t border-slate-100 grid grid-cols-2 gap-4 text-xs text-slate-400">
+                            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-stone-100 pt-6 text-xs text-stone-400">
                                 <div>
                                     <span className="font-bold">Z-Score:</span> {result.zScore.toFixed(4)}
                                 </div>
@@ -949,26 +955,26 @@ const ABTestingCalc: React.FC = () => {
 
             {/* Save Modal */}
             {showSaveModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="mx-4 w-full max-w-md rounded-2xl border border-stone-200/90 bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="p-3 bg-emerald-50 rounded-xl">
-                                <Save className="w-6 h-6 text-emerald-600" />
+                            <div className="rounded-xl bg-stone-100 p-3">
+                                <Save className="h-6 w-6 text-stone-500" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-slate-900">Lưu A/B Test</h3>
-                                <p className="text-sm text-slate-500">Đặt tên để dễ quản lý sau này</p>
+                                <h3 className="text-xl font-medium tracking-tight text-stone-900">Lưu A/B Test</h3>
+                                <p className="text-sm text-stone-500">Đặt tên để dễ quản lý sau này</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1 mb-2 block">
+                                <label className="mb-2 ml-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">
                                     Tên test
                                 </label>
                                 <input
                                     type="text"
-                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all outline-none"
+                                    className={`${inputClass} font-medium`}
                                     placeholder="VD: Landing Page A vs B - Tháng 12"
                                     value={testName}
                                     onChange={(e) => setTestName(e.target.value)}
@@ -991,13 +997,13 @@ const ABTestingCalc: React.FC = () => {
                                         setTestName('');
                                         setSaveError('');
                                     }}
-                                    className="flex-1 px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all"
+                                    className="flex-1 rounded-xl bg-stone-100 px-4 py-3 font-medium text-stone-700 transition-all hover:bg-stone-200"
                                 >
                                     Bỏ qua
                                 </button>
                                 <button
                                     onClick={handleSaveTest}
-                                    className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-stone-900 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-800"
                                 >
                                     <Save className="w-4 h-4" />
                                     Lưu lại
@@ -1010,25 +1016,25 @@ const ABTestingCalc: React.FC = () => {
 
             {/* History Modal */}
             {showHistoryModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="mx-4 flex max-h-[80vh] w-full max-w-3xl flex-col rounded-2xl border border-stone-200/90 bg-white shadow-2xl animate-in zoom-in-95 duration-300">
                         {/* Header */}
-                        <div className="p-6 border-b border-slate-100">
+                        <div className="border-b border-stone-100 p-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-3 bg-teal-50 rounded-xl">
-                                        <FolderOpen className="w-6 h-6 text-teal-600" />
+                                    <div className="rounded-xl bg-stone-100 p-3">
+                                        <FolderOpen className="h-6 w-6 text-stone-500" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-slate-900">Lịch sử A/B Test</h3>
-                                        <p className="text-sm text-slate-500">{savedTests.length} test đã lưu</p>
+                                        <h3 className="text-xl font-medium tracking-tight text-stone-900">Lịch sử A/B Test</h3>
+                                        <p className="text-sm text-stone-500">{savedTests.length} test đã lưu</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setShowHistoryModal(false)}
-                                    className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                                    className="rounded-lg p-2 transition-colors hover:bg-stone-100"
                                 >
-                                    <XCircle className="w-5 h-5 text-slate-400" />
+                                    <XCircle className="h-5 w-5 text-stone-400" />
                                 </button>
                             </div>
                         </div>
@@ -1050,14 +1056,14 @@ const ABTestingCalc: React.FC = () => {
                                     {savedTests.map((test) => (
                                         <div
                                             key={test.id}
-                                            className="bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 p-4 transition-all group"
+                                            className="group rounded-xl border border-stone-200 bg-stone-50 p-4 transition-all hover:bg-stone-100/70"
                                         >
                                             <div className="flex items-start justify-between gap-4">
                                                 <div className="flex-1 min-w-0">
-                                                    <h4 className="font-bold text-slate-900 mb-1 truncate">
+                                                    <h4 className="mb-1 truncate font-semibold text-stone-900">
                                                         {test.name}
                                                     </h4>
-                                                    <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+                                                    <div className="flex flex-wrap gap-3 text-xs text-stone-500">
                                                         <span className="flex items-center gap-1">
                                                             <Users className="w-3 h-3" />
                                                             A: {test.input.visitorsA.toLocaleString()} | B: {test.input.visitorsB.toLocaleString()}
@@ -1080,7 +1086,7 @@ const ABTestingCalc: React.FC = () => {
                                                             handleLoadTest(test.id);
                                                             setShowHistoryModal(false);
                                                         }}
-                                                        className="px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-1.5"
+                                                        className="flex items-center gap-1.5 rounded-lg bg-stone-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800"
                                                         title="Tải test này"
                                                     >
                                                         <FolderOpen className="w-3.5 h-3.5" />
@@ -1106,10 +1112,10 @@ const ABTestingCalc: React.FC = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-6 border-t border-slate-100">
+                        <div className="border-t border-stone-100 p-6">
                             <button
                                 onClick={() => setShowHistoryModal(false)}
-                                className="w-full px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all"
+                                className="w-full rounded-xl bg-stone-100 px-4 py-3 font-medium text-stone-700 transition-all hover:bg-stone-200"
                             >
                                 Đóng
                             </button>

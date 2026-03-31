@@ -1,10 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Layers, Sparkles, Loader2, Target, Users, Award, AlertTriangle, History, Save, Plus, Trash2, ChevronRight, Zap } from 'lucide-react';
+import { Layers, Sparkles, Loader2, Target, Users, Award, AlertTriangle, History, Save, Plus, Trash2, ChevronRight, Zap, BarChart3 } from 'lucide-react';
 import { STPInput, STPResult, STPSegment } from '../types';
 import { generateSTPAnalysis } from '../services/geminiService';
 import { STPService, SavedSTP } from '../services/stpService';
 import toast, { Toaster } from 'react-hot-toast';
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+const SegmentCard: React.FC<{ segment: STPSegment; index: number }> = ({ segment, index }) => (
+        <div className={`${cardClass} p-5 transition-all hover:border-stone-300/90`}>
+            <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-stone-200 bg-stone-50/80 text-sm font-medium text-stone-700">
+                    {index + 1}
+                </div>
+                <h4 className="text-base font-medium tracking-tight text-stone-900">{segment.name}</h4>
+            </div>
+            <p className="mb-4 text-sm font-normal leading-relaxed text-stone-600">{segment.description}</p>
+
+            <div className="mb-4 grid grid-cols-2 gap-4">
+                <div>
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Demographics</p>
+                    <p className="text-sm font-normal text-stone-800">{segment.demographics}</p>
+                </div>
+                <div>
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Psychographics</p>
+                    <p className="text-sm font-normal text-stone-800">{segment.psychographics}</p>
+                </div>
+            </div>
+
+            <div className="mb-3 rounded-xl border border-stone-100 bg-stone-50/60 p-3">
+                <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Quy mô ước tính</p>
+                <p className="text-sm font-medium text-stone-900">{segment.size_estimate}</p>
+            </div>
+
+            <div className="space-y-2">
+                <div>
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Nhu cầu</p>
+                    <div className="flex flex-wrap gap-1.5">
+                        {segment.needs.map((need, i) => (
+                            <span key={i} className="rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1 text-xs font-normal text-stone-700">{need}</span>
+                        ))}
+                    </div>
+                </div>
+                <div>
+                    <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Hành vi</p>
+                    <div className="flex flex-wrap gap-1.5">
+                        {segment.behaviors.map((behavior, i) => (
+                            <span key={i} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-xs font-normal text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">{behavior}</span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+);
 
 const STPModelGenerator: React.FC = () => {
     const { register, handleSubmit, formState: { errors }, reset } = useForm<STPInput>();
@@ -98,210 +151,183 @@ const STPModelGenerator: React.FC = () => {
         toast.success('Sẵn sàng phân tích mới!', { icon: '✨' });
     };
 
-    // Segment Card Component
-    const SegmentCard = ({ segment, index }: { segment: STPSegment; index: number }) => (
-        <div className="bg-white border border-slate-100 rounded-xl p-5 hover:border-slate-200 transition-all">
-            <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 font-semibold text-sm">
-                    {index + 1}
-                </div>
-                <h4 className="text-base font-semibold text-slate-900">{segment.name}</h4>
-            </div>
-            <p className="text-sm text-slate-600 mb-4">{segment.description}</p>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase mb-1">Demographics</p>
-                    <p className="text-sm text-slate-700">{segment.demographics}</p>
-                </div>
-                <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase mb-1">Psychographics</p>
-                    <p className="text-sm text-slate-700">{segment.psychographics}</p>
-                </div>
-            </div>
-
-            <div className="bg-slate-50 rounded-lg p-3 mb-3">
-                <p className="text-xs font-medium text-slate-500 uppercase mb-1">Quy mô ước tính</p>
-                <p className="text-sm font-medium text-slate-800">{segment.size_estimate}</p>
-            </div>
-
-            <div className="space-y-2">
-                <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase mb-1">Nhu cầu</p>
-                    <div className="flex flex-wrap gap-1">
-                        {segment.needs.map((need, i) => (
-                            <span key={i} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md">{need}</span>
-                        ))}
-                    </div>
-                </div>
-                <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase mb-1">Hành vi</p>
-                    <div className="flex flex-wrap gap-1">
-                        {segment.behaviors.map((behavior, i) => (
-                            <span key={i} className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-md">{behavior}</span>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
     return (
-        <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-100 px-8 py-4 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-slate-50 text-slate-600 rounded-lg flex items-center justify-center">
-                        <Layers size={20} strokeWidth={1.5} />
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Layers size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Phân tích STP
+                        </span>
                     </div>
-                    <div>
-                        <h1 className="text-lg font-semibold text-slate-900">STP Model Generator</h1>
-                        <p className="text-xs text-slate-400">Segmentation - Targeting - Positioning</p>
-                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        STP Model Generator
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Segmentation — Targeting — Positioning
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-wrap gap-2">
                     <button
+                        type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-all text-sm"
+                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                            }`}
                     >
-                        <History size={16} /> Lịch sử ({savedItems.length})
+                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedItems.length})
                     </button>
                     {stpData && stpData.validationStatus !== 'FAIL' && (
                         <>
                             <button
+                                type="button"
                                 onClick={handleNew}
-                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-lg transition-all text-sm"
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                             >
-                                <Plus size={16} /> Tạo mới
+                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
                             </button>
                             <button
+                                type="button"
                                 onClick={handleSave}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition-all text-sm"
+                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                             >
-                                <Save size={16} /> Lưu
+                                <Save size={17} strokeWidth={1.25} /> Lưu
                             </button>
                         </>
                     )}
                 </div>
-            </div>
+            </header>
 
-            <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: showHistory ? '280px 400px 1fr' : '400px 1fr' }}>
-                {/* History Sidebar */}
+            <div
+                className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
+                style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,400px) 1fr' : 'minmax(0,400px) 1fr' }}
+            >
                 {showHistory && (
-                    <div className="bg-white border-r border-slate-100 p-5 overflow-y-auto h-full">
-                        <div className="flex items-center justify-between mb-5">
-                            <h3 className="text-sm font-semibold text-slate-900">Lịch sử STP</h3>
-                            <span className="text-xs text-slate-400">{savedItems.length} mục</span>
+                    <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                        <div className="border-b border-stone-100 px-5 py-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
+                                    <History size={18} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                    Lịch sử STP
+                                </h3>
+                                <span className="text-xs font-normal text-stone-400">{savedItems.length} mục</span>
+                            </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
                             {savedItems.map((item) => (
                                 <div
                                     key={item.id}
+                                    role="button"
+                                    tabIndex={0}
                                     onClick={() => handleLoad(item)}
-                                    className="p-3 bg-slate-50 rounded-lg border border-slate-100 hover:border-slate-200 transition-all cursor-pointer group"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleLoad(item)}
+                                    className="group cursor-pointer rounded-2xl border border-stone-200/90 p-3 transition-all hover:border-stone-300 hover:bg-stone-50/50"
                                 >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <p className="text-sm font-medium text-slate-900 line-clamp-1">{item.input.productBrand}</p>
+                                    <div className="mb-2 flex items-start justify-between gap-2">
+                                        <p className="line-clamp-1 text-sm font-medium text-stone-900">{item.input.productBrand}</p>
                                         <button
+                                            type="button"
                                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-all"
+                                            className="shrink-0 rounded-lg p-1.5 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                            aria-label="Xóa"
                                         >
-                                            <Trash2 size={14} />
+                                            <Trash2 size={14} strokeWidth={1.25} />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-slate-500 mb-1">{item.input.industry}</p>
-                                    <p className="text-xs text-slate-400">{new Date(item.timestamp).toLocaleDateString('vi-VN')}</p>
+                                    <p className="mb-1 text-xs font-normal text-stone-500">{item.input.industry}</p>
+                                    <p className="text-xs font-normal text-stone-400">{new Date(item.timestamp).toLocaleDateString('vi-VN')}</p>
                                 </div>
                             ))}
                             {savedItems.length === 0 && (
-                                <div className="text-center py-8 text-slate-400 text-sm">Chưa có STP nào được lưu</div>
+                                <div className="py-10 text-center text-sm font-normal text-stone-400">Chưa có STP nào được lưu</div>
                             )}
                         </div>
                     </div>
                 )}
 
-                {/* Form Panel */}
-                <div className="bg-white border-r border-slate-100 p-6 overflow-y-auto h-full">
-                    <div className="mb-6">
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="text-slate-700 text-lg">📊</span>
-                            <h2 className="text-base font-semibold text-slate-900">Thông tin phân tích</h2>
-                        </div>
-                        <p className="text-sm text-slate-400 pl-9">Nhập thông tin CHI TIẾT để có kết quả chính xác</p>
-                    </div>
+                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+                    <h2 className="mb-2 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                        <BarChart3 size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                        Thông tin phân tích
+                    </h2>
+                    <p className="mb-6 text-sm font-normal leading-relaxed text-stone-500">
+                        Nhập thông tin chi tiết để có kết quả chính xác
+                    </p>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        {/* Required Fields */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Sản phẩm / Thương hiệu *</label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Sản phẩm / Thương hiệu *</label>
                             <input
                                 {...register('productBrand', { required: 'Vui lòng nhập tên sản phẩm/thương hiệu' })}
                                 placeholder="VD: Highlands Coffee, Vinamilk, Grab..."
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                className={inputClass}
                             />
-                            {errors.productBrand && <p className="text-xs text-red-500 mt-1">{errors.productBrand.message}</p>}
+                            {errors.productBrand && <p className="mt-1 text-xs text-red-600">{errors.productBrand.message}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Ngành hàng *</label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Ngành hàng *</label>
                             <input
                                 {...register('industry', { required: 'Vui lòng nhập ngành hàng' })}
                                 placeholder="VD: F&B, FMCG, E-commerce, Real Estate..."
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                className={inputClass}
                             />
-                            {errors.industry && <p className="text-xs text-red-500 mt-1">{errors.industry.message}</p>}
+                            {errors.industry && <p className="mt-1 text-xs text-red-600">{errors.industry.message}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Mô tả sản phẩm *</label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Mô tả sản phẩm *</label>
                             <textarea
                                 {...register('productDescription', { required: 'Vui lòng mô tả sản phẩm' })}
                                 placeholder="Mô tả chi tiết về sản phẩm/dịch vụ, đặc điểm, USP..."
                                 rows={3}
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all resize-none"
+                                className={`${inputClass} resize-none`}
                             />
-                            {errors.productDescription && <p className="text-xs text-red-500 mt-1">{errors.productDescription.message}</p>}
+                            {errors.productDescription && <p className="mt-1 text-xs text-red-600">{errors.productDescription.message}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Khoảng giá *</label>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Khoảng giá *</label>
                                 <input
                                     {...register('priceRange', { required: 'Vui lòng nhập khoảng giá' })}
                                     placeholder="VD: 50K-100K VNĐ"
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                    className={inputClass}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1.5">Thị trường *</label>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Thị trường *</label>
                                 <input
                                     {...register('targetMarket', { required: 'Vui lòng nhập thị trường' })}
                                     placeholder="VD: Việt Nam, TP.HCM"
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                    className={inputClass}
                                 />
                             </div>
                         </div>
 
-                        {/* Optional Fields */}
-                        <div className="pt-3 border-t border-slate-100">
-                            <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Thông tin bổ sung (tuỳ chọn)</p>
-                            <div className="space-y-3">
+                        <div className="border-t border-stone-100 pt-5">
+                            <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                                Thông tin bổ sung (tuỳ chọn)
+                            </p>
+                            <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Đối thủ cạnh tranh</label>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Đối thủ cạnh tranh</label>
                                     <input
                                         {...register('competitorNames')}
                                         placeholder="VD: Starbucks, The Coffee House, Phúc Long..."
-                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                        className={inputClass}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Khách hàng hiện tại</label>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Khách hàng hiện tại</label>
                                     <input
                                         {...register('currentCustomers')}
                                         placeholder="VD: Nhân viên văn phòng 25-35 tuổi TP.HCM"
-                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-slate-900/5 focus:border-slate-300 outline-none transition-all"
+                                        className={inputClass}
                                     />
                                 </div>
                             </div>
@@ -310,108 +336,102 @@ const STPModelGenerator: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isGenerating}
-                            className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {isGenerating ? (
                                 <>
-                                    <Loader2 size={18} className="animate-spin" />
-                                    <span className="text-sm">{thinkingStep || 'Đang phân tích...'}</span>
+                                    <Loader2 size={18} className="animate-spin" strokeWidth={1.25} />
+                                    <span>{thinkingStep || 'Đang phân tích...'}</span>
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles size={18} />
+                                    <Sparkles size={18} strokeWidth={1.25} />
                                     Phân tích STP
                                 </>
                             )}
                         </button>
                     </form>
 
-                    {/* Framework Info */}
-                    <div className="mt-5 p-4 bg-slate-50 rounded-lg border border-slate-100">
-                        <h3 className="text-sm font-medium text-slate-800 mb-2">📚 STP Framework:</h3>
-                        <ul className="text-xs text-slate-600 space-y-1">
-                            <li>• <strong>Segmentation:</strong> Chia thị trường thành các phân khúc</li>
-                            <li>• <strong>Targeting:</strong> Chọn phân khúc mục tiêu phù hợp nhất</li>
-                            <li>• <strong>Positioning:</strong> Định vị thương hiệu trong tâm trí khách hàng</li>
+                    <div className="mt-6 rounded-2xl border border-stone-100 bg-stone-50/60 p-4">
+                        <h3 className="mb-2 text-sm font-medium text-stone-800">STP Framework</h3>
+                        <ul className="space-y-1.5 text-xs font-normal leading-relaxed text-stone-600">
+                            <li><span className="font-medium text-stone-800">Segmentation:</span> Chia thị trường thành các phân khúc</li>
+                            <li><span className="font-medium text-stone-800">Targeting:</span> Chọn phân khúc mục tiêu phù hợp nhất</li>
+                            <li><span className="font-medium text-stone-800">Positioning:</span> Định vị thương hiệu trong tâm trí khách hàng</li>
                         </ul>
                     </div>
                 </div>
 
-                {/* Results Panel */}
-                <div className="p-6 overflow-auto bg-slate-50 h-full">
+                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
                     {!stpData && !isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                            <div className="w-16 h-16 rounded-lg bg-white border border-slate-100 flex items-center justify-center mb-4">
-                                <Target size={28} strokeWidth={1.5} className="text-slate-300" />
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center text-stone-400">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                <Target size={28} strokeWidth={1.25} className="text-stone-300" />
                             </div>
-                            <p className="text-base font-medium text-slate-600">STP Analysis</p>
-                            <p className="text-sm text-slate-400 mt-1">Nhập thông tin để bắt đầu phân tích</p>
+                            <p className="text-base font-medium text-stone-700">STP Analysis</p>
+                            <p className="mt-1 text-sm font-normal text-stone-500">Nhập thông tin để bắt đầu phân tích</p>
                         </div>
                     )}
 
                     {isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center">
-                            <div className="relative w-12 h-12 mb-6">
-                                <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-                                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-slate-900 animate-spin"></div>
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center">
+                            <div className="relative mb-6 h-12 w-12">
+                                <div className="absolute inset-0 rounded-full border-4 border-stone-100" />
+                                <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-stone-800" />
                             </div>
-                            <p className="text-sm font-medium text-slate-700 mb-1">{thinkingStep}</p>
-                            <p className="text-xs text-slate-400">Đang phân tích STP Framework...</p>
+                            <p className="mb-1 text-sm font-medium text-stone-800">{thinkingStep}</p>
+                            <p className="text-xs font-normal text-stone-500">Đang phân tích STP Framework...</p>
                         </div>
                     )}
 
-                    {/* Validation Error */}
                     {stpData && stpData.validationStatus === 'FAIL' && (
-                        <div className="h-full flex flex-col items-center justify-center">
-                            <div className="max-w-md bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
-                                <div className="w-14 h-14 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
-                                    <AlertTriangle size={28} className="text-amber-600" />
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center">
+                            <div className="max-w-md rounded-2xl border border-amber-100 bg-amber-50/70 p-6 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100/80">
+                                    <AlertTriangle size={28} strokeWidth={1.25} className="text-amber-700" />
                                 </div>
-                                <h3 className="text-lg font-semibold text-amber-800 mb-2">Cần thêm thông tin</h3>
-                                <p className="text-sm text-amber-700">{stpData.clarificationMessage}</p>
+                                <h3 className="mb-2 text-lg font-medium tracking-tight text-amber-950">Cần thêm thông tin</h3>
+                                <p className="text-sm font-normal leading-relaxed text-amber-900/90">{stpData.clarificationMessage}</p>
                             </div>
                         </div>
                     )}
 
-                    {/* Results Display */}
                     {stpData && !isGenerating && stpData.validationStatus !== 'FAIL' && (
-                        <div className="max-w-5xl mx-auto">
-                            {/* Warning Banner */}
+                        <div className="mx-auto max-w-5xl">
                             {stpData.validationStatus === 'WARNING' && (
-                                <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
-                                    <AlertTriangle size={20} className="text-amber-600 mt-0.5" />
+                                <div className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
+                                    <AlertTriangle size={20} strokeWidth={1.25} className="mt-0.5 shrink-0 text-amber-700" />
                                     <div>
-                                        <p className="text-sm font-medium text-amber-800">Lưu ý</p>
-                                        <p className="text-sm text-amber-700">{stpData.clarificationMessage}</p>
+                                        <p className="text-sm font-medium text-amber-900">Lưu ý</p>
+                                        <p className="mt-0.5 text-sm font-normal leading-relaxed text-amber-900/90">{stpData.clarificationMessage}</p>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Tabs */}
-                            <div className="flex gap-1 mb-6 bg-white border border-slate-100 p-1 rounded-lg w-fit">
+                            <div className="mb-6 inline-flex w-full max-w-full flex-wrap gap-1 rounded-2xl border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:w-fit">
                                 {(['segmentation', 'targeting', 'positioning'] as const).map((tab) => (
                                     <button
                                         key={tab}
+                                        type="button"
                                         onClick={() => setActiveTab(tab)}
-                                        className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${activeTab === tab
-                                                ? 'bg-slate-900 text-white'
-                                                : 'text-slate-600 hover:bg-slate-50'
+                                        className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${activeTab === tab
+                                            ? 'bg-stone-900 text-white shadow-sm'
+                                            : 'text-stone-600 hover:bg-stone-50/80'
                                             }`}
                                     >
-                                        {tab === 'segmentation' && <Users size={16} />}
-                                        {tab === 'targeting' && <Target size={16} />}
-                                        {tab === 'positioning' && <Award size={16} />}
+                                        {tab === 'segmentation' && <Users size={16} strokeWidth={1.25} />}
+                                        {tab === 'targeting' && <Target size={16} strokeWidth={1.25} />}
+                                        {tab === 'positioning' && <Award size={16} strokeWidth={1.25} />}
                                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                                     </button>
                                 ))}
                             </div>
 
-                            {/* Segmentation Tab */}
                             {activeTab === 'segmentation' && (
                                 <div>
                                     <div className="mb-5">
-                                        <h2 className="text-xl font-semibold text-slate-900 mb-2">Phân khúc thị trường</h2>
-                                        <p className="text-sm text-slate-500">{stpData.segmentation.analysis_approach}</p>
+                                        <h2 className="mb-2 font-sans text-xl font-medium tracking-tight text-stone-900 md:text-2xl">Phân khúc thị trường</h2>
+                                        <p className="text-sm font-normal leading-relaxed text-stone-500">{stpData.segmentation.analysis_approach}</p>
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                         {stpData.segmentation.segments.map((segment, idx) => (
@@ -421,43 +441,42 @@ const STPModelGenerator: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Targeting Tab */}
                             {activeTab === 'targeting' && (
                                 <div>
-                                    <h2 className="text-xl font-semibold text-slate-900 mb-5">Thị trường mục tiêu</h2>
+                                    <h2 className="mb-5 font-sans text-xl font-medium tracking-tight text-stone-900 md:text-2xl">Thị trường mục tiêu</h2>
 
-                                    <div className="bg-white border border-slate-100 rounded-xl p-6 mb-6">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
-                                                <Target size={20} className="text-indigo-600" />
+                                    <div className={`${cardClass} mb-6 p-6`}>
+                                        <div className="mb-4 flex flex-wrap items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 bg-stone-50/80">
+                                                <Target size={20} strokeWidth={1.25} className="text-stone-700" />
                                             </div>
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-slate-900">{stpData.targeting.primary_segment}</h3>
-                                                <p className="text-sm text-slate-500">Phân khúc được chọn</p>
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="text-lg font-medium tracking-tight text-stone-900">{stpData.targeting.primary_segment}</h3>
+                                                <p className="text-sm font-normal text-stone-500">Phân khúc được chọn</p>
                                             </div>
-                                            <div className="ml-auto px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium">
+                                            <div className="rounded-xl border border-stone-200 bg-stone-50/80 px-3 py-1.5 text-sm font-medium text-stone-800">
                                                 Market Fit: {stpData.targeting.market_fit_score}%
                                             </div>
                                         </div>
-                                        <p className="text-sm text-slate-700 mb-4">{stpData.targeting.selection_rationale}</p>
+                                        <p className="mb-4 text-sm font-normal leading-relaxed text-stone-800">{stpData.targeting.selection_rationale}</p>
 
-                                        <div className="grid grid-cols-2 gap-4 mb-4">
-                                            <div className="bg-slate-50 rounded-lg p-4">
-                                                <p className="text-xs font-medium text-slate-500 uppercase mb-1">Tiềm năng tăng trưởng</p>
-                                                <p className="text-sm text-slate-800">{stpData.targeting.growth_potential}</p>
+                                        <div className="mb-4 grid grid-cols-2 gap-4">
+                                            <div className="rounded-2xl border border-stone-100 bg-stone-50/60 p-4">
+                                                <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Tiềm năng tăng trưởng</p>
+                                                <p className="text-sm font-normal text-stone-900">{stpData.targeting.growth_potential}</p>
                                             </div>
-                                            <div className="bg-slate-50 rounded-lg p-4">
-                                                <p className="text-xs font-medium text-slate-500 uppercase mb-1">Khả năng tiếp cận</p>
-                                                <p className="text-sm text-slate-800">{stpData.targeting.accessibility}</p>
+                                            <div className="rounded-2xl border border-stone-100 bg-stone-50/60 p-4">
+                                                <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Khả năng tiếp cận</p>
+                                                <p className="text-sm font-normal text-stone-900">{stpData.targeting.accessibility}</p>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <p className="text-xs font-medium text-slate-500 uppercase mb-2">Rủi ro</p>
+                                            <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Rủi ro</p>
                                             <div className="space-y-2">
                                                 {stpData.targeting.risks.map((risk, idx) => (
-                                                    <div key={idx} className="flex items-start gap-2 bg-red-50 text-red-700 p-3 rounded-lg text-sm">
-                                                        <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                                                    <div key={idx} className="flex items-start gap-2 rounded-xl border border-rose-100 bg-rose-50/50 p-3 text-sm font-normal text-rose-900/90">
+                                                        <AlertTriangle size={16} strokeWidth={1.25} className="mt-0.5 shrink-0 text-rose-600" />
                                                         {risk}
                                                     </div>
                                                 ))}
@@ -467,53 +486,51 @@ const STPModelGenerator: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Positioning Tab */}
                             {activeTab === 'positioning' && (
                                 <div>
-                                    <h2 className="text-xl font-semibold text-slate-900 mb-5">Định vị thương hiệu</h2>
+                                    <h2 className="mb-5 font-sans text-xl font-medium tracking-tight text-stone-900 md:text-2xl">Định vị thương hiệu</h2>
 
-                                    {/* Positioning Statement */}
-                                    <div className="bg-white border-2 border-indigo-100 rounded-xl p-6 mb-6">
-                                        <p className="text-xs font-medium text-indigo-600 uppercase mb-2">Positioning Statement</p>
-                                        <p className="text-lg font-medium text-slate-900 leading-relaxed">{stpData.positioning.positioning_statement}</p>
+                                    <div className="mb-6 rounded-2xl border border-stone-900/10 bg-stone-50/40 p-6 ring-1 ring-stone-200/80">
+                                        <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">Positioning Statement</p>
+                                        <p className="text-lg font-normal leading-relaxed text-stone-900">{stpData.positioning.positioning_statement}</p>
                                     </div>
 
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                                        <div className="bg-white border border-slate-100 rounded-xl p-5">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Zap size={18} className="text-amber-500" />
-                                                <p className="text-sm font-semibold text-slate-900">Unique Value Proposition</p>
+                                    <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                        <div className={`${cardClass} p-5`}>
+                                            <div className="mb-3 flex items-center gap-2">
+                                                <Zap size={18} strokeWidth={1.25} className="text-stone-500" />
+                                                <p className="text-sm font-medium text-stone-900">Unique Value Proposition</p>
                                             </div>
-                                            <p className="text-sm text-slate-700">{stpData.positioning.unique_value_proposition}</p>
+                                            <p className="text-sm font-normal leading-relaxed text-stone-700">{stpData.positioning.unique_value_proposition}</p>
                                         </div>
-                                        <div className="bg-white border border-slate-100 rounded-xl p-5">
-                                            <div className="flex items-center gap-2 mb-3">
-                                                <Award size={18} className="text-violet-500" />
-                                                <p className="text-sm font-semibold text-slate-900">Brand Essence</p>
+                                        <div className={`${cardClass} p-5`}>
+                                            <div className="mb-3 flex items-center gap-2">
+                                                <Award size={18} strokeWidth={1.25} className="text-stone-500" />
+                                                <p className="text-sm font-medium text-stone-900">Brand Essence</p>
                                             </div>
-                                            <p className="text-lg font-bold text-violet-600">{stpData.positioning.brand_essence}</p>
-                                            <p className="text-sm text-slate-500 mt-1">{stpData.positioning.competitive_frame}</p>
+                                            <p className="text-lg font-medium tracking-tight text-stone-900">{stpData.positioning.brand_essence}</p>
+                                            <p className="mt-1 text-sm font-normal text-stone-500">{stpData.positioning.competitive_frame}</p>
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                                        <div className="bg-white border border-slate-100 rounded-xl p-5">
-                                            <p className="text-xs font-medium text-slate-500 uppercase mb-3">Key Differentiators</p>
+                                    <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                        <div className={`${cardClass} p-5`}>
+                                            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Key Differentiators</p>
                                             <div className="space-y-2">
                                                 {stpData.positioning.key_differentiators.map((diff, idx) => (
-                                                    <div key={idx} className="flex items-center gap-2 text-sm text-slate-700">
-                                                        <ChevronRight size={16} className="text-emerald-500" />
+                                                    <div key={idx} className="flex items-center gap-2 text-sm font-normal text-stone-800">
+                                                        <ChevronRight size={16} strokeWidth={1.25} className="shrink-0 text-stone-400" />
                                                         {diff}
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
-                                        <div className="bg-white border border-slate-100 rounded-xl p-5">
-                                            <p className="text-xs font-medium text-slate-500 uppercase mb-3">Reasons to Believe</p>
+                                        <div className={`${cardClass} p-5`}>
+                                            <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.08em] text-stone-500">Reasons to Believe</p>
                                             <div className="space-y-2">
                                                 {stpData.positioning.reasons_to_believe.map((rtb, idx) => (
-                                                    <div key={idx} className="flex items-center gap-2 text-sm text-slate-700">
-                                                        <ChevronRight size={16} className="text-blue-500" />
+                                                    <div key={idx} className="flex items-center gap-2 text-sm font-normal text-stone-800">
+                                                        <ChevronRight size={16} strokeWidth={1.25} className="shrink-0 text-stone-400" />
                                                         {rtb}
                                                     </div>
                                                 ))}
@@ -521,36 +538,36 @@ const STPModelGenerator: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Action Plan */}
-                                    <div className="bg-slate-900 text-white rounded-xl p-6">
-                                        <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-                                            🚀 Action Plan
+                                    <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6 text-white shadow-[0_1px_2px_rgba(15,23,42,0.08)]">
+                                        <h3 className="mb-4 flex items-center gap-2 text-base font-medium tracking-tight">
+                                            <Sparkles size={18} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                            Action Plan
                                         </h3>
-                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                                             <div>
-                                                <p className="text-xs font-medium text-slate-400 uppercase mb-2">Hành động ngay</p>
+                                                <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-stone-400">Hành động ngay</p>
                                                 <ul className="space-y-1.5">
                                                     {stpData.actionPlan.immediate_actions.map((action, idx) => (
-                                                        <li key={idx} className="text-sm text-slate-200 flex items-start gap-2">
-                                                            <span className="text-emerald-400">•</span>
+                                                        <li key={idx} className="flex items-start gap-2 text-sm font-normal text-stone-200">
+                                                            <span className="text-stone-500" aria-hidden>•</span>
                                                             {action}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-medium text-slate-400 uppercase mb-2">Kênh Marketing</p>
+                                                <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-stone-400">Kênh Marketing</p>
                                                 <div className="flex flex-wrap gap-2">
                                                     {stpData.actionPlan.marketing_channels.map((channel, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-slate-800 rounded-md text-xs">{channel}</span>
+                                                        <span key={idx} className="rounded-lg border border-stone-600 bg-stone-800/80 px-2 py-1 text-xs font-normal text-stone-200">{channel}</span>
                                                     ))}
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="text-xs font-medium text-slate-400 uppercase mb-2">Messaging Hooks</p>
+                                                <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.1em] text-stone-400">Messaging Hooks</p>
                                                 <ul className="space-y-1.5">
                                                     {stpData.actionPlan.messaging_hooks.map((hook, idx) => (
-                                                        <li key={idx} className="text-sm text-amber-300 italic">"{hook}"</li>
+                                                        <li key={idx} className="text-sm font-normal italic text-stone-300">&ldquo;{hook}&rdquo;</li>
                                                     ))}
                                                 </ul>
                                             </div>

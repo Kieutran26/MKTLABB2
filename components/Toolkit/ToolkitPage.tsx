@@ -10,6 +10,12 @@ import UnsplashLinkConverter from './UnsplashLinkConverter';
 import PromptManager from '../PromptManager';
 import SmartSalary from '../SmartSalary';
 
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const iconBoxClass =
+    'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200/90 bg-stone-50 text-stone-600';
+
 type ToolType = 'menu' | 'word-counter' | 'aspect-ratio' | 'text-compare' | 'lorem-ipsum' | 'one-time-reminder' | 'problem-to-question' | 'prompt-manager' | 'smart-salary' | 'unsplash-link';
 
 interface Tool {
@@ -17,7 +23,6 @@ interface Tool {
     name: string;
     description: string;
     icon: React.ReactNode;
-    color: string;
 }
 
 const tools: Tool[] = [
@@ -25,64 +30,55 @@ const tools: Tool[] = [
         id: 'word-counter',
         name: 'Đếm Từ',
         description: 'Đếm từ, ký tự, câu, đoạn văn và phân tích mật độ từ khóa',
-        icon: <Type size={24} />,
-        color: 'bg-blue-50 text-blue-600 border-blue-100'
+        icon: <Type size={22} strokeWidth={1.5} />,
     },
     {
         id: 'aspect-ratio',
         name: 'Tỷ Lệ Khung Hình',
         description: 'Tính toán tỷ lệ khung hình từ kích thước hoặc ngược lại',
-        icon: <Ratio size={24} />,
-        color: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+        icon: <Ratio size={22} strokeWidth={1.5} />,
     },
     {
         id: 'text-compare',
         name: 'So Sánh Văn Bản',
         description: 'So sánh và merge hai khối văn bản, hiển thị sự khác biệt',
-        icon: <GitCompare size={24} />,
-        color: 'bg-purple-50 text-purple-600 border-purple-100'
+        icon: <GitCompare size={22} strokeWidth={1.5} />,
     },
     {
         id: 'lorem-ipsum',
         name: 'Tạo Văn Bản Giả',
         description: 'Tạo Lorem Ipsum bằng tiếng Việt hoặc Latin cho thiết kế',
-        icon: <FileText size={24} />,
-        color: 'bg-amber-50 text-amber-600 border-amber-100'
+        icon: <FileText size={22} strokeWidth={1.5} />,
     },
     {
         id: 'one-time-reminder',
         name: 'Nhắc Việc Một Lần',
         description: 'Tạo nhắc việc và nhận thông báo trên trình duyệt',
-        icon: <Bell size={24} />,
-        color: 'bg-rose-50 text-rose-600 border-rose-100'
+        icon: <Bell size={22} strokeWidth={1.5} />,
     },
     {
         id: 'problem-to-question',
         name: 'Vấn Đề → Câu Hỏi',
         description: 'Chuyển vấn đề/than phiền thành câu hỏi có thể hành động',
-        icon: <HelpCircle size={24} />,
-        color: 'bg-indigo-50 text-indigo-600 border-indigo-100'
+        icon: <HelpCircle size={22} strokeWidth={1.5} />,
     },
     {
         id: 'prompt-manager',
         name: 'Kho Prompt',
         description: 'Lưu trữ và quản lý các prompt cho AI models',
-        icon: <Terminal size={24} />,
-        color: 'bg-slate-50 text-slate-600 border-slate-100'
+        icon: <Terminal size={22} strokeWidth={1.5} />,
     },
     {
         id: 'smart-salary',
         name: 'Theo Dõi Lương',
         description: 'Quản lý và theo dõi lương, thu nhập hàng tháng',
-        icon: <Banknote size={24} />,
-        color: 'bg-emerald-50 text-emerald-600 border-emerald-100'
+        icon: <Banknote size={22} strokeWidth={1.5} />,
     },
     {
         id: 'unsplash-link',
         name: 'Chuyển Đổi Link Unsplash',
         description: 'Làm sạch và tối ưu link ảnh Unsplash',
-        icon: <Link size={24} />,
-        color: 'bg-pink-50 text-pink-600 border-pink-100'
+        icon: <Link size={22} strokeWidth={1.5} />,
     },
 ];
 
@@ -121,48 +117,50 @@ const ToolkitPage: React.FC = () => {
     // If a tool is active, show it with back button and dropdown
     if (activeTool !== 'menu') {
         return (
-            <div>
-                {/* Top Bar with Dropdown */}
-                <div className="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between">
+            <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+                <div className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC]/95 px-4 py-3 backdrop-blur-sm sm:px-6">
                     <button
+                        type="button"
                         onClick={() => setActiveTool('menu')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900"
                     >
-                        <ArrowLeft size={18} />
+                        <ArrowLeft size={18} strokeWidth={1.5} />
                         <span>Quay lại</span>
                     </button>
 
-                    {/* Dropdown Selector */}
                     <div className="relative">
                         <button
+                            type="button"
                             onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-800 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50"
                         >
-                            <Wrench size={16} className="text-gray-500" />
-                            <span className="font-medium text-gray-700">{activeToolName}</span>
-                            <ChevronDown size={16} className={`text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                            <Wrench size={16} className="text-stone-500" strokeWidth={1.5} />
+                            <span>{activeToolName}</span>
+                            <ChevronDown size={16} className={`text-stone-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} strokeWidth={1.5} />
                         </button>
 
                         {dropdownOpen && (
-                            <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                            <div className="absolute right-0 top-full z-50 mt-2 w-[min(100vw-2rem,20rem)] overflow-hidden rounded-2xl border border-stone-200/90 bg-white py-1 shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
                                 {tools.map(tool => (
                                     <button
+                                        type="button"
                                         key={tool.id}
                                         onClick={() => {
                                             setActiveTool(tool.id);
                                             setDropdownOpen(false);
                                         }}
-                                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${activeTool === tool.id ? 'bg-blue-50' : ''
+                                        className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors ${activeTool === tool.id ? 'bg-stone-100' : 'hover:bg-stone-50'
                                             }`}
                                     >
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center border ${tool.color}`}>
+                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200/90 bg-stone-50 text-stone-600 [&_svg]:h-[18px] [&_svg]:w-[18px] ${activeTool === tool.id ? 'border-stone-300 bg-white' : ''
+                                            }`}>
                                             {tool.icon}
                                         </div>
-                                        <div>
-                                            <p className={`font-medium ${activeTool === tool.id ? 'text-blue-600' : 'text-gray-900'}`}>
+                                        <div className="min-w-0">
+                                            <p className={`text-sm font-medium ${activeTool === tool.id ? 'text-stone-900' : 'text-stone-800'}`}>
                                                 {tool.name}
                                             </p>
-                                            <p className="text-xs text-gray-500">{tool.description}</p>
+                                            <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-stone-500">{tool.description}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -177,45 +175,48 @@ const ToolkitPage: React.FC = () => {
 
     // Main Menu View
     return (
-        <div className="min-h-screen bg-[#F9FAFB] p-8">
-            <div className="max-w-5xl mx-auto">
-                {/* Header */}
-                <div className="mb-10 text-center">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-2xl mb-4">
-                        <Wrench size={32} className="text-gray-600" />
+        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+            <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-12">
+                <div className="mb-12 text-center">
+                    <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-200/90 bg-white text-stone-500 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                        <Wrench size={28} strokeWidth={1.5} />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Bộ Công Cụ</h1>
-                    <p className="text-gray-500 max-w-xl mx-auto">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                        Tiện ích trình duyệt
+                    </p>
+                    <h1 className="mb-3 text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
+                        Bộ Công Cụ
+                    </h1>
+                    <p className="mx-auto max-w-xl text-sm leading-relaxed text-stone-500 sm:text-base">
                         Tập hợp các công cụ hữu ích cho công việc hàng ngày. Tất cả đều miễn phí và hoạt động trực tiếp trên trình duyệt.
                     </p>
                 </div>
 
-                {/* Tools Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
                     {tools.map(tool => (
                         <button
+                            type="button"
                             key={tool.id}
                             onClick={() => setActiveTool(tool.id)}
-                            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all text-left group"
+                            className={`${cardClass} group p-6 text-left transition-colors hover:border-stone-300`}
                         >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 border ${tool.color}`}>
+                            <div className={`${iconBoxClass} mb-5`}>
                                 {tool.icon}
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                            <h3 className="mb-2 text-lg font-medium tracking-tight text-stone-900 transition-colors group-hover:text-stone-700">
                                 {tool.name}
                             </h3>
-                            <p className="text-sm text-gray-500 leading-relaxed">
+                            <p className="text-sm leading-relaxed text-stone-500">
                                 {tool.description}
                             </p>
                         </button>
                     ))}
 
-                    {/* Coming Soon Placeholder */}
-                    <div className="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-200 flex flex-col items-center justify-center text-center opacity-60">
-                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-4">
-                            <Wrench size={24} className="text-gray-400" />
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-300/90 bg-stone-50/40 p-8 text-center">
+                        <div className={`${iconBoxClass} mb-4 opacity-70`}>
+                            <Wrench size={22} strokeWidth={1.5} className="text-stone-400" />
                         </div>
-                        <p className="text-gray-400 text-sm">Thêm công cụ sắp ra mắt...</p>
+                        <p className="text-sm text-stone-400">Thêm công cụ sắp ra mắt...</p>
                     </div>
                 </div>
             </div>

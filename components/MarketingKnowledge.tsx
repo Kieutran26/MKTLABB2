@@ -1,24 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { KnowledgeService, Knowledge } from '../services/knowledgeService';
-import { BookOpen, Search, Plus, X, Edit2, Trash2, Save, Eye, BookMarked, Sparkles } from 'lucide-react';
+import { BookOpen, Search, Plus, X, Edit2, Trash2, Save, Eye, BookMarked } from 'lucide-react';
 
-// Soft category colors
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-    'Khách Hàng': { bg: 'bg-rose-50', text: 'text-rose-600', dot: 'bg-rose-400' },
-    'Phễu & Leads': { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-400' },
-    'Chiến Lược': { bg: 'bg-violet-50', text: 'text-violet-600', dot: 'bg-violet-400' },
-    'Đo Lường': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-400' },
-    'Chi Phí': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-400' },
-    'Chuyển Đổi': { bg: 'bg-cyan-50', text: 'text-cyan-600', dot: 'bg-cyan-400' },
-    'Giá Trị': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-400' },
-    'Thị Trường': { bg: 'bg-teal-50', text: 'text-teal-600', dot: 'bg-teal-400' },
-    'Công Cụ': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-400' },
-    'Kênh': { bg: 'bg-indigo-50', text: 'text-indigo-600', dot: 'bg-indigo-400' },
-    'Định Giá': { bg: 'bg-pink-50', text: 'text-pink-600', dot: 'bg-pink-400' },
-    'Ngân Sách': { bg: 'bg-lime-50', text: 'text-lime-600', dot: 'bg-lime-500' },
-};
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 
-const getColor = (cat: string) => CATEGORY_COLORS[cat] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-400' };
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+/** Editorial minimalism: single stone treatment for all categories */
+const getColor = (_cat: string) => ({
+    bg: 'bg-stone-100/80',
+    text: 'text-stone-600',
+    dot: 'bg-stone-400',
+});
 
 // Initial data
 const INITIAL_KNOWLEDGE: Omit<Knowledge, 'id'>[] = [
@@ -238,36 +233,49 @@ const MarketingKnowledge: React.FC = () => {
 
     const handleDelete = async (id: string) => { if (await KnowledgeService.delete(id)) { setItems(prev => prev.filter(item => item.id !== id)); setSelectedItem(null); } };
 
+    const pillBase =
+        'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors';
+
     return (
-        <div className="min-h-screen bg-soft-surface">
-            {/* Sticky Header + Category Pills */}
-            <div className="sticky top-0 z-20 bg-white">
-                {/* Compact Header */}
-                <div className="border-b border-soft-border px-6 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="bg-indigo-100 p-2 rounded-xl">
-                                <BookMarked size={20} className="text-indigo-600" />
+        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+            <div className="sticky top-0 z-20 border-b border-stone-200/70 bg-[#FCFDFC]/95 backdrop-blur-sm">
+                <div className="px-6 py-4">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200/90 bg-white text-stone-500">
+                                <BookMarked size={20} strokeWidth={1.5} />
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold text-slate-800">Kho Kiến Thức Marketing</h1>
-                                <p className="text-slate-400 text-xs">{items.length} thuật ngữ • {categories.length} chủ đề</p>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                    Marketing glossary
+                                </p>
+                                <h1 className="text-xl font-normal tracking-tight text-stone-900 sm:text-2xl">
+                                    Kho Kiến Thức Marketing
+                                </h1>
+                                <p className="mt-0.5 text-sm text-stone-500">
+                                    {items.length} thuật ngữ • {categories.length} chủ đề
+                                </p>
                             </div>
                         </div>
-                        <button onClick={() => setShowAddForm(true)} className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-xs font-medium">
-                            <Plus size={14} /> Thêm
+                        <button
+                            type="button"
+                            onClick={() => setShowAddForm(true)}
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
+                        >
+                            <Plus size={16} strokeWidth={2} />
+                            Thêm
                         </button>
                     </div>
                 </div>
 
-                {/* Category Pills - Wrap */}
-                <div className="border-b border-soft-border px-6 py-2">
-                    <div className="flex flex-wrap items-center gap-1.5">
+                <div className="border-t border-stone-100 px-6 py-3">
+                    <div className="flex flex-wrap items-center gap-2">
                         <button
+                            type="button"
                             onClick={() => setSelectedCategory('all')}
-                            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${selectedCategory === 'all'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            className={`${pillBase} ${selectedCategory === 'all'
+                                ? 'bg-stone-900 text-white'
+                                : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
                                 }`}
                         >
                             Tất cả
@@ -276,14 +284,15 @@ const MarketingKnowledge: React.FC = () => {
                             const color = getColor(cat);
                             return (
                                 <button
+                                    type="button"
                                     key={cat}
                                     onClick={() => setSelectedCategory(cat)}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all flex items-center gap-1 ${selectedCategory === cat
-                                        ? `${color.bg} ${color.text}`
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    className={`${pillBase} ${selectedCategory === cat
+                                        ? 'bg-stone-900 text-white'
+                                        : 'border border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
                                         }`}
                                 >
-                                    <span className={`w-1.5 h-1.5 rounded-full ${color.dot}`}></span>
+                                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${selectedCategory === cat ? 'bg-white/70' : color.dot}`} />
                                     {cat}
                                 </button>
                             );
@@ -292,134 +301,131 @@ const MarketingKnowledge: React.FC = () => {
                 </div>
             </div>
 
-            {/* Main Content */}
-            <div className="p-8">
-                {/* Search Bar */}
-                <div className="relative mb-6 max-w-2xl">
-                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <div className="p-6 sm:p-8">
+                <div className="relative mb-8 max-w-2xl">
+                    <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" strokeWidth={1.5} />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Tìm kiếm thuật ngữ marketing..."
-                        className="w-full pl-11 pr-4 py-3 bg-white border border-soft-border rounded-xl text-sm focus:outline-none focus:border-indigo-400 shadow-soft"
+                        className={`${inputClass} pl-11 shadow-none`}
                     />
                 </div>
 
                 {/* Add Form */}
                 {showAddForm && (
-                    <div className="bg-white rounded-2xl border border-soft-border p-6 mb-6 shadow-soft max-w-4xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-slate-800">Thêm kiến thức mới</h3>
-                            <button onClick={() => setShowAddForm(false)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"><X size={18} /></button>
+                    <div className={`${cardClass} mb-8 max-w-4xl p-6`}>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500">Thêm kiến thức mới</h3>
+                            <button type="button" onClick={() => setShowAddForm(false)} className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-50 hover:text-stone-600"><X size={18} strokeWidth={1.5} /></button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <input type="text" value={newTerm} onChange={(e) => setNewTerm(e.target.value)} placeholder="Thuật ngữ *" className="px-4 py-3 bg-slate-50 border border-soft-border rounded-xl text-sm" />
-                            <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Chủ đề" className="px-4 py-3 bg-slate-50 border border-soft-border rounded-xl text-sm" />
+                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <input type="text" value={newTerm} onChange={(e) => setNewTerm(e.target.value)} placeholder="Thuật ngữ *" className={inputClass} />
+                            <input type="text" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Chủ đề" className={inputClass} />
                         </div>
-                        <div className="space-y-4 mb-4">
+                        <div className="mb-4 space-y-4">
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">Định nghĩa *</label>
-                                <textarea value={newDefinition} onChange={(e) => setNewDefinition(e.target.value)} placeholder="Giải thích khái niệm..." rows={4} className="w-full px-4 py-3 bg-slate-50 border border-soft-border rounded-xl text-sm resize-none" />
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Định nghĩa *</label>
+                                <textarea value={newDefinition} onChange={(e) => setNewDefinition(e.target.value)} placeholder="Giải thích khái niệm..." rows={4} className={`${inputClass} resize-none`} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-emerald-600 mb-1 block">💡 Ví dụ thực tế</label>
-                                <textarea value={newExample} onChange={(e) => setNewExample(e.target.value)} placeholder="VD: Shopee gửi voucher sinh nhật..." rows={4} className="w-full px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm resize-none" />
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Ví dụ thực tế</label>
+                                <textarea value={newExample} onChange={(e) => setNewExample(e.target.value)} placeholder="VD: Shopee gửi voucher sinh nhật..." rows={4} className={`${inputClass} resize-none bg-stone-50/50`} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-blue-600 mb-1 block">⚖️ So sánh</label>
-                                <div className="rounded-xl overflow-hidden border border-blue-200 bg-blue-50">
-                                    {/* Title Row */}
-                                    <input type="text" value={newComparisonTitle} onChange={(e) => setNewComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh (VD: A/B Testing vs Multivariate Testing)" className="w-full px-4 py-2 bg-blue-100 text-sm font-medium border-b border-blue-200 focus:outline-none placeholder:text-blue-400" />
-                                    {/* 2 Columns */}
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">So sánh</label>
+                                <div className="overflow-hidden rounded-xl border border-stone-200 bg-stone-50/40">
+                                    <input type="text" value={newComparisonTitle} onChange={(e) => setNewComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh (VD: A/B Testing vs Multivariate Testing)" className="w-full border-b border-stone-200 bg-stone-50/80 px-4 py-2.5 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                     <div className="grid grid-cols-2 gap-0">
-                                        <textarea value={newComparisonLeft} onChange={(e) => setNewComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="px-4 py-3 bg-blue-50 text-sm resize-none border-r border-blue-200 focus:outline-none" />
-                                        <textarea value={newComparisonRight} onChange={(e) => setNewComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="px-4 py-3 bg-blue-50 text-sm resize-none focus:outline-none" />
+                                        <textarea value={newComparisonLeft} onChange={(e) => setNewComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="resize-none border-r border-stone-200 bg-white px-4 py-3 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
+                                        <textarea value={newComparisonRight} onChange={(e) => setNewComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="resize-none bg-white px-4 py-3 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                     </div>
-                                    {/* Conclusion Row */}
-                                    <input type="text" value={newComparisonConclusion} onChange={(e) => setNewComparisonConclusion(e.target.value)} placeholder="→ Kết luận..." className="w-full px-4 py-2 bg-blue-100 text-sm border-t border-blue-200 focus:outline-none placeholder:text-blue-400" />
+                                    <input type="text" value={newComparisonConclusion} onChange={(e) => setNewComparisonConclusion(e.target.value)} placeholder="Kết luận..." className="w-full border-t border-stone-200 bg-stone-50/80 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                 </div>
                             </div>
                         </div>
                         <div className="flex justify-end gap-3">
-                            <button onClick={() => setShowAddForm(false)} className="px-5 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">Hủy</button>
-                            <button onClick={handleAdd} disabled={!newTerm.trim() || !newDefinition.trim()} className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm disabled:opacity-50">Lưu</button>
+                            <button type="button" onClick={() => setShowAddForm(false)} className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50">Hủy</button>
+                            <button type="button" onClick={handleAdd} disabled={!newTerm.trim() || !newDefinition.trim()} className="rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-40">Lưu</button>
                         </div>
                     </div>
                 )}
 
                 {/* Edit Form - shown separately, not in popup */}
                 {editingId && !isEditingPopup && (
-                    <div className="bg-amber-50 rounded-2xl border border-amber-200 p-6 mb-6 shadow-soft max-w-4xl">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-slate-800">Chỉnh sửa</h3>
-                            <button onClick={() => setEditingId(null)} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white rounded-lg"><X size={18} /></button>
+                    <div className={`${cardClass} mb-8 max-w-4xl border-l-4 border-l-stone-300 p-6`}>
+                        <div className="mb-6 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500">Chỉnh sửa</h3>
+                            <button type="button" onClick={() => setEditingId(null)} className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-50 hover:text-stone-600"><X size={18} strokeWidth={1.5} /></button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <input type="text" value={editTerm} onChange={(e) => setEditTerm(e.target.value)} placeholder="Thuật ngữ" className="px-4 py-3 bg-white border border-soft-border rounded-xl text-sm" />
-                            <input type="text" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} placeholder="Chủ đề" className="px-4 py-3 bg-white border border-soft-border rounded-xl text-sm" />
+                        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <input type="text" value={editTerm} onChange={(e) => setEditTerm(e.target.value)} placeholder="Thuật ngữ" className={inputClass} />
+                            <input type="text" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} placeholder="Chủ đề" className={inputClass} />
                         </div>
-                        <div className="space-y-4 mb-4">
+                        <div className="mb-4 space-y-4">
                             <div>
-                                <label className="text-xs font-medium text-slate-500 mb-1 block">Định nghĩa</label>
-                                <textarea value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} rows={4} className="w-full px-4 py-3 bg-white border border-soft-border rounded-xl text-sm resize-none" />
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Định nghĩa</label>
+                                <textarea value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} rows={4} className={`${inputClass} resize-none`} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-emerald-600 mb-1 block">💡 Ví dụ thực tế</label>
-                                <textarea value={editExample} onChange={(e) => setEditExample(e.target.value)} rows={4} className="w-full px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm resize-none" />
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Ví dụ thực tế</label>
+                                <textarea value={editExample} onChange={(e) => setEditExample(e.target.value)} rows={4} className={`${inputClass} resize-none bg-stone-50/50`} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-blue-600 mb-1 block">⚖️ So sánh</label>
-                                <div className="rounded-xl overflow-hidden border border-blue-200 bg-blue-50">
-                                    {/* Title Row */}
-                                    <input type="text" value={editComparisonTitle} onChange={(e) => setEditComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh..." className="w-full px-4 py-2 bg-blue-100 text-sm font-medium border-b border-blue-200 focus:outline-none" />
-                                    {/* 2 Columns */}
+                                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">So sánh</label>
+                                <div className="overflow-hidden rounded-xl border border-stone-200 bg-stone-50/40">
+                                    <input type="text" value={editComparisonTitle} onChange={(e) => setEditComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh..." className="w-full border-b border-stone-200 bg-stone-50/80 px-4 py-2.5 text-sm font-medium text-stone-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                     <div className="grid grid-cols-2 gap-0">
-                                        <textarea value={editComparisonLeft} onChange={(e) => setEditComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="px-4 py-3 bg-blue-50 text-sm resize-none border-r border-blue-200 focus:outline-none" />
-                                        <textarea value={editComparisonRight} onChange={(e) => setEditComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="px-4 py-3 bg-blue-50 text-sm resize-none focus:outline-none" />
+                                        <textarea value={editComparisonLeft} onChange={(e) => setEditComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="resize-none border-r border-stone-200 bg-white px-4 py-3 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
+                                        <textarea value={editComparisonRight} onChange={(e) => setEditComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="resize-none bg-white px-4 py-3 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                     </div>
-                                    {/* Conclusion Row */}
-                                    <input type="text" value={editComparisonConclusion} onChange={(e) => setEditComparisonConclusion(e.target.value)} placeholder="→ Kết luận..." className="w-full px-4 py-2 bg-blue-100 text-sm border-t border-blue-200 focus:outline-none" />
+                                    <input type="text" value={editComparisonConclusion} onChange={(e) => setEditComparisonConclusion(e.target.value)} placeholder="Kết luận..." className="w-full border-t border-stone-200 bg-stone-50/80 px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                 </div>
                             </div>
                         </div>
                         <div className="flex justify-end gap-3">
-                            <button onClick={() => setEditingId(null)} className="px-5 py-2.5 text-slate-600 hover:bg-white rounded-xl text-sm">Hủy</button>
-                            <button onClick={handleSaveEdit} className="px-5 py-2.5 bg-amber-500 text-white rounded-xl text-sm flex items-center gap-2"><Save size={14} /> Lưu</button>
+                            <button type="button" onClick={() => setEditingId(null)} className="rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50">Hủy</button>
+                            <button type="button" onClick={handleSaveEdit} className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"><Save size={14} strokeWidth={2} /> Lưu</button>
                         </div>
                     </div>
                 )}
 
                 {/* Content Grid */}
                 {isLoading ? (
-                    <div className="text-center py-16 text-slate-500">
-                        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                        Đang tải...
+                    <div className="py-20 text-center text-stone-500">
+                        <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-700" />
+                        <p className="text-sm">Đang tải...</p>
                     </div>
                 ) : filteredItems.length === 0 ? (
-                    <div className="text-center py-16 text-slate-400">
-                        <BookOpen size={40} className="mx-auto mb-3 opacity-50" />
-                        <p>Không tìm thấy kiến thức nào</p>
+                    <div className={`${cardClass} mx-auto max-w-md py-16 text-center`}>
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 text-stone-400">
+                            <BookOpen size={28} strokeWidth={1.25} />
+                        </div>
+                        <p className="text-sm text-stone-500">Không tìm thấy kiến thức nào</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredItems.map(item => {
                             const color = getColor(item.category);
                             return (
                                 <div
                                     key={item.id}
+                                    role="button"
+                                    tabIndex={0}
                                     onClick={() => setSelectedItem(item)}
-                                    className="group bg-white rounded-xl border border-soft-border p-4 cursor-pointer transition-all hover:shadow-md hover:border-indigo-200"
+                                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedItem(item); } }}
+                                    className={`${cardClass} group cursor-pointer p-5 transition-colors hover:border-stone-300`}
                                 >
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${color.bg} ${color.text}`}>
+                                    <div className="mb-3 flex items-start justify-between gap-2">
+                                        <span className={`inline-flex max-w-[85%] items-center rounded-full px-2.5 py-1 text-xs font-medium ${color.bg} ${color.text}`}>
                                             {item.category}
                                         </span>
-                                        <button className="p-1.5 text-slate-300 group-hover:text-indigo-500 transition-colors">
-                                            <Eye size={16} />
-                                        </button>
+                                        <span className="shrink-0 p-1 text-stone-300 transition-colors group-hover:text-stone-500" aria-hidden>
+                                            <Eye size={16} strokeWidth={1.5} />
+                                        </span>
                                     </div>
-                                    <h3 className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors leading-tight">
+                                    <h3 className="text-base font-medium leading-snug tracking-tight text-stone-900 transition-colors group-hover:text-stone-700">
                                         {item.term}
                                     </h3>
                                 </div>
@@ -431,110 +437,98 @@ const MarketingKnowledge: React.FC = () => {
 
             {/* Detail Modal - Large 2-column layout with inline edit */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => { setSelectedItem(null); cancelPopupEdit(); }}>
-                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[85vh] overflow-hidden shadow-xl" onClick={(e) => e.stopPropagation()}>
-                        {/* Modal Header */}
-                        <div className={`${getColor(selectedItem.category).bg} px-6 py-4`}>
-                            <div className="flex items-start justify-between">
-                                <div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-[2px]" onClick={() => { setSelectedItem(null); cancelPopupEdit(); }}>
+                    <div className={`${cardClass} max-h-[85vh] w-full max-w-4xl overflow-hidden shadow-[0_8px_30px_rgba(15,23,42,0.08)]`} onClick={(e) => e.stopPropagation()}>
+                        <div className="border-b border-stone-100 bg-stone-50/70 px-6 py-4">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="min-w-0 flex-1">
                                     {isEditingPopup ? (
-                                        <div className="flex gap-3">
-                                            <input type="text" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="text-xs font-bold px-2.5 py-1 rounded-full bg-white/80 border-0 focus:outline-none w-32" />
-                                            <input type="text" value={editTerm} onChange={(e) => setEditTerm(e.target.value)} className="text-xl font-bold text-slate-800 bg-transparent border-b-2 border-white/50 focus:border-slate-800 focus:outline-none mt-2" />
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                                            <input type="text" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="w-full max-w-[10rem] rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-200/80 sm:w-32" />
+                                            <input type="text" value={editTerm} onChange={(e) => setEditTerm(e.target.value)} className="w-full border-0 border-b border-stone-200 bg-transparent pb-1 text-xl font-normal tracking-tight text-stone-900 focus:border-stone-400 focus:outline-none" />
                                         </div>
                                     ) : (
                                         <>
-                                            <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${getColor(selectedItem.category).text} bg-white/80`}>
+                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${getColor(selectedItem.category).bg} ${getColor(selectedItem.category).text}`}>
                                                 {selectedItem.category}
                                             </span>
-                                            <h2 className="text-xl font-bold text-slate-800 mt-2">{selectedItem.term}</h2>
+                                            <h2 className="mt-2 text-xl font-normal tracking-tight text-stone-900 sm:text-2xl">{selectedItem.term}</h2>
                                         </>
                                     )}
                                 </div>
-                                <button onClick={() => { setSelectedItem(null); cancelPopupEdit(); }} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-white/50 rounded-lg">
-                                    <X size={20} />
+                                <button type="button" onClick={() => { setSelectedItem(null); cancelPopupEdit(); }} className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-white hover:text-stone-600">
+                                    <X size={20} strokeWidth={1.5} />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Modal Content - 2 Column Layout */}
-                        <div className="p-6 overflow-y-auto max-h-[60vh]">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Left Column - Definition */}
-                                <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                                    <h4 className="text-xs font-semibold text-slate-500 uppercase mb-3 flex items-center gap-2">
-                                        📖 Định nghĩa
+                        <div className="max-h-[60vh] overflow-y-auto p-6">
+                            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="rounded-2xl border border-stone-200/90 bg-stone-50/50 p-5">
+                                    <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                        Định nghĩa
                                     </h4>
                                     {isEditingPopup ? (
-                                        <textarea value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} rows={6} className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm resize-none focus:outline-none focus:border-indigo-400" />
+                                        <textarea value={editDefinition} onChange={(e) => setEditDefinition(e.target.value)} rows={6} className={`${inputClass} resize-none`} />
                                     ) : (
-                                        <p className="text-slate-700 leading-relaxed text-sm whitespace-pre-wrap">{selectedItem.definition}</p>
+                                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{selectedItem.definition}</p>
                                     )}
                                 </div>
 
-                                {/* Right Column - Example & Comparison */}
                                 <div className="flex flex-col gap-4">
-                                    {/* Example - Top */}
-                                    <div className="bg-emerald-50 rounded-xl p-5 border border-emerald-200 flex-1">
-                                        <h4 className="text-xs font-semibold text-emerald-600 uppercase mb-3 flex items-center gap-2">
-                                            💡 Ví dụ thực tế
+                                    <div className="flex-1 rounded-2xl border border-stone-200/90 bg-white p-5">
+                                        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                            Ví dụ thực tế
                                         </h4>
                                         {isEditingPopup ? (
-                                            <textarea value={editExample} onChange={(e) => setEditExample(e.target.value)} rows={4} className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-lg text-sm resize-none focus:outline-none focus:border-emerald-500" />
+                                            <textarea value={editExample} onChange={(e) => setEditExample(e.target.value)} rows={4} className={`${inputClass} resize-none bg-stone-50/30`} />
                                         ) : (
-                                            <p className="text-emerald-800 text-sm leading-relaxed whitespace-pre-wrap">
-                                                {selectedItem.example || <span className="text-emerald-400 italic">Chưa có ví dụ</span>}
+                                            <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">
+                                                {selectedItem.example || <span className="italic text-stone-400">Chưa có ví dụ</span>}
                                             </p>
                                         )}
                                     </div>
 
-                                    {/* Comparison - Bottom with title, 2 columns, and conclusion */}
-                                    <div className="bg-blue-50 rounded-xl p-5 border border-blue-200 flex-1">
-                                        <h4 className="text-xs font-semibold text-blue-600 uppercase mb-3 flex items-center gap-2">
-                                            ⚖️ So sánh
+                                    <div className="flex-1 rounded-2xl border border-stone-200/90 bg-stone-50/30 p-5">
+                                        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                            So sánh
                                         </h4>
                                         {isEditingPopup ? (
-                                            <div className="rounded-lg overflow-hidden border border-blue-200 bg-white">
-                                                {/* Title Row */}
-                                                <input type="text" value={editComparisonTitle} onChange={(e) => setEditComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh..." className="w-full px-3 py-2 bg-blue-100 text-sm font-medium border-b border-blue-200 focus:outline-none" />
-                                                {/* 2 Columns */}
+                                            <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
+                                                <input type="text" value={editComparisonTitle} onChange={(e) => setEditComparisonTitle(e.target.value)} placeholder="Tiêu đề so sánh..." className="w-full border-b border-stone-200 bg-stone-50/80 px-3 py-2 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                                 <div className="grid grid-cols-2 gap-0">
-                                                    <textarea value={editComparisonLeft} onChange={(e) => setEditComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="px-3 py-2 bg-white text-sm resize-none border-r border-blue-200 focus:outline-none" />
-                                                    <textarea value={editComparisonRight} onChange={(e) => setEditComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="px-3 py-2 bg-white text-sm resize-none focus:outline-none" />
+                                                    <textarea value={editComparisonLeft} onChange={(e) => setEditComparisonLeft(e.target.value)} placeholder="Khái niệm A..." rows={3} className="resize-none border-r border-stone-200 px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
+                                                    <textarea value={editComparisonRight} onChange={(e) => setEditComparisonRight(e.target.value)} placeholder="Khái niệm B..." rows={3} className="resize-none px-3 py-2 text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                                 </div>
-                                                {/* Conclusion Row */}
-                                                <input type="text" value={editComparisonConclusion} onChange={(e) => setEditComparisonConclusion(e.target.value)} placeholder="→ Kết luận..." className="w-full px-3 py-2 bg-blue-100 text-sm border-t border-blue-200 focus:outline-none" />
+                                                <input type="text" value={editComparisonConclusion} onChange={(e) => setEditComparisonConclusion(e.target.value)} placeholder="Kết luận..." className="w-full border-t border-stone-200 bg-stone-50/80 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-stone-200/80" />
                                             </div>
                                         ) : (
                                             (() => {
                                                 const comp = parseComparison(selectedItem.comparison);
                                                 return comp.title || comp.left || comp.right || comp.conclusion ? (
-                                                    <div className="bg-white rounded-lg overflow-hidden border border-blue-100">
-                                                        {/* Title */}
+                                                    <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
                                                         {comp.title && (
-                                                            <div className="px-3 py-2 bg-blue-100 border-b border-blue-200">
-                                                                <p className="text-blue-900 text-sm font-semibold">{comp.title}</p>
+                                                            <div className="border-b border-stone-200 bg-stone-50/80 px-3 py-2">
+                                                                <p className="text-sm font-semibold text-stone-900">{comp.title}</p>
                                                             </div>
                                                         )}
-                                                        {/* 2 Columns with divider */}
                                                         <div className="flex items-stretch gap-0">
-                                                            <div className="flex-1 p-3">
-                                                                <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-wrap">{comp.left || <span className="text-blue-300 italic">-</span>}</p>
+                                                            <div className="min-w-0 flex-1 p-3">
+                                                                <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{comp.left || <span className="italic text-stone-400">—</span>}</p>
                                                             </div>
-                                                            <div className="w-px bg-gradient-to-b from-blue-200 via-blue-400 to-blue-200 self-stretch"></div>
-                                                            <div className="flex-1 p-3">
-                                                                <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-wrap">{comp.right || <span className="text-blue-300 italic">-</span>}</p>
+                                                            <div className="w-px shrink-0 self-stretch bg-stone-200" />
+                                                            <div className="min-w-0 flex-1 p-3">
+                                                                <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{comp.right || <span className="italic text-stone-400">—</span>}</p>
                                                             </div>
                                                         </div>
-                                                        {/* Conclusion */}
                                                         {comp.conclusion && (
-                                                            <div className="px-3 py-2 bg-blue-100 border-t border-blue-200">
-                                                                <p className="text-blue-900 text-sm">→ {comp.conclusion}</p>
+                                                            <div className="border-t border-stone-200 bg-stone-50/80 px-3 py-2">
+                                                                <p className="text-sm text-stone-800">{comp.conclusion}</p>
                                                             </div>
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <span className="text-blue-400 italic text-sm">Chưa có so sánh</span>
+                                                    <span className="text-sm italic text-stone-400">Chưa có so sánh</span>
                                                 );
                                             })()
                                         )}
@@ -543,22 +537,21 @@ const MarketingKnowledge: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Modal Footer */}
-                        <div className="px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                        <div className="flex justify-end gap-3 border-t border-stone-100 px-6 py-4">
                             {isEditingPopup ? (
                                 <>
-                                    <button onClick={cancelPopupEdit} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm">Hủy</button>
-                                    <button onClick={handleSaveEdit} className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-sm flex items-center gap-2">
-                                        <Save size={14} /> Lưu thay đổi
+                                    <button type="button" onClick={cancelPopupEdit} className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50">Hủy</button>
+                                    <button type="button" onClick={handleSaveEdit} className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800">
+                                        <Save size={14} strokeWidth={2} /> Lưu thay đổi
                                     </button>
                                 </>
                             ) : (
                                 <>
-                                    <button onClick={() => startEdit(selectedItem)} className="px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg text-sm flex items-center gap-2">
-                                        <Edit2 size={14} /> Sửa
+                                    <button type="button" onClick={() => startEdit(selectedItem)} className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50">
+                                        <Edit2 size={14} strokeWidth={1.5} /> Sửa
                                     </button>
-                                    <button onClick={() => handleDelete(selectedItem.id)} className="px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm flex items-center gap-2">
-                                        <Trash2 size={14} /> Xóa
+                                    <button type="button" onClick={() => handleDelete(selectedItem.id)} className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
+                                        <Trash2 size={14} strokeWidth={1.5} /> Xóa
                                     </button>
                                 </>
                             )}

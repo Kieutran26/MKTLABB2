@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { User } from 'firebase/auth';
 import Sidebar from './components/Sidebar';
 import TranslationView from './components/TranslationView';
 import VocabManager from './components/VocabManager';
@@ -47,7 +48,8 @@ import FeaturesGuide from './components/FeaturesGuide';
 import LandingPage from './components/LandingPage/LandingPage';
 import NewsPage from './components/News/NewsPage';
 import ToolkitPage from './components/Toolkit/ToolkitPage';
-
+import LoginPage from './components/LoginPage';
+import { AuthProvider, useAuth } from './components/AuthContext';
 
 
 import { ViewState, StudyMode, Word, MastermindStrategy } from './types';
@@ -57,6 +59,7 @@ import { ToastProvider } from './components/Toast';
 import { ConfirmProvider } from './components/ConfirmModal';
 
 function AppContent() {
+  const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState<ViewState>('HOME_DASHBOARD');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Flexible config: can study by Set IDs OR by a specific list of Words
@@ -100,6 +103,27 @@ function AppContent() {
   };
 
   const renderContent = () => {
+    // Auth loading state
+    if (loading) {
+      return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#FCFDFC]">
+          <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-stone-200/90 bg-white text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 4L4 9V19L14 24L24 19V9L14 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M4 9L14 14L24 9" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M14 14V24" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+          </div>
+          <p className="text-sm text-stone-500">Đang tải...</p>
+        </div>
+      );
+    }
+
+    // Not logged in → show login page
+    if (!user) {
+      return <LoginPage />;
+    }
+
     switch (currentView) {
       case 'HOME_DASHBOARD':
         return <HomePage setView={setCurrentView} />;
@@ -216,6 +240,8 @@ function AppContent() {
         return <ToolkitPage />;
       case 'STP_MODEL':
         return <STPModelGenerator />;
+      case 'LOGIN':
+        return <LoginPage onBack={() => setCurrentView('HOME_DASHBOARD')} />;
 
       default:
         return <TranslationView />;
@@ -224,19 +250,20 @@ function AppContent() {
 
   return (
     <div className="flex min-h-screen bg-soft-bg text-soft-text font-sans selection:bg-indigo-100 selection:text-indigo-800">
-      {/* Sidebar is hidden when in full-screen study session or Landing Page */}
-      {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && (
+      {/* Sidebar is hidden when in full-screen study session, Landing Page, or Login */}
+      {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && currentView !== 'LOGIN' && (
         <Sidebar
           currentView={currentView}
           setView={setCurrentView}
           collapsed={sidebarCollapsed}
           onCollapsedChange={setSidebarCollapsed}
+          user={user}
         />
       )}
 
       <main
         className={`flex-1 transition-all duration-300 relative ${
-          currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO'
+          currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && currentView !== 'LOGIN'
             ? sidebarCollapsed
               ? 'ml-[4.75rem]'
               : 'ml-[17rem]'
@@ -258,15 +285,17 @@ function AppContent() {
 
 function App() {
   return (
-    <BrandProvider>
-      <TaskProvider>
-        <ToastProvider>
-          <ConfirmProvider>
-            <AppContent />
-          </ConfirmProvider>
-        </ToastProvider>
-      </TaskProvider>
-    </BrandProvider>
+    <AuthProvider>
+      <BrandProvider>
+        <TaskProvider>
+          <ToastProvider>
+            <ConfirmProvider>
+              <AppContent />
+            </ConfirmProvider>
+          </ToastProvider>
+        </TaskProvider>
+      </BrandProvider>
+    </AuthProvider>
   );
 }
 

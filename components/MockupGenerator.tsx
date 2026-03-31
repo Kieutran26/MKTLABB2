@@ -26,6 +26,12 @@ const FbIcons: Record<string, React.ReactNode> = {
     Angry: <div className="w-5 h-5 rounded-full bg-[#F02849] flex items-center justify-center border-2 border-white text-[10px]">😡</div>,
 };
 
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
 const MockupGenerator: React.FC = () => {
     // --- Context ---
     const { currentBrand } = useBrand();
@@ -598,17 +604,17 @@ const MockupGenerator: React.FC = () => {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
              {/* Header */}
-             <div className="h-14 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
-                 <div className="font-bold text-lg text-slate-800 flex items-center gap-2">
-                     <Monitor className="text-indigo-600"/> Mockup Generator
+             <div className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-6 shadow-sm">
+                 <div className="flex items-center gap-2 text-lg font-normal tracking-tight text-stone-900">
+                     <Monitor className="text-stone-400" size={19} strokeWidth={1.25} /> Mockup Generator
                  </div>
                  <div className="flex gap-2">
                      {/* Device Toggle */}
-                     <div className="flex bg-slate-100 p-1 rounded-lg">
-                        <button onClick={() => setDevice('mobile')} className={`p-1.5 rounded-md transition-all ${device === 'mobile' ? 'bg-white shadow text-indigo-600' : 'text-slate-400'}`}><Smartphone size={16}/></button>
-                        <button onClick={() => setDevice('desktop')} className={`p-1.5 rounded-md transition-all ${device === 'desktop' ? 'bg-white shadow text-indigo-600' : 'text-slate-400'}`}><Monitor size={16}/></button>
+                     <div className="flex rounded-full border border-stone-200 bg-stone-50 p-1">
+                        <button onClick={() => setDevice('mobile')} className={`rounded-full p-1.5 transition-all ${device === 'mobile' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-400'}`}><Smartphone size={16}/></button>
+                        <button onClick={() => setDevice('desktop')} className={`rounded-full p-1.5 transition-all ${device === 'desktop' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-400'}`}><Monitor size={16}/></button>
                      </div>
                  </div>
              </div>
@@ -617,7 +623,7 @@ const MockupGenerator: React.FC = () => {
              <div className="flex-1 flex overflow-hidden">
                  
                  {/* LEFT SIDEBAR: EDITOR */}
-                 <div className="w-[420px] bg-white border-r border-slate-200 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 overflow-y-auto custom-scrollbar">
+                 <div className="custom-scrollbar z-10 flex w-[420px] flex-col overflow-y-auto border-r border-stone-200 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                      <div className="p-6 pb-20 space-y-8">
                          
                          {/* 1. Platform Selector */}
@@ -632,7 +638,7 @@ const MockupGenerator: React.FC = () => {
                                  <button 
                                     key={p.id}
                                     onClick={() => setPlatform(p.id as Platform)}
-                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all ${platform === p.id ? 'border-indigo-600 bg-indigo-50 text-indigo-900' : 'border-transparent hover:bg-slate-50 text-slate-500'}`}
+                                    className={`flex flex-col items-center justify-center rounded-xl border p-2 transition-all ${platform === p.id ? 'border-stone-300 bg-stone-100 text-stone-900' : 'border-stone-200 text-stone-500 hover:bg-stone-50'}`}
                                  >
                                      <p.icon size={24} className={`mb-1 ${platform === p.id ? p.color : ''}`} />
                                      <span className="text-[10px] font-bold uppercase">{p.id}</span>
@@ -642,18 +648,18 @@ const MockupGenerator: React.FC = () => {
 
                          {/* 2. Format & Layout (Not for Google) */}
                          {platform !== 'google' && platform !== 'threads' && (
-                             <div className="space-y-4 border-t border-slate-100 pt-4">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Định dạng (Format)</h3>
+                             <div className="space-y-4 border-t border-stone-100 pt-4">
+                                <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Định dạng (Format)</h3>
                                 <div className="grid grid-cols-3 gap-2">
                                     {(platform === 'tiktok' ? ['portrait'] : ['square', 'landscape', 'portrait', 'story', 'carousel']).map(f => {
                                         // Filter logic
                                         if (platform === 'facebook' && f === 'story') return null;
-                                        if (platform === 'facebook' && f === 'portrait') return <button key={f} onClick={() => setFormat(f as Format)} className={`text-xs font-bold py-2 rounded-lg border ${format === f ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-slate-200 text-slate-600'}`}>Tall (4:5)</button>;
+                                        if (platform === 'facebook' && f === 'portrait') return <button key={f} onClick={() => setFormat(f as Format)} className={`rounded-lg border py-2 text-xs font-medium ${format === f ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-600'}`}>Tall (4:5)</button>;
                                         return (
                                             <button 
                                                 key={f}
                                                 onClick={() => setFormat(f as Format)}
-                                                className={`text-xs font-bold py-2 rounded-lg border transition-all ${format === f ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                className={`rounded-lg border py-2 text-xs font-medium transition-all ${format === f ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'}`}
                                             >
                                                 {f.charAt(0).toUpperCase() + f.slice(1)}
                                             </button>
@@ -665,11 +671,11 @@ const MockupGenerator: React.FC = () => {
 
                          {/* 3. Ad Toggle */}
                          {platform !== 'google' && platform !== 'threads' && (
-                             <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                                 <label className="text-sm font-bold text-slate-700">Chế độ Quảng cáo (Ads)</label>
+                             <div className="flex items-center justify-between border-t border-stone-100 pt-4">
+                                 <label className="text-sm font-medium text-stone-700">Chế độ Quảng cáo (Ads)</label>
                                  <div 
                                     onClick={() => setIsAd(!isAd)}
-                                    className={`w-12 h-6 rounded-full cursor-pointer transition-colors relative ${isAd ? 'bg-indigo-600' : 'bg-slate-200'}`}
+                                    className={`relative h-6 w-12 cursor-pointer rounded-full transition-colors ${isAd ? 'bg-stone-900' : 'bg-stone-200'}`}
                                  >
                                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isAd ? 'left-7' : 'left-1'}`}></div>
                                  </div>
@@ -677,36 +683,36 @@ const MockupGenerator: React.FC = () => {
                          )}
 
                          {/* 4. Dynamic Inputs */}
-                         <div className="space-y-5 animate-fade-in border-t border-slate-100 pt-4">
+                         <div className="animate-fade-in space-y-5 border-t border-stone-100 pt-4">
                             {/* GOOGLE SEO INPUTS */}
                             {platform === 'google' ? (
                                 <>
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Meta Title ({metaTitle.length}/60)</label>
-                                        <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" 
+                                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Meta Title ({metaTitle.length}/60)</label>
+                                        <input className={inputClass}
                                             value={metaTitle} onChange={e => setMetaTitle(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Meta Description ({metaDesc.length}/160)</label>
-                                        <textarea className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm h-24 resize-none" 
+                                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Meta Description ({metaDesc.length}/160)</label>
+                                        <textarea className={`${inputClass} h-24 resize-none`}
                                             value={metaDesc} onChange={e => setMetaDesc(e.target.value)} />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-700 mb-1">Display URL</label>
-                                        <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm" 
+                                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">Display URL</label>
+                                        <input className={inputClass}
                                             value={urlSlug} onChange={e => setUrlSlug(e.target.value)} />
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 border border-slate-200 rounded-lg overflow-hidden flex items-center justify-center bg-white">
                                             {favicon ? <img src={favicon} className="w-full h-full object-contain" /> : <Globe size={16} className="text-slate-300"/>}
                                         </div>
-                                        <label className="text-xs font-bold text-indigo-600 cursor-pointer hover:underline">
+                                            <label className="cursor-pointer text-xs font-medium text-stone-700 hover:underline">
                                             Upload Favicon <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'favicon')} />
                                         </label>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-slate-700">Rich Snippets</span>
-                                        <input type="checkbox" checked={showRichSnippets} onChange={e => setShowRichSnippets(e.target.checked)} className="accent-indigo-600 w-4 h-4"/>
+                                        <span className="text-sm font-medium text-stone-700">Rich Snippets</span>
+                                        <input type="checkbox" checked={showRichSnippets} onChange={e => setShowRichSnippets(e.target.checked)} className="h-4 w-4 accent-stone-700"/>
                                     </div>
                                 </>
                             ) : (
@@ -724,23 +730,23 @@ const MockupGenerator: React.FC = () => {
                                             </label>
                                         </div>
                                         <div className="flex-1">
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase">Tên hiển thị</label>
-                                            <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold" 
+                                            <label className="block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Tên hiển thị</label>
+                                            <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm font-medium text-stone-900 focus:border-stone-300 focus:outline-none" 
                                                 value={username} onChange={e => setUsername(e.target.value)} />
                                         </div>
                                     </div>
 
                                     {/* Caption */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nội dung bài viết</label>
-                                        <textarea className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm h-24 resize-none focus:outline-none focus:border-indigo-500" 
+                                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Nội dung bài viết</label>
+                                        <textarea className={`${inputClass} h-24 resize-none`}
                                             value={caption} onChange={e => setCaption(e.target.value)} />
                                     </div>
 
                                     {/* Media Upload (Single vs Carousel) */}
                                     {format === 'carousel' ? (
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ảnh Carousel (Max 10)</label>
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Ảnh Carousel (Max 10)</label>
                                             <div className="grid grid-cols-4 gap-2 mb-2">
                                                 {carouselImages.map((img, idx) => (
                                                     <div key={idx} className="aspect-square rounded-lg overflow-hidden border border-slate-200 relative group">
@@ -754,7 +760,7 @@ const MockupGenerator: React.FC = () => {
                                                     </div>
                                                 ))}
                                                 {carouselImages.length < 10 && (
-                                                    <label className="aspect-square rounded-lg border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50">
+                                                    <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-stone-200 hover:bg-stone-50">
                                                         <Plus size={20} className="text-slate-400"/>
                                                         <input type="file" multiple className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'carousel')} />
                                                     </label>
@@ -763,8 +769,8 @@ const MockupGenerator: React.FC = () => {
                                         </div>
                                     ) : (
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Media (Ảnh/Video Thumb)</label>
-                                            <div className="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:bg-slate-50 transition-colors relative group">
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Media (Ảnh/Video Thumb)</label>
+                                            <div className="group relative rounded-xl border-2 border-dashed border-stone-200 p-4 text-center transition-colors hover:bg-stone-50">
                                                 {mediaImage ? (
                                                     <div className="relative aspect-video bg-slate-100 rounded-lg overflow-hidden">
                                                         <img src={mediaImage} className="w-full h-full object-contain" />
@@ -773,7 +779,7 @@ const MockupGenerator: React.FC = () => {
                                                 ) : (
                                                     <label className="cursor-pointer block py-4">
                                                         <Upload size={24} className="mx-auto text-slate-300 mb-2"/>
-                                                        <span className="text-sm text-slate-500 font-medium">Click tải ảnh lên</span>
+                                                        <span className="text-sm font-medium text-stone-500">Click tải ảnh lên</span>
                                                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, 'media')} />
                                                     </label>
                                                 )}
@@ -783,15 +789,15 @@ const MockupGenerator: React.FC = () => {
 
                                     {/* Ad Fields */}
                                     {isAd && (
-                                        <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+                                        <div className="space-y-3 rounded-xl border border-stone-200 bg-stone-50/70 p-4">
                                             <div>
-                                                <label className="block text-[10px] font-bold text-indigo-400 uppercase mb-1">Website URL</label>
-                                                <input className="w-full p-2 bg-white border border-indigo-200 rounded-lg text-xs" 
+                                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Website URL</label>
+                                                <input className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-800 focus:border-stone-300 focus:outline-none" 
                                                     value={website} onChange={e => setWebsite(e.target.value)} />
                                             </div>
                                             <div>
-                                                <label className="block text-[10px] font-bold text-indigo-400 uppercase mb-1">Call to Action</label>
-                                                <select className="w-full p-2 bg-white border border-indigo-200 rounded-lg text-xs font-bold"
+                                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Call to Action</label>
+                                                <select className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs font-medium text-stone-800 focus:border-stone-300 focus:outline-none"
                                                     value={ctaText} onChange={e => setCtaText(e.target.value as CTA)}>
                                                     {['Learn More', 'Shop Now', 'Sign Up', 'Book Now', 'Contact Us', 'Download', 'Apply Now', 'Send Message', 'Order Now', 'Subscribe'].map(c => (
                                                         <option key={c} value={c}>{c}</option>
@@ -805,14 +811,14 @@ const MockupGenerator: React.FC = () => {
                                     {platform === 'tiktok' && (
                                         <>
                                             <div>
-                                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Sound Name</label>
-                                                <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" 
+                                                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Sound Name</label>
+                                                <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" 
                                                     value={soundName} onChange={e => setSoundName(e.target.value)} />
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div>
-                                                    <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Favorites</label>
-                                                    <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" value={favorites} onChange={e => setFavorites(e.target.value)} />
+                                                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Favorites</label>
+                                                    <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" value={favorites} onChange={e => setFavorites(e.target.value)} />
                                                 </div>
                                             </div>
                                         </>
@@ -820,21 +826,21 @@ const MockupGenerator: React.FC = () => {
 
                                     {(platform === 'facebook' || platform === 'instagram') && (
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Thời gian đăng</label>
-                                            <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" 
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Thời gian đăng</label>
+                                            <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" 
                                                 value={postTime} onChange={e => setPostTime(e.target.value)} disabled={isAd} />
                                         </div>
                                     )}
 
                                     {platform === 'facebook' && (
                                          <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Reactions (Max 3)</label>
+                                            <label className="mb-2 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Reactions (Max 3)</label>
                                             <div className="flex flex-wrap gap-2">
                                                 {Object.keys(FbIcons).map(reaction => (
                                                     <button 
                                                         key={reaction}
                                                         onClick={() => toggleFbReaction(reaction)}
-                                                        className={`p-1.5 rounded-lg border ${fbReactions.includes(reaction) ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200 opacity-50'}`}
+                                                        className={`rounded-lg border p-1.5 ${fbReactions.includes(reaction) ? 'border-stone-300 bg-stone-100' : 'border-stone-200 bg-white opacity-50'}`}
                                                     >
                                                         {FbIcons[reaction]}
                                                     </button>
@@ -844,18 +850,18 @@ const MockupGenerator: React.FC = () => {
                                     )}
 
                                     {/* Standard Metrics */}
-                                    <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3">
+                                    <div className="grid grid-cols-3 gap-3 border-t border-stone-100 pt-3">
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Likes</label>
-                                            <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" value={likes} onChange={e => setLikes(e.target.value)} />
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Likes</label>
+                                            <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" value={likes} onChange={e => setLikes(e.target.value)} />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Comments</label>
-                                            <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" value={comments} onChange={e => setComments(e.target.value)} />
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Comments</label>
+                                            <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" value={comments} onChange={e => setComments(e.target.value)} />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Shares</label>
-                                            <input className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" value={shares} onChange={e => setShares(e.target.value)} />
+                                            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-stone-500">Shares</label>
+                                            <input className="w-full rounded-lg border border-stone-200 bg-stone-50 p-2 text-sm text-stone-900 focus:border-stone-300 focus:outline-none" value={shares} onChange={e => setShares(e.target.value)} />
                                         </div>
                                     </div>
                                 </>
@@ -866,12 +872,12 @@ const MockupGenerator: React.FC = () => {
                  </div>
 
                  {/* RIGHT: LIVE PREVIEW CANVAS */}
-                 <div className="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
+                 <div className="relative flex flex-1 flex-col overflow-hidden bg-stone-100/70">
                      <div className="absolute top-4 right-4 z-30">
                          <button 
                             onClick={handleDownload}
                             disabled={isExporting}
-                            className="bg-indigo-600 text-white px-5 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all hover:-translate-y-0.5"
+                            className="flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                          >
                              {isExporting ? <Loader2 className="animate-spin" size={20}/> : <Download size={20} />} 
                              {isExporting ? 'Đang xử lý...' : 'Tải ảnh PNG'}

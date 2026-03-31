@@ -363,13 +363,13 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-            <div className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
+        <div className="h-screen flex flex-col bg-[#FCFDFC] overflow-hidden font-sans">
+            <div className="h-16 bg-[#FCFDFC] border-b border-stone-200/70 px-6 flex items-center justify-between shrink-0 z-20">
                 <div className="flex items-center gap-3">
-                    <div className="bg-indigo-100 p-2 rounded-xl text-indigo-600">
-                        <CalendarDays size={20} strokeWidth={1.5} />
+                    <div className="border border-stone-200 bg-stone-50/80 p-2 rounded-xl text-stone-500">
+                        <CalendarDays size={20} strokeWidth={1.25} />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-800 hidden md:block">Smart Content Calendar</h2>
+                    <h2 className="text-2xl font-normal tracking-tight text-stone-900 hidden md:block">Smart Content Calendar</h2>
                 </div>
 
                 <div className="flex gap-2">
@@ -378,34 +378,34 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                             <button
                                 onClick={handleShuffle}
                                 disabled={isShuffling}
-                                className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all disabled:opacity-70"
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:opacity-70"
                                 title="Xào lại ý tưởng"
                             >
-                                {isShuffling ? <Loader2 size={18} className="animate-spin" /> : <Shuffle size={18} strokeWidth={1.5} />}
+                                {isShuffling ? <Loader2 size={18} className="animate-spin" /> : <Shuffle size={18} strokeWidth={1.25} />}
                             </button>
                             <button
                                 onClick={() => setShowSaveModal(true)}
-                                className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all"
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                                 title="Lưu kế hoạch"
                             >
-                                <Save size={18} strokeWidth={1.5} />
+                                <Save size={18} strokeWidth={1.25} />
                             </button>
                         </>
                     )}
 
                     <button
                         onClick={() => setShowLoadModal(true)}
-                        className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all"
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                         title="Mở kế hoạch cũ"
                     >
-                        <FolderOpen size={18} strokeWidth={1.5} />
+                        <FolderOpen size={18} strokeWidth={1.25} />
                     </button>
 
                     <button
                         onClick={() => { setStep(0); setShowConfigModal(true); }}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
+                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                     >
-                        <Plus size={18} strokeWidth={2} /> <span className="hidden md:inline">Lập Kế Hoạch</span>
+                        <Plus size={18} strokeWidth={1.25} /> <span className="hidden md:inline">Lập Kế Hoạch</span>
                     </button>
                 </div>
             </div>
@@ -413,12 +413,12 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
             <div className="flex-1 p-6 overflow-y-auto relative">
                 {isShuffling && (
                     <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center flex-col gap-4">
-                        <Loader2 size={48} className="text-indigo-600 animate-spin" />
-                        <p className="font-bold text-indigo-800 animate-pulse">AI đang tái cấu trúc ý tưởng...</p>
+                        <Loader2 size={48} className="text-stone-700 animate-spin" />
+                        <p className="font-medium text-stone-700 animate-pulse">AI đang tái cấu trúc ý tưởng...</p>
                     </div>
                 )}
 
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 h-full">
+                <div className="bg-white p-6 rounded-2xl border border-stone-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.04)] h-full">
                     <FullCalendar
                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                         initialView="dayGridMonth"
@@ -441,33 +441,33 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
 
             {/* CONFIGURATION WIZARD MODAL */}
             {showConfigModal && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in border border-slate-100 flex flex-col max-h-[90vh]">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                <Settings2 size={20} className="text-indigo-600" /> Thiết lập Kế hoạch (Bước {step + 1}/4)
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in border border-stone-200/90 flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50 rounded-t-2xl">
+                            <h3 className="text-base font-semibold text-stone-900 flex items-center gap-2">
+                                <Settings2 size={18} className="text-stone-400" /> Thiết lập Kế hoạch (Bước {step + 1}/4)
                             </h3>
-                            <button onClick={() => setShowConfigModal(false)} className="text-slate-400 hover:text-slate-700 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
+                            <button onClick={() => setShowConfigModal(false)} className="text-stone-400 hover:text-stone-700 bg-white p-1 rounded-full shadow-sm"><X size={18} /></button>
                         </div>
 
                         <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
                             {/* STEP 0: STRATEGY (Top-Down Layer) */}
                             {step === 0 && (
                                 <div className="space-y-6 animate-in slide-in-from-right">
-                                    <h4 className="text-lg font-bold text-slate-700 mb-2">Chiến lược Tổng thể</h4>
-                                    <p className="text-sm text-slate-500 mb-4">
+                                    <h4 className="text-lg font-medium text-stone-900 mb-2">Chiến lược Tổng thể</h4>
+                                    <p className="text-sm text-stone-500 mb-4">
                                         Hãy mô tả mục tiêu chiến dịch tháng này. AI sẽ tự động đề xuất các chủ đề (Pillars) phù hợp.
                                     </p>
 
                                     <textarea
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 h-32 resize-none"
+                                        className="w-full p-4 bg-white border border-stone-200 rounded-xl focus:outline-none focus:border-stone-300 focus:ring-2 focus:ring-stone-200/80 h-32 resize-none"
                                         placeholder="VD: Tăng nhận diện thương hiệu cho GenZ với thông điệp sống xanh..."
                                         value={overallStrategy}
                                         onChange={e => setOverallStrategy(e.target.value)}
                                     />
 
-                                    <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                                        <label className="block text-sm font-bold text-indigo-900 mb-2">Ngữ cảnh Thương hiệu & Persona</label>
+                                    <div className="bg-stone-50/70 p-4 rounded-xl border border-stone-200">
+                                        <label className="block text-sm font-semibold text-stone-700 mb-2">Ngữ cảnh Thương hiệu & Persona</label>
                                         <div className="mb-4"><BrandSelector /></div>
 
                                         <div className="grid grid-cols-2 gap-3">
@@ -475,11 +475,11 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                                                 <div
                                                     key={p.id}
                                                     onClick={() => setSelectedPersona(p)}
-                                                    className={`p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-all ${selectedPersona?.id === p.id ? 'border-indigo-500 bg-white ring-2 ring-indigo-200' : 'border-slate-200 bg-white/50 hover:border-indigo-200'}`}
+                                                    className={`p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-all ${selectedPersona?.id === p.id ? 'border-stone-400 bg-white ring-2 ring-stone-200' : 'border-stone-200 bg-white/70 hover:border-stone-300'}`}
                                                 >
-                                                    <img src={p.avatarUrl} className="w-8 h-8 rounded-full bg-slate-100" />
+                                                    <img src={p.avatarUrl} className="w-8 h-8 rounded-full bg-stone-100" />
                                                     <div>
-                                                        <div className="font-bold text-sm text-slate-800">{p.fullname}</div>
+                                                        <div className="font-semibold text-sm text-stone-800">{p.fullname}</div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -492,40 +492,40 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                             {step === 2 && (
                                 <div className="space-y-6 animate-in slide-in-from-right">
                                     <div className="flex justify-between items-center">
-                                        <h4 className="text-lg font-bold text-slate-700 flex items-center gap-2">
-                                            <Lightbulb size={20} className="text-yellow-500" /> Phân bổ Chủ đề
+                                        <h4 className="text-lg font-medium text-stone-900 flex items-center gap-2">
+                                            <Lightbulb size={18} className="text-stone-400" /> Phân bổ Chủ đề
                                         </h4>
-                                        <button onClick={addPillar} className="text-xs font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 border border-indigo-100">
+                                        <button onClick={addPillar} className="text-xs font-semibold text-stone-600 hover:bg-stone-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 border border-stone-200">
                                             <Plus size={14} /> Thêm Pillar
                                         </button>
                                     </div>
-                                    <p className="text-sm text-slate-500 mb-4">Điều chỉnh tên chủ đề và tỷ trọng. Tổng phải bằng 100%.</p>
+                                    <p className="text-sm text-stone-500 mb-4">Điều chỉnh tên chủ đề và tỷ trọng. Tổng phải bằng 100%.</p>
 
                                     <div className="space-y-3">
                                         {pillars.map((p, idx) => (
                                             <div key={idx} className="flex gap-3 items-center group">
                                                 <input
-                                                    className="flex-1 p-3 border border-slate-200 rounded-xl text-sm focus:border-indigo-500 outline-none font-medium"
+                                                    className="flex-1 p-3 border border-stone-200 rounded-xl text-sm focus:border-stone-300 focus:ring-2 focus:ring-stone-200/80 outline-none font-medium"
                                                     value={p.name}
                                                     onChange={(e) => handlePillarChange(idx, 'name', e.target.value)}
                                                     placeholder="Tên chủ đề..."
                                                 />
-                                                <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 w-32">
+                                                <div className="flex items-center gap-2 bg-stone-50 px-3 py-1.5 rounded-xl border border-stone-200 w-32">
                                                     <input
                                                         type="number"
-                                                        className="w-12 bg-transparent text-right font-bold text-slate-700 focus:outline-none"
+                                                        className="w-12 bg-transparent text-right font-semibold text-stone-700 focus:outline-none"
                                                         value={p.weight}
                                                         onChange={(e) => handlePillarChange(idx, 'weight', Number(e.target.value))}
                                                     />
-                                                    <span className="text-slate-400 text-sm">%</span>
+                                                    <span className="text-stone-400 text-sm">%</span>
                                                 </div>
-                                                <div className="w-8 h-8 rounded-full border border-slate-200 shrink-0" style={{ backgroundColor: p.color }}></div>
-                                                <button onClick={() => removePillar(idx)} className="text-slate-300 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
+                                                <div className="w-8 h-8 rounded-full border border-stone-200 shrink-0" style={{ backgroundColor: p.color }}></div>
+                                                <button onClick={() => removePillar(idx)} className="text-stone-300 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100">
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         ))}
-                                        <div className={`text-right text-sm font-bold mt-2 ${isPillarValid ? 'text-green-600' : 'text-red-500'}`}>
+                                        <div className={`text-right text-sm font-semibold mt-2 ${isPillarValid ? 'text-stone-700' : 'text-rose-600'}`}>
                                             Tổng cộng: {totalWeight}%
                                             {!isPillarValid && <span className="ml-2 text-xs font-normal">(Phải bằng 100%)</span>}
                                         </div>
@@ -536,11 +536,11 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                             {/* STEP 3: ANGLES (Custom Input) */}
                             {step === 3 && (
                                 <div className="space-y-6 animate-in slide-in-from-right">
-                                    <h4 className="text-lg font-bold text-slate-700 mb-4 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs">3</span> Góc tiếp cận (Angles)</h4>
+                                    <h4 className="text-lg font-medium text-stone-900 mb-4 flex items-center gap-2"><span className="w-6 h-6 rounded-full bg-stone-100 text-stone-600 flex items-center justify-center text-xs">3</span> Góc tiếp cận (Angles)</h4>
 
                                     <div className="mb-4">
                                         <input
-                                            className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all"
+                                            className="w-full p-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:border-stone-300 focus:ring-2 focus:ring-stone-200/80 transition-all"
                                             placeholder="Thêm góc nhìn khác (Nhấn Enter)..."
                                             value={customAngle}
                                             onChange={e => setCustomAngle(e.target.value)}
@@ -553,30 +553,30 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                                             <button
                                                 key={angle}
                                                 onClick={() => toggleAngle(angle)}
-                                                className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${selectedAngles.includes(angle) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'}`}
+                                                className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${selectedAngles.includes(angle) ? 'bg-stone-900 text-white border-stone-900 shadow-sm' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'}`}
                                             >
                                                 {angle}
                                             </button>
                                         ))}
                                     </div>
 
-                                    <div className="bg-indigo-50 p-4 rounded-xl text-indigo-800 text-sm mt-4">
+                                    <div className="bg-stone-50 p-4 rounded-xl text-stone-700 border border-stone-200 text-sm mt-4">
                                         💡 Hệ thống sẽ tự động phối hợp các <b>Góc tiếp cận</b> này với <b>Chủ đề</b> đã chọn để tạo ra lịch nội dung đa dạng.
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-6 border-t border-slate-100 flex justify-between bg-slate-50 rounded-b-3xl">
+                        <div className="p-6 border-t border-stone-100 flex justify-between bg-stone-50/50 rounded-b-2xl">
                             {step > 0 ? (
-                                <button onClick={() => setStep(step === 2 ? 0 : step - 1)} className="text-slate-500 font-bold hover:text-slate-800 px-4 py-2">Quay lại</button>
+                                <button onClick={() => setStep(step === 2 ? 0 : step - 1)} className="text-stone-500 font-medium hover:text-stone-800 px-4 py-2">Quay lại</button>
                             ) : <div></div>}
 
                             {step === 0 ? (
                                 <button
                                     onClick={handleSuggestPillars}
                                     disabled={isLoading}
-                                    className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition-colors flex items-center gap-2"
+                                    className="bg-stone-900 text-white px-6 py-2.5 rounded-full font-medium hover:bg-stone-800 transition-colors flex items-center gap-2"
                                 >
                                     {isLoading ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
                                     Tiếp theo: Gợi ý Pillars
@@ -585,7 +585,7 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                                 <button
                                     onClick={() => setStep(step + 1)}
                                     disabled={step === 2 && !isPillarValid}
-                                    className={`bg-slate-800 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-slate-900 transition-colors flex items-center gap-2 ${step === 2 && !isPillarValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`bg-stone-900 text-white px-6 py-2.5 rounded-full font-medium hover:bg-stone-800 transition-colors flex items-center gap-2 ${step === 2 && !isPillarValid ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Tiếp theo <ArrowRight size={16} />
                                 </button>
@@ -593,7 +593,7 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
                                 <button
                                     onClick={handleGenerate}
                                     disabled={isLoading}
-                                    className="bg-indigo-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 disabled:opacity-70 flex items-center gap-2"
+                                    className="bg-stone-900 text-white px-8 py-2.5 rounded-full font-medium hover:bg-stone-800 transition-colors disabled:opacity-70 flex items-center gap-2"
                                 >
                                     {isLoading ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
                                     Tạo Kế Hoạch Tháng
@@ -606,13 +606,13 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
 
             {/* SAVE MODAL */}
             {showSaveModal && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 border border-slate-100 animate-in fade-in zoom-in">
-                        <h3 className="text-lg font-bold text-slate-800 mb-4">Lưu Kế Hoạch</h3>
-                        <input className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-4 focus:outline-none focus:border-indigo-500" placeholder="Tên kế hoạch (VD: Tháng 12 - GenZ)..." value={projectName} onChange={(e) => setProjectName(e.target.value)} autoFocus />
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 border border-stone-200/90 animate-in fade-in zoom-in">
+                        <h3 className="text-base font-semibold text-stone-900 mb-4">Lưu Kế Hoạch</h3>
+                        <input className="w-full p-3 bg-white border border-stone-200 rounded-xl text-sm mb-4 focus:outline-none focus:border-stone-300 focus:ring-2 focus:ring-stone-200/80" placeholder="Tên kế hoạch (VD: Tháng 12 - GenZ)..." value={projectName} onChange={(e) => setProjectName(e.target.value)} autoFocus />
                         <div className="flex gap-3">
-                            <button onClick={() => setShowSaveModal(false)} className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold hover:bg-slate-50 transition-colors">Hủy</button>
-                            <button onClick={handleSaveProject} className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors">Lưu</button>
+                            <button onClick={() => setShowSaveModal(false)} className="flex-1 py-2.5 rounded-xl border border-stone-200 text-stone-500 font-medium hover:bg-stone-50 transition-colors">Hủy</button>
+                            <button onClick={handleSaveProject} className="flex-1 py-2.5 rounded-xl bg-stone-900 text-white font-medium hover:bg-stone-800 transition-colors">Lưu</button>
                         </div>
                     </div>
                 </div>
@@ -620,21 +620,21 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
 
             {/* LOAD MODAL (HISTORY) */}
             {showLoadModal && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 animate-in fade-in zoom-in flex flex-col max-h-[80vh]">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><History size={20} /> Lịch sử Kế hoạch</h3>
-                            <button onClick={() => setShowLoadModal(false)} className="text-slate-400 hover:text-slate-700 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-stone-200/90 animate-in fade-in zoom-in flex flex-col max-h-[80vh]">
+                        <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50/50 rounded-t-2xl">
+                            <h3 className="text-base font-semibold text-stone-900 flex items-center gap-2"><History size={18} strokeWidth={1.25} className="text-stone-400" /> Lịch sử Kế hoạch</h3>
+                            <button onClick={() => setShowLoadModal(false)} className="text-stone-400 hover:text-stone-700 bg-white p-1 rounded-full shadow-sm"><X size={18} /></button>
                         </div>
                         <div className="p-6 overflow-y-auto space-y-3 custom-scrollbar">
-                            {savedProjects.length === 0 ? <div className="text-center py-10 text-slate-400">Chưa có kế hoạch nào được lưu.</div> : savedProjects.map(p => (
-                                <div key={p.id} className="p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 hover:shadow-md transition-all bg-white cursor-pointer group" onClick={() => handleLoadProject(p)}>
+                            {savedProjects.length === 0 ? <div className="text-center py-10 text-stone-400">Chưa có kế hoạch nào được lưu.</div> : savedProjects.map(p => (
+                                <div key={p.id} className="p-4 rounded-2xl border border-stone-200/90 hover:border-stone-300 hover:bg-stone-50/60 transition-all bg-white cursor-pointer group" onClick={() => handleLoadProject(p)}>
                                     <div className="flex justify-between items-start mb-2">
-                                        <div className="font-bold text-slate-800 text-lg">{p.name}</div>
-                                        <button onClick={(e) => handleDeleteProject(e, p.id)} className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
+                                        <div className="font-semibold text-stone-900 text-lg">{p.name}</div>
+                                        <button onClick={(e) => handleDeleteProject(e, p.id)} className="p-1.5 text-stone-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
                                     </div>
-                                    <div className="text-xs text-slate-500 mb-2 line-clamp-1 italic">"{p.overallStrategy}"</div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                    <div className="text-xs text-stone-500 mb-2 line-clamp-1 italic">"{p.overallStrategy}"</div>
+                                    <div className="flex items-center gap-2 text-xs text-stone-400">
                                         <Clock size={12} /> {new Date(p.updatedAt).toLocaleDateString('vi-VN')} • {p.events.length} bài
                                     </div>
                                 </div>
@@ -646,33 +646,33 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
 
             {/* DETAIL EVENT MODAL */}
             {selectedEvent && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in border border-slate-100">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-start">
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in border border-stone-200/90">
+                        <div className="p-6 border-b border-stone-100 flex justify-between items-start">
                             <div>
-                                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase mb-1">
+                                <div className="flex items-center gap-2 text-xs font-semibold text-stone-400 uppercase mb-1">
                                     <span>{new Date(selectedEvent.date).toLocaleDateString('vi-VN')}</span>
                                     <span>•</span>
-                                    <span className="text-indigo-600">{selectedEvent.pillar}</span>
+                                    <span className="text-stone-700">{selectedEvent.pillar}</span>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-800 leading-tight">{selectedEvent.title}</h3>
+                                <h3 className="text-xl font-semibold text-stone-900 leading-tight">{selectedEvent.title}</h3>
                             </div>
-                            <button onClick={() => setSelectedEvent(null)} className="text-slate-400 hover:text-slate-700 bg-slate-50 p-1.5 rounded-full"><X size={18} /></button>
+                            <button onClick={() => setSelectedEvent(null)} className="text-stone-400 hover:text-stone-700 bg-stone-50 p-1.5 rounded-full"><X size={18} /></button>
                         </div>
 
                         <div className="p-6 space-y-4">
                             <div className="flex gap-2">
-                                <span className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-600 border border-slate-200">Angle: {selectedEvent.angle}</span>
-                                <span className="px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-600 border border-slate-200">Format: {selectedEvent.format}</span>
+                                <span className="px-3 py-1 bg-stone-100 rounded-lg text-xs font-semibold text-stone-600 border border-stone-200">Angle: {selectedEvent.angle}</span>
+                                <span className="px-3 py-1 bg-stone-100 rounded-lg text-xs font-semibold text-stone-600 border border-stone-200">Format: {selectedEvent.format}</span>
                             </div>
 
-                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-700 leading-relaxed">
+                            <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 text-sm text-stone-700 leading-relaxed">
                                 {selectedEvent.content_brief}
                             </div>
 
                             <button
                                 onClick={handleWriteContent}
-                                className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+                                className="w-full py-3 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 shadow-sm flex items-center justify-center gap-2 transition-all"
                             >
                                 <PenTool size={18} /> Viết bài này ngay
                             </button>

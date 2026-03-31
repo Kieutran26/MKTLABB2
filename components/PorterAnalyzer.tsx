@@ -1,42 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import type { LucideIcon } from 'lucide-react';
 import {
     Target, Sparkles, Loader2, Swords, DoorOpen, Users, Truck, Shuffle,
-    History, Save, Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Minus, ArrowUpRight, ArrowDownRight
+    History, Save, Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Minus, ArrowUpRight, ArrowDownRight, Factory, Lightbulb
 } from 'lucide-react';
 import { PorterAnalysisInput, PorterAnalysisResult, PorterForce, IndustryVerdict, UserPosition } from '../types';
 import { generatePorterAnalysis } from '../services/geminiService';
 import { PorterService, SavedPorterAnalysis } from '../services/porterService';
 import toast, { Toaster } from 'react-hot-toast';
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 
-// Force Configuration
-const FORCE_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
-    'Competitive Rivalry': { icon: <Swords size={18} />, color: '#ef4444' },
-    'Threat of New Entrants': { icon: <DoorOpen size={18} />, color: '#f97316' },
-    'Bargaining Power of Buyers': { icon: <Users size={18} />, color: '#eab308' },
-    'Bargaining Power of Suppliers': { icon: <Truck size={18} />, color: '#22c55e' },
-    'Threat of Substitutes': { icon: <Shuffle size={18} />, color: '#6366f1' }
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+const FORCE_ICONS: Record<string, LucideIcon> = {
+    'Competitive Rivalry': Swords,
+    'Threat of New Entrants': DoorOpen,
+    'Bargaining Power of Buyers': Users,
+    'Bargaining Power of Suppliers': Truck,
+    'Threat of Substitutes': Shuffle
 };
 
-// Verdict Colors
 const VERDICT_CONFIG: Record<IndustryVerdict, { color: string; bg: string; border: string; icon: React.ReactNode }> = {
-    'Blue Ocean': { color: '#0284c7', bg: '#f0f9ff', border: '#bae6fd', icon: <TrendingUp size={20} /> },
-    'Attractive': { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', icon: <TrendingUp size={20} /> },
-    'Moderate': { color: '#ca8a04', bg: '#fefce8', border: '#fef08a', icon: <AlertTriangle size={20} /> },
-    'Unattractive': { color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', icon: <TrendingDown size={20} /> },
-    'Red Ocean': { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', icon: <TrendingDown size={20} /> }
+    'Blue Ocean': { color: '#0369a1', bg: '#f0f9ff', border: '#bae6fd', icon: <TrendingUp size={20} strokeWidth={1.25} /> },
+    'Attractive': { color: '#15803d', bg: '#f0fdf4', border: '#bbf7d0', icon: <TrendingUp size={20} strokeWidth={1.25} /> },
+    'Moderate': { color: '#a16207', bg: '#fefce8', border: '#fde047', icon: <AlertTriangle size={20} strokeWidth={1.25} /> },
+    'Unattractive': { color: '#c2410c', bg: '#fff7ed', border: '#fed7aa', icon: <TrendingDown size={20} strokeWidth={1.25} /> },
+    'Red Ocean': { color: '#b91c1c', bg: '#fef2f2', border: '#fecaca', icon: <TrendingDown size={20} strokeWidth={1.25} /> }
 };
 
-// Trend Indicator Config
 const TREND_CONFIG: Record<string, { icon: React.ReactNode; color: string; bg: string; label: string }> = {
-    'Increasing': { icon: <ArrowUpRight size={12} />, color: '#dc2626', bg: '#fef2f2', label: 'Tăng' },
-    'Stable': { icon: <Minus size={12} />, color: '#6b7280', bg: '#f9fafb', label: 'Ổn định' },
-    'Decreasing': { icon: <ArrowDownRight size={12} />, color: '#16a34a', bg: '#f0fdf4', label: 'Giảm' }
+    'Increasing': { icon: <ArrowUpRight size={12} strokeWidth={1.25} />, color: '#b91c1c', bg: '#fef2f2', label: 'Tăng' },
+    'Stable': { icon: <Minus size={12} strokeWidth={1.25} />, color: '#57534e', bg: '#f5f5f4', label: 'Ổn định' },
+    'Decreasing': { icon: <ArrowDownRight size={12} strokeWidth={1.25} />, color: '#15803d', bg: '#f0fdf4', label: 'Giảm' }
 };
 
 const PorterAnalyzer: React.FC = () => {
-    const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<PorterAnalysisInput>();
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<PorterAnalysisInput>();
     const [analysisData, setAnalysisData] = useState<PorterAnalysisResult | null>(null);
     const [currentInput, setCurrentInput] = useState<PorterAnalysisInput | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -74,7 +78,7 @@ const PorterAnalyzer: React.FC = () => {
                 setAnalysisData(result);
                 toast.success('Phân tích Porter hoàn tất!', {
                     icon: '🎯',
-                    style: { borderRadius: '8px', background: '#fff', border: '1px solid #e5e7eb' }
+                    style: { borderRadius: '12px', background: '#fafaf9', border: '1px solid #e7e5e4' }
                 });
             } else {
                 toast.error('Không thể phân tích.');
@@ -142,354 +146,378 @@ const PorterAnalyzer: React.FC = () => {
     })) || [];
 
     const getScoreColor = (score: number) => {
-        if (score <= 3) return '#16a34a';
-        if (score <= 6) return '#ca8a04';
-        if (score <= 8) return '#ea580c';
-        return '#dc2626';
+        if (score <= 3) return '#15803d';
+        if (score <= 6) return '#a16207';
+        if (score <= 8) return '#c2410c';
+        return '#b91c1c';
     };
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-gray-50">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
-            {/* Header - Clean & Minimal */}
-            <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shrink-0">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center">
-                        <Target size={18} className="text-indigo-600" />
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Phân tích Porter
+                        </span>
                     </div>
-                    <div>
-                        <h1 className="text-base font-semibold text-gray-900">Porter's Precision Analyzer</h1>
-                        <p className="text-xs text-gray-500">Strategic Competition Engine</p>
-                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        Porter&apos;s Precision Analyzer
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Industry Structure &amp; Competitive Strategy Analysis
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <button onClick={() => setShowHistory(!showHistory)}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors">
-                        <History size={14} /> Lịch sử ({savedAnalyses.length})
+                <div className="flex shrink-0 flex-wrap gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowHistory(!showHistory)}
+                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                            }`}
+                    >
+                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedAnalyses.length})
                     </button>
                     {analysisData && (
                         <>
-                            <button onClick={handleNew}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors">
-                                <Plus size={14} /> Tạo mới
+                            <button
+                                type="button"
+                                onClick={handleNew}
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                            >
+                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
                             </button>
-                            <button onClick={handleSave}
-                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
-                                <Save size={14} /> Lưu
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                            >
+                                <Save size={17} strokeWidth={1.25} /> Lưu
                             </button>
                         </>
                     )}
                 </div>
-            </div>
+            </header>
 
-            <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: showHistory ? '240px 320px 1fr' : '320px 1fr' }}>
-                {/* History Sidebar */}
+            <div
+                className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
+                style={{ gridTemplateColumns: showHistory ? 'minmax(0,260px) minmax(0,380px) 1fr' : 'minmax(0,380px) 1fr' }}
+            >
                 {showHistory && (
-                    <div className="bg-white border-r border-gray-200 p-4 overflow-y-auto">
-                        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Lịch sử phân tích</h3>
-                        <div className="space-y-2">
+                    <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                        <div className="border-b border-stone-100 px-5 py-4">
+                            <div className="flex items-center justify-between">
+                                <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
+                                    <History size={18} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                    Lịch sử phân tích
+                                </h3>
+                                <span className="text-xs font-normal text-stone-400">{savedAnalyses.length}</span>
+                            </div>
+                        </div>
+                        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
                             {savedAnalyses.map((analysis) => (
-                                <div key={analysis.id}
-                                    className="p-3 rounded-lg border border-gray-200 cursor-pointer group hover:border-indigo-300 hover:bg-indigo-50/30 transition-all"
-                                    onClick={() => handleLoad(analysis)}>
-                                    <div className="flex items-start justify-between mb-1">
-                                        <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                                            {analysis.input.industry}
-                                        </p>
-                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(analysis.id); }}
-                                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all">
-                                            <Trash2 size={12} />
+                                <div
+                                    key={analysis.id}
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() => handleLoad(analysis)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleLoad(analysis)}
+                                    className="group cursor-pointer rounded-2xl border border-stone-200/90 p-3 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                >
+                                    <div className="mb-2 flex items-start justify-between gap-2">
+                                        <p className="line-clamp-1 text-sm font-medium text-stone-900">{analysis.input.industry}</p>
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); handleDelete(analysis.id); }}
+                                            className="shrink-0 rounded-lg p-1.5 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                            aria-label="Xóa"
+                                        >
+                                            <Trash2 size={14} strokeWidth={1.25} />
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-500">{analysis.input.location}</p>
-                                    <div className="mt-2">
-                                        <span className="text-xs px-2 py-0.5 rounded font-medium"
-                                            style={{
-                                                backgroundColor: VERDICT_CONFIG[analysis.data.overall_verdict]?.bg,
-                                                color: VERDICT_CONFIG[analysis.data.overall_verdict]?.color,
-                                                border: `1px solid ${VERDICT_CONFIG[analysis.data.overall_verdict]?.border}`
-                                            }}>
-                                            {analysis.data.overall_verdict}
-                                        </span>
-                                    </div>
+                                    <p className="mb-2 text-xs font-normal text-stone-500">{analysis.input.location}</p>
+                                    <span
+                                        className="inline-block rounded-full border px-2 py-0.5 text-xs font-medium"
+                                        style={{
+                                            backgroundColor: VERDICT_CONFIG[analysis.data.overall_verdict]?.bg,
+                                            color: VERDICT_CONFIG[analysis.data.overall_verdict]?.color,
+                                            borderColor: VERDICT_CONFIG[analysis.data.overall_verdict]?.border
+                                        }}
+                                    >
+                                        {analysis.data.overall_verdict}
+                                    </span>
                                 </div>
                             ))}
                             {savedAnalyses.length === 0 && (
-                                <p className="text-center text-sm text-gray-400 py-8">
-                                    Chưa có phân tích nào
-                                </p>
+                                <div className="py-10 text-center text-sm font-normal text-stone-400">Chưa có phân tích nào</div>
                             )}
                         </div>
                     </div>
                 )}
 
-                {/* Form Panel */}
-                <div className="bg-white border-r border-gray-200 p-5 overflow-y-auto">
-                    <div className="mb-5">
-                        <h2 className="text-sm font-semibold text-gray-900 mb-1">Thông tin Ngành</h2>
-                        <p className="text-xs text-gray-500">Nhập thông tin để phân tích cạnh tranh</p>
-                    </div>
+                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+                    <h2 className="mb-2 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                        <Factory size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                        Thông tin Ngành
+                    </h2>
+                    <p className="mb-6 text-sm font-normal leading-relaxed text-stone-500">
+                        Nhập thông tin để phân tích cạnh tranh
+                    </p>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        {/* Industry */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Ngành kinh doanh *
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Ngành kinh doanh *</label>
                             <input
                                 {...register('industry', { required: 'Bắt buộc' })}
                                 placeholder="VD: Quán Cafe, Thời trang, Fintech..."
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                                className={inputClass}
                             />
-                            {errors.industry && <p className="text-xs text-red-500 mt-1">{errors.industry.message}</p>}
+                            {errors.industry && <p className="mt-1 text-xs text-red-600">{errors.industry.message}</p>}
                         </div>
 
-                        {/* Niche */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Phân khúc (Niche)
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Phân khúc (Niche)</label>
                             <input
                                 {...register('niche')}
                                 placeholder="VD: Cao cấp, Bình dân, Premium..."
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                                className={inputClass}
                             />
                         </div>
 
-                        {/* Location */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Địa điểm *
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Địa điểm *</label>
                             <input
                                 {...register('location', { required: 'Bắt buộc' })}
                                 placeholder="VD: Quận 1 TP.HCM, Hà Nội..."
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                                className={inputClass}
                             />
-                            {errors.location && <p className="text-xs text-red-500 mt-1">{errors.location.message}</p>}
+                            {errors.location && <p className="mt-1 text-xs text-red-600">{errors.location.message}</p>}
                         </div>
 
-                        {/* Business Model */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Mô hình kinh doanh *
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Mô hình kinh doanh *</label>
                             <select
                                 {...register('businessModel', { required: 'Bắt buộc' })}
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer bg-white">
+                                className={`${inputClass} cursor-pointer`}
+                            >
                                 <option value="">-- Chọn --</option>
                                 <option value="B2C">B2C (Bán cho người tiêu dùng)</option>
                                 <option value="B2B">B2B (Bán cho doanh nghiệp)</option>
                                 <option value="B2B2C">B2B2C (Kết hợp)</option>
                             </select>
-                            {errors.businessModel && <p className="text-xs text-red-500 mt-1">{errors.businessModel.message}</p>}
+                            {errors.businessModel && <p className="mt-1 text-xs text-red-600">{errors.businessModel.message}</p>}
                         </div>
 
-                        {/* User Position */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Vị thế của bạn *
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Vị thế của bạn *</label>
                             <select
                                 value={userPosition}
                                 onChange={(e) => setUserPosition(e.target.value as UserPosition)}
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer bg-white">
-                                <option value="new_entrant">🚀 New Entrant (Người mới)</option>
-                                <option value="challenger">⚔️ Challenger (Kẻ thách thức)</option>
-                                <option value="niche_player">🎯 Niche Player (Chuyên gia ngách)</option>
-                                <option value="market_leader">👑 Market Leader (Dẫn đầu)</option>
+                                className={`${inputClass} cursor-pointer`}
+                            >
+                                <option value="new_entrant">New Entrant (Người mới)</option>
+                                <option value="challenger">Challenger (Kẻ thách thức)</option>
+                                <option value="niche_player">Niche Player (Chuyên gia ngách)</option>
+                                <option value="market_leader">Market Leader (Dẫn đầu)</option>
                             </select>
-                            <p className="text-xs text-gray-400 mt-1">Chiến lược điều chỉnh theo vị thế</p>
+                            <p className="mt-1 text-xs font-normal text-stone-400">Chiến lược điều chỉnh theo vị thế</p>
                         </div>
 
-                        {/* Competitors */}
                         <div>
-                            <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                                Đối thủ chính (tùy chọn)
-                            </label>
+                            <label className="mb-2 block text-sm font-medium text-stone-800">Đối thủ chính (tùy chọn)</label>
                             <input
                                 value={competitorInput}
                                 onChange={(e) => setCompetitorInput(e.target.value)}
                                 placeholder="VD: Starbucks, Highlands, Phúc Long..."
-                                className="w-full px-3 py-2.5 rounded-lg text-sm border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-colors"
+                                className={inputClass}
                             />
-                            <p className="text-xs text-gray-400 mt-1">Phân cách bằng dấu phẩy</p>
+                            <p className="mt-1 text-xs font-normal text-stone-400">Phân cách bằng dấu phẩy</p>
                         </div>
 
-                        <button type="submit" disabled={isGenerating}
-                            className="w-full py-2.5 rounded-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition-colors active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2">
+                        <div className="rounded-2xl border border-amber-100 bg-[#FFF9EB]/90 p-4">
+                            <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-stone-800">
+                                <Lightbulb size={16} strokeWidth={1.25} className="text-amber-700/80 shrink-0" aria-hidden />
+                                Gợi ý nhập liệu
+                            </h3>
+                            <p className="text-xs font-normal leading-relaxed text-stone-600">
+                                Càng cụ thể (địa lý, phân khúc, đối thủ), phân tích 5 lực càng sát thực tế ngành của bạn.
+                            </p>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isGenerating}
+                            className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                        >
                             {isGenerating ? (
                                 <>
-                                    <Loader2 size={16} className="animate-spin" />
-                                    <span className="text-sm">{thinkingStep || 'Đang phân tích...'}</span>
+                                    <Loader2 size={18} className="animate-spin" strokeWidth={1.25} />
+                                    <span>{thinkingStep || 'Đang phân tích...'}</span>
                                 </>
                             ) : (
                                 <>
-                                    <Sparkles size={16} />
-                                    <span className="text-sm">Phân tích Porter's 5 Forces</span>
+                                    <Sparkles size={18} strokeWidth={1.25} />
+                                    Phân tích Porter&apos;s Precision
                                 </>
                             )}
                         </button>
                     </form>
                 </div>
 
-                {/* Results Area */}
-                <div className="bg-gray-50 p-6 overflow-auto">
+                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
                     {!analysisData && !isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center">
-                            <div className="w-16 h-16 rounded-xl bg-white border border-gray-200 flex items-center justify-center mb-4">
-                                <Target size={28} className="text-gray-300" />
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center text-stone-400">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                <Target size={28} strokeWidth={1.25} className="text-stone-300" />
                             </div>
-                            <p className="text-sm font-medium text-gray-600">Porter's Five Forces</p>
-                            <p className="text-xs text-gray-400 mt-1">Nhập thông tin để phân tích ngành</p>
+                            <p className="text-base font-medium text-stone-700">Porter&apos;s Precision Analysis</p>
+                            <p className="mt-1 text-center text-sm font-normal text-stone-500">Nhập thông tin để phân tích ngành</p>
                         </div>
                     )}
 
                     {isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center">
-                            <div className="relative w-12 h-12 mb-4">
-                                <div className="absolute inset-0 rounded-full border-2 border-gray-200"></div>
-                                <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-indigo-600 animate-spin"></div>
+                        <div className="flex h-full min-h-[280px] flex-col items-center justify-center">
+                            <div className="relative mb-6 h-12 w-12">
+                                <div className="absolute inset-0 rounded-full border-4 border-stone-100" />
+                                <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-stone-800" />
                             </div>
-                            <p className="text-sm text-gray-600">{thinkingStep}</p>
+                            <p className="text-sm font-medium text-stone-800">{thinkingStep}</p>
                         </div>
                     )}
 
                     {analysisData && !isGenerating && (
-                        <div className="max-w-5xl mx-auto space-y-5">
-                            {/* Verdict Banner */}
-                            <div className="p-5 rounded-xl bg-white border flex items-center gap-5"
-                                style={{ borderColor: VERDICT_CONFIG[analysisData.overall_verdict]?.border }}>
-                                <div className="w-12 h-12 rounded-lg flex items-center justify-center"
+                        <div className="mx-auto max-w-5xl space-y-5">
+                            <div
+                                className={`${cardClass} flex flex-wrap items-start gap-5 p-5 md:flex-nowrap`}
+                                style={{ borderColor: VERDICT_CONFIG[analysisData.overall_verdict]?.border }}
+                            >
+                                <div
+                                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border"
                                     style={{
                                         backgroundColor: VERDICT_CONFIG[analysisData.overall_verdict]?.bg,
+                                        borderColor: VERDICT_CONFIG[analysisData.overall_verdict]?.border,
                                         color: VERDICT_CONFIG[analysisData.overall_verdict]?.color
-                                    }}>
+                                    }}
+                                >
                                     {VERDICT_CONFIG[analysisData.overall_verdict]?.icon}
                                 </div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <h2 className="text-lg font-bold"
-                                            style={{ color: VERDICT_CONFIG[analysisData.overall_verdict]?.color }}>
+                                <div className="min-w-0 flex-1">
+                                    <div className="mb-1 flex flex-wrap items-center gap-3">
+                                        <h2
+                                            className="text-lg font-medium tracking-tight"
+                                            style={{ color: VERDICT_CONFIG[analysisData.overall_verdict]?.color }}
+                                        >
                                             {analysisData.overall_verdict}
                                         </h2>
-                                        <span className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-600 font-medium">
+                                        <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-1 text-xs font-medium text-stone-700">
                                             Score: {analysisData.total_threat_score}/50
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-600">
-                                        {analysisData.verdict_description}
-                                    </p>
+                                    <p className="text-sm font-normal leading-relaxed text-stone-600">{analysisData.verdict_description}</p>
                                 </div>
                             </div>
 
-                            {/* Radar Chart */}
-                            <div className="p-5 rounded-xl bg-white border border-gray-200">
-                                <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                                    Biểu đồ Radar - Mức độ Đe dọa
+                            <div className={`${cardClass} p-5 md:p-6`}>
+                                <h3 className="mb-4 text-sm font-medium tracking-tight text-stone-900">
+                                    Biểu đồ Radar — Mức độ đe dọa
                                 </h3>
-                                <div style={{ width: '100%', height: 320 }}>
-                                    <ResponsiveContainer>
+                                <div className="h-[320px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
                                         <RadarChart data={radarData}>
-                                            <PolarGrid stroke="#e5e7eb" />
-                                            <PolarAngleAxis dataKey="force" tick={{ fontSize: 11, fill: '#6b7280' }} />
-                                            <PolarRadiusAxis angle={90} domain={[0, 10]} tick={{ fontSize: 10, fill: '#9ca3af' }} />
+                                            <PolarGrid stroke="#e7e5e4" />
+                                            <PolarAngleAxis dataKey="force" tick={{ fontSize: 11, fill: '#57534e' }} />
+                                            <PolarRadiusAxis angle={90} domain={[0, 10]} tick={{ fontSize: 10, fill: '#78716c' }} />
                                             <Radar
                                                 name="Threat Score"
                                                 dataKey="score"
-                                                stroke="#6366f1"
-                                                fill="#6366f1"
-                                                fillOpacity={0.2}
+                                                stroke="#292524"
+                                                fill="#292524"
+                                                fillOpacity={0.12}
                                                 strokeWidth={2}
                                             />
                                         </RadarChart>
                                     </ResponsiveContainer>
                                 </div>
-                                <p className="text-xs text-center text-gray-400 mt-2">
+                                <p className="mt-2 text-center text-xs font-normal text-stone-400">
                                     Vùng phủ càng rộng → Ngành càng khốc liệt
                                 </p>
                             </div>
 
-                            {/* Force Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                                 {analysisData.forces.map((force, idx) => {
-                                    const config = FORCE_CONFIG[force.name] || { icon: <Target size={18} />, color: '#6366f1' };
+                                    const IconComp = FORCE_ICONS[force.name] || Target;
                                     return (
-                                        <div key={idx} className="p-4 rounded-xl bg-white border border-gray-200">
-                                            {/* Header */}
-                                            <div className="flex items-center justify-between mb-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                                                        style={{ backgroundColor: `${config.color}10`, color: config.color }}>
-                                                        {config.icon}
+                                        <div key={idx} className={`${cardClass} p-4`}>
+                                            <div className="mb-3 flex items-center justify-between gap-2">
+                                                <div className="flex min-w-0 items-center gap-2">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50/80">
+                                                        <IconComp size={18} strokeWidth={1.25} className="text-stone-700" />
                                                     </div>
-                                                    <p className="text-xs font-medium text-gray-600">
-                                                        {force.name_vi}
-                                                    </p>
+                                                    <p className="text-xs font-medium leading-snug text-stone-800">{force.name_vi}</p>
                                                 </div>
-                                                <div className="flex items-center gap-1">
-                                                    <span className="text-lg font-bold" style={{ color: getScoreColor(force.score) }}>
+                                                <div className="flex shrink-0 items-baseline gap-0.5">
+                                                    <span className="text-lg font-semibold tabular-nums" style={{ color: getScoreColor(force.score) }}>
                                                         {force.score}
                                                     </span>
-                                                    <span className="text-xs text-gray-400">/10</span>
+                                                    <span className="text-xs text-stone-400">/10</span>
                                                 </div>
                                             </div>
 
-                                            {/* Status Badge + Trend */}
-                                            <div className="mb-3 flex items-center gap-2 flex-wrap">
-                                                <span className="text-xs px-2 py-0.5 rounded font-medium"
+                                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                                                <span
+                                                    className="rounded-md border px-2 py-0.5 text-xs font-medium"
                                                     style={{
                                                         backgroundColor: force.status === 'Extreme' ? '#fef2f2' :
                                                             force.status === 'High' ? '#fff7ed' :
                                                                 force.status === 'Medium' ? '#fefce8' : '#f0fdf4',
-                                                        color: force.status === 'Extreme' ? '#dc2626' :
-                                                            force.status === 'High' ? '#ea580c' :
-                                                                force.status === 'Medium' ? '#ca8a04' : '#16a34a'
-                                                    }}>
+                                                        color: force.status === 'Extreme' ? '#b91c1c' :
+                                                            force.status === 'High' ? '#c2410c' :
+                                                                force.status === 'Medium' ? '#a16207' : '#15803d',
+                                                        borderColor: force.status === 'Extreme' ? '#fecaca' :
+                                                            force.status === 'High' ? '#fed7aa' :
+                                                                force.status === 'Medium' ? '#fde047' : '#bbf7d0'
+                                                    }}
+                                                >
                                                     {force.status}
                                                 </span>
                                                 {force.trend && TREND_CONFIG[force.trend] && (
                                                     <span
-                                                        className="text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1 cursor-help"
+                                                        className="flex cursor-help items-center gap-1 rounded-md border border-stone-200 px-2 py-0.5 text-xs font-medium"
                                                         style={{
                                                             backgroundColor: TREND_CONFIG[force.trend].bg,
                                                             color: TREND_CONFIG[force.trend].color
                                                         }}
-                                                        title={force.trend_reason || `Xu hướng: ${TREND_CONFIG[force.trend].label}`}>
+                                                        title={force.trend_reason || `Xu hướng: ${TREND_CONFIG[force.trend].label}`}
+                                                    >
                                                         {TREND_CONFIG[force.trend].icon}
                                                         {TREND_CONFIG[force.trend].label}
                                                     </span>
                                                 )}
                                             </div>
 
-                                            {/* Determinants */}
                                             <div className="mb-3">
-                                                <p className="text-xs font-medium text-gray-700 mb-1">Yếu tố quyết định:</p>
+                                                <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.06em] text-stone-500">Yếu tố quyết định</p>
                                                 <ul className="space-y-1">
                                                     {force.determinants.slice(0, 3).map((d, i) => (
-                                                        <li key={i} className="text-xs text-gray-500 flex items-start gap-1">
-                                                            <span className="text-gray-300">•</span> {d}
+                                                        <li key={i} className="flex items-start gap-1.5 text-xs font-normal text-stone-600">
+                                                            <span className="text-stone-300" aria-hidden>•</span>
+                                                            {d}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
 
-                                            {/* Strategic Action */}
-                                            <div className="p-3 rounded-lg bg-gray-50 border border-gray-100">
-                                                <p className="text-xs font-semibold text-gray-700 mb-1">
-                                                    🎯 Strategic Action:
-                                                </p>
-                                                <p className="text-xs text-gray-600">
-                                                    {force.strategic_action}
-                                                </p>
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50/60 p-3">
+                                                <p className="mb-1 text-[11px] font-medium text-stone-800">Strategic Action</p>
+                                                <p className="text-xs font-normal leading-relaxed text-stone-700">{force.strategic_action}</p>
                                             </div>
 
-                                            {/* Data Source */}
                                             {force.data_source && (
-                                                <p className="text-xs italic text-gray-400 mt-2">
-                                                    📎 {force.data_source}
-                                                </p>
+                                                <p className="mt-2 text-xs font-normal italic text-stone-400">Nguồn: {force.data_source}</p>
                                             )}
                                         </div>
                                     );

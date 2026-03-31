@@ -4,6 +4,12 @@ import { NewsCard, NewsArticle } from './NewsCard';
 import { RefreshCw, Filter, Trash2, Calendar, X, Wifi, WifiOff, Download } from 'lucide-react';
 import { useToast } from '../Toast';
 
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-700 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
 const NewsPage: React.FC = () => {
     const [articles, setArticles] = useState<NewsArticle[]>([]);
     const [loading, setLoading] = useState(true);
@@ -344,30 +350,31 @@ const NewsPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] p-8">
+        <div className="min-h-screen bg-[#FCFDFC] p-8 font-sans">
             {/* Header */}
             <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">Tin Tức Tổng Hợp</h1>
-                    <p className="text-gray-500">Cập nhật tin tức mới nhất về Tài chính, Marketing & Công nghệ</p>
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">News Intelligence</p>
+                    <h1 className="text-3xl font-normal text-stone-900 mb-2 tracking-tight">Tin Tức Tổng Hợp</h1>
+                    <p className="text-stone-500">Cập nhật tin tức mới nhất về Tài chính, Marketing & Công nghệ</p>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
                     {/* Realtime Status */}
                     <div className="flex items-center gap-2">
                         {isRealtimeConnected ? (
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-600 rounded-full text-xs font-medium">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-medium">
                                 <Wifi size={12} />
                                 <span>Realtime</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-medium">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 text-stone-500 rounded-full text-xs font-medium">
                                 <WifiOff size={12} />
                                 <span>Đang kết nối...</span>
                             </div>
                         )}
                         {lastUpdated && (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-stone-400">
                                 Cập nhật: {lastUpdated.toLocaleTimeString('vi-VN')}
                             </span>
                         )}
@@ -376,19 +383,19 @@ const NewsPage: React.FC = () => {
                     {/* Action Buttons Row */}
                     <div className="flex items-center gap-3">
                         {/* Category Filter */}
-                        <div className="flex items-center gap-1 bg-white p-1.5 rounded-xl shadow-sm border border-gray-100">
+                        <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
                             {categories.map(cat => (
                                 <button
                                     key={cat}
                                     onClick={() => setFilter(cat)}
-                                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1.5
+                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1.5
                                         ${filter === cat
-                                            ? 'bg-gray-900 text-white shadow-md'
-                                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                            ? 'bg-stone-900 text-white shadow-sm'
+                                            : 'text-stone-500 hover:bg-white hover:text-stone-900'
                                         }`}
                                 >
                                     <span>{cat === 'All' ? 'Tất cả' : cat}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === cat ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === cat ? 'bg-stone-700 text-white' : 'bg-stone-200 text-stone-500'}`}>
                                         {getCategoryCount(cat)}
                                     </span>
                                 </button>
@@ -398,7 +405,7 @@ const NewsPage: React.FC = () => {
                         {/* Action Buttons */}
                         <button
                             onClick={() => fetchNews()}
-                            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="rounded-full border border-stone-200 bg-white p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors"
                             title="Làm mới"
                         >
                             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -406,7 +413,7 @@ const NewsPage: React.FC = () => {
                         <button
                             onClick={crawlNews}
                             disabled={crawling}
-                            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 text-sm font-medium"
+                            className="inline-flex items-center gap-1.5 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
                             title="Thu thập tin mới từ các nguồn RSS"
                         >
                             <Download size={16} className={crawling ? 'animate-bounce' : ''} />
@@ -414,7 +421,7 @@ const NewsPage: React.FC = () => {
                         </button>
                         <button
                             onClick={() => setShowDeleteModal(true)}
-                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="rounded-full border border-stone-200 bg-white p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                             title="Quản lý xóa bài"
                         >
                             <Trash2 size={18} />
@@ -427,7 +434,7 @@ const NewsPage: React.FC = () => {
                         <select
                             value={sourceFilter}
                             onChange={(e) => setSourceFilter(e.target.value)}
-                            className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200 cursor-pointer"
+                            className={`${inputClass} cursor-pointer`}
                         >
                             <option value="all">Tất cả nguồn</option>
                             {uniqueSources.map(source => (
@@ -436,7 +443,7 @@ const NewsPage: React.FC = () => {
                         </select>
 
                         {/* Date Filters */}
-                        <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-gray-100">
+                        <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
                             {[
                                 { key: 'all', label: 'Tất cả' },
                                 { key: 'new', label: 'Mới' },
@@ -446,10 +453,10 @@ const NewsPage: React.FC = () => {
                                 <button
                                     key={item.key}
                                     onClick={() => { setDateFilter(item.key as any); setFilterDate(''); }}
-                                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all
+                                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all
                                         ${dateFilter === item.key
-                                            ? 'bg-indigo-500 text-white'
-                                            : 'text-gray-500 hover:bg-gray-50'
+                                            ? 'bg-stone-900 text-white'
+                                            : 'text-stone-500 hover:bg-white'
                                         }`}
                                 >
                                     {item.label}
@@ -463,12 +470,12 @@ const NewsPage: React.FC = () => {
                                 type="date"
                                 value={filterDate}
                                 onChange={(e) => { setFilterDate(e.target.value); setDateFilter('custom'); }}
-                                className="px-2 py-1 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                                className="rounded-xl border border-stone-200 bg-white px-2 py-1 text-xs text-stone-700 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                             />
                             {filterDate && (
                                 <button
                                     onClick={() => { setFilterDate(''); setDateFilter('all'); }}
-                                    className="p-1 text-gray-400 hover:text-gray-600"
+                                    className="p-1 text-stone-400 hover:text-stone-600"
                                 >
                                     <X size={14} />
                                 </button>
@@ -476,7 +483,7 @@ const NewsPage: React.FC = () => {
                         </div>
 
                         {/* Filter Count */}
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-stone-400">
                             {filteredArticles.length} / {articles.length} tin
                         </span>
                     </div>
@@ -485,60 +492,60 @@ const NewsPage: React.FC = () => {
 
             {/* Delete Modal */}
             {showDeleteModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="max-w-md w-full rounded-2xl border border-stone-200/90 bg-white shadow-2xl">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-bold text-gray-900">Quản Lý Bài Viết</h2>
-                            <button onClick={() => setShowDeleteModal(false)} className="p-1 hover:bg-gray-100 rounded-lg">
+                            <h2 className="text-xl font-medium text-stone-900">Quản Lý Bài Viết</h2>
+                            <button onClick={() => setShowDeleteModal(false)} className="p-1 hover:bg-stone-100 rounded-lg">
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-3 px-6 pb-6">
                             <button
                                 onClick={handleDeleteYesterday}
                                 disabled={deleting}
-                                className="w-full p-4 text-left rounded-xl border border-gray-200 hover:bg-red-50 hover:border-red-200 transition-all flex items-center gap-3 disabled:opacity-50"
+                                className="w-full p-4 text-left rounded-xl border border-stone-200 hover:bg-rose-50 hover:border-rose-200 transition-all flex items-center gap-3 disabled:opacity-50"
                             >
                                 <Calendar size={20} className="text-red-500" />
                                 <div>
-                                    <p className="font-medium text-gray-900">Xóa bài viết hôm qua</p>
-                                    <p className="text-sm text-gray-500">Xóa tất cả bài viết của ngày hôm qua</p>
+                                    <p className="font-medium text-stone-900">Xóa bài viết hôm qua</p>
+                                    <p className="text-sm text-stone-500">Xóa tất cả bài viết của ngày hôm qua</p>
                                 </div>
                             </button>
 
                             <button
                                 onClick={handleDeleteLastWeek}
                                 disabled={deleting}
-                                className="w-full p-4 text-left rounded-xl border border-gray-200 hover:bg-red-50 hover:border-red-200 transition-all flex items-center gap-3 disabled:opacity-50"
+                                className="w-full p-4 text-left rounded-xl border border-stone-200 hover:bg-rose-50 hover:border-rose-200 transition-all flex items-center gap-3 disabled:opacity-50"
                             >
                                 <Calendar size={20} className="text-orange-500" />
                                 <div>
-                                    <p className="font-medium text-gray-900">Xóa bài viết tuần trước</p>
-                                    <p className="text-sm text-gray-500">Xóa tất cả bài viết cũ hơn 7 ngày</p>
+                                    <p className="font-medium text-stone-900">Xóa bài viết tuần trước</p>
+                                    <p className="text-sm text-stone-500">Xóa tất cả bài viết cũ hơn 7 ngày</p>
                                 </div>
                             </button>
 
-                            <div className="p-4 rounded-xl border border-gray-200">
-                                <p className="font-medium text-gray-900 mb-3">Xóa theo ngày cụ thể</p>
+                            <div className="p-4 rounded-xl border border-stone-200">
+                                <p className="font-medium text-stone-900 mb-3">Xóa theo ngày cụ thể</p>
                                 <div className="flex gap-2">
                                     <input
                                         type="date"
                                         value={customDate}
                                         onChange={(e) => setCustomDate(e.target.value)}
-                                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className={`flex-1 ${inputClass}`}
                                     />
                                     <button
                                         onClick={handleDeleteCustomDate}
                                         disabled={deleting || !customDate}
-                                        className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="px-4 py-2 bg-rose-500 text-white rounded-xl hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         Xóa
                                     </button>
                                 </div>
                             </div>
 
-                            <hr className="my-4" />
+                            <hr className="my-4 border-stone-100" />
 
                             <button
                                 onClick={handleDeleteAll}
@@ -554,7 +561,7 @@ const NewsPage: React.FC = () => {
                         </div>
 
                         {deleting && (
-                            <div className="mt-4 text-center text-gray-500">
+                            <div className="mt-4 pb-6 text-center text-stone-500">
                                 <RefreshCw className="animate-spin inline mr-2" size={16} />
                                 Đang xóa...
                             </div>
@@ -568,20 +575,20 @@ const NewsPage: React.FC = () => {
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="bg-white rounded-2xl p-6 h-64 animate-pulse shadow-sm">
-                                <div className="h-4 bg-gray-100 rounded w-1/4 mb-4"></div>
-                                <div className="h-48 bg-gray-100 rounded-xl mb-4"></div>
-                                <div className="h-6 bg-gray-100 rounded w-3/4"></div>
+                            <div key={i} className={`${cardClass} p-6 h-64 animate-pulse`}>
+                                <div className="h-4 bg-stone-100 rounded w-1/4 mb-4"></div>
+                                <div className="h-48 bg-stone-100 rounded-xl mb-4"></div>
+                                <div className="h-6 bg-stone-100 rounded w-3/4"></div>
                             </div>
                         ))}
                     </div>
                 ) : filteredArticles.length === 0 ? (
                     <div className="text-center py-20">
-                        <div className="text-gray-300 mb-4">
+                        <div className="text-stone-300 mb-4">
                             <Filter size={48} className="mx-auto" />
                         </div>
-                        <h3 className="text-xl font-medium text-gray-900">Không tìm thấy tin tức</h3>
-                        <p className="text-gray-500 mt-2">Hệ thống đang thu thập tin tức. Vui lòng quay lại sau.</p>
+                        <h3 className="text-xl font-medium text-stone-900">Không tìm thấy tin tức</h3>
+                        <p className="text-stone-500 mt-2">Hệ thống đang thu thập tin tức. Vui lòng quay lại sau.</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

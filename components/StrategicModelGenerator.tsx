@@ -7,6 +7,15 @@ import { Toast, ToastType } from './Toast';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+const textareaClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80 resize-none';
+
 const MODELS = [
     { id: 'SWOT', name: 'SWOT Analysis', icon: Grid, desc: 'Điểm mạnh, Yếu, Cơ hội, Thách thức' },
     { id: 'AIDA', name: 'Mô hình AIDA', icon: Filter, desc: 'Attention, Interest, Desire, Action' },
@@ -35,7 +44,6 @@ const StrategicModelGenerator: React.FC = () => {
     const [useManual, setUseManual] = useState(false);
     const [manualBrandName, setManualBrandName] = useState('');
 
-    // History state
     const [showHistory, setShowHistory] = useState(false);
     const [savedModels, setSavedModels] = useState<SavedStrategicModel[]>([]);
 
@@ -47,7 +55,6 @@ const StrategicModelGenerator: React.FC = () => {
         }
     }, [currentBrand, useManual]);
 
-    // Load history on mount
     useEffect(() => {
         const loadHistory = async () => {
             const models = await StrategicModelService.getStrategicModels();
@@ -104,23 +111,21 @@ const StrategicModelGenerator: React.FC = () => {
         }
     };
 
-    // --- CRITICAL FIX: EXPORT FUNCTION ---
     const handleDownload = async () => {
         if (!captureRef.current) return;
 
         try {
             const element = captureRef.current;
 
-            // Force capture full scroll height
             const dataUrl = await toPng(element, {
                 cacheBust: true,
                 backgroundColor: '#ffffff',
                 width: element.scrollWidth,
-                height: element.scrollHeight, // Capture full height even if hidden by overflow
+                height: element.scrollHeight,
                 style: {
-                    height: 'auto', // Override CSS height to auto for capture
-                    overflow: 'visible', // Ensure no clipping
-                    transform: 'none' // Reset transform to avoid offset
+                    height: 'auto',
+                    overflow: 'visible',
+                    transform: 'none'
                 }
             });
 
@@ -136,7 +141,6 @@ const StrategicModelGenerator: React.FC = () => {
     };
 
     const handleSave = async () => {
-        // Check if at least one model has been generated
         const hasData = Object.values(results).some(r => r !== null);
         if (!hasData) {
             showToast("Chưa có dữ liệu để lưu!", "error");
@@ -186,9 +190,6 @@ const StrategicModelGenerator: React.FC = () => {
         }
     };
 
-    // --- VISUAL COMPONENTS ---
-
-
     const toArray = (input: any): string[] => {
         if (Array.isArray(input)) return input;
         if (typeof input === 'string') return [input];
@@ -201,50 +202,57 @@ const StrategicModelGenerator: React.FC = () => {
         return '';
     };
 
-    const EditableList = ({ items, title, colorClass, icon: Icon }: { items: any, title: string, colorClass: string, icon?: React.ElementType }) => {
+    const EditableList = ({ items, title, accentClass, icon: Icon }: { items: any; title: string; accentClass: string; icon?: React.ElementType }) => {
         const listItems = toArray(items);
         return (
-            <div className={`p-5 rounded-2xl h-full border-t-4 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col ${colorClass}`}>
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100">
-                    {Icon && <Icon size={18} className="opacity-80" />}
-                    <h4 className="font-bold uppercase text-sm tracking-wide">{title}</h4>
+            <div className={`flex h-full flex-col rounded-2xl border border-stone-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ${accentClass}`}>
+                <div className="mb-4 flex items-center gap-2 border-b border-stone-100 pb-2">
+                    {Icon && <Icon size={18} strokeWidth={1.25} className="text-stone-500" />}
+                    <h4 className="text-xs font-semibold uppercase tracking-[0.08em] text-stone-800">{title}</h4>
                 </div>
-                <ul className="space-y-3 flex-1">
+                <ul className="flex flex-1 flex-col space-y-3">
                     {listItems.length > 0 ? listItems.map((item, i) => (
-                        <li key={i} className="text-sm text-slate-700 leading-relaxed flex gap-2" contentEditable suppressContentEditableWarning>
-                            <span className="text-slate-400 mt-1.5 w-1.5 h-1.5 rounded-full bg-current shrink-0"></span>
+                        <li key={i} className="flex gap-2 text-sm leading-relaxed text-stone-700" contentEditable suppressContentEditableWarning>
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-300" aria-hidden />
                             <span>{item}</span>
                         </li>
-                    )) : <li className="text-sm text-slate-400 italic">Chưa có dữ liệu</li>}
+                    )) : <li className="text-sm italic text-stone-400">Chưa có dữ liệu</li>}
                 </ul>
             </div>
         );
     };
 
-    // --- RENDERERS ---
-
     const renderSWOT = (data: any) => (
-        <div className="grid grid-cols-2 gap-6 h-auto min-h-[500px]">
-            <div className="bg-green-50/50 rounded-2xl p-2"><EditableList items={data.strengths} title="Strengths (Điểm mạnh)" colorClass="border-green-500 text-green-800" /></div>
-            <div className="bg-red-50/50 rounded-2xl p-2"><EditableList items={data.weaknesses} title="Weaknesses (Điểm yếu)" colorClass="border-red-500 text-red-800" /></div>
-            <div className="bg-blue-50/50 rounded-2xl p-2"><EditableList items={data.opportunities} title="Opportunities (Cơ hội)" colorClass="border-blue-500 text-blue-800" /></div>
-            <div className="bg-orange-50/50 rounded-2xl p-2"><EditableList items={data.threats} title="Threats (Thách thức)" colorClass="border-orange-500 text-orange-800" /></div>
+        <div className="grid min-h-[500px] grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-emerald-100/80 bg-emerald-50/20 p-1">
+                <EditableList items={data.strengths} title="Strengths (Điểm mạnh)" accentClass="border-t-2 border-t-emerald-600/50" />
+            </div>
+            <div className="rounded-2xl border border-rose-100/80 bg-rose-50/20 p-1">
+                <EditableList items={data.weaknesses} title="Weaknesses (Điểm yếu)" accentClass="border-t-2 border-t-rose-600/50" />
+            </div>
+            <div className="rounded-2xl border border-sky-100/80 bg-sky-50/20 p-1">
+                <EditableList items={data.opportunities} title="Opportunities (Cơ hội)" accentClass="border-t-2 border-t-sky-600/50" />
+            </div>
+            <div className="rounded-2xl border border-amber-100/80 bg-amber-50/20 p-1">
+                <EditableList items={data.threats} title="Threats (Thách thức)" accentClass="border-t-2 border-t-amber-600/50" />
+            </div>
         </div>
     );
 
     const renderAIDA = (data: any) => (
-        <div className="flex flex-col items-center space-y-4 w-full max-w-4xl mx-auto py-8">
+        <div className="mx-auto flex w-full max-w-4xl flex-col items-center space-y-3 py-6">
             {['attention', 'interest', 'desire', 'action'].map((stage, idx) => {
                 const widthPercent = 100 - (idx * 15);
-                const colors = ['bg-rose-500', 'bg-orange-500', 'bg-yellow-500', 'bg-emerald-500'];
                 return (
-                    <div key={stage} className="w-full flex justify-center drop-shadow-xl filter">
+                    <div key={stage} className="flex w-full justify-center">
                         <div
-                            className={`${colors[idx]} text-white p-6 rounded-3xl text-center relative group transition-all hover:scale-[1.02] flex flex-col justify-center min-h-[120px]`}
-                            style={{ width: `${widthPercent}%`, maxWidth: '800px', minWidth: '300px' }}
+                            className="flex min-h-[100px] flex-col justify-center rounded-2xl border border-stone-200/90 bg-stone-900 px-6 py-5 text-center text-white shadow-[0_1px_2px_rgba(15,23,42,0.08)] transition-all hover:border-stone-600"
+                            style={{ width: `${widthPercent}%`, maxWidth: '800px', minWidth: '280px' }}
                         >
-                            <div className="font-black uppercase text-sm opacity-80 mb-2 tracking-widest border-b border-white/20 pb-1 mx-auto inline-block">{stage}</div>
-                            <div className="text-base font-medium leading-relaxed px-4" contentEditable suppressContentEditableWarning>
+                            <div className="mx-auto mb-2 inline-block border-b border-white/15 pb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-300">
+                                {stage}
+                            </div>
+                            <div className="text-sm font-normal leading-relaxed text-stone-100" contentEditable suppressContentEditableWarning>
                                 {toString(data[stage])}
                             </div>
                         </div>
@@ -254,54 +262,47 @@ const StrategicModelGenerator: React.FC = () => {
         </div>
     );
 
-    // --- RE-DESIGNED 4P MARKETING MIX ---
     const render4P = (data: any) => {
         const pillars = [
-            { key: 'product', title: 'Product (Sản phẩm)', color: 'border-blue-500 text-blue-700', icon: Package },
-            { key: 'price', title: 'Price (Giá cả)', color: 'border-green-500 text-green-700', icon: DollarSign },
-            { key: 'place', title: 'Place (Phân phối)', color: 'border-orange-500 text-orange-700', icon: MapPin },
-            { key: 'promotion', title: 'Promotion (Xúc tiến)', color: 'border-red-500 text-red-700', icon: Megaphone }
+            { key: 'product', title: 'Product (Sản phẩm)', accent: 'border-t-stone-700/40', icon: Package },
+            { key: 'price', title: 'Price (Giá cả)', accent: 'border-t-stone-600/40', icon: DollarSign },
+            { key: 'place', title: 'Place (Phân phối)', accent: 'border-t-stone-500/40', icon: MapPin },
+            { key: 'promotion', title: 'Promotion (Xúc tiến)', accent: 'border-t-stone-800/40', icon: Megaphone }
         ];
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-auto min-h-[500px]">
+            <div className="grid min-h-[500px] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {pillars.map((p) => (
-                    <div key={p.key} className="h-full">
-                        <EditableList
-                            items={data[p.key]}
-                            title={p.title}
-                            colorClass={p.color}
-                            icon={p.icon}
-                        />
+                    <div key={p.key} className="h-full rounded-2xl border border-stone-100 bg-stone-50/30 p-1">
+                        <EditableList items={data[p.key]} title={p.title} accentClass={p.accent} icon={p.icon} />
                     </div>
                 ))}
             </div>
         );
     };
 
-    // --- RE-DESIGNED 5W1H (HONEYCOMB / RADIAL GRID) ---
     const render5W1H = (data: any) => {
         const items = [
-            { k: 'who', t: 'WHO', c: 'bg-blue-50 border-blue-200' },
-            { k: 'what', t: 'WHAT', c: 'bg-purple-50 border-purple-200' },
-            { k: 'where', t: 'WHERE', c: 'bg-green-50 border-green-200' },
-            { k: 'when', t: 'WHEN', c: 'bg-yellow-50 border-yellow-200' },
-            { k: 'why', t: 'WHY', c: 'bg-orange-50 border-orange-200' },
-            { k: 'how', t: 'HOW', c: 'bg-red-50 border-red-200' },
+            { k: 'who', t: 'WHO' },
+            { k: 'what', t: 'WHAT' },
+            { k: 'where', t: 'WHERE' },
+            { k: 'when', t: 'WHEN' },
+            { k: 'why', t: 'WHY' },
+            { k: 'how', t: 'HOW' },
         ];
 
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-auto">
+            <div className="grid h-auto grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {items.map((w) => (
-                    <div key={w.k} className={`rounded-2xl border-2 overflow-hidden shadow-sm hover:shadow-md transition-all h-full flex flex-col ${w.c}`}>
-                        <div className="px-4 py-3 font-black text-slate-700 text-center text-lg border-b border-black/5 uppercase tracking-widest bg-white/50">
+                    <div key={w.k} className={`${cardClass} flex h-full flex-col overflow-hidden`}>
+                        <div className="border-b border-stone-100 bg-stone-50/50 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.15em] text-stone-700">
                             {w.t}
                         </div>
-                        <div className="p-5 flex-1">
-                            <ul className="text-sm text-slate-700 space-y-2 list-none">
+                        <div className="flex-1 p-4">
+                            <ul className="list-none space-y-2 text-sm text-stone-700">
                                 {toArray(data[w.k]).map((item: string, i: number) => (
                                     <li key={i} className="flex gap-2" contentEditable suppressContentEditableWarning>
-                                        <span className="text-slate-400 font-bold">•</span> {item}
+                                        <span className="font-medium text-stone-300">•</span> {item}
                                     </li>
                                 ))}
                             </ul>
@@ -313,19 +314,19 @@ const StrategicModelGenerator: React.FC = () => {
     };
 
     const renderSMART = (data: any) => (
-        <div className="space-y-4">
+        <div className="space-y-3">
             {[
-                { k: 'specific', t: 'Specific (Cụ thể)', c: 'bg-blue-50 border-blue-200 text-blue-900' },
-                { k: 'measurable', t: 'Measurable (Đo lường)', c: 'bg-green-50 border-green-200 text-green-900' },
-                { k: 'achievable', t: 'Achievable (Khả thi)', c: 'bg-yellow-50 border-yellow-200 text-yellow-900' },
-                { k: 'relevant', t: 'Relevant (Liên quan)', c: 'bg-orange-50 border-orange-200 text-orange-900' },
-                { k: 'time_bound', t: 'Time-bound (Thời hạn)', c: 'bg-red-50 border-red-200 text-red-900' },
+                { k: 'specific', t: 'Specific (Cụ thể)' },
+                { k: 'measurable', t: 'Measurable (Đo lường)' },
+                { k: 'achievable', t: 'Achievable (Khả thi)' },
+                { k: 'relevant', t: 'Relevant (Liên quan)' },
+                { k: 'time_bound', t: 'Time-bound (Thời hạn)' },
             ].map((item) => (
-                <div key={item.k} className={`p-5 rounded-2xl border ${item.c} flex flex-col md:flex-row items-start gap-4 transition-all hover:shadow-md`}>
-                    <div className="font-bold w-40 shrink-0 pt-1 uppercase text-xs tracking-wider border-b md:border-b-0 md:border-r border-black/10 pb-2 md:pb-0 md:pr-4">
+                <div key={item.k} className={`${cardClass} flex flex-col items-start gap-4 p-5 transition-all md:flex-row`}>
+                    <div className="w-full shrink-0 border-b border-stone-100 pb-2 text-xs font-semibold uppercase tracking-[0.08em] text-stone-600 md:w-44 md:border-b-0 md:border-r md:pb-0 md:pr-4">
                         {item.t}
                     </div>
-                    <div className="flex-1 text-sm font-medium leading-relaxed" contentEditable suppressContentEditableWarning>
+                    <div className="flex-1 text-sm font-normal leading-relaxed text-stone-800" contentEditable suppressContentEditableWarning>
                         {toString(data[item.k])}
                     </div>
                 </div>
@@ -336,152 +337,262 @@ const StrategicModelGenerator: React.FC = () => {
     const currentResult = results[selectedModel];
 
     return (
-        <div className="max-w-7xl mx-auto pt-10 px-6 pb-20">
-            {/* ... (Header and Input Area - Unchanged) ... */}
-            <div className="flex justify-between items-start mb-8">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                        <Target className="text-blue-600" strokeWidth={1.5} />
-                        Strategic Model Generator
-                    </h2>
-                    <p className="text-slate-500 mt-1">Tạo các khung chiến lược marketing chuẩn (SWOT, AIDA...) bằng AI.</p>
-                    {!useManual && <div className="mt-4"><BrandSelector /></div>}
-                </div>
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-3 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-                        <button onClick={() => setUseManual(false)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${!useManual ? 'bg-slate-100 text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}>Brand Vault</button>
-                        <button onClick={() => setUseManual(true)} className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${useManual ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}>Thủ công</button>
-                    </div>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={handleSave}
-                            className="group bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-emerald-200 shadow-sm hover:shadow-md flex items-center gap-2 text-sm font-bold transition-all"
-                        >
-                            <Save size={16} className="group-hover:scale-110 transition-transform" />
-                            Lưu
-                        </button>
-                        <button
-                            onClick={() => setShowHistory(true)}
-                            className="group bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-200 shadow-sm hover:shadow-md flex items-center gap-2 text-sm font-bold transition-all"
-                        >
-                            <History size={16} className="group-hover:scale-110 transition-transform" />
-                            Lịch sử
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-1">
-                        <label className="block text-sm font-bold text-slate-700 mb-2">Chọn Mô hình</label>
-                        <div className="space-y-2">
-                            {MODELS.map(m => {
-                                const hasData = results[m.id] !== null;
-                                return (
-                                    <button key={m.id} onClick={() => setSelectedModel(m.id)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all relative ${selectedModel === m.id ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-sm' : 'bg-white border-slate-100 text-slate-600 hover:bg-slate-50'}`}>
-                                        <div className={`p-1.5 rounded-lg ${selectedModel === m.id ? 'bg-white' : 'bg-slate-100'} ${!hasData && 'opacity-50'}`}><m.icon size={16} /></div>
-                                        <div className={`${!hasData && 'opacity-60'}`}><div className="font-bold text-sm">{m.name}</div></div>
-                                        {hasData && <Check className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500" size={16} />}
-                                    </button>
-                                )
-                            })}
+        <div className="min-h-full bg-[#FCFDFC] px-4 pb-16 pt-8 md:px-8">
+            <div className="mx-auto max-w-7xl">
+                <header className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="max-w-2xl">
+                        <div className="mb-2 flex items-center gap-2 text-stone-400">
+                            <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                Chiến lược Marketing
+                            </span>
                         </div>
-                    </div>
-                    <div className="md:col-span-3 flex flex-col gap-4">
-                        {useManual && (
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Tên Thương hiệu (Manual)</label>
-                                <div className="relative"><Edit3 className="absolute left-3 top-3 text-slate-400" size={16} /><input className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all font-bold text-slate-700" placeholder="Nhập tên thương hiệu..." value={manualBrandName} onChange={e => setManualBrandName(e.target.value)} /></div>
+                        <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                            Strategic Model Generator
+                        </h1>
+                        <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            Tạo các khung chiến lược marketing chuẩn (SWOT, AIDA...) bằng AI.
+                        </p>
+                        {!useManual && (
+                            <div className="mt-5 rounded-2xl border border-stone-100 bg-white/80 p-3 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                <BrandSelector />
                             </div>
                         )}
-                        <div className="flex-1 flex flex-col">
-                            <label className="block text-sm font-bold text-slate-700 mb-2">{useManual ? 'Mô tả Sản phẩm / Dịch vụ chi tiết' : `Thông tin Sản phẩm (${currentBrand ? currentBrand.identity.name : 'Chưa chọn Brand'})`}</label>
-                            <textarea className="flex-1 p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 resize-none mb-4 text-slate-800 min-h-[120px]" placeholder="Mô tả sản phẩm, đối tượng khách hàng, mục tiêu..." value={productInfo} onChange={e => setProductInfo(e.target.value)} />
-                            <div className="self-end flex gap-3">
-                                <button onClick={handleGenerateAll} disabled={isGenerating} className="bg-white border border-slate-200 text-slate-600 px-5 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-blue-600 transition-all disabled:opacity-70"><Layers size={18} /> Phân tích Toàn diện (All)</button>
-                                <button onClick={handleGenerateSingle} disabled={isGenerating} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 shadow-lg shadow-blue-200 disabled:opacity-70 transition-all">{isGenerating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />} Tạo {selectedModel}</button>
+                    </div>
+
+                    <div className="flex flex-col gap-3 lg:items-end">
+                        <div className="inline-flex w-full max-w-sm gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:w-auto">
+                            <button
+                                type="button"
+                                onClick={() => setUseManual(false)}
+                                className={`flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors sm:flex-none ${!useManual
+                                    ? 'bg-stone-900 text-white shadow-sm'
+                                    : 'text-stone-600 hover:bg-stone-50/80'
+                                    }`}
+                            >
+                                Brand Vault
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setUseManual(true)}
+                                className={`flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors sm:flex-none ${useManual
+                                    ? 'bg-stone-900 text-white shadow-sm'
+                                    : 'text-stone-600 hover:bg-stone-50/80'
+                                    }`}
+                            >
+                                Thủ công
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                            >
+                                <Save size={17} strokeWidth={1.25} /> Lưu
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setShowHistory(true)}
+                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                                    }`}
+                            >
+                                <History size={17} strokeWidth={1.25} /> Lịch sử
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <div className={`${cardClass} mb-8 p-6 md:p-8`}>
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-0">
+                        <div className="border-stone-200/80 lg:col-span-4 lg:border-r lg:pr-8">
+                            <label className="mb-3 block text-sm font-medium text-stone-800">Chọn mô hình</label>
+                            <div className="space-y-2">
+                                {MODELS.map(m => {
+                                    const hasData = results[m.id] !== null;
+                                    return (
+                                        <button
+                                            key={m.id}
+                                            type="button"
+                                            onClick={() => setSelectedModel(m.id)}
+                                            className={`relative flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${selectedModel === m.id
+                                                ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200'
+                                                : 'border-stone-200/90 bg-white hover:border-stone-300 hover:bg-stone-50/50'
+                                                } ${!hasData ? 'opacity-80' : ''}`}
+                                        >
+                                            <div className={`rounded-lg border p-1.5 ${selectedModel === m.id ? 'border-stone-200 bg-white' : 'border-stone-100 bg-stone-50/80'} text-stone-700`}>
+                                                <m.icon size={16} strokeWidth={1.25} />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-sm font-medium text-stone-900">{m.name}</div>
+                                                <div className="truncate text-xs font-normal text-stone-500">{m.desc}</div>
+                                            </div>
+                                            {hasData && <Check className="shrink-0 text-emerald-600" size={16} strokeWidth={1.25} />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4 lg:col-span-8 lg:pl-8">
+                            {useManual && (
+                                <div>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Tên thương hiệu (thủ công)</label>
+                                    <div className="relative">
+                                        <Edit3 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" strokeWidth={1.25} />
+                                        <input
+                                            className={`${inputClass} pl-10 font-medium`}
+                                            placeholder="Nhập tên thương hiệu..."
+                                            value={manualBrandName}
+                                            onChange={e => setManualBrandName(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            <div className="flex flex-1 flex-col">
+                                <label className="mb-2 block text-sm font-medium text-stone-800">
+                                    {useManual ? 'Mô tả sản phẩm / dịch vụ chi tiết' : `Thông tin sản phẩm (${currentBrand ? currentBrand.identity.name : 'Chưa chọn brand'})`}
+                                </label>
+                                <textarea
+                                    className={`${textareaClass} mb-4 min-h-[140px]`}
+                                    placeholder="Mô tả sản phẩm, đối tượng khách hàng, mục tiêu..."
+                                    value={productInfo}
+                                    onChange={e => setProductInfo(e.target.value)}
+                                />
+                                <div className="flex flex-wrap justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateAll}
+                                        disabled={isGenerating}
+                                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 disabled:opacity-60"
+                                    >
+                                        <Layers size={18} strokeWidth={1.25} /> Phân tích toàn diện (All)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateSingle}
+                                        disabled={isGenerating}
+                                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-60"
+                                    >
+                                        {isGenerating ? <Loader2 className="animate-spin" size={18} strokeWidth={1.25} /> : <Sparkles size={18} strokeWidth={1.25} />}
+                                        Tạo {selectedModel}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {currentResult ? (
-                <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-xl font-bold text-slate-800">Kết quả Phân tích ({selectedModel})</h3>
-                        <button onClick={handleDownload} className="text-slate-500 hover:text-blue-600 flex items-center gap-2 text-sm font-bold px-3 py-2 rounded-lg hover:bg-blue-50 transition-colors">
-                            <Download size={18} /> Tải ảnh PNG (Full)
+                {currentResult ? (
+                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                            <h3 className="font-sans text-lg font-medium tracking-tight text-stone-900 md:text-xl">
+                                Kết quả phân tích ({selectedModel})
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={handleDownload}
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50"
+                            >
+                                <Download size={18} strokeWidth={1.25} /> Tải ảnh PNG (full)
+                            </button>
+                        </div>
+
+                        <div ref={captureRef} className={`${cardClass} p-8 md:p-10`}>
+                            <div className="mb-8 border-b border-stone-100 pb-8">
+                                <h2 className="mb-4 text-center font-sans text-2xl font-medium tracking-tight text-stone-900 md:text-3xl">
+                                    {MODELS.find(m => m.id === selectedModel)?.name}
+                                </h2>
+                                <div className="mx-auto max-w-4xl rounded-2xl border border-stone-100 bg-stone-50/50 p-6">
+                                    <p className="text-center text-base font-normal italic leading-relaxed text-stone-600">
+                                        &ldquo;{currentResult.summary}&rdquo;
+                                    </p>
+                                </div>
+                            </div>
+
+                            {selectedModel === 'SWOT' && renderSWOT(currentResult.data)}
+                            {selectedModel === 'AIDA' && renderAIDA(currentResult.data)}
+                            {selectedModel === '4P' && render4P(currentResult.data)}
+                            {selectedModel === '5W1H' && render5W1H(currentResult.data)}
+                            {selectedModel === 'SMART' && renderSMART(currentResult.data)}
+
+                            <div className="mt-10 flex items-center justify-center gap-2 border-t border-stone-100 pt-6 text-center text-xs font-normal text-stone-400">
+                                <Sparkles size={12} strokeWidth={1.25} /> Generated by OptiMKT AI Strategy Engine
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className={`${cardClass} flex min-h-[280px] flex-col items-center justify-center border-dashed border-stone-200/90 px-6 py-16 text-center`}>
+                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                            <Target size={32} strokeWidth={1.25} className="text-stone-300" />
+                        </div>
+                        <h3 className="text-base font-medium text-stone-800">Chưa có dữ liệu cho {selectedModel}</h3>
+                        <p className="mt-1 max-w-md text-sm font-normal text-stone-500">
+                            Hãy nhập thông tin sản phẩm và bấm tạo để AI phân tích chiến lược cho mô hình này.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={handleGenerateSingle}
+                            className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                        >
+                            Tạo phân tích {selectedModel} ngay
                         </button>
                     </div>
+                )}
 
-                    <div
-                        ref={captureRef}
-                        className="bg-white p-10 rounded-[2rem] shadow-xl border border-slate-200"
-                    >
-                        <div className="mb-10 pb-8 border-b border-slate-100">
-                            <h2 className="text-4xl font-black text-slate-800 text-center mb-4 uppercase tracking-tight">{MODELS.find(m => m.id === selectedModel)?.name}</h2>
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 max-w-4xl mx-auto shadow-inner">
-                                <p className="text-center text-slate-600 italic text-base leading-relaxed">"{currentResult.summary}"</p>
+                {showHistory && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm">
+                        <div className={`${cardClass} flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden shadow-xl`}>
+                            <div className="flex items-center justify-between border-b border-stone-100 px-6 py-4">
+                                <h3 className="flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <History size={20} strokeWidth={1.25} className="text-stone-400" />
+                                    Lịch sử Strategic Models
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowHistory(false)}
+                                    className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                                    aria-label="Đóng"
+                                >
+                                    <X size={20} strokeWidth={1.25} />
+                                </button>
+                            </div>
+                            <div className="custom-scrollbar space-y-2 overflow-y-auto p-6">
+                                {savedModels.length === 0 ? (
+                                    <div className="py-10 text-center text-sm text-stone-400">Chưa có Strategic Model nào.</div>
+                                ) : (
+                                    savedModels.map(model => {
+                                        const modelCount = Object.values(model.results).filter(r => r !== null).length;
+                                        return (
+                                            <div key={model.id} className="group rounded-2xl border border-stone-200/90 p-4 transition-all hover:border-stone-300 hover:bg-stone-50/50">
+                                                <div className="flex items-start gap-3">
+                                                    <button type="button" onClick={() => handleLoad(model)} className="min-w-0 flex-1 text-left">
+                                                        <div className="font-medium text-stone-900">{model.name}</div>
+                                                        <div className="mt-1 text-xs text-stone-400">{new Date(model.createdAt).toLocaleDateString('vi-VN')}</div>
+                                                        <div className="mt-2 text-xs font-medium text-stone-600">{modelCount} mô hình đã tạo</div>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDelete(model.id)}
+                                                        className="shrink-0 rounded-lg p-2 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                                        aria-label="Xóa"
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={1.25} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
                         </div>
-
-                        {/* DYNAMIC RENDERER */}
-                        {selectedModel === 'SWOT' && renderSWOT(currentResult.data)}
-                        {selectedModel === 'AIDA' && renderAIDA(currentResult.data)}
-                        {selectedModel === '4P' && render4P(currentResult.data)}
-                        {selectedModel === '5W1H' && render5W1H(currentResult.data)}
-                        {selectedModel === 'SMART' && renderSMART(currentResult.data)}
-
-                        <div className="mt-12 pt-6 border-t border-slate-100 text-center text-xs text-slate-400 font-mono flex items-center justify-center gap-2">
-                            <Sparkles size={12} /> Generated by OptiMKT AI Strategy Engine
-                        </div>
                     </div>
-                </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl text-center animate-in fade-in zoom-in">
-                    <div className="bg-white p-4 rounded-full shadow-sm mb-4"><Target size={40} className="text-slate-300" strokeWidth={1} /></div>
-                    <h3 className="text-lg font-bold text-slate-700 mb-2">Chưa có dữ liệu cho {selectedModel}</h3>
-                    <p className="text-slate-500 max-w-md mb-6">Hãy nhập thông tin sản phẩm và bấm nút tạo để AI phân tích chiến lược cho mô hình này.</p>
-                    <button onClick={handleGenerateSingle} className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md">Tạo phân tích {selectedModel} ngay</button>
-                </div>
-            )}
+                )}
 
-            {/* History Modal */}
-            {showHistory && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in border border-slate-100 flex flex-col max-h-[80vh]">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                            <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><History size={20} /> Lịch sử Strategic Models</h3>
-                            <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-700 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
-                        </div>
-                        <div className="p-6 overflow-y-auto space-y-3 custom-scrollbar">
-                            {savedModels.length === 0 ? (
-                                <div className="text-center py-10 text-slate-400">Chưa có Strategic Model nào.</div>
-                            ) : savedModels.map(model => {
-                                const modelCount = Object.values(model.results).filter(r => r !== null).length;
-                                return (
-                                    <div key={model.id} className="p-4 rounded-2xl border border-slate-100 hover:border-blue-200 hover:bg-slate-50 transition-all group">
-                                        <div className="flex items-start gap-3">
-                                            <button onClick={() => handleLoad(model)} className="flex-1 text-left">
-                                                <div className="font-bold text-slate-800 mb-1">{model.name}</div>
-                                                <div className="text-xs text-slate-400 mb-2">{new Date(model.createdAt).toLocaleDateString('vi-VN')}</div>
-                                                <div className="text-xs text-blue-600 font-bold">{modelCount} model(s) generated</div>
-                                            </button>
-                                            <button onClick={() => handleDelete(model.id)} className="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+                {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+            </div>
         </div>
     );
 };

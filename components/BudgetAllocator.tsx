@@ -5,8 +5,8 @@ import {
     Monitor, Database, Image, AlertTriangle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip, Cell } from 'recharts';
-import toast, { Toaster } from 'react-hot-toast';
 import { BudgetAllocatorService, SavedAllocation } from '../services/budgetAllocatorService';
+import { Toast, ToastType } from './Toast';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES & INTERFACES
@@ -93,6 +93,12 @@ const CHANNEL_COLORS = {
     'Email Marketing': '#10b981',
     'KOL/Influencer': '#6366f1',
 };
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
 
 // ═══════════════════════════════════════════════════════════════
 // CALCULATION LOGIC
@@ -378,28 +384,28 @@ const ChannelCard = ({ channel }: { channel: ChannelBreakdown }) => {
     const color = CHANNEL_COLORS[channel.channel as keyof typeof CHANNEL_COLORS] || '#6366f1';
 
     return (
-        <div className={`bg-white border rounded-xl overflow-hidden transition-all ${channel.warning ? 'border-amber-300' : 'border-slate-200'}`}>
+        <div className={`overflow-hidden rounded-2xl border bg-white transition-all ${channel.warning ? 'border-amber-300' : 'border-stone-200/90'}`}>
             {/* Header */}
             <div
-                className="p-4 cursor-pointer hover:bg-slate-50 transition-colors"
+                className="cursor-pointer p-4 transition-colors hover:bg-stone-50/60"
                 onClick={() => setExpanded(!expanded)}
             >
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
                         <div>
-                            <h3 className="text-sm font-bold text-slate-800">{channel.channel}</h3>
-                            <p className="text-xs text-indigo-600">{channel.role}</p>
+                            <h3 className="text-sm font-medium text-stone-900">{channel.channel}</h3>
+                            <p className="text-xs text-stone-500">{channel.role}</p>
                         </div>
                     </div>
                     <div className="text-right flex items-center gap-2">
                         <div>
-                            <div className="text-lg font-bold text-slate-900">{formatVND(channel.totalAllocation)}</div>
-                            <div className="text-xs text-slate-500">
+                            <div className="text-lg font-semibold text-stone-900">{formatVND(channel.totalAllocation)}</div>
+                            <div className="text-xs text-stone-500">
                                 Est. {channel.estimatedKpi.value.toLocaleString()} {channel.estimatedKpi.metric}
                             </div>
                         </div>
-                        {expanded ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+                        {expanded ? <ChevronUp size={16} className="text-stone-400" /> : <ChevronDown size={16} className="text-stone-400" />}
                     </div>
                 </div>
 
@@ -410,11 +416,11 @@ const ChannelCard = ({ channel }: { channel: ChannelBreakdown }) => {
                         style={{ width: `${(channel.mediaSpend / channel.totalAllocation) * 100}%`, backgroundColor: color }}
                     ></div>
                     <div
-                        className="h-full bg-purple-300"
+                        className="h-full bg-stone-300"
                         style={{ width: `${(channel.productionCost / channel.totalAllocation) * 100}%` }}
                     ></div>
                 </div>
-                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                <div className="mt-1 flex justify-between text-[10px] text-stone-500">
                     <span>Media: {formatVND(channel.mediaSpend)}</span>
                     <span>Sản xuất: {formatVND(channel.productionCost)}</span>
                 </div>
@@ -422,18 +428,18 @@ const ChannelCard = ({ channel }: { channel: ChannelBreakdown }) => {
 
             {/* Expanded Details */}
             {expanded && (
-                <div className="px-4 pb-4 space-y-3 border-t border-slate-100 pt-3">
+                <div className="space-y-3 border-t border-stone-100 px-4 pb-4 pt-3">
                     {/* Unit Cost */}
                     {channel.estimatedKpi.unitCost > 0 && (
-                        <div className="text-xs text-slate-600">
+                        <div className="text-xs text-stone-600">
                             Đơn giá: <strong>{formatVND(channel.estimatedKpi.unitCost)}</strong> / {channel.estimatedKpi.metric.replace('s', '')}
                         </div>
                     )}
 
                     {/* Action Item */}
-                    <div className="p-3 bg-indigo-50 rounded-lg">
-                        <div className="text-xs font-bold text-indigo-700 mb-1">📋 Action Item:</div>
-                        <p className="text-xs text-indigo-600">{channel.actionItem}</p>
+                    <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+                        <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">Action Item</div>
+                        <p className="text-xs text-stone-700">{channel.actionItem}</p>
                     </div>
 
                     {/* Warning */}
@@ -460,6 +466,7 @@ const BudgetAllocator: React.FC = () => {
     const [isCalculating, setIsCalculating] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [savedAllocations, setSavedAllocations] = useState<SavedAllocation[]>([]);
+    const [toastState, setToastState] = useState<{ message: string; type: ToastType } | null>(null);
 
     // Asset Checklist
     const [hasWebsite, setHasWebsite] = useState(true);
@@ -468,6 +475,7 @@ const BudgetAllocator: React.FC = () => {
 
     const watchedKpi = watch('kpi');
     const watchedBudget = watch('totalBudget');
+    const showToast = (message: string, type: ToastType = 'info') => setToastState({ message, type });
 
     // Load saved allocations from Supabase
     useEffect(() => {
@@ -477,7 +485,7 @@ const BudgetAllocator: React.FC = () => {
             if (localData) {
                 const migrated = await BudgetAllocatorService.migrateFromLocalStorage();
                 if (migrated > 0) {
-                    toast.success(`Đã migrate ${migrated} bản ghi lên cloud!`, { icon: '☁️' });
+                    showToast(`Đã migrate ${migrated} bản ghi lên cloud!`, 'success');
                 }
             }
 
@@ -518,10 +526,7 @@ const BudgetAllocator: React.FC = () => {
         setCurrentInput(data);
         setIsCalculating(false);
 
-        toast.success('Phân bổ ngân sách hoàn tất!', {
-            icon: '💰',
-            style: { borderRadius: '12px', background: '#F0FDF4', color: '#166534', fontWeight: 600 }
-        });
+        showToast('Phân bổ ngân sách hoàn tất!', 'success');
     };
 
     const handleSave = async () => {
@@ -539,9 +544,9 @@ const BudgetAllocator: React.FC = () => {
         if (success) {
             const updated = [newAllocation, ...savedAllocations];
             setSavedAllocations(updated);
-            toast.success('Đã lưu lên cloud!', { icon: '☁️' });
+            showToast('Đã lưu lên cloud!', 'success');
         } else {
-            toast.error('Lưu thất bại!', { icon: '❌' });
+            showToast('Lưu thất bại!', 'error');
         }
     };
 
@@ -553,7 +558,7 @@ const BudgetAllocator: React.FC = () => {
         setHasCreativeAssets(item.assets.hasCreativeAssets);
         reset(item.input);
         setShowHistory(false);
-        toast.success('Đã tải!', { icon: '📂' });
+        showToast('Đã tải!', 'success');
     };
 
     const handleDelete = async (id: string) => {
@@ -561,9 +566,9 @@ const BudgetAllocator: React.FC = () => {
         if (success) {
             const updated = savedAllocations.filter(s => s.id !== id);
             setSavedAllocations(updated);
-            toast.success('Đã xóa!', { icon: '🗑️' });
+            showToast('Đã xóa!', 'success');
         } else {
-            toast.error('Xóa thất bại!', { icon: '❌' });
+            showToast('Xóa thất bại!', 'error');
         }
     };
 
@@ -574,7 +579,7 @@ const BudgetAllocator: React.FC = () => {
         setHasCustomerList(true);
         setHasCreativeAssets(true);
         reset();
-        toast.success('Sẵn sàng phân bổ mới!', { icon: '✨' });
+        showToast('Sẵn sàng phân bổ mới!', 'success');
     };
 
     // Chart data for stacked bar
@@ -586,31 +591,30 @@ const BudgetAllocator: React.FC = () => {
     })) || [];
 
     return (
-        <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans">
-            <Toaster position="top-center" />
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
 
             {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shrink-0 z-10">
+            <div className="z-10 flex shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-purple-500/10 text-purple-600 rounded-xl flex items-center justify-center">
-                        <PieChart size={20} strokeWidth={2} />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-500">
+                        <PieChart size={20} strokeWidth={1.5} />
                     </div>
                     <div>
-                        <h1 className="text-lg font-bold text-slate-800">Budget Allocator V2</h1>
-                        <p className="text-xs text-slate-500 font-medium">Split-Budget Model • Media vs Production</p>
+                        <h1 className="text-lg font-normal tracking-tight text-stone-900">Budget Allocator V2</h1>
+                        <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Split-Budget Model • Media vs Production</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setShowHistory(!showHistory)}
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-all text-sm"
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                     >
                         <History size={16} /> Lịch sử ({savedAllocations.length})
                     </button>
                     {result && (
                         <button
                             onClick={handleNew}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition-all text-sm"
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
                         >
                             <Plus size={16} /> Tạo mới
                         </button>
@@ -619,9 +623,9 @@ const BudgetAllocator: React.FC = () => {
                     <button
                         onClick={handleSave}
                         disabled={!result}
-                        className={`flex items-center gap-2 px-4 py-2 font-bold rounded-xl transition-all text-sm ${result
-                                ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${result
+                                ? 'bg-stone-900 text-white hover:bg-stone-800'
+                                : 'cursor-not-allowed bg-stone-100 text-stone-400'
                             }`}
                     >
                         <Save size={16} /> Lưu
@@ -631,11 +635,11 @@ const BudgetAllocator: React.FC = () => {
 
             <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: showHistory ? '420px 280px 1fr' : '420px 1fr' }}>
                 {/* LEFT: Form */}
-                <div className="bg-white border-r border-slate-200 p-6 overflow-y-auto h-full">
+                <div className="h-full overflow-y-auto border-r border-stone-200/80 bg-white p-6">
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Budget Input */}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">💰 Ngân sách tổng (VND)</label>
+                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Ngân sách tổng (VND)</label>
                             <input
                                 {...register('totalBudget', {
                                     required: 'Vui lòng nhập ngân sách',
@@ -643,63 +647,63 @@ const BudgetAllocator: React.FC = () => {
                                 })}
                                 type="number"
                                 placeholder="VD: 50000000"
-                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none"
+                                className={inputClass}
                             />
                             {errors.totalBudget && <p className="text-xs text-red-500 mt-1">{errors.totalBudget.message}</p>}
 
                             {/* Live Preview Ratio */}
                             {previewRatio !== null && (
-                                <div className="mt-2 p-2 bg-purple-50 rounded-lg text-xs text-purple-700">
+                                <div className="mt-2 rounded-lg border border-stone-200 bg-stone-50 p-2 text-xs text-stone-600">
                                     📊 Preview: Production {Math.round(previewRatio * 100)}% | Media {Math.round((1 - previewRatio) * 100)}%
                                 </div>
                             )}
                         </div>
 
                         {/* Asset Checklist */}
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                            <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <div className={`${cardClass} p-4`}>
+                            <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-stone-900">
                                 📋 Asset Checklist
                             </h3>
-                            <p className="text-xs text-slate-500 mb-4">Điều chỉnh channels dựa trên tài sản hiện có</p>
+                            <p className="mb-4 text-xs text-stone-500">Điều chỉnh channels dựa trên tài sản hiện có</p>
 
                             <div className="space-y-2">
-                                <label className="flex items-center justify-between p-2 bg-white rounded-lg cursor-pointer hover:bg-slate-50 border border-slate-100">
+                                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-stone-100 bg-white p-2 hover:bg-stone-50">
                                     <div className="flex items-center gap-2">
-                                        <Monitor size={16} className={hasWebsite ? 'text-green-600' : 'text-slate-400'} />
+                                        <Monitor size={16} className={hasWebsite ? 'text-stone-700' : 'text-stone-400'} />
                                         <span className="text-sm">Website</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setHasWebsite(!hasWebsite)}
-                                        className={`w-10 h-5 rounded-full transition-colors ${hasWebsite ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                        className={`relative h-5 w-10 rounded-full transition-colors ${hasWebsite ? 'bg-stone-900' : 'bg-stone-300'}`}
                                     >
                                         <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${hasWebsite ? 'right-0.5' : 'left-0.5'}`} />
                                     </button>
                                 </label>
 
-                                <label className="flex items-center justify-between p-2 bg-white rounded-lg cursor-pointer hover:bg-slate-50 border border-slate-100">
+                                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-stone-100 bg-white p-2 hover:bg-stone-50">
                                     <div className="flex items-center gap-2">
-                                        <Database size={16} className={hasCustomerList ? 'text-green-600' : 'text-slate-400'} />
+                                        <Database size={16} className={hasCustomerList ? 'text-stone-700' : 'text-stone-400'} />
                                         <span className="text-sm">Customer List</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setHasCustomerList(!hasCustomerList)}
-                                        className={`w-10 h-5 rounded-full transition-colors ${hasCustomerList ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                        className={`relative h-5 w-10 rounded-full transition-colors ${hasCustomerList ? 'bg-stone-900' : 'bg-stone-300'}`}
                                     >
                                         <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${hasCustomerList ? 'right-0.5' : 'left-0.5'}`} />
                                     </button>
                                 </label>
 
-                                <label className="flex items-center justify-between p-2 bg-white rounded-lg cursor-pointer hover:bg-slate-50 border border-slate-100">
+                                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-stone-100 bg-white p-2 hover:bg-stone-50">
                                     <div className="flex items-center gap-2">
-                                        <Image size={16} className={hasCreativeAssets ? 'text-green-600' : 'text-slate-400'} />
+                                        <Image size={16} className={hasCreativeAssets ? 'text-stone-700' : 'text-stone-400'} />
                                         <span className="text-sm">Creative Assets</span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={() => setHasCreativeAssets(!hasCreativeAssets)}
-                                        className={`w-10 h-5 rounded-full transition-colors ${hasCreativeAssets ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                        className={`relative h-5 w-10 rounded-full transition-colors ${hasCreativeAssets ? 'bg-stone-900' : 'bg-stone-300'}`}
                                     >
                                         <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${hasCreativeAssets ? 'right-0.5' : 'left-0.5'}`} />
                                     </button>
@@ -709,23 +713,23 @@ const BudgetAllocator: React.FC = () => {
 
                         {/* KPI Selection */}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-3">🎯 Mục tiêu (KPI)</label>
+                            <label className="mb-3 block text-xs font-semibold uppercase tracking-wide text-stone-500">Mục tiêu (KPI)</label>
                             <div className="space-y-2">
                                 {[
                                     { value: 'sales', label: 'Chuyển đổi/Doanh số', desc: 'Performance - Ra số nhanh' },
                                     { value: 'awareness', label: 'Nhận diện thương hiệu', desc: 'Branding - Tăng độ nhận biết' },
                                     { value: 'retention', label: 'Giữ chân khách hàng', desc: 'Retention - Chăm sóc khách cũ' },
                                 ].map(kpi => (
-                                    <label key={kpi.value} className="flex items-start gap-3 p-3 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-purple-300 hover:bg-purple-50/30 transition-all">
+                                    <label key={kpi.value} className="flex cursor-pointer items-start gap-3 rounded-xl border border-stone-200 p-3 transition-all hover:border-stone-300 hover:bg-stone-50/40">
                                         <input
                                             {...register('kpi', { required: 'Vui lòng chọn KPI' })}
                                             type="radio"
                                             value={kpi.value}
-                                            className="mt-0.5 w-4 h-4 text-purple-600"
+                                            className="mt-0.5 h-4 w-4 text-stone-700"
                                         />
                                         <div className="flex-1">
-                                            <div className="text-sm font-bold text-slate-800">{kpi.label}</div>
-                                            <div className="text-xs text-slate-500">{kpi.desc}</div>
+                                            <div className="text-sm font-medium text-stone-800">{kpi.label}</div>
+                                            <div className="text-xs text-stone-500">{kpi.desc}</div>
                                         </div>
                                     </label>
                                 ))}
@@ -735,11 +739,11 @@ const BudgetAllocator: React.FC = () => {
 
                         {/* Industry */}
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">🏢 Ngành hàng</label>
+                            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Ngành hàng</label>
                             <input
                                 {...register('industry', { required: 'Vui lòng nhập ngành hàng' })}
                                 placeholder="VD: Thời trang, F&B, B2B..."
-                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none"
+                                className={inputClass}
                             />
                             {errors.industry && <p className="text-xs text-red-500 mt-1">{errors.industry.message}</p>}
                         </div>
@@ -747,7 +751,7 @@ const BudgetAllocator: React.FC = () => {
                         <button
                             type="submit"
                             disabled={isCalculating}
-                            className="w-full py-3.5 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                            className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-3.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-70"
                         >
                             {isCalculating ? (
                                 <>
@@ -766,14 +770,14 @@ const BudgetAllocator: React.FC = () => {
 
                 {/* HISTORY SIDEBAR */}
                 {showHistory && (
-                    <div className="bg-white border-r border-slate-200 p-4 overflow-y-auto h-full">
+                    <div className="h-full overflow-y-auto border-r border-stone-200/80 bg-white p-4">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                                <History size={16} className="text-purple-500" />
+                            <h3 className="flex items-center gap-2 text-sm font-medium text-stone-900">
+                                <History size={16} className="text-stone-400" />
                                 Lịch sử
                             </h3>
-                            <button onClick={() => setShowHistory(false)} className="p-1 hover:bg-slate-100 rounded-lg">
-                                <X size={16} className="text-slate-400" />
+                            <button onClick={() => setShowHistory(false)} className="rounded-lg p-1 hover:bg-stone-100">
+                                <X size={16} className="text-stone-400" />
                             </button>
                         </div>
 
@@ -787,22 +791,22 @@ const BudgetAllocator: React.FC = () => {
                                 {savedAllocations.map(item => (
                                     <div
                                         key={item.id}
-                                        className="group p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-purple-50 transition-colors"
+                                        className="group cursor-pointer rounded-xl border border-stone-200/90 bg-white p-3 transition-colors hover:bg-stone-50"
                                         onClick={() => handleLoad(item)}
                                     >
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <div className="text-sm font-bold text-slate-800">{formatVND(item.result.totalBudget)}</div>
-                                                <div className="text-xs text-slate-500">{item.input.industry}</div>
+                                                <div className="text-sm font-semibold text-stone-800">{formatVND(item.result.totalBudget)}</div>
+                                                <div className="text-xs text-stone-500">{item.input.industry}</div>
                                             </div>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded"
+                                                className="rounded p-1 opacity-0 hover:bg-red-50 group-hover:opacity-100"
                                             >
                                                 <Trash2 size={12} className="text-red-500" />
                                             </button>
                                         </div>
-                                        <p className="text-[10px] text-slate-400 mt-1">{new Date(item.timestamp).toLocaleString('vi-VN')}</p>
+                                        <p className="mt-1 text-[10px] text-stone-400">{new Date(item.timestamp).toLocaleString('vi-VN')}</p>
                                     </div>
                                 ))}
                             </div>
@@ -811,14 +815,14 @@ const BudgetAllocator: React.FC = () => {
                 )}
 
                 {/* RIGHT: Results */}
-                <div className="p-6 overflow-auto bg-slate-50 h-full">
+                <div className="h-full overflow-auto bg-stone-100/60 p-6">
                     {!result && !isCalculating && (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-4">
-                                <DollarSign size={28} strokeWidth={1.5} className="text-slate-300" />
+                        <div className="flex h-full flex-col items-center justify-center text-stone-400">
+                            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-200 bg-white">
+                                <DollarSign size={28} strokeWidth={1.5} className="text-stone-300" />
                             </div>
-                            <p className="text-base font-bold text-slate-600">Budget Allocator V2</p>
-                            <p className="text-sm text-slate-400 mt-1">Nhập thông tin để phân bổ ngân sách</p>
+                            <p className="text-base font-medium text-stone-600">Budget Allocator V2</p>
+                            <p className="mt-1 text-sm text-stone-400">Nhập thông tin để phân bổ ngân sách</p>
                         </div>
                     )}
 
@@ -826,9 +830,9 @@ const BudgetAllocator: React.FC = () => {
                         <div className="h-full flex flex-col items-center justify-center">
                             <div className="relative w-14 h-14 mb-6">
                                 <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-                                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin"></div>
+                                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-stone-700 animate-spin"></div>
                             </div>
-                            <p className="text-sm font-bold text-purple-600">Đang tính toán...</p>
+                            <p className="text-sm font-semibold text-stone-600">Đang tính toán...</p>
                         </div>
                     )}
 
@@ -837,21 +841,21 @@ const BudgetAllocator: React.FC = () => {
                             {/* Header */}
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-900">{result.strategyName}</h2>
-                                    <p className="text-sm text-slate-500">
-                                        Tổng: <span className="font-bold text-slate-800">{formatVND(result.totalBudget)}</span>
+                                    <h2 className="text-xl font-semibold text-stone-900">{result.strategyName}</h2>
+                                    <p className="text-sm text-stone-500">
+                                        Tổng: <span className="font-semibold text-stone-800">{formatVND(result.totalBudget)}</span>
                                     </p>
                                 </div>
                                 <div className="flex gap-3">
-                                    <div className="px-4 py-2 bg-purple-50 border border-purple-200 rounded-xl text-center">
-                                        <div className="text-xs text-purple-600">Sản xuất</div>
-                                        <div className="text-lg font-bold text-purple-700">{Math.round(result.productionRatio * 100)}%</div>
-                                        <div className="text-xs text-purple-500">{formatVND(result.productionBudget)}</div>
+                                    <div className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-center">
+                                        <div className="text-xs text-stone-500">Sản xuất</div>
+                                        <div className="text-lg font-semibold text-stone-800">{Math.round(result.productionRatio * 100)}%</div>
+                                        <div className="text-xs text-stone-500">{formatVND(result.productionBudget)}</div>
                                     </div>
-                                    <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl text-center">
-                                        <div className="text-xs text-blue-600">Media</div>
-                                        <div className="text-lg font-bold text-blue-700">{Math.round((1 - result.productionRatio) * 100)}%</div>
-                                        <div className="text-xs text-blue-500">{formatVND(result.mediaBudget)}</div>
+                                    <div className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-center">
+                                        <div className="text-xs text-stone-500">Media</div>
+                                        <div className="text-lg font-semibold text-stone-800">{Math.round((1 - result.productionRatio) * 100)}%</div>
+                                        <div className="text-xs text-stone-500">{formatVND(result.mediaBudget)}</div>
                                     </div>
                                 </div>
                             </div>
@@ -871,16 +875,16 @@ const BudgetAllocator: React.FC = () => {
 
                             {/* Disabled Channels with Smart Tooltips */}
                             {result.disabledChannels.length > 0 && (
-                                <div className="p-4 bg-slate-100 rounded-xl">
-                                    <div className="text-xs font-bold text-slate-700 mb-3">🚫 Channels không được phân bổ:</div>
+                                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                                    <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-stone-500">Channels không được phân bổ</div>
                                     <div className="space-y-2">
                                         {result.disabledChannels.map((ch, i) => (
-                                            <div key={i} className="p-3 bg-white rounded-lg border border-slate-200">
+                                            <div key={i} className="rounded-lg border border-stone-200 bg-white p-3">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-sm font-medium text-slate-700">{ch.name}</span>
-                                                    <span className="px-2 py-0.5 bg-slate-200 text-slate-600 text-[10px] rounded">0 VND</span>
+                                                    <span className="text-sm font-medium text-stone-700">{ch.name}</span>
+                                                    <span className="rounded bg-stone-200 px-2 py-0.5 text-[10px] text-stone-600">0 VND</span>
                                                 </div>
-                                                <p className="text-xs text-slate-500 italic">{ch.reason}</p>
+                                                <p className="text-xs italic text-stone-500">{ch.reason}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -888,23 +892,23 @@ const BudgetAllocator: React.FC = () => {
                             )}
 
                             {/* Stacked Bar Chart */}
-                            <div className="bg-white border border-slate-200 rounded-xl p-6">
-                                <h3 className="text-sm font-bold text-slate-800 mb-4">📊 Media vs Sản xuất theo Channel</h3>
+                            <div className={`${cardClass} p-6`}>
+                                <h3 className="mb-4 text-sm font-medium text-stone-900">📊 Media vs Sản xuất theo Channel</h3>
                                 <ResponsiveContainer width="100%" height={250}>
                                     <BarChart data={chartData} layout="vertical">
                                         <XAxis type="number" tickFormatter={(v) => formatVND(v)} />
                                         <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
                                         <Tooltip formatter={(value) => formatVND(value as number)} />
                                         <Legend />
-                                        <Bar dataKey="Media" stackId="a" fill="#3b82f6" radius={[0, 0, 0, 0]} />
-                                        <Bar dataKey="Sản xuất" stackId="a" fill="#a855f7" radius={[0, 4, 4, 0]} />
+                                        <Bar dataKey="Media" stackId="a" fill="#57534e" radius={[0, 0, 0, 0]} />
+                                        <Bar dataKey="Sản xuất" stackId="a" fill="#a8a29e" radius={[0, 4, 4, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
 
                             {/* Channel Cards */}
                             <div>
-                                <h3 className="text-sm font-bold text-slate-800 mb-3">📋 Chi tiết theo Channel</h3>
+                                <h3 className="mb-3 text-sm font-medium text-stone-900">📋 Chi tiết theo Channel</h3>
                                 <div className="space-y-3">
                                     {result.channels.map((ch, i) => (
                                         <ChannelCard key={i} channel={ch} />
@@ -915,6 +919,13 @@ const BudgetAllocator: React.FC = () => {
                     )}
                 </div>
             </div>
+            {toastState && (
+                <Toast
+                    message={toastState.message}
+                    type={toastState.type}
+                    onClose={() => setToastState(null)}
+                />
+            )}
         </div>
     );
 };

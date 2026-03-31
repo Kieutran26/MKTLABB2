@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plan } from '../types';
 import { PlanService } from '../services/planService';
@@ -14,6 +13,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
     'phone': Smartphone,
     'global': Globe,
 };
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 
 const PlanCalendar: React.FC = () => {
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -41,7 +43,6 @@ const PlanCalendar: React.FC = () => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDay = getFirstDayOfMonth(currentYear, currentMonth); // 0 = Sunday
 
-    // Navigation functions
     const prevMonth = () => {
         setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
         setSelectedPlan(null);
@@ -52,11 +53,9 @@ const PlanCalendar: React.FC = () => {
         setSelectedPlan(null);
     };
 
-    // Helpers
     const getPlansForDay = (day: number) => {
         return plans.filter(p => {
             const d = new Date(p.nextPaymentDate);
-            // Compare full date for the specific scheduled payment
             return d.getDate() === day && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
         });
     };
@@ -70,7 +69,6 @@ const PlanCalendar: React.FC = () => {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    // Calculate total cost for the displayed month
     const totalCost = plans
         .filter(p => {
             const d = new Date(p.nextPaymentDate);
@@ -78,183 +76,267 @@ const PlanCalendar: React.FC = () => {
         })
         .reduce((acc, curr) => acc + curr.price, 0);
 
-    // Count active plans (total in database, not just this month)
     const activePlansCount = plans.length;
 
     return (
-        <div className="h-screen pt-4 pb-4 px-8 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold flex items-center gap-3">
-                    <Calendar className="text-stone-700" />
-                    <span>Tháng {currentMonth + 1}/{currentYear}</span>
-                </h2>
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            {/* Header */}
+            <div className="z-10 flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-500">
+                        <Calendar size={20} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                        <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Quản lý & Thanh toán</p>
+                        <h1 className="text-lg font-normal tracking-tight text-stone-900">Tháng {currentMonth + 1}/{currentYear}</h1>
+                        <p className="mt-0.5 text-sm text-stone-500">
+                            Lịch thanh toán đăng ký — theo dõi plan đến hạn trong tháng
+                        </p>
+                    </div>
+                </div>
 
-                <div className="flex items-center gap-2 bg-white rounded-lg shadow-sm border border-stone-200 p-1">
-                    <button onClick={prevMonth} className="p-2 hover:bg-stone-100 rounded-lg transition-colors text-stone-600">
-                        <ChevronLeft size={20} />
+                <div className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                    <button
+                        type="button"
+                        onClick={prevMonth}
+                        className="rounded-full p-2.5 text-stone-600 transition-colors hover:bg-stone-50"
+                        aria-label="Tháng trước"
+                    >
+                        <ChevronLeft size={20} strokeWidth={1.5} />
                     </button>
-                    <div className="w-px h-6 bg-stone-200"></div>
-                    <button onClick={nextMonth} className="p-2 hover:bg-stone-100 rounded-lg transition-colors text-stone-600">
-                        <ChevronRight size={20} />
+                    <div className="h-6 w-px bg-stone-200" />
+                    <button
+                        type="button"
+                        onClick={nextMonth}
+                        className="rounded-full p-2.5 text-stone-600 transition-colors hover:bg-stone-50"
+                        aria-label="Tháng sau"
+                    >
+                        <ChevronRight size={20} strokeWidth={1.5} />
                     </button>
                 </div>
             </div>
 
-            <div className="flex flex-1 gap-8 overflow-hidden">
-                {/* Main Calendar Area */}
-                <div className="flex-1 bg-white rounded-xl shadow-sm border border-stone-200 p-6 flex flex-col">
-                    {/* Weekday Headers */}
-                    <div className="grid grid-cols-7 mb-4">
-                        {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day, i) => (
-                            <div key={i} className="text-center font-bold text-stone-400 text-sm uppercase">{day}</div>
-                        ))}
-                    </div>
-
-                    {/* Grid */}
-                    <div className="grid grid-cols-7 flex-1 auto-rows-fr gap-2">
-                        {/* Empty cells for start of month */}
-                        {Array.from({ length: firstDay }).map((_, i) => (
-                            <div key={`empty-${i}`} className="bg-transparent"></div>
-                        ))}
-
-                        {/* Days */}
-                        {Array.from({ length: daysInMonth }).map((_, i) => {
-                            const day = i + 1;
-                            const dayPlans = getPlansForDay(day);
-                            const today = new Date();
-                            const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-                            const hasPlans = dayPlans.length > 0;
-
-                            // Determine color based on nearest due plan
-                            let bgClass = isToday ? 'bg-stone-100 border-stone-300' : 'bg-white border-stone-100';
-                            let statusDot = null;
-
-                            if (hasPlans) {
-                                const nearest = dayPlans[0];
-                                const daysLeft = calculateDaysRemaining(nearest.nextPaymentDate);
-
-                                if (daysLeft < 3) statusDot = <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                                else if (daysLeft < 7) statusDot = <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                                else statusDot = <div className="w-2 h-2 rounded-full bg-green-500"></div>
-
-                                bgClass = "bg-stone-50 border-stone-400 cursor-pointer hover:bg-stone-100 ring-1 ring-stone-200";
-                            }
-
-                            return (
-                                <div
-                                    key={day}
-                                    onClick={() => hasPlans && setSelectedPlan(dayPlans[0])}
-                                    className={`border rounded-xl p-2 flex flex-col justify-between transition-all ${bgClass}`}
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <span className={`text-sm font-semibold ${isToday ? 'bg-black text-white w-6 h-6 flex items-center justify-center rounded-full' : 'text-stone-500'}`}>
-                                            {day}
-                                        </span>
-                                        {statusDot}
+            <div className="flex min-h-0 flex-1 gap-6 overflow-hidden p-6 lg:p-8">
+                {/* Main Calendar */}
+                <div className={`${cardClass} flex min-h-0 min-w-0 flex-1 flex-col p-6`}>
+                    {loading ? (
+                        <div className="flex flex-1 items-center justify-center text-sm text-stone-500">
+                            Đang tải lịch…
+                        </div>
+                    ) : (
+                        <>
+                            <div className="mb-4 grid grid-cols-7">
+                                {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day, i) => (
+                                    <div
+                                        key={i}
+                                        className="text-center text-xs font-semibold uppercase tracking-wide text-stone-500"
+                                    >
+                                        {day}
                                     </div>
-                                    <div className="flex flex-col gap-1 mt-1 overflow-hidden">
-                                        {dayPlans.map(p => (
-                                            <div key={p.id} className="text-[10px] truncate bg-white border border-stone-200 rounded px-1 py-0.5 flex items-center gap-1">
-                                                {p.website}
+                                ))}
+                            </div>
+
+                            <div className="grid min-h-0 flex-1 grid-cols-7 auto-rows-fr gap-2">
+                                {Array.from({ length: firstDay }).map((_, i) => (
+                                    <div key={`empty-${i}`} className="min-h-0 bg-transparent" />
+                                ))}
+
+                                {Array.from({ length: daysInMonth }).map((_, i) => {
+                                    const day = i + 1;
+                                    const dayPlans = getPlansForDay(day);
+                                    const today = new Date();
+                                    const isToday =
+                                        day === today.getDate() &&
+                                        currentMonth === today.getMonth() &&
+                                        currentYear === today.getFullYear();
+                                    const hasPlans = dayPlans.length > 0;
+
+                                    let cellBorder = 'border-stone-200/90 bg-white';
+                                    let statusDot: React.ReactNode = null;
+
+                                    if (hasPlans) {
+                                        const nearest = dayPlans[0];
+                                        const daysLeft = calculateDaysRemaining(nearest.nextPaymentDate);
+
+                                        if (daysLeft < 3) {
+                                            statusDot = <div className="h-2 w-2 shrink-0 rounded-full bg-rose-500 animate-pulse" />;
+                                        } else if (daysLeft < 7) {
+                                            statusDot = <div className="h-2 w-2 shrink-0 rounded-full bg-amber-500" />;
+                                        } else {
+                                            statusDot = <div className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />;
+                                        }
+
+                                        cellBorder =
+                                            'border-stone-300 bg-stone-50/80 cursor-pointer hover:bg-stone-100/80';
+                                    } else if (isToday) {
+                                        cellBorder = 'border-stone-300 bg-stone-50/60';
+                                    }
+
+                                    return (
+                                        <div
+                                            key={day}
+                                            role={hasPlans ? 'button' : undefined}
+                                            tabIndex={hasPlans ? 0 : undefined}
+                                            onClick={() => hasPlans && setSelectedPlan(dayPlans[0])}
+                                            onKeyDown={(e) => {
+                                                if (hasPlans && (e.key === 'Enter' || e.key === ' ')) {
+                                                    e.preventDefault();
+                                                    setSelectedPlan(dayPlans[0]);
+                                                }
+                                            }}
+                                            className={`flex min-h-[72px] flex-col justify-between rounded-xl border p-2 transition-colors ${cellBorder}`}
+                                        >
+                                            <div className="flex items-start justify-between gap-1">
+                                                <span
+                                                    className={
+                                                        isToday
+                                                            ? 'flex h-6 w-6 items-center justify-center rounded-full bg-stone-900 text-xs font-medium text-white'
+                                                            : 'text-sm font-medium text-stone-600'
+                                                    }
+                                                >
+                                                    {day}
+                                                </span>
+                                                {statusDot}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                            <div className="mt-1 flex flex-col gap-1 overflow-hidden">
+                                                {dayPlans.map(p => (
+                                                    <div
+                                                        key={p.id}
+                                                        className="truncate rounded-md border border-stone-200 bg-white px-1 py-0.5 text-[10px] text-stone-700"
+                                                    >
+                                                        {p.website}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
                 </div>
 
-                {/* Sidebar Statistics */}
-                <div className="w-80 flex flex-col gap-6">
-                    {/* Summary Card */}
-                    <div className="bg-stone-900 text-white rounded-2xl p-6 shadow-xl">
-                        <div className="flex items-center gap-3 mb-4 text-stone-400">
-                            <TrendingUp size={20} />
-                            <span className="text-sm font-medium uppercase tracking-wider">Thanh toán tháng này</span>
+                {/* Sidebar */}
+                <div className="flex w-full shrink-0 flex-col gap-6 lg:w-80">
+                    <div className="rounded-2xl border border-stone-800/90 bg-stone-900 p-6 text-white shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                        <div className="mb-4 flex items-center gap-2 text-stone-400">
+                            <TrendingUp size={18} strokeWidth={1.5} />
+                            <span className="text-xs font-semibold uppercase tracking-wide">
+                                Thanh toán tháng này
+                            </span>
                         </div>
                         <div className="mb-6">
-                            <div className="text-4xl font-bold">
-                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalCost)}
+                            <div className="text-3xl font-semibold tracking-tight">
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                                    totalCost
+                                )}
                             </div>
-                            <div className="text-stone-400 text-sm mt-1">Dựa trên các plan đến hạn</div>
+                            <div className="mt-1 text-sm text-stone-400">Dựa trên các plan đến hạn</div>
                         </div>
-                        <div className="pt-4 border-t border-stone-700 flex justify-between">
+                        <div className="flex justify-between border-t border-stone-700/80 pt-4">
                             <div>
-                                <div className="text-2xl font-bold">{activePlansCount}</div>
-                                <div className="text-xs text-stone-400">Tổng Plans Đang Đăng Ký</div>
+                                <div className="text-2xl font-semibold">{activePlansCount}</div>
+                                <div className="mt-0.5 text-xs font-medium text-stone-400">
+                                    Tổng plan đang đăng ký
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Selected Plan Detail */}
-                    <div className="bg-white rounded-2xl border border-stone-200 shadow-sm flex-1 p-6 relative">
-                        <h3 className="font-bold text-stone-800 mb-4">Chi tiết Plan</h3>
+                    <div className={`${cardClass} relative flex min-h-[320px] flex-1 flex-col p-6`}>
+                        <h3 className="mb-4 text-sm font-medium text-stone-900">Chi tiết Plan</h3>
                         {selectedPlan ? (
-                            <div className="space-y-4 animate-fade-in">
-                                <div className="flex items-center gap-4 mb-2">
-                                    <div className="w-12 h-12 bg-stone-100 rounded-xl flex items-center justify-center">
+                            <div className="animate-fade-in space-y-4">
+                                <div className="mb-2 flex items-center gap-4">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-stone-200 bg-stone-50">
                                         {(() => {
                                             const IconComp = ICON_MAP[selectedPlan.icon] || Globe;
-                                            return <IconComp size={24} className="text-stone-700" />
+                                            return <IconComp size={22} className="text-stone-500" strokeWidth={1.5} />;
                                         })()}
                                     </div>
                                     <div>
-                                        <label className="text-xs text-stone-400 uppercase font-bold">Dịch vụ</label>
-                                        <div className="text-xl font-bold text-stone-900 leading-tight">{selectedPlan.website}</div>
+                                        <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                            Dịch vụ
+                                        </label>
+                                        <div className="text-lg font-medium leading-tight text-stone-900">
+                                            {selectedPlan.website}
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs text-stone-400 uppercase font-bold">Số tiền</label>
-                                    <div className="text-2xl font-mono">
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(selectedPlan.price)}
+                                    <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                        Số tiền
+                                    </label>
+                                    <div className="font-mono text-xl font-medium text-stone-900">
+                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                                            selectedPlan.price
+                                        )}
                                     </div>
                                 </div>
 
                                 {selectedPlan.cardInfo && (
                                     <div>
-                                        <label className="text-xs text-stone-400 uppercase font-bold">Thẻ thanh toán</label>
-                                        <div className="flex items-center gap-2 text-stone-700 font-medium">
-                                            <CreditCard size={16} /> {selectedPlan.cardInfo}
+                                        <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                            Thẻ thanh toán
+                                        </label>
+                                        <div className="flex items-center gap-2 text-sm font-medium text-stone-700">
+                                            <CreditCard size={16} className="text-stone-400" /> {selectedPlan.cardInfo}
                                         </div>
                                     </div>
                                 )}
 
                                 <div>
-                                    <label className="text-xs text-stone-400 uppercase font-bold">Email</label>
-                                    <div className="text-stone-600 truncate">{selectedPlan.email || '---'}</div>
+                                    <label className="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                        Email
+                                    </label>
+                                    <div className="truncate text-sm text-stone-600">{selectedPlan.email || '—'}</div>
                                 </div>
 
-                                <div className="p-4 rounded-xl bg-stone-50 border border-stone-100 mt-4">
-                                    <div className="flex items-center gap-2 mb-2">
+                                <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
+                                    <div className="mb-2 flex items-center gap-2">
                                         <AlertCircle size={16} className="text-stone-500" />
-                                        <span className="font-semibold text-sm">Trạng thái hạn thanh toán</span>
+                                        <span className="text-sm font-medium text-stone-800">Trạng thái hạn thanh toán</span>
                                     </div>
                                     {(() => {
                                         const days = calculateDaysRemaining(selectedPlan.nextPaymentDate);
-                                        if (days < 0) return <div className="text-red-600 font-bold">Đã quá hạn {Math.abs(days)} ngày!</div>;
-                                        if (days <= 3) return <div className="text-red-500 font-bold">Sắp hết hạn: Còn {days} ngày</div>;
-                                        if (days <= 7) return <div className="text-yellow-600 font-medium">Lưu ý: Còn {days} ngày</div>;
-                                        return <div className="text-green-600 font-medium">Còn {days} ngày</div>;
+                                        if (days < 0)
+                                            return (
+                                                <div className="text-sm font-semibold text-rose-600">
+                                                    Đã quá hạn {Math.abs(days)} ngày
+                                                </div>
+                                            );
+                                        if (days <= 3)
+                                            return (
+                                                <div className="text-sm font-semibold text-rose-600">
+                                                    Sắp hết hạn: còn {days} ngày
+                                                </div>
+                                            );
+                                        if (days <= 7)
+                                            return (
+                                                <div className="text-sm font-medium text-amber-700">
+                                                    Lưu ý: còn {days} ngày
+                                                </div>
+                                            );
+                                        return (
+                                            <div className="text-sm font-medium text-emerald-700">Còn {days} ngày</div>
+                                        );
                                     })()}
-                                    {/* Color Range Indicator */}
-                                    <div className="w-full h-2 bg-stone-200 rounded-full mt-2 overflow-hidden">
+                                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-stone-200">
                                         {(() => {
                                             const days = calculateDaysRemaining(selectedPlan.nextPaymentDate);
-                                            // Simple visual logic
                                             const percentage = Math.max(0, Math.min(100, (30 - days) * 3.33));
-                                            let color = 'bg-green-500';
-                                            if (days <= 7) color = 'bg-yellow-500';
-                                            if (days <= 3) color = 'bg-red-500';
+                                            let color = 'bg-emerald-500';
+                                            if (days <= 7) color = 'bg-amber-500';
+                                            if (days <= 3) color = 'bg-rose-500';
 
-                                            return <div className={`h-full ${color}`} style={{ width: `${percentage}%` }}></div>
+                                            return <div className={`h-full ${color}`} style={{ width: `${percentage}%` }} />;
                                         })()}
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center p-6 text-center text-stone-400 text-sm">
+                            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-sm text-stone-400">
                                 Chọn một ngày có dấu chấm màu trên lịch để xem chi tiết.
                             </div>
                         )}

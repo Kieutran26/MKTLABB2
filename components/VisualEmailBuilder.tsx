@@ -255,11 +255,11 @@ const DraggableElement: React.FC<{ type: EmailBlockType; label: string; icon?: R
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: `element-${type}-${label}`, data: { type, isNew: true, level } });
     return (
         <div ref={setNodeRef} style={{ transform: CSS.Translate.toString(transform), opacity: isDragging ? 0.5 : 1 }} {...listeners} {...attributes}
-            className="flex flex-col items-center gap-2 p-4 bg-white border border-gray-100 rounded-2xl cursor-grab hover:border-blue-300 hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+            className="flex cursor-grab flex-col items-center gap-2 rounded-2xl border border-stone-200/90 bg-white p-4 transition-all hover:border-stone-300 hover:bg-stone-50/40 group">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-500 transition-colors group-hover:bg-stone-200/70 group-hover:text-stone-700">
                 {iconText ? <span className="text-sm font-bold">{iconText}</span> : icon}
             </div>
-            <span className="text-xs font-medium text-gray-700">{label}</span>
+            <span className="text-xs font-medium text-stone-700">{label}</span>
         </div>
     );
 };
@@ -268,8 +268,8 @@ const DraggableMergeTag: React.FC<{ tag: { label: string; value: string } }> = (
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: `tag-${tag.value}`, data: { tag: tag.value, isTag: true } });
     return (
         <div ref={setNodeRef} style={{ transform: CSS.Translate.toString(transform), opacity: isDragging ? 0.5 : 1 }} {...listeners} {...attributes}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium cursor-grab hover:bg-blue-100 border border-blue-100">
-            <span className="font-mono text-blue-500">{tag.value}</span>
+            className="inline-flex cursor-grab items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50">
+            <span className="font-mono text-stone-500">{tag.value}</span>
         </div>
     );
 };
@@ -281,10 +281,10 @@ const LeftSidebar: React.FC<{ activeTab: LeftTabType; onTabChange: (t: LeftTabTy
         { id: 'fields' as const, label: 'Fields', icon: <Users size={15} /> },
     ];
     return (
-        <div className="w-60 bg-white border-r border-gray-200 flex flex-col">
-            <div className="flex p-2 gap-1 border-b border-gray-100">
+        <div className="flex w-60 flex-col border-r border-stone-200/80 bg-white">
+            <div className="flex gap-1 border-b border-stone-100 p-2">
                 {tabs.map((tab) => (
-                    <button key={tab.id} onClick={() => onTabChange(tab.id)} className={`flex-1 py-2 px-1 text-[11px] font-medium rounded-lg flex flex-col items-center justify-center gap-1 transition-all ${activeTab === tab.id ? 'text-blue-600 bg-blue-50 shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+                    <button key={tab.id} onClick={() => onTabChange(tab.id)} className={`flex flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-[11px] font-medium transition-all ${activeTab === tab.id ? 'bg-stone-100 text-stone-900 shadow-sm' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}>
                         {React.cloneElement(tab.icon as React.ReactElement, { size: 18 })}
                         <span>{tab.label}</span>
                     </button>
@@ -294,23 +294,23 @@ const LeftSidebar: React.FC<{ activeTab: LeftTabType; onTabChange: (t: LeftTabTy
                 {activeTab === 'elements' && (
                     <div className="space-y-5">
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-800">Cơ Bản</h3>
+                            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Cơ Bản</h3>
                             <div className="grid grid-cols-2 gap-2">{ELEMENT_TYPES.filter(e => e.type !== 'image').map((el, i) => <DraggableElement key={`${el.type}-${i}`} {...el} />)}</div>
                         </div>
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-800">Bố Cục</h3>
+                            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Bố Cục</h3>
                             <div className="grid grid-cols-2 gap-2">{LAYOUT_ELEMENTS.map((el, i) => <DraggableElement key={`layout-${el.type}-${i}`} type={el.type} label={el.label} icon={el.icon} />)}</div>
                         </div>
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-800">Đa Phương Tiện</h3>
+                            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Đa Phương Tiện</h3>
                             <div className="grid grid-cols-2 gap-2">{MEDIA_ELEMENTS.map((el, i) => <DraggableElement key={`media-${el.type}-${i}`} type={el.type} label={el.label} icon={el.icon} />)}</div>
                         </div>
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-800">Tuỳ Biến</h3>
+                            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Tuỳ Biến</h3>
                             <div className="grid grid-cols-2 gap-2">{CUSTOM_ELEMENTS.map((el, i) => <DraggableElement key={`custom-${el.type}-${i}`} type={el.type} label={el.label} icon={el.icon} />)}</div>
                         </div>
                         <div className="space-y-3">
-                            <h3 className="text-sm font-semibold text-gray-800">E-commerce</h3>
+                            <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">E-commerce</h3>
                             <div className="grid grid-cols-2 gap-2">{ECOMMERCE_ELEMENTS.map((el, i) => <DraggableElement key={`ecom-${el.type}-${i}`} type={el.type} label={el.label} icon={el.icon} />)}</div>
                         </div>
 
@@ -321,19 +321,19 @@ const LeftSidebar: React.FC<{ activeTab: LeftTabType; onTabChange: (t: LeftTabTy
                         {/* Saved Designs Section */}
                         {savedDesigns.length > 0 && (
                             <div className="space-y-2">
-                                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Đã Lưu ({savedDesigns.length})</h3>
+                                <h3 className="text-xs font-semibold uppercase tracking-wide text-stone-500">Đã Lưu ({savedDesigns.length})</h3>
                                 <div className="space-y-2">
                                     {savedDesigns.map((design) => (
-                                        <div key={design.id} className="p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 hover:border-green-400 hover:shadow-sm transition-all group">
-                                            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                                        <div key={design.id} className="group flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3 transition-all hover:border-stone-300 hover:bg-stone-50/60">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-stone-100 text-stone-600">
                                                 <Save size={18} />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <div className="font-medium text-gray-800 text-sm truncate">{design.name}</div>
-                                                <div className="text-[10px] text-gray-400">{new Date(design.updatedAt).toLocaleDateString('vi-VN')}</div>
+                                                <div className="truncate text-sm font-medium text-stone-800">{design.name}</div>
+                                                <div className="text-[10px] text-stone-400">{new Date(design.updatedAt).toLocaleDateString('vi-VN')}</div>
                                             </div>
                                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => onLoadDesign(design)} className="p-1.5 text-green-600 hover:bg-green-100 rounded-lg" title="Tải lại">
+                                                <button onClick={() => onLoadDesign(design)} className="rounded-lg p-1.5 text-stone-500 hover:bg-stone-100 hover:text-stone-700" title="Tải lại">
                                                     <Upload size={14} />
                                                 </button>
                                                 <button onClick={() => onDeleteDesign(design.id)} className="p-1.5 text-red-400 hover:bg-red-100 rounded-lg" title="Xóa">
@@ -346,7 +346,7 @@ const LeftSidebar: React.FC<{ activeTab: LeftTabType; onTabChange: (t: LeftTabTy
                             </div>
                         )}
                         {savedDesigns.length === 0 && (
-                            <div className="text-center py-6 text-gray-400">
+                            <div className="py-6 text-center text-stone-400">
                                 <Save size={32} className="mx-auto mb-2 opacity-50" />
                                 <p className="text-xs">Chưa có template nào được lưu</p>
                             </div>
@@ -356,8 +356,8 @@ const LeftSidebar: React.FC<{ activeTab: LeftTabType; onTabChange: (t: LeftTabTy
                 )}
                 {activeTab === 'fields' && (
                     <div className="space-y-4">
-                        {!hasCustomerList ? <div className="text-center py-8"><Users size={32} className="mx-auto text-gray-300 mb-3" /><p className="text-sm text-gray-500 mb-4">Chọn danh sách</p><button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200">Select List</button></div>
-                            : <div className="space-y-3"><p className="text-xs text-gray-500 font-medium">Merge Tags:</p><div className="flex flex-wrap gap-2">{MERGE_TAGS.map((tag) => <DraggableMergeTag key={tag.value} tag={tag} />)}</div></div>}
+                        {!hasCustomerList ? <div className="py-8 text-center"><Users size={32} className="mx-auto mb-3 text-stone-300" /><p className="mb-4 text-sm text-stone-500">Chọn danh sách</p><button className="rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">Select List</button></div>
+                            : <div className="space-y-3"><p className="text-xs font-medium uppercase tracking-wide text-stone-500">Merge Tags:</p><div className="flex flex-wrap gap-2">{MERGE_TAGS.map((tag) => <DraggableMergeTag key={tag.value} tag={tag} />)}</div></div>}
                     </div>
                 )}
             </div>
@@ -1704,18 +1704,18 @@ const TopControlBar: React.FC<{
     onToggleStructureMap: () => void;
 }> = ({ device, onDeviceChange, onSave, onImport, onPreview, onToggleStructureMap }) => {
     return (
-        <div className="h-12 bg-white border-b border-gray-200 px-4 flex items-center justify-between shrink-0 mb-0">
+        <div className="mb-0 flex h-12 shrink-0 items-center justify-between border-b border-stone-200/80 bg-white px-4">
             {/* Device Toggle */}
-            <div className="flex bg-gray-100 p-1 rounded-lg">
+            <div className="flex rounded-full border border-stone-200 bg-stone-50 p-1">
                 <button
                     onClick={() => onDeviceChange('desktop')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${device === 'desktop' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${device === 'desktop' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
                 >
                     <Monitor size={14} /> Desktop
                 </button>
                 <button
                     onClick={() => onDeviceChange('mobile')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${device === 'mobile' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${device === 'mobile' ? 'bg-white text-stone-800 shadow-sm' : 'text-stone-500 hover:text-stone-700'}`}
                 >
                     <Smartphone size={14} /> Mobile
                 </button>
@@ -1724,7 +1724,7 @@ const TopControlBar: React.FC<{
             {/* Structure Map Toggle */}
             <button
                 onClick={onToggleStructureMap}
-                className="flex items-center gap-1.5 px-3 py-1.5 ml-2 mr-auto text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg text-xs font-medium transition-all"
+                className="ml-2 mr-auto flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:bg-stone-50 hover:text-stone-800"
                 title="Bản Đồ Cấu Trúc"
             >
                 <Network size={16} />
@@ -1734,20 +1734,20 @@ const TopControlBar: React.FC<{
             <div className="flex items-center gap-2">
                 <button
                     onClick={onSave}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded-md text-xs font-bold transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 rounded-full bg-stone-900 px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-stone-800"
                 >
                     <Save size={14} /> Lưu
                 </button>
-                <div className="h-5 w-px bg-gray-200" />
+                <div className="h-5 w-px bg-stone-200" />
                 <button
                     onClick={onImport}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-800 text-white rounded-md text-xs font-medium transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                 >
                     <Upload size={14} /> Nhập
                 </button>
                 <button
                     onClick={onPreview}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                 >
                     <Eye size={14} /> Xem trước
                 </button>
@@ -2236,23 +2236,23 @@ const StructureMapModal: React.FC<{
     };
 
     return (
-        <div className="absolute right-0 top-14 bottom-0 w-80 bg-white shadow-xl border-l border-gray-200 z-30 flex flex-col animate-in slide-in-from-right duration-300">
-            <div className="h-14 border-b border-gray-100 flex items-center justify-between px-5 bg-gray-50/50">
-                <h3 className="font-bold text-gray-800">Bản Đồ Cấu Trúc</h3>
-                <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={16} /></button>
+        <div className="absolute right-0 top-14 bottom-0 z-30 flex w-80 animate-in slide-in-from-right flex-col border-l border-stone-200/80 bg-white shadow-xl duration-300">
+            <div className="flex h-14 items-center justify-between border-b border-stone-100 bg-stone-50/40 px-5">
+                <h3 className="font-medium tracking-tight text-stone-800">Bản Đồ Cấu Trúc</h3>
+                <button onClick={onClose} className="rounded-full p-1 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"><X size={16} /></button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4">
-                <div className="flex items-center gap-2 mb-4 text-xs font-bold text-blue-600 px-2">
+                <div className="mb-4 flex items-center gap-2 px-2 text-xs font-semibold uppercase tracking-wide text-stone-500">
                     <Network size={14} /> Cấu Trúc
                 </div>
 
                 <div className="space-y-1">
-                    {blocks.length === 0 ? <div className="text-center text-gray-400 text-xs py-4">Trống</div> : renderTree(blocks)}
+                    {blocks.length === 0 ? <div className="py-4 text-center text-xs text-stone-400">Trống</div> : renderTree(blocks)}
                 </div>
             </div>
 
-            <div className="p-4 border-t border-gray-100 bg-gray-50 text-xs font-medium text-gray-500 flex justify-between">
+            <div className="flex justify-between border-t border-stone-100 bg-stone-50/60 p-4 text-xs font-medium text-stone-500">
                 <span>Tổng cộng:</span>
                 <span>{countBlocks(blocks)} elements</span>
             </div>
@@ -2564,31 +2564,31 @@ return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${emailTitle}</t
     };
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
-            <div className="h-14 bg-white border-b border-gray-200 px-4 flex items-center justify-between shrink-0 shadow-sm z-20">
-                <div className="flex items-center gap-3"><div className="bg-pink-100 p-2 rounded-lg text-pink-600"><Mail size={18} /></div><h2 className="text-lg font-bold text-gray-800">Visual Email</h2><span className="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded font-semibold">Pro</span></div>
-                <div className="flex gap-2"><button onClick={handleCreateNew} className="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 hover:bg-gray-50"><Plus size={16} />Tạo mới</button><button onClick={handleOpenScheduledModal} className="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 hover:bg-gray-50"><Calendar size={16} />Lịch</button><button onClick={() => setShowReportModal(true)} className="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 hover:bg-gray-50"><BarChart2 size={16} />Report</button><button onClick={() => setShowCampaignModal(true)} className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:bg-blue-700 shadow-sm"><Send size={16} />Chiến dịch</button></div>
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            <div className="z-20 flex shrink-0 items-center justify-between border-b border-stone-200/80 bg-[#FCFDFC] px-5 py-3 shadow-sm">
+                <div className="flex items-center gap-3"><div className="rounded-lg bg-stone-100 p-2 text-stone-500"><Mail size={18} /></div><h2 className="text-2xl font-normal tracking-tight text-stone-900">Visual Email</h2><span className="rounded-full border border-stone-200 bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-500">Pro</span></div>
+                <div className="flex gap-2"><button onClick={handleCreateNew} className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:bg-stone-50"><Plus size={16} />Tạo mới</button><button onClick={handleOpenScheduledModal} className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:bg-stone-50"><Calendar size={16} />Lịch</button><button onClick={() => setShowReportModal(true)} className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:bg-stone-50"><BarChart2 size={16} />Report</button><button onClick={() => setShowCampaignModal(true)} className="inline-flex items-center gap-1.5 rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white hover:bg-stone-800"><Send size={16} />Chiến dịch</button></div>
             </div>
 
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="flex-1 flex overflow-hidden">
                     <LeftSidebar activeTab={leftTab} onTabChange={setLeftTab} onTemplateSelect={handleTemplateSelect} hasCustomerList={hasCustomerList} savedDesigns={savedDesigns} onLoadDesign={handleLoadDesign} onDeleteDesign={handleDeleteDesign} />
-                    <div className="flex-1 flex flex-col min-w-0 bg-gray-100">
+                    <div className="flex min-w-0 flex-1 flex-col bg-stone-100/60">
                         <TopControlBar device={viewMode} onDeviceChange={setViewMode} onSave={handleSaveDesign} onImport={handleImportDesign} onPreview={handlePreview} onToggleStructureMap={() => setShowStructureMap(!showStructureMap)} />
-                        <div className="flex-1 overflow-y-auto p-6 flex justify-center" onClick={() => setSelectedId(null)}>
+                        <div className="flex flex-1 justify-center overflow-y-auto p-6" onClick={() => setSelectedId(null)}>
                             <div className={`transition-all duration-300 ${viewMode === 'mobile' ? 'w-[375px]' : 'w-full max-w-[700px]'}`}>
-                                <div className="mb-3 sticky top-0 z-10 bg-gray-100/95 backdrop-blur-sm pt-2 pb-2"><input type="text" value={emailTitle} onChange={(e) => setEmailTitle(e.target.value)} className="w-full text-center text-base font-bold text-gray-700 bg-transparent border-none outline-none focus:bg-white focus:rounded-lg focus:px-4 py-1" placeholder="Tiêu đề..." /></div>
-                                <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 min-h-[500px]" style={{ backgroundColor: doc.settings.backgroundColor }}>
-                                    <div className="bg-white rounded-xl p-5 shadow-sm" style={{ maxWidth: viewMode === 'mobile' ? '100%' : `${doc.settings.contentWidth}px`, margin: '0 auto' }}>
+                                <div className="sticky top-0 z-10 mb-3 bg-stone-100/90 pb-2 pt-2 backdrop-blur-sm"><input type="text" value={emailTitle} onChange={(e) => setEmailTitle(e.target.value)} className="w-full border-none bg-transparent py-1 text-center text-base font-medium text-stone-700 outline-none focus:rounded-xl focus:bg-white focus:px-4" placeholder="Tiêu đề..." /></div>
+                                <div className="min-h-[500px] rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]" style={{ backgroundColor: doc.settings.backgroundColor }}>
+                                    <div className="rounded-xl border border-stone-200 bg-white p-5" style={{ maxWidth: viewMode === 'mobile' ? '100%' : `${doc.settings.contentWidth}px`, margin: '0 auto' }}>
                                         <SortableContext items={doc.blocks.map((b) => b.id)} strategy={verticalListSortingStrategy}>
-                                            {doc.blocks.length === 0 ? <div className="text-center py-12 text-gray-400"><Type size={36} className="mx-auto mb-3 opacity-50" /><p className="font-medium">Kéo thả vào đây</p></div> : <div className="space-y-2">{doc.blocks.map((b, i) => <SortableBlock key={b.id} block={b} index={i} total={doc.blocks.length} isSelected={selectedId === b.id} onSelect={() => setSelectedId(b.id)} onSelectId={setSelectedId} onDelete={() => deleteBlock(b.id)} onUpdate={updateBlock} onMoveUp={() => moveBlock(b.id, 'up')} onMoveDown={() => moveBlock(b.id, 'down')} onDuplicate={() => duplicateBlock(b.id)} isDragOver={dragOverId === b.id} />)}</div>}
+                                            {doc.blocks.length === 0 ? <div className="py-12 text-center text-stone-400"><Type size={36} className="mx-auto mb-3 opacity-50" /><p className="font-medium">Kéo thả vào đây</p></div> : <div className="space-y-2">{doc.blocks.map((b, i) => <SortableBlock key={b.id} block={b} index={i} total={doc.blocks.length} isSelected={selectedId === b.id} onSelect={() => setSelectedId(b.id)} onSelectId={setSelectedId} onDelete={() => deleteBlock(b.id)} onUpdate={updateBlock} onMoveUp={() => moveBlock(b.id, 'up')} onMoveDown={() => moveBlock(b.id, 'down')} onDuplicate={() => duplicateBlock(b.id)} isDragOver={dragOverId === b.id} />)}</div>}
                                         </SortableContext>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div className="w-72 bg-white border-l border-gray-200 p-5 flex flex-col overflow-y-auto"><PropertiesPanel block={selectedBlock} onUpdate={updateBlock} onInsertTag={handleInsertTag} docSettings={doc.settings} onUpdateSettings={updateSettings} /></div>
+                    <div className="flex w-72 flex-col overflow-y-auto border-l border-stone-200/80 bg-white p-5"><PropertiesPanel block={selectedBlock} onUpdate={updateBlock} onInsertTag={handleInsertTag} docSettings={doc.settings} onUpdateSettings={updateSettings} /></div>
                 </div>
                 <DragOverlay
                     dropAnimation={{
@@ -2608,18 +2608,18 @@ return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${emailTitle}</t
 
                             if (!el) return null;
                             return (
-                                <div className="flex flex-col items-center gap-2 p-4 bg-white border-2 border-blue-500 rounded-2xl shadow-2xl scale-105 cursor-grabbing opacity-90">
-                                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <div className="flex scale-105 cursor-grabbing flex-col items-center gap-2 rounded-2xl border-2 border-stone-400 bg-white p-4 opacity-90 shadow-2xl">
+                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-600">
                                         {(el as any).iconText ? <span className="text-sm font-bold">{(el as any).iconText}</span> : el.icon}
                                     </div>
-                                    <span className="text-xs font-bold text-gray-700">{el.label}</span>
+                                    <span className="text-xs font-bold text-stone-700">{el.label}</span>
                                 </div>
                             );
                         })() : (() => {
                             const block = findBlockById(doc.blocks, activeId);
                             if (!block) return null;
                             return (
-                                <div className="bg-white rounded-lg shadow-2xl ring-2 ring-blue-500 opacity-90 scale-105 cursor-grabbing overflow-hidden pointer-events-none" style={{ width: doc.settings.contentWidth }}>
+                                <div className="pointer-events-none scale-105 cursor-grabbing overflow-hidden rounded-xl bg-white opacity-90 shadow-2xl ring-2 ring-stone-400" style={{ width: doc.settings.contentWidth }}>
                                     <div className="p-4">
                                         <BlockRenderer block={block} onUpdate={() => { }} />
                                     </div>
@@ -2631,10 +2631,10 @@ return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${emailTitle}</t
             </DndContext>
 
             {showHistoryModal && (
-                <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className={`bg-white rounded-2xl w-full shadow-2xl border border-gray-100 flex flex-col max-h-[90vh] ${previewHistoryItem ? 'max-w-4xl' : 'max-w-lg'}`}>
-                        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl"><h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><History size={18} />{previewHistoryItem ? 'Xem trước' : 'Lịch sử'}</h3><button onClick={() => previewHistoryItem ? setPreviewHistoryItem(null) : setShowHistoryModal(false)} className="text-gray-400 hover:text-gray-700 bg-white p-1 rounded-full shadow-sm"><X size={18} /></button></div>
-                        <div className="flex flex-1 overflow-hidden">{!previewHistoryItem ? <div className="p-5 overflow-y-auto w-full space-y-2">{emailHistory.length === 0 ? <div className="text-center py-10 text-gray-400">Chưa có.</div> : emailHistory.map((h) => <div key={h.id} onClick={() => setPreviewHistoryItem(h)} className="p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-gray-50 bg-white cursor-pointer flex justify-between items-center"><div><div className="font-medium text-gray-800 text-sm">{h.title}</div><div className="text-[11px] text-gray-400">{new Date(h.timestamp).toLocaleString('vi-VN')}</div></div><div className="flex items-center gap-1"><button onClick={(e) => handleDeleteHistory(e, h.id)} className="p-1.5 text-gray-300 hover:text-red-500 rounded-lg"><Trash2 size={16} /></button><div className="text-blue-400 bg-blue-50 p-1.5 rounded-lg"><Eye size={16} /></div></div></div>)}</div> : <div className="flex-1 bg-gray-200 p-6 flex justify-center overflow-hidden"><div className="w-full max-w-[650px] h-full bg-white shadow-xl rounded-xl overflow-hidden"><iframe srcDoc={previewHistoryItem.html} className="w-full h-full border-none" /></div></div>}</div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm">
+                    <div className={`flex max-h-[90vh] w-full flex-col rounded-2xl border border-stone-200/90 bg-white shadow-2xl ${previewHistoryItem ? 'max-w-4xl' : 'max-w-lg'}`}>
+                        <div className="flex items-center justify-between rounded-t-2xl border-b border-stone-100 bg-stone-50/60 p-5"><h3 className="flex items-center gap-2 text-lg font-medium tracking-tight text-stone-800"><History size={18} />{previewHistoryItem ? 'Xem trước' : 'Lịch sử'}</h3><button onClick={() => previewHistoryItem ? setPreviewHistoryItem(null) : setShowHistoryModal(false)} className="rounded-full bg-white p-1 text-stone-400 shadow-sm hover:text-stone-700"><X size={18} /></button></div>
+                        <div className="flex flex-1 overflow-hidden">{!previewHistoryItem ? <div className="w-full space-y-2 overflow-y-auto p-5">{emailHistory.length === 0 ? <div className="py-10 text-center text-stone-400">Chưa có.</div> : emailHistory.map((h) => <div key={h.id} onClick={() => setPreviewHistoryItem(h)} className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-200 bg-white p-3 hover:border-stone-300 hover:bg-stone-50/60"><div><div className="text-sm font-medium text-stone-800">{h.title}</div><div className="text-[11px] text-stone-400">{new Date(h.timestamp).toLocaleString('vi-VN')}</div></div><div className="flex items-center gap-1"><button onClick={(e) => handleDeleteHistory(e, h.id)} className="rounded-lg p-1.5 text-stone-300 hover:text-rose-500"><Trash2 size={16} /></button><div className="rounded-lg bg-stone-100 p-1.5 text-stone-500"><Eye size={16} /></div></div></div>)}</div> : <div className="flex flex-1 justify-center overflow-hidden bg-stone-100 p-6"><div className="h-full w-full max-w-[650px] overflow-hidden rounded-xl bg-white shadow-xl"><iframe srcDoc={previewHistoryItem.html} className="h-full w-full border-none" /></div></div>}</div>
                     </div>
                 </div>
             )}
@@ -2673,8 +2673,8 @@ return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${emailTitle}</t
 
             {/* Email Report Modal */}
             {showReportModal && (
-                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-                    <div className="bg-white rounded-2xl w-[95vw] h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+                    <div className="flex h-[90vh] w-[95vw] flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl">
                         <div className="flex-1 overflow-auto">
                             <EmailReport onBack={() => setShowReportModal(false)} />
                         </div>

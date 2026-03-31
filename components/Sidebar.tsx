@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { User as FirebaseUser } from 'firebase/auth';
 import { ViewState } from '../types';
+import { useAuth } from './AuthContext';
 import {
   Home, GraduationCap, Library, Star, ChevronDown, ChevronRight, BookOpen, CreditCard, Calendar, List,
   CheckSquare, PenTool, Image as ImageIcon, PlusSquare, Mail, Film, Link2,
   MonitorPlay, Calculator, TrendingUp, ShieldCheck, Radar, Users, BrainCircuit, Lightbulb, Target,
   CalendarDays, Brain, FileText, FileCheck, Zap, Map, PieChart, Activity, Compass, DollarSign, Heart,
-  HelpCircle, Globe, Layers, Rocket, Sparkles, PanelLeftClose, PanelLeftOpen
+  HelpCircle, Globe, Layers, Rocket, Sparkles, PanelLeftClose, PanelLeftOpen,
+  LogOut, ChevronUp, UserCircle
 } from 'lucide-react';
 
 const SIDEBAR_BG = '#FCFDFC';
@@ -17,6 +20,7 @@ interface SidebarProps {
   setView: (view: ViewState) => void;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  user?: FirebaseUser | null;
 }
 
 type NavItem = {
@@ -162,15 +166,38 @@ const Sidebar: React.FC<SidebarProps> = ({
   setView,
   collapsed = false,
   onCollapsedChange,
+  user,
 }) => {
+  const { signOutUser } = useAuth();
   const [learnExpanded, setLearnExpanded] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [strategyExpanded, setStrategyExpanded] = useState(true);
   const [ideationExpanded, setIdeationExpanded] = useState(false);
   const [designExpanded, setDesignExpanded] = useState(false);
   const [adsExpanded, setAdsExpanded] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   const expandSidebar = () => onCollapsedChange?.(false);
+
+  const handleSignOut = async () => {
+    setUserMenuOpen(false);
+    await signOutUser();
+  };
+
+  const getUserInitials = (name?: string | null, email?: string | null) => {
+    if (name) {
+      const parts = name.split(' ');
+      return parts.length >= 2
+        ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+        : name.slice(0, 2).toUpperCase();
+    }
+    if (email) return email.slice(0, 2).toUpperCase();
+    return 'U';
+  };
+
+  const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
+  const avatarUrl = user?.photoURL;
+  const initials = getUserInitials(user?.displayName, user?.email);
 
   const learnItems: NavItem[] = [
     { id: 'HOME', label: 'Dịch văn bản', icon: Home },
@@ -415,45 +442,111 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {!collapsed ? (
           <>
-            <button
-              type="button"
-              onClick={() => setView('LANDING_INTRO')}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
-                currentView === 'LANDING_INTRO' ? 'bg-black/[0.06]' : ''
-              }`}
-              style={{ color: NAV_TEXT }}
-            >
-              <Rocket size={18} strokeWidth={1.5} className="shrink-0 opacity-90" />
-              <span className="min-w-0 flex-1 text-[11px] font-medium leading-snug">Xem Landing Page</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setView('FEATURES_GUIDE')}
-              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
-                currentView === 'FEATURES_GUIDE' ? 'bg-black/[0.06]' : ''
-              }`}
-              style={{ color: NAV_TEXT }}
-            >
-              <HelpCircle size={18} strokeWidth={1.5} className="shrink-0 opacity-90" />
-              <span className="min-w-0 flex-1 text-[11px] font-medium leading-snug">Hướng dẫn sử dụng</span>
-              <BadgeVersion>V2.5 Update</BadgeVersion>
-            </button>
+            {/* User Profile Row */}
+            <div className="relative mb-1">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((o) => !o)}
+                className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-black/[0.06]"
+                aria-haspopup="true"
+                aria-expanded={userMenuOpen}
+              >
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-stone-200/70"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-200 text-xs font-semibold text-stone-600">
+                    {initials}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[11px] font-semibold leading-snug" style={{ color: NAV_TEXT }}>
+                    {displayName}
+                  </p>
+                  <p className="truncate text-[10px] leading-snug opacity-60" style={{ color: NAV_TEXT }}>
+                    {user?.email}
+                  </p>
+                </div>
+                <ChevronUp
+                  size={14}
+                  strokeWidth={1.5}
+                  className={`shrink-0 transition-transform ${userMenuOpen ? 'rotate-0' : 'rotate-180'}`}
+                  style={{ color: NAV_TEXT }}
+                />
+              </button>
+
+              {/* Dropdown Menu */}
+              {userMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setUserMenuOpen(false)}
+                  />
+                  <div className="absolute bottom-full left-0 right-0 z-20 mb-1 overflow-hidden rounded-xl border border-stone-200/90 bg-white py-1 shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
+                    <div className="mb-1 border-b border-stone-100 px-3 pb-2 pt-1">
+                      <p className="truncate text-[10px] font-medium uppercase tracking-wide text-stone-400">
+                        {displayName}
+                      </p>
+                      <p className="truncate text-xs text-stone-600">{user?.email}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setView('FEATURES_GUIDE')}
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[11px] transition-colors hover:bg-stone-50"
+                      style={{ color: NAV_TEXT }}
+                    >
+                      <HelpCircle size={14} strokeWidth={1.5} />
+                      Hướng dẫn sử dụng
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setView('LANDING_INTRO')}
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[11px] transition-colors hover:bg-stone-50"
+                      style={{ color: NAV_TEXT }}
+                    >
+                      <Rocket size={14} strokeWidth={1.5} />
+                      Xem Landing Page
+                    </button>
+                    <div className="mt-1 border-t border-stone-100 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-[11px] text-red-500 transition-colors hover:bg-red-50"
+                      >
+                        <LogOut size={14} strokeWidth={1.5} />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             <div className="pt-1 text-center text-[10px] font-medium tracking-wide opacity-45" style={{ color: NAV_TEXT }}>
               v1.7.0 · OptiM.KI
             </div>
           </>
         ) : (
           <div className="flex flex-col items-center gap-1">
-            <button
-              type="button"
-              title="Xem Landing Page"
-              onClick={() => setView('LANDING_INTRO')}
-              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06]"
-              style={{ color: currentView === 'LANDING_INTRO' ? NAV_TEXT : `${NAV_TEXT}99` }}
-              aria-label="Xem Landing Page"
-            >
-              <Rocket size={20} strokeWidth={1.5} />
-            </button>
+            {/* Collapsed user avatar */}
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-stone-200/70"
+                title={displayName}
+              />
+            ) : (
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-stone-200 text-xs font-semibold text-stone-600"
+                title={displayName}
+              >
+                {initials}
+              </div>
+            )}
             <button
               type="button"
               title="Hướng dẫn sử dụng"
@@ -463,6 +556,16 @@ const Sidebar: React.FC<SidebarProps> = ({
               aria-label="Hướng dẫn sử dụng"
             >
               <HelpCircle size={20} strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              title="Đăng xuất"
+              onClick={handleSignOut}
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06]"
+              style={{ color: `${NAV_TEXT}99` }}
+              aria-label="Đăng xuất"
+            >
+              <LogOut size={20} strokeWidth={1.5} />
             </button>
           </div>
         )}

@@ -12,6 +12,15 @@ interface FeaturesGuideProps {
     onBack?: () => void;
 }
 
+const cardClass =
+    'overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const iconWrapLg =
+    'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200/90 bg-stone-50 text-stone-600';
+
+const iconWrapSm =
+    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200/90 bg-stone-50 text-stone-500';
+
 const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
     const [expandedCategory, setExpandedCategory] = useState<string | null>('strategy');
 
@@ -20,8 +29,6 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
             id: 'strategy',
             title: 'Strategy & Research',
             icon: Brain,
-            color: 'text-indigo-600',
-            bgColor: 'bg-indigo-50',
             description: 'Các công cụ giúp bạn nghiên cứu thị trường, hiểu khách hàng và xây dựng chiến lược.',
             features: [
                 {
@@ -90,8 +97,6 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
             id: 'ideation',
             title: 'Ideation & Content',
             icon: Lightbulb,
-            color: 'text-amber-600',
-            bgColor: 'bg-amber-50',
             description: 'Các công cụ hỗ trợ sáng tạo nội dung và lên kế hoạch đăng bài.',
             features: [
                 {
@@ -154,8 +159,6 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
             id: 'design',
             title: 'Design & Visuals',
             icon: ImageIcon,
-            color: 'text-pink-600',
-            bgColor: 'bg-pink-50',
             description: 'Các công cụ hỗ trợ thiết kế và tạo hình ảnh.',
             features: [
                 {
@@ -194,8 +197,6 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
             id: 'ads',
             title: 'Ads & Performance',
             icon: TrendingUp,
-            color: 'text-emerald-600',
-            bgColor: 'bg-emerald-50',
             description: 'Các công cụ đo lường và tối ưu hiệu suất quảng cáo.',
             features: [
                 {
@@ -239,71 +240,85 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-soft-bg p-8">
-            <div className="max-w-4xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
+        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+            <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
+                <div className="mb-10">
                     {onBack && (
                         <button
+                            type="button"
                             onClick={onBack}
-                            className="flex items-center gap-2 text-slate-500 hover:text-slate-700 mb-4 transition-colors"
+                            className="mb-6 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900"
                         >
-                            <ArrowLeft size={18} />
-                            <span className="text-sm font-medium">Quay lại</span>
+                            <ArrowLeft size={18} strokeWidth={1.5} />
+                            Quay lại
                         </button>
                     )}
-                    <h1 className="text-3xl font-bold text-slate-800 mb-2">Hướng dẫn sử dụng</h1>
-                    <p className="text-slate-500">Tìm hiểu mục đích và cách hoạt động của tất cả các tính năng trong OptiMKT.</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                        Tài liệu sản phẩm
+                    </p>
+                    <h1 className="mb-3 text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
+                        Hướng dẫn sử dụng
+                    </h1>
+                    <p className="max-w-2xl text-sm leading-relaxed text-stone-500 sm:text-base">
+                        Tìm hiểu mục đích và cách hoạt động của tất cả các tính năng trong OptiMKT.
+                    </p>
                 </div>
 
-                {/* Categories */}
-                <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-5">
                     {categories.map((category) => (
-                        <div
-                            key={category.id}
-                            className="bg-white rounded-2xl border border-soft-border overflow-hidden"
-                        >
-                            {/* Category Header */}
+                        <div key={category.id} className={cardClass}>
                             <button
+                                type="button"
                                 onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-                                className="w-full flex items-center justify-between p-5 hover:bg-soft-bg transition-colors"
+                                className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-stone-50/70 sm:p-6"
+                                aria-expanded={expandedCategory === category.id}
                             >
-                                <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-xl ${category.bgColor}`}>
-                                        <category.icon size={24} className={category.color} strokeWidth={1.5} />
+                                <div className="flex min-w-0 flex-1 items-center gap-4">
+                                    <div className={iconWrapLg}>
+                                        <category.icon size={22} strokeWidth={1.5} />
                                     </div>
-                                    <div className="text-left">
-                                        <h2 className="font-semibold text-slate-800">{category.title}</h2>
-                                        <p className="text-sm text-slate-500">{category.features.length} công cụ</p>
+                                    <div className="min-w-0 text-left">
+                                        <h2 className="font-medium tracking-tight text-stone-900">{category.title}</h2>
+                                        <p className="mt-0.5 text-sm text-stone-500">{category.features.length} công cụ</p>
                                     </div>
                                 </div>
                                 {expandedCategory === category.id ? (
-                                    <ChevronDown size={20} className="text-slate-400" />
+                                    <ChevronDown size={20} className="shrink-0 text-stone-400" strokeWidth={1.5} />
                                 ) : (
-                                    <ChevronRight size={20} className="text-slate-400" />
+                                    <ChevronRight size={20} className="shrink-0 text-stone-400" strokeWidth={1.5} />
                                 )}
                             </button>
 
-                            {/* Features List */}
                             {expandedCategory === category.id && (
-                                <div className="border-t border-soft-border">
+                                <div className="border-t border-stone-200/90 bg-stone-50/30">
                                     {category.features.map((feature, index) => (
                                         <div
                                             key={feature.name}
-                                            className={`p-5 ${index !== category.features.length - 1 ? 'border-b border-soft-border' : ''}`}
+                                            className={`px-5 py-5 sm:px-6 sm:py-6 ${index !== category.features.length - 1 ? 'border-b border-stone-200/80' : ''
+                                                }`}
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div className={`p-2 rounded-lg ${category.bgColor} flex-shrink-0`}>
-                                                    <feature.icon size={18} className={category.color} strokeWidth={1.5} />
+                                                <div className={iconWrapSm}>
+                                                    <feature.icon size={18} strokeWidth={1.5} />
                                                 </div>
-                                                <div className="flex-1">
-                                                    <h3 className="font-medium text-slate-800 mb-1">{feature.name}</h3>
-                                                    <p className="text-sm text-slate-600 mb-2">
-                                                        <span className="font-medium">Mục đích:</span> {feature.purpose}
-                                                    </p>
-                                                    <p className="text-sm text-slate-500">
-                                                        <span className="font-medium text-slate-600">Cách hoạt động:</span> {feature.howItWorks}
-                                                    </p>
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="mb-4 text-base font-medium tracking-tight text-stone-900">
+                                                        {feature.name}
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        <div>
+                                                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                                                Mục đích
+                                                            </p>
+                                                            <p className="text-sm leading-relaxed text-stone-700">{feature.purpose}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                                                Cách hoạt động
+                                                            </p>
+                                                            <p className="text-sm leading-relaxed text-stone-600">{feature.howItWorks}</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

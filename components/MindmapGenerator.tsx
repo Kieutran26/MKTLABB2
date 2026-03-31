@@ -15,14 +15,19 @@ import ReactFlow, {
     Connection,
     addEdge,
     getNodesBounds,
-    getViewportForBounds
 } from 'reactflow';
-import { BrainCircuit, Download, Loader2, Sparkles, Search, X, Copy, PlusCircle, ChevronRight, Plus, Save, FolderOpen, Trash2, Check, Target, Users, Layers, Cloud } from 'lucide-react';
+import { BrainCircuit, Download, Loader2, Sparkles, Search, X, Copy, PlusCircle, ChevronRight, Plus, Save, FolderOpen, Trash2, Check, Target, Users, Layers } from 'lucide-react';
 import { generateMindmapData, brainstormNodeDetails, DeepDiveResult, MindmapInput } from '../services/geminiService';
 import { toPng } from 'html-to-image';
 import { Toast, ToastType } from './Toast';
 import { MindmapService } from '../services/mindmapService';
 import { MindmapProject } from '../types';
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
 
 // --- CUSTOM NODE WITH TOOLBAR ---
 const CustomNode = memo(({ data, id, selected }: any) => {
@@ -36,17 +41,17 @@ const CustomNode = memo(({ data, id, selected }: any) => {
                         e.stopPropagation();
                         onBrainstorm(label);
                     }}
-                    className="bg-indigo-600 text-white text-xs px-2 py-1 rounded shadow-md flex items-center gap-1 hover:bg-indigo-700 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-stone-700 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
                 >
-                    <Sparkles size={10} /> Brainstorm
+                    <Sparkles size={12} strokeWidth={1.25} /> Brainstorm
                 </button>
             </NodeToolbar>
 
-            <Handle type="target" position={Position.Left} className="w-2 h-2 !bg-slate-400" />
-            <div className="px-4 py-2 rounded-lg shadow-sm border bg-white border-slate-200 min-w-[120px] text-center font-medium text-sm text-slate-700 hover:border-indigo-300 transition-colors">
+            <Handle type="target" position={Position.Left} className="!h-2 !w-2 !bg-stone-400" />
+            <div className="rounded-xl border border-stone-200 bg-white px-4 py-2.5 shadow-sm text-center text-sm font-medium text-stone-700 transition-colors hover:border-stone-400 min-w-[130px]">
                 {label}
             </div>
-            <Handle type="source" position={Position.Right} className="w-2 h-2 !bg-slate-400" />
+            <Handle type="source" position={Position.Right} className="!h-2 !w-2 !bg-stone-400" />
         </>
     );
 });
@@ -56,50 +61,40 @@ const nodeTypes = {
 };
 
 const MindmapGeneratorContent: React.FC = () => {
-    // Core State
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-    // V2 Input fields
     const [keyword, setKeyword] = useState('');
     const [goal, setGoal] = useState('');
     const [audience, setAudience] = useState('');
     const [depth, setDepth] = useState(3);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
-    // Project State
     const [projectId, setProjectId] = useState<string | null>(null);
     const [projectName, setProjectName] = useState('');
     const [savedProjects, setSavedProjects] = useState<MindmapProject[]>([]);
     const [showLoadModal, setShowLoadModal] = useState(false);
 
-    // UI State
     const [isGenerating, setIsGenerating] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
-    // Sidebar State
     const [showSidebar, setShowSidebar] = useState(false);
     const [sidebarLoading, setSidebarLoading] = useState(false);
     const [selectedNodeLabel, setSelectedNodeLabel] = useState('');
     const [activeRootContext, setActiveRootContext] = useState('');
     const [sidebarContent, setSidebarContent] = useState<DeepDiveResult | null>(null);
 
-    // Add Node State
     const [isAddingNode, setIsAddingNode] = useState(false);
     const [newNodeLabel, setNewNodeLabel] = useState('');
 
     const { fitView, getNodes, getViewport, setViewport } = useReactFlow();
 
-    // Load from Supabase on mount and migrate from localStorage
     useEffect(() => {
         const loadData = async () => {
-            // Try to migrate from localStorage first (one-time)
             const migrated = await MindmapService.migrateFromLocalStorage();
             if (migrated > 0) {
-                showToast(`☁️ Đã migrate ${migrated} sơ đồ lên cloud!`, 'success');
+                showToast(`Đã migrate ${migrated} sơ đồ lên cloud!`, 'success');
             }
-
-            // Load from Supabase
             const projects = await MindmapService.getMindmaps();
             setSavedProjects(projects);
         };
@@ -110,13 +105,10 @@ const MindmapGeneratorContent: React.FC = () => {
         setToast({ message, type });
     };
 
-    // --- GRAPH INTERACTIONS ---
-
     const onConnect = useCallback((params: Connection) => {
-        setEdges((eds) => addEdge({ ...params, animated: true, type: 'smoothstep', style: { stroke: '#94a3b8', strokeWidth: 2 } }, eds));
+        setEdges((eds) => addEdge({ ...params, animated: true, type: 'smoothstep', style: { stroke: '#a8a29e', strokeWidth: 2 } }, eds));
     }, [setEdges]);
 
-    // Manual Add Node Logic
     const handleAddNodeMode = () => {
         setIsAddingNode(true);
         setNewNodeLabel('');
@@ -131,7 +123,7 @@ const MindmapGeneratorContent: React.FC = () => {
         const newNode: Node = {
             id: `manual-${Date.now()}`,
             position: {
-                x: Math.random() * 400, // Random pos near center for visibility
+                x: Math.random() * 400,
                 y: Math.random() * 400
             },
             data: { label: newNodeLabel, onBrainstorm: handleBrainstormRequest },
@@ -140,24 +132,22 @@ const MindmapGeneratorContent: React.FC = () => {
 
         setNodes((nds) => [...nds, newNode]);
         setIsAddingNode(false);
-        showToast("Đã thêm node mới", "success");
+        showToast('Đã thêm node mới', 'success');
     };
 
-    // --- LAYOUT ALGORITHM ---
     const calculateLayout = (rawNodes: any[], rawEdges: any[]) => {
         const root = rawNodes.find(n => n.type === 'root');
         if (!root) return { nodes: [], edges: [] };
 
         const layoutNodes: Node[] = [];
-        // Root
         layoutNodes.push({
             id: root.id,
             position: { x: 0, y: 0 },
             data: { label: root.label, onBrainstorm: handleBrainstormRequest },
             type: 'input',
             style: {
-                background: '#4f46e5', color: 'white', border: 'none', borderRadius: '12px',
-                padding: '15px 25px', fontSize: '16px', fontWeight: 'bold', width: 180, textAlign: 'center'
+                background: '#1c1917', color: 'white', border: 'none', borderRadius: '12px',
+                padding: '15px 25px', fontSize: '15px', fontWeight: 600, width: 180, textAlign: 'center'
             },
         });
 
@@ -200,7 +190,7 @@ const MindmapGeneratorContent: React.FC = () => {
             target: e.target,
             type: 'smoothstep',
             animated: true,
-            style: { stroke: '#94a3b8', strokeWidth: 2 },
+            style: { stroke: '#a8a29e', strokeWidth: 2 },
         }));
 
         return { nodes: layoutNodes, edges: layoutEdges };
@@ -208,13 +198,12 @@ const MindmapGeneratorContent: React.FC = () => {
 
     const handleGenerate = async () => {
         if (!keyword.trim()) {
-            showToast("Vui lòng nhập từ khóa", "error");
+            showToast('Vui lòng nhập từ khóa', 'error');
             return;
         }
         setIsGenerating(true);
         setShowSidebar(false);
         try {
-            // V2: Use MindmapInput object with goal, audience, depth
             const inputData: MindmapInput = {
                 topic: keyword,
                 goal: goal.trim() || undefined,
@@ -227,20 +216,19 @@ const MindmapGeneratorContent: React.FC = () => {
                 const { nodes: layoutedNodes, edges: layoutedEdges } = calculateLayout(data.nodes, data.edges);
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
-                setProjectId(null); // Reset project context on new gen
+                setProjectId(null);
                 setProjectName(keyword);
                 setTimeout(() => fitView({ padding: 0.2, duration: 800 }), 100);
             } else {
-                showToast("Không thể tạo bản đồ.", "error");
+                showToast('Không thể tạo bản đồ.', 'error');
             }
         } catch (error) {
-            showToast("Lỗi kết nối AI.", "error");
+            showToast('Lỗi kết nối AI.', 'error');
         } finally {
             setIsGenerating(false);
         }
     };
 
-    // --- SAVE & LOAD ---
     const handleSaveProject = async () => {
         if (nodes.length === 0) return;
 
@@ -248,10 +236,9 @@ const MindmapGeneratorContent: React.FC = () => {
         const currentId = projectId || Date.now().toString();
         const viewport = getViewport();
 
-        // Must strip out function callbacks before saving to JSON
         const nodesToSave = nodes.map(node => ({
             ...node,
-            data: { label: node.data.label } // Remove onBrainstorm callback
+            data: { label: node.data.label }
         }));
 
         const project: MindmapProject = {
@@ -269,14 +256,13 @@ const MindmapGeneratorContent: React.FC = () => {
             setProjectId(currentId);
             const projects = await MindmapService.getMindmaps();
             setSavedProjects(projects);
-            showToast("☁️ Đã lưu sơ đồ lên cloud!", "success");
+            showToast('Đã lưu sơ đồ lên cloud!', 'success');
         } else {
-            showToast("Lỗi khi lưu!", "error");
+            showToast('Lỗi khi lưu!', 'error');
         }
     };
 
     const handleLoadProject = (project: MindmapProject) => {
-        // Re-attach callbacks when loading
         const loadedNodes = project.nodes.map(node => ({
             ...node,
             data: { ...node.data, onBrainstorm: handleBrainstormRequest }
@@ -294,37 +280,36 @@ const MindmapGeneratorContent: React.FC = () => {
         }
 
         setShowLoadModal(false);
-        showToast(`Đã tải "${project.name}"`, "success");
+        showToast(`Đã tải "${project.name}"`, 'success');
     };
 
     const handleDeleteProject = async (e: React.MouseEvent, id: string) => {
         e.stopPropagation();
-        if (confirm("Xóa sơ đồ này?")) {
+        if (confirm('Xóa sơ đồ này?')) {
             const success = await MindmapService.deleteMindmap(id);
             if (success) {
                 setSavedProjects(prev => prev.filter(p => p.id !== id));
-                showToast("Đã xóa!", "success");
+                showToast('Đã xóa!', 'success');
             } else {
-                showToast("Lỗi khi xóa!", "error");
+                showToast('Lỗi khi xóa!', 'error');
             }
         }
     };
 
-    // --- EXPORT FIX (CRITICAL) ---
     const handleDownload = async () => {
         const nodesBounds = getNodesBounds(getNodes());
         if (nodesBounds.width === 0 || nodesBounds.height === 0) return;
 
-        const imageWidth = nodesBounds.width + 100; // Add padding
+        const imageWidth = nodesBounds.width + 100;
         const imageHeight = nodesBounds.height + 100;
-        const transform = `translate(${50 - nodesBounds.x}px, ${50 - nodesBounds.y}px)`; // Adjust for padding
+        const transform = `translate(${50 - nodesBounds.x}px, ${50 - nodesBounds.y}px)`;
 
         const viewportEl = document.querySelector('.react-flow__viewport') as HTMLElement;
         if (!viewportEl) return;
 
         try {
             const dataUrl = await toPng(viewportEl, {
-                backgroundColor: '#F8FAFC',
+                backgroundColor: '#FCFDFC',
                 width: imageWidth,
                 height: imageHeight,
                 style: {
@@ -332,7 +317,6 @@ const MindmapGeneratorContent: React.FC = () => {
                     height: `${imageHeight}px`,
                     transform: transform,
                 },
-                // Filter out ReactFlow controls or overlays if they cause issues
                 filter: (node) => {
                     if (node.classList && node.classList.contains('react-flow__minimap')) return false;
                     if (node.classList && node.classList.contains('react-flow__controls')) return false;
@@ -344,25 +328,20 @@ const MindmapGeneratorContent: React.FC = () => {
             link.download = `mindmap-${projectName || 'export'}.png`;
             link.href = dataUrl;
             link.click();
-            showToast("Xuất ảnh thành công (Full HD)", "success");
+            showToast('Xuất ảnh thành công (Full HD)', 'success');
         } catch (err) {
-            console.error(err);
-            showToast("Lỗi khi xuất ảnh. Thử lại sau.", "error");
+            showToast('Lỗi khi xuất ảnh. Thử lại sau.', 'error');
         }
     };
 
-    // --- BRAINSTORM ASSISTANT ---
     const handleBrainstormRequest = useCallback(async (label: string) => {
         setSelectedNodeLabel(label);
         setShowSidebar(true);
         setSidebarLoading(true);
         setSidebarContent(null);
 
-        // Sử dụng getNodes() để luôn lấy state mới nhất của sơ đồ thay vì closure cũ
         const currentNodes = getNodes();
         const rootNode = currentNodes.find(n => n.type === 'input' || n.type === 'root');
-
-        // Backup bằng tên keyword hoặc projectName nếu không tìm thấy root (để chắc chắn luôn có context)
         const currentRootLabel = rootNode?.data?.label;
         const rootContext = currentRootLabel || keyword || projectName;
         setActiveRootContext(rootContext);
@@ -371,7 +350,7 @@ const MindmapGeneratorContent: React.FC = () => {
             const result = await brainstormNodeDetails(label, rootContext);
             setSidebarContent(result);
         } catch (error) {
-            showToast("Lỗi khi phân tích chi tiết.", "error");
+            showToast('Lỗi khi phân tích chi tiết.', 'error');
         } finally {
             setSidebarLoading(false);
         }
@@ -379,44 +358,57 @@ const MindmapGeneratorContent: React.FC = () => {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        showToast("Đã sao chép", "success");
+        showToast('Đã sao chép', 'success');
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50">
-            {/* Header / Toolbar */}
-            <div className="bg-white border-b border-slate-200 px-6 py-3 shrink-0 shadow-sm z-30 relative">
-                <div className="flex items-center justify-between mb-3">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            {/* Header */}
+            <div className="flex shrink-0 flex-col gap-3 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-4 z-30">
+                <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="bg-indigo-100 p-2 rounded-xl text-indigo-600">
-                            <BrainCircuit size={20} strokeWidth={1.5} />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50/80">
+                            <BrainCircuit size={18} strokeWidth={1.25} className="text-stone-600" />
                         </div>
                         <input
-                            className="font-bold text-lg text-slate-800 bg-transparent border-none focus:ring-0 placeholder:text-slate-300 w-48"
+                            className="flex-1 bg-transparent text-base font-medium text-stone-900 outline-none placeholder:text-stone-300 md:max-w-xs"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             placeholder="Tên sơ đồ..."
                         />
                     </div>
-                    <div className="flex gap-2">
-                        <button onClick={() => setShowLoadModal(true)} className="text-slate-600 hover:bg-slate-100 px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors border border-slate-200">
-                            <FolderOpen size={18} /> Mở
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowLoadModal(true)}
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        >
+                            <FolderOpen size={17} strokeWidth={1.25} /> Mở
                         </button>
-                        <button onClick={handleSaveProject} className="text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors border border-indigo-100">
-                            <Save size={18} /> Lưu
+                        <button
+                            type="button"
+                            onClick={handleSaveProject}
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        >
+                            <Save size={17} strokeWidth={1.25} /> Lưu
                         </button>
-                        <button onClick={handleDownload} disabled={nodes.length === 0} className="text-slate-500 hover:text-slate-800 px-3 py-2 rounded-lg hover:bg-slate-50 font-medium text-sm flex items-center gap-2 transition-colors disabled:opacity-50">
-                            <Download size={18} /> Export
+                        <button
+                            type="button"
+                            onClick={handleDownload}
+                            disabled={nodes.length === 0}
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-500 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <Download size={17} strokeWidth={1.25} /> Export
                         </button>
                     </div>
                 </div>
 
-                {/* V2 Input Fields */}
-                <div className="flex items-center gap-3">
-                    <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                {/* Input Fields */}
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative flex-1 min-w-[180px] md:max-w-sm">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={16} strokeWidth={1.25} />
                         <input
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition-all"
+                            className="w-full rounded-xl border border-stone-200 bg-white py-2 pl-10 pr-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                             placeholder="Chủ đề (VD: Sữa hạt, AI, Marketing...)"
                             value={keyword}
                             onChange={(e) => setKeyword(e.target.value)}
@@ -424,11 +416,11 @@ const MindmapGeneratorContent: React.FC = () => {
                         />
                     </div>
 
-                    <div className="relative flex-1 max-w-xs">
-                        <Target className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-500" size={14} />
+                    <div className="relative flex-1 min-w-[140px] md:max-w-xs">
+                        <Target className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={14} strokeWidth={1.25} />
                         <input
-                            className="w-full pl-9 pr-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 transition-all placeholder:text-amber-400"
-                            placeholder="Mục tiêu (VD: Kinh doanh, Học tập...)"
+                            className="w-full rounded-xl border border-stone-200 bg-white py-2 pl-9 pr-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
+                            placeholder="Mục tiêu (VD: Kinh doanh...)"
                             value={goal}
                             onChange={(e) => setGoal(e.target.value)}
                         />
@@ -437,22 +429,22 @@ const MindmapGeneratorContent: React.FC = () => {
                     {showAdvanced && (
                         <>
                             <div className="relative w-40">
-                                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" size={14} />
+                                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={14} strokeWidth={1.25} />
                                 <input
-                                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-all"
+                                    className="w-full rounded-xl border border-stone-200 bg-white py-2 pl-9 pr-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                     placeholder="Đối tượng"
                                     value={audience}
                                     onChange={(e) => setAudience(e.target.value)}
                                 />
                             </div>
 
-                            <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-                                <Layers size={14} className="text-purple-500" />
-                                <span className="text-xs text-slate-500">Độ sâu</span>
+                            <div className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2">
+                                <Layers size={14} strokeWidth={1.25} className="text-stone-400" />
+                                <span className="text-xs font-medium text-stone-500">Độ sâu</span>
                                 <select
                                     value={depth}
                                     onChange={(e) => setDepth(Number(e.target.value))}
-                                    className="bg-transparent text-sm font-bold text-slate-700 focus:outline-none"
+                                    className="bg-transparent text-sm font-semibold text-stone-700 outline-none"
                                 >
                                     <option value={2}>2 cấp</option>
                                     <option value={3}>3 cấp</option>
@@ -463,26 +455,28 @@ const MindmapGeneratorContent: React.FC = () => {
                     )}
 
                     <button
+                        type="button"
                         onClick={() => setShowAdvanced(!showAdvanced)}
-                        className="text-slate-400 hover:text-indigo-600 text-xs font-medium px-2 py-1"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-stone-500 transition-colors hover:text-stone-700"
                     >
                         {showAdvanced ? 'Thu gọn' : '+ Tùy chọn'}
                     </button>
 
                     <button
+                        type="button"
                         onClick={handleGenerate}
                         disabled={isGenerating}
-                        className="bg-indigo-600 text-white px-5 py-2 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-70"
+                        className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {isGenerating ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                        {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.25} /> : <Sparkles size={16} strokeWidth={1.25} />}
                         Vẽ Mindmap
                     </button>
                 </div>
             </div>
 
-            <div className="flex-1 flex relative overflow-hidden">
+            <div className="flex flex-1 overflow-hidden relative">
                 {/* MAIN CANVAS */}
-                <div className="flex-1 h-full relative bg-slate-50">
+                <div className="flex-1 h-full relative">
                     <ReactFlow
                         nodes={nodes}
                         edges={edges}
@@ -491,102 +485,134 @@ const MindmapGeneratorContent: React.FC = () => {
                         onConnect={onConnect}
                         nodeTypes={nodeTypes}
                         fitView
-                        className="bg-slate-50"
+                        className="bg-[#FCFDFC]"
                         minZoom={0.1}
                     >
-                        <Background color="#cbd5e1" gap={20} size={1} />
-                        <Controls showInteractive={false} className="bg-white shadow-md border border-slate-100 rounded-lg" />
+                        <Background color="#e7e5e4" gap={20} size={1} />
+                        <Controls showInteractive={false} className="rounded-xl border border-stone-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]" />
 
                         <Panel position="top-left" className="m-4">
                             {isAddingNode ? (
-                                <div className="flex gap-2 bg-white p-2 rounded-xl shadow-lg border border-indigo-100 animate-in fade-in slide-in-from-top-2">
+                                <div className="flex items-center gap-2 rounded-xl border border-stone-200 bg-white p-2 shadow-lg">
                                     <input
                                         autoFocus
-                                        className="border border-slate-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-indigo-500 w-40"
+                                        className="w-40 rounded-lg border border-stone-200 px-2.5 py-1.5 text-sm text-stone-900 outline-none placeholder:text-stone-400 focus:border-stone-400"
                                         placeholder="Tên Node..."
                                         value={newNodeLabel}
                                         onChange={e => setNewNodeLabel(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && confirmAddNode()}
                                     />
-                                    <button onClick={confirmAddNode} className="bg-indigo-600 text-white p-1.5 rounded-lg hover:bg-indigo-700"><Check size={16} /></button>
-                                    <button onClick={() => setIsAddingNode(false)} className="bg-slate-100 text-slate-500 p-1.5 rounded-lg hover:bg-slate-200"><X size={16} /></button>
+                                    <button
+                                        type="button"
+                                        onClick={confirmAddNode}
+                                        className="inline-flex items-center justify-center rounded-lg border border-stone-200 bg-white p-1.5 transition-colors hover:border-stone-400 hover:bg-stone-50"
+                                    >
+                                        <Check size={16} strokeWidth={1.25} className="text-stone-700" />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddingNode(false)}
+                                        className="inline-flex items-center justify-center rounded-lg bg-stone-100 p-1.5 transition-colors hover:bg-stone-200"
+                                    >
+                                        <X size={16} strokeWidth={1.25} className="text-stone-500" />
+                                    </button>
                                 </div>
                             ) : (
                                 <button
+                                    type="button"
                                     onClick={handleAddNodeMode}
-                                    className="bg-white text-slate-700 px-4 py-2 rounded-xl font-bold text-sm shadow-md border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-all flex items-center gap-2"
+                                    className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-400 hover:bg-stone-50"
                                 >
-                                    <PlusCircle size={18} /> Thêm Node Thủ Công
+                                    <PlusCircle size={17} strokeWidth={1.25} /> Thêm Node Thủ công
                                 </button>
                             )}
                         </Panel>
                     </ReactFlow>
 
                     {nodes.length === 0 && !isGenerating && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <div className="text-center text-slate-400">
-                                <BrainCircuit size={64} strokeWidth={0.5} className="mx-auto mb-4 text-slate-300" />
-                                <p className="text-lg font-medium">Nhập từ khóa để AI vẽ hoặc tạo thủ công.</p>
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                            <div className="text-center text-stone-400">
+                                <BrainCircuit size={64} strokeWidth={0.75} className="mx-auto mb-4 text-stone-200" />
+                                <p className="text-base font-medium">Nhập từ khóa để AI vẽ hoặc tạo thủ công.</p>
                             </div>
                         </div>
                     )}
                 </div>
 
                 {/* RIGHT SIDEBAR */}
-                <div className={`w-96 bg-white border-l border-slate-200 shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col z-20 absolute right-0 top-0 bottom-0 ${showSidebar ? 'translate-x-0' : 'translate-x-full'}`}>
-                    <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-indigo-50/50">
-                        <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                            <Sparkles size={16} className="text-indigo-600" /> Brainstorm Assistant
+                <div
+                    className={`w-96 shrink-0 border-l border-stone-200/90 bg-white shadow-xl transition-transform duration-300 ease-in-out flex flex-col z-20 absolute right-0 top-0 bottom-0 ${
+                        showSidebar ? 'translate-x-0' : 'translate-x-full'
+                    }`}
+                >
+                    <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/50 px-5 py-4">
+                        <h3 className="flex items-center gap-2 text-sm font-medium text-stone-900">
+                            <Sparkles size={16} strokeWidth={1.25} className="text-stone-500" /> Brainstorm Assistant
                         </h3>
-                        <button onClick={() => setShowSidebar(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-white transition-colors">
-                            <X size={18} />
+                        <button
+                            type="button"
+                            onClick={() => setShowSidebar(false)}
+                            className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-stone-200 hover:text-stone-700"
+                        >
+                            <X size={18} strokeWidth={1.25} />
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto p-5 space-y-6">
                         {sidebarLoading ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
-                                <Loader2 className="animate-spin text-indigo-500" size={32} />
+                            <div className="flex flex-col items-center justify-center gap-3 py-20 text-stone-400">
+                                <div className="relative h-10 w-10">
+                                    <div className="absolute inset-0 rounded-full border-4 border-stone-100"></div>
+                                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-stone-600 animate-spin"></div>
+                                </div>
                                 <p className="text-sm font-medium">Đang phân tích ý tưởng...</p>
                             </div>
                         ) : sidebarContent ? (
-                            <div className="animate-in fade-in slide-in-from-right-4">
-                                <div className="mb-4">
-                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Khía cạnh mổ xẻ</span>
-                                    <h2 className="text-sm font-bold text-slate-600 mt-1">{selectedNodeLabel}</h2>
+                            <div>
+                                <div className="mb-5">
+                                    <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400">Khía cạnh mổ xẻ</div>
+                                    <h2 className="text-base font-semibold text-stone-900">{selectedNodeLabel}</h2>
                                     {activeRootContext && (
                                         <>
-                                            <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider mt-3 block">Chủ đề chính (Bối cảnh)</span>
-                                            <h2 className="text-lg font-bold text-indigo-900 mt-0.5">{activeRootContext}</h2>
+                                            <div className="mt-4 mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400">Chủ đề chính (Bối cảnh)</div>
+                                            <h2 className="text-lg font-bold text-stone-900">{activeRootContext}</h2>
                                         </>
                                     )}
                                 </div>
 
                                 {/* Content Angles */}
-                                <div className="space-y-3 mb-6">
-                                    <h4 className="font-bold text-sm text-slate-700 flex items-center gap-2">
-                                        <ChevronRight size={14} className="text-indigo-500" /> Góc nhìn nội dung
+                                <div className="mb-6 space-y-2">
+                                    <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+                                        <ChevronRight size={14} strokeWidth={1.25} className="text-stone-400" /> Góc nhìn nội dung
                                     </h4>
                                     {sidebarContent.angles.map((angle, i) => (
-                                        <div key={i} className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-700 hover:border-indigo-200 transition-colors group relative">
+                                        <div key={i} className="group relative rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-sm text-stone-700 transition-colors hover:border-stone-400">
                                             {angle}
-                                            <button onClick={() => copyToClipboard(angle)} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white rounded text-slate-400 hover:text-indigo-600 transition-all">
-                                                <Copy size={12} />
+                                            <button
+                                                type="button"
+                                                onClick={() => copyToClipboard(angle)}
+                                                className="absolute right-2 top-2 rounded-lg p-1 text-stone-400 opacity-0 transition-all hover:bg-white hover:text-stone-700 group-hover:opacity-100"
+                                            >
+                                                <Copy size={12} strokeWidth={1.25} />
                                             </button>
                                         </div>
                                     ))}
                                 </div>
 
                                 {/* Headlines */}
-                                <div className="space-y-3 mb-6">
-                                    <h4 className="font-bold text-sm text-slate-700 flex items-center gap-2">
-                                        <ChevronRight size={14} className="text-pink-500" /> Gợi ý tiêu đề
+                                <div className="mb-6 space-y-2">
+                                    <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+                                        <ChevronRight size={14} strokeWidth={1.25} className="text-stone-400" /> Gợi ý tiêu đề
                                     </h4>
                                     {sidebarContent.headlines.map((hl, i) => (
-                                        <div key={i} className="bg-pink-50/50 p-3 rounded-xl border border-pink-100 text-sm text-slate-800 font-medium hover:border-pink-200 transition-colors group relative">
-                                            "{hl}"
-                                            <button onClick={() => copyToClipboard(hl)} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-white rounded text-pink-400 hover:text-pink-600 transition-all">
-                                                <Copy size={12} />
+                                        <div key={i} className="group relative rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-sm font-medium text-stone-800 transition-colors hover:border-stone-400">
+                                            &ldquo;{hl}&rdquo;
+                                            <button
+                                                type="button"
+                                                onClick={() => copyToClipboard(hl)}
+                                                className="absolute right-2 top-2 rounded-lg p-1 text-stone-400 opacity-0 transition-all hover:bg-white hover:text-stone-700 group-hover:opacity-100"
+                                            >
+                                                <Copy size={12} strokeWidth={1.25} />
                                             </button>
                                         </div>
                                     ))}
@@ -594,12 +620,16 @@ const MindmapGeneratorContent: React.FC = () => {
 
                                 {/* Keywords */}
                                 <div>
-                                    <h4 className="font-bold text-sm text-slate-700 flex items-center gap-2 mb-3">
-                                        <ChevronRight size={14} className="text-green-500" /> Từ khóa liên quan
+                                    <h4 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+                                        <ChevronRight size={14} strokeWidth={1.25} className="text-stone-400" /> Từ khóa liên quan
                                     </h4>
                                     <div className="flex flex-wrap gap-2">
                                         {sidebarContent.keywords.map((kw, i) => (
-                                            <span key={i} className="bg-white border border-slate-200 px-2 py-1 rounded-md text-xs text-slate-600 font-medium cursor-pointer hover:border-indigo-300 hover:text-indigo-600 transition-colors" onClick={() => copyToClipboard(kw)}>
+                                            <span
+                                                key={i}
+                                                className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-stone-200 bg-white px-2.5 py-1 text-xs font-medium text-stone-600 transition-colors hover:border-stone-400 hover:text-stone-900"
+                                                onClick={() => copyToClipboard(kw)}
+                                            >
                                                 #{kw}
                                             </span>
                                         ))}
@@ -607,8 +637,8 @@ const MindmapGeneratorContent: React.FC = () => {
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-10 text-slate-400">
-                                <p className="text-sm">Chọn một node và bấm nút "Brainstorm" để xem phân tích chi tiết.</p>
+                            <div className="py-10 text-center text-sm text-stone-400">
+                                <p>Chọn một node và bấm nút &ldquo;Brainstorm&rdquo; để xem phân tích chi tiết.</p>
                             </div>
                         )}
                     </div>
@@ -617,24 +647,42 @@ const MindmapGeneratorContent: React.FC = () => {
 
             {/* Load Modal */}
             {showLoadModal && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in border border-slate-100 flex flex-col max-h-[80vh]">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                            <h3 className="text-xl font-bold text-slate-800">Mở Sơ đồ đã lưu</h3>
-                            <button onClick={() => setShowLoadModal(false)} className="text-slate-400 hover:text-slate-700 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm">
+                    <div className="flex w-full max-w-lg flex-col rounded-2xl border border-stone-200/90 bg-white shadow-2xl max-h-[80vh]">
+                        <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/50 px-6 py-4">
+                            <h3 className="text-base font-semibold text-stone-900">Mở sơ đồ đã lưu</h3>
+                            <button
+                                type="button"
+                                onClick={() => setShowLoadModal(false)}
+                                className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-stone-200 hover:text-stone-700"
+                            >
+                                <X size={18} strokeWidth={1.25} />
+                            </button>
                         </div>
-                        <div className="p-6 overflow-y-auto space-y-3 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-5 space-y-2">
                             {savedProjects.length === 0 ? (
-                                <div className="text-center py-10 text-slate-400">Chưa có sơ đồ nào được lưu.</div>
+                                <div className="py-10 text-center text-sm font-normal text-stone-400">Chưa có sơ đồ nào được lưu.</div>
                             ) : (
                                 savedProjects.map(p => (
-                                    <div key={p.id} onClick={() => handleLoadProject(p)} className="p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 cursor-pointer transition-all flex justify-between items-center group">
+                                    <div
+                                        key={p.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleLoadProject(p)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleLoadProject(p)}
+                                        className="group flex items-start justify-between gap-3 rounded-2xl border border-stone-200/90 p-4 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                    >
                                         <div>
-                                            <div className="font-bold text-slate-800">{p.name}</div>
-                                            <div className="text-xs text-slate-400 mt-1">{new Date(p.updatedAt).toLocaleDateString('vi-VN')} • {p.nodes.length} nodes</div>
+                                            <p className="font-semibold text-stone-900">{p.name}</p>
+                                            <p className="mt-0.5 text-xs text-stone-400">{new Date(p.updatedAt).toLocaleDateString('vi-VN')} &bull; {p.nodes.length} nodes</p>
                                         </div>
-                                        <button onClick={(e) => handleDeleteProject(e, p.id)} className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Trash2 size={16} />
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleDeleteProject(e, p.id)}
+                                            className="shrink-0 rounded-lg p-2 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                            aria-label="Xóa"
+                                        >
+                                            <Trash2 size={16} strokeWidth={1.25} />
                                         </button>
                                     </div>
                                 ))
@@ -655,6 +703,6 @@ const MindmapGenerator: React.FC = () => {
             <MindmapGeneratorContent />
         </ReactFlowProvider>
     );
-}
+};
 
 export default MindmapGenerator;

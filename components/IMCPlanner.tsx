@@ -258,23 +258,9 @@ const IMCPlanner: React.FC = () => {
         }
     };
 
-    const getPhaseColor = (phase: string) => {
-        switch (phase) {
-            case 'AWARE': return 'from-blue-500 to-cyan-500';
-            case 'TRIGGER': return 'from-orange-500 to-amber-500';
-            case 'CONVERT': return 'from-green-500 to-emerald-500';
-            default: return 'from-slate-500 to-slate-600';
-        }
-    };
+    const getPhaseColor = (_phase: string) => 'bg-stone-900';
 
-    const getPhaseBgColor = (phase: string) => {
-        switch (phase) {
-            case 'AWARE': return 'bg-blue-50 border-blue-200';
-            case 'TRIGGER': return 'bg-orange-50 border-orange-200';
-            case 'CONVERT': return 'bg-green-50 border-green-200';
-            default: return 'bg-slate-50 border-slate-200';
-        }
-    };
+    const getPhaseBgColor = (_phase: string) => 'bg-white border-stone-200/90';
 
     // Toggle expand/collapse for phase details
     const togglePhaseExpand = (index: number) => {
@@ -306,96 +292,120 @@ const IMCPlanner: React.FC = () => {
         };
     };
 
+    const cardClass =
+        'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
     return (
         <>
-            <div className="min-h-screen bg-slate-50 p-8">
-                <div className="max-w-7xl mx-auto">
-                    {/* Header */}
-                    <div className="mb-8 flex justify-between items-start">
-                        <div>
-                            <h1 className="text-4xl font-bold text-slate-800 flex items-center gap-3">
-                                <Lightbulb className="text-indigo-600" />
+            <div className="min-h-full border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-10 md:px-10">
+                <div className="mx-auto max-w-7xl">
+                    {/* Header — Editorial Minimalism */}
+                    <header className="mb-10 flex flex-col gap-6 md:mb-12 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="max-w-2xl">
+                            <div className="mb-4 flex items-center gap-3 text-stone-400">
+                                <Lightbulb size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                    Lập kế hoạch IMC
+                                </span>
+                            </div>
+                            <h1 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
                                 IMC Planner V2
                             </h1>
-                            <p className="text-slate-500 mt-2">
-                                Strategic Framework: 3 Lớp Mục tiêu → 3 Giai đoạn Thực thi
+                            <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                                Strategic Framework: 3 lớp mục tiêu → 3 giai đoạn thực thi.
                             </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex shrink-0 flex-wrap gap-2">
                             <button
+                                type="button"
                                 onClick={handleResetForm}
-                                className={`px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all ${viewMode === 'create'
-                                    ? 'bg-indigo-600 text-white shadow-sm'
-                                    : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-300'
+                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${viewMode === 'create'
+                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
                                     }`}
                             >
-                                <Plus size={18} />
+                                <Plus size={17} strokeWidth={1.25} />
                                 Tạo mới
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setViewMode('history')}
-                                className={`px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all ${viewMode === 'history'
-                                    ? 'bg-indigo-600 text-white shadow-sm'
-                                    : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-300'
+                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${viewMode === 'history'
+                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
                                     }`}
                             >
-                                <History size={18} />
+                                <History size={17} strokeWidth={1.25} />
                                 Lịch sử ({savedPlans.length})
                             </button>
                         </div>
-                    </div>
+                    </header>
 
                     {/* History View */}
                     {viewMode === 'history' ? (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                            <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                <History size={24} className="text-indigo-600" />
+                        <div className={`${cardClass} p-6 md:p-8`}>
+                            <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
                                 Lịch sử chiến lược ({savedPlans.length})
                             </h2>
 
                             {loading ? (
-                                <div className="text-center py-12">
-                                    <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                                <div className="py-16 text-center">
+                                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-800" />
                                 </div>
                             ) : savedPlans.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <Sparkles size={48} className="mx-auto text-slate-300 mb-4" />
-                                    <p className="text-lg font-medium text-slate-600">Chưa có chiến lược nào</p>
-                                    <button onClick={handleResetForm} className="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-xl">
-                                        <Plus size={18} className="inline mr-2" /> Tạo mới
+                                <div className="py-16 text-center">
+                                    <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                                    <p className="text-base font-normal text-stone-600">Chưa có chiến lược nào</p>
+                                    <button
+                                        type="button"
+                                        onClick={handleResetForm}
+                                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+                                    >
+                                        <Plus size={17} strokeWidth={1.25} /> Tạo mới
                                     </button>
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                                    {savedPlans.map(plan => (
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    {savedPlans.map((plan) => (
                                         <div
                                             key={plan.id}
-                                            className="p-5 rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all"
+                                            role="button"
+                                            tabIndex={0}
+                                            className="cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
                                             onClick={() => handleViewPlan(plan)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleViewPlan(plan)}
                                         >
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex-1">
-                                                    <h3 className="font-bold text-slate-800 line-clamp-1">{plan.campaign_name}</h3>
-                                                    <p className="text-sm text-slate-500 mt-1">{plan.brand} • {plan.industry}</p>
+                                            <div className="mb-3 flex items-start justify-between gap-2">
+                                                <div className="min-w-0 flex-1">
+                                                    <h3 className="line-clamp-1 font-medium text-stone-900">{plan.campaign_name}</h3>
+                                                    <p className="mt-1 text-sm font-normal text-stone-500">
+                                                        {plan.brand} • {plan.industry}
+                                                    </p>
                                                 </div>
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); handleDelete(plan.id); }}
-                                                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDelete(plan.id);
+                                                    }}
+                                                    className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                                    aria-label="Xóa"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={16} strokeWidth={1.25} />
                                                 </button>
                                             </div>
-                                            <div className="flex items-center gap-3 text-xs text-slate-500">
+                                            <div className="flex items-center gap-3 text-xs font-normal text-stone-500">
                                                 <span className="flex items-center gap-1">
-                                                    <DollarSign size={12} />
+                                                    <DollarSign size={12} strokeWidth={1.25} />
                                                     {(plan.total_budget / 1_000_000).toFixed(0)}M
                                                 </span>
                                                 <span className="flex items-center gap-1">
-                                                    <Calendar size={12} />
+                                                    <Calendar size={12} strokeWidth={1.25} />
                                                     {plan.timeline_weeks} tuần
                                                 </span>
                                             </div>
-                                            <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-400">
+                                            <div className="mt-3 border-t border-stone-100 pt-3 text-xs font-normal text-stone-400">
                                                 {new Date(plan.created_at).toLocaleDateString('vi-VN')}
                                             </div>
                                         </div>
@@ -406,38 +416,40 @@ const IMCPlanner: React.FC = () => {
 
                     ) : viewMode === 'detail' && currentPlan ? (
                         /* Detail View - Strategic Triangle */
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                             {/* Top Actions Bar */}
-                            <div className="flex justify-between items-center">
+                            <div className="flex items-center justify-between gap-4">
                                 <button
+                                    type="button"
                                     onClick={handleResetForm}
-                                    className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors"
+                                    className="inline-flex items-center gap-2 text-sm font-medium text-stone-600 transition-colors hover:text-stone-900"
                                 >
-                                    <ArrowLeft size={20} />
+                                    <ArrowLeft size={18} strokeWidth={1.25} />
                                     Quay lại
                                 </button>
 
                                 <button
+                                    type="button"
                                     onClick={handleSave}
                                     disabled={saving || saved}
-                                    className={`px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all ${saved
-                                        ? 'bg-green-100 text-green-700 border border-green-300'
-                                        : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm'
-                                        } disabled:opacity-70 disabled:cursor-not-allowed`}
+                                    className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60 ${saved
+                                        ? 'border border-stone-200 bg-stone-100 text-stone-800'
+                                        : 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                                        }`}
                                 >
                                     {saving ? (
                                         <>
-                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                                             Đang lưu...
                                         </>
                                     ) : saved ? (
                                         <>
-                                            <Check size={18} />
+                                            <Check size={17} strokeWidth={1.25} />
                                             Đã lưu
                                         </>
                                     ) : (
                                         <>
-                                            <Save size={18} />
+                                            <Save size={17} strokeWidth={1.25} />
                                             Lưu vào Database
                                         </>
                                     )}
@@ -445,25 +457,33 @@ const IMCPlanner: React.FC = () => {
                             </div>
 
                             {/* Campaign Header */}
-                            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-6">
-                                <h2 className="text-3xl font-bold mb-2">{currentPlan.campaign_name}</h2>
-                                <div className="flex items-center gap-4 text-white/80">
+                            <div className={`${cardClass} p-6 md:p-8`}>
+                                <h2 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                                    {currentPlan.campaign_name}
+                                </h2>
+                                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-stone-500">
                                     <span>{currentPlan.brand}</span>
-                                    <span>•</span>
+                                    <span className="text-stone-300" aria-hidden>
+                                        •
+                                    </span>
                                     <span>{currentPlan.product}</span>
-                                    <span>•</span>
-                                    <span className="flex items-center gap-1"><Building2 size={14} /> {currentPlan.industry}</span>
+                                    <span className="text-stone-300" aria-hidden>
+                                        •
+                                    </span>
+                                    <span className="inline-flex items-center gap-1">
+                                        <Building2 size={14} strokeWidth={1.25} /> {currentPlan.industry}
+                                    </span>
                                 </div>
                             </div>
 
                             {/* Validation Warnings */}
                             {currentPlan.validation_warnings && currentPlan.validation_warnings.length > 0 && (
-                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                                    <div className="flex items-center gap-2 text-amber-700 font-medium mb-2">
-                                        <AlertTriangle size={18} />
+                                <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-5">
+                                    <div className="mb-2 flex items-center gap-2 text-sm font-medium text-amber-900">
+                                        <AlertTriangle size={17} strokeWidth={1.25} />
                                         Golden Thread Warnings
                                     </div>
-                                    <ul className="space-y-1 text-sm text-amber-600">
+                                    <ul className="space-y-1 text-sm font-normal text-amber-800/90">
                                         {currentPlan.validation_warnings.map((warning, i) => (
                                             <li key={i}>{warning}</li>
                                         ))}
@@ -472,70 +492,78 @@ const IMCPlanner: React.FC = () => {
                             )}
 
                             {/* Strategic Foundation - 3 Cards */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Target size={20} className="text-indigo-600" />
-                                    Strategic Foundation (Kim chỉ nam)
+                            <div className={`${cardClass} p-6 md:p-8`}>
+                                <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Target size={20} strokeWidth={1.25} className="text-stone-400" />
+                                    Strategic Foundation <span className="font-normal text-stone-400">(Kim chỉ nam)</span>
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {/* Business Objective */}
-                                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
-                                        <div className="flex items-center gap-2 text-emerald-700 font-bold mb-2">
-                                            <DollarSign size={18} />
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <div className="rounded-2xl border border-stone-200/90 bg-stone-50/60 p-5">
+                                        <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                                            <DollarSign size={16} strokeWidth={1.25} />
                                             Business Objective
                                         </div>
-                                        <p className="text-sm text-emerald-800">{currentPlan.strategic_foundation.business_obj}</p>
+                                        <p className="text-sm font-normal leading-relaxed text-stone-800">
+                                            {currentPlan.strategic_foundation.business_obj}
+                                        </p>
                                     </div>
-                                    {/* Marketing Objective */}
-                                    <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                                        <div className="flex items-center gap-2 text-blue-700 font-bold mb-2">
-                                            <TrendingUp size={18} />
+                                    <div className="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                        <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                                            <TrendingUp size={16} strokeWidth={1.25} />
                                             Marketing Objective
                                         </div>
-                                        <p className="text-sm text-blue-800">{currentPlan.strategic_foundation.marketing_obj}</p>
+                                        <p className="text-sm font-normal leading-relaxed text-stone-800">
+                                            {currentPlan.strategic_foundation.marketing_obj}
+                                        </p>
                                     </div>
-                                    {/* Communication Objective */}
-                                    <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
-                                        <div className="flex items-center gap-2 text-purple-700 font-bold mb-2">
-                                            <Megaphone size={18} />
+                                    <div className="rounded-2xl border border-stone-200/90 bg-stone-50/60 p-5">
+                                        <div className="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-500">
+                                            <Megaphone size={16} strokeWidth={1.25} />
                                             Communication Objective
                                         </div>
-                                        <p className="text-sm text-purple-800">{currentPlan.strategic_foundation.communication_obj}</p>
+                                        <p className="text-sm font-normal leading-relaxed text-stone-800">
+                                            {currentPlan.strategic_foundation.communication_obj}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Execution Table - 3 Phases */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                    <Zap size={20} className="text-indigo-600" />
-                                    Execution Model (3 Giai đoạn)
+                            <div className={`${cardClass} p-6 md:p-8`}>
+                                <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Zap size={20} strokeWidth={1.25} className="text-stone-400" />
+                                    Execution Model <span className="font-normal text-stone-400">(3 giai đoạn)</span>
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {currentPlan.imc_execution.map((phase, index) => (
                                         <div key={index} className={`rounded-xl border ${getPhaseBgColor(phase.phase)}`}>
                                             <div className="p-5">
                                                 {/* Phase Header */}
-                                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r ${getPhaseColor(phase.phase)} text-white font-bold text-sm mb-4`}>
+                                                <div
+                                                    className={`mb-4 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-white ${getPhaseColor(phase.phase)}`}
+                                                >
                                                     {getPhaseIcon(phase.phase)}
                                                     {phase.phase}
                                                 </div>
 
                                                 {/* Objective */}
-                                                <p className="text-xs text-slate-500 mb-2">{phase.objective_detail}</p>
+                                                <p className="mb-2 text-xs font-normal text-stone-500">{phase.objective_detail}</p>
 
                                                 {/* Key Hook */}
                                                 <div className="mb-4">
-                                                    <div className="text-xs font-medium text-slate-500 mb-1">Key Hook:</div>
-                                                    <p className="text-sm font-bold text-slate-800 italic">"{phase.key_hook}"</p>
+                                                    <div className="mb-1 text-xs font-medium text-stone-500">Key Hook:</div>
+                                                    <p className="text-sm font-medium italic text-stone-900">&ldquo;{phase.key_hook}&rdquo;</p>
                                                 </div>
 
                                                 {/* Channels */}
                                                 <div className="mb-4">
-                                                    <div className="text-xs font-medium text-slate-500 mb-2">Channels:</div>
+                                                    <div className="mb-2 text-xs font-medium text-stone-500">Channels:</div>
                                                     <div className="flex flex-wrap gap-1">
                                                         {phase.channels.map((ch, i) => (
-                                                            <span key={i} className="px-2 py-0.5 bg-white rounded text-xs text-slate-700 border">
+                                                            <span
+                                                                key={i}
+                                                                className="rounded border border-stone-200 bg-stone-50/80 px-2 py-0.5 text-xs font-normal text-stone-700"
+                                                            >
                                                                 {ch}
                                                             </span>
                                                         ))}
@@ -544,29 +572,30 @@ const IMCPlanner: React.FC = () => {
 
                                                 {/* Budget */}
                                                 <div className="mb-3">
-                                                    <div className="flex justify-between text-xs mb-1">
-                                                        <span className="text-slate-500">Budget</span>
-                                                        <span className="font-bold text-slate-700">{phase.budget_allocation}</span>
+                                                    <div className="mb-1 flex justify-between text-xs">
+                                                        <span className="text-stone-500">Budget</span>
+                                                        <span className="font-medium text-stone-800">{phase.budget_allocation}</span>
                                                     </div>
-                                                    <div className="h-2 bg-white rounded-full overflow-hidden">
+                                                    <div className="h-2 overflow-hidden rounded-full bg-stone-100">
                                                         <div
-                                                            className={`h-full bg-gradient-to-r ${getPhaseColor(phase.phase)}`}
+                                                            className={`h-full ${getPhaseColor(phase.phase)}`}
                                                             style={{ width: phase.budget_allocation }}
-                                                        ></div>
+                                                        />
                                                     </div>
                                                 </div>
 
                                                 {/* KPI */}
-                                                <div className="p-2 bg-white rounded-lg border mb-3">
-                                                    <div className="text-xs text-slate-500">{phase.kpis.metric}</div>
-                                                    <div className="text-sm font-bold text-slate-800">{phase.kpis.target}</div>
+                                                <div className="mb-3 rounded-lg border border-stone-100 bg-stone-50/50 p-2">
+                                                    <div className="text-xs text-stone-500">{phase.kpis.metric}</div>
+                                                    <div className="text-sm font-medium text-stone-900">{phase.kpis.target}</div>
                                                 </div>
 
                                                 {/* Expand Button */}
                                                 {phase.execution_details && (
                                                     <button
+                                                        type="button"
                                                         onClick={() => togglePhaseExpand(index)}
-                                                        className="w-full py-2 px-3 bg-white rounded-lg border text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors"
+                                                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
                                                     >
                                                         {expandedPhases.has(index) ? (
                                                             <>
@@ -585,65 +614,65 @@ const IMCPlanner: React.FC = () => {
 
                                             {/* Expanded Details Panel */}
                                             {phase.execution_details && expandedPhases.has(index) && (
-                                                <div className="border-t border-slate-200 bg-white/80 p-4 rounded-b-xl">
-                                                    {/* Timeline */}
+                                                <div className="rounded-b-xl border-t border-stone-100 bg-stone-50/40 p-4">
                                                     <div className="mb-4">
-                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 mb-2">
-                                                            <Calendar size={14} />
+                                                        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-stone-800">
+                                                            <Calendar size={14} strokeWidth={1.25} />
                                                             Tuần triển khai
                                                         </div>
-                                                        <div className="text-sm font-medium text-indigo-600">
+                                                        <div className="text-sm font-medium text-stone-900">
                                                             {phase.execution_details.week_range}
                                                         </div>
                                                     </div>
 
-                                                    {/* Budget Split */}
                                                     <div className="mb-4">
-                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 mb-2">
-                                                            <DollarSign size={14} />
+                                                        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-stone-800">
+                                                            <DollarSign size={14} strokeWidth={1.25} />
                                                             Phân bổ ngân sách
                                                         </div>
                                                         <div className="grid grid-cols-2 gap-2">
-                                                            <div className="p-2 bg-amber-50 rounded-lg border border-amber-200">
-                                                                <div className="text-xs text-amber-600">Production</div>
-                                                                <div className="text-sm font-bold text-amber-700">
+                                                            <div className="rounded-lg border border-stone-200 bg-white p-2">
+                                                                <div className="text-xs text-stone-500">Production</div>
+                                                                <div className="text-sm font-medium text-stone-900">
                                                                     {formatVND(phase.execution_details.budget_split.production)} VND
                                                                 </div>
-                                                                <div className="text-xs text-amber-500">
+                                                                <div className="text-xs text-stone-400">
                                                                     {phase.execution_details.budget_split.production_percent}
                                                                 </div>
                                                             </div>
-                                                            <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                                                <div className="text-xs text-blue-600">Media</div>
-                                                                <div className="text-sm font-bold text-blue-700">
+                                                            <div className="rounded-lg border border-stone-200 bg-white p-2">
+                                                                <div className="text-xs text-stone-500">Media</div>
+                                                                <div className="text-sm font-medium text-stone-900">
                                                                     {formatVND(phase.execution_details.budget_split.media)} VND
                                                                 </div>
-                                                                <div className="text-xs text-blue-500">
+                                                                <div className="text-xs text-stone-400">
                                                                     {phase.execution_details.budget_split.media_percent}
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Content Items */}
                                                     <div>
-                                                        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 mb-2">
-                                                            <Package size={14} />
+                                                        <div className="mb-2 flex items-center gap-2 text-xs font-medium text-stone-800">
+                                                            <Package size={14} strokeWidth={1.25} />
                                                             Hạng mục cần làm
                                                         </div>
                                                         <div className="space-y-2">
                                                             {phase.execution_details.content_items.map((item, i) => (
-                                                                <div key={i} className="flex items-center justify-between p-2 bg-slate-50 rounded-lg text-xs">
+                                                                <div
+                                                                    key={i}
+                                                                    className="flex items-center justify-between rounded-lg border border-stone-100 bg-white p-2 text-xs"
+                                                                >
                                                                     <div className="flex items-center gap-2">
-                                                                        <span className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold">
+                                                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-stone-100 text-xs font-medium text-stone-800">
                                                                             {item.quantity}
                                                                         </span>
-                                                                        <span className="text-slate-700">{item.type}</span>
+                                                                        <span className="text-stone-700">{item.type}</span>
                                                                     </div>
                                                                     <div className="text-right">
-                                                                        <span className="text-slate-600">{item.estimated_cost}</span>
+                                                                        <span className="text-stone-600">{item.estimated_cost}</span>
                                                                         {item.notes && (
-                                                                            <div className="text-xs text-slate-400 italic">{item.notes}</div>
+                                                                            <div className="text-xs italic text-stone-400">{item.notes}</div>
                                                                         )}
                                                                     </div>
                                                                 </div>
@@ -657,201 +686,238 @@ const IMCPlanner: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Aggregation Bar */}
-                            <div className="bg-slate-800 text-white rounded-xl p-4 flex justify-around items-center">
+                            <div className="flex items-center justify-around rounded-2xl border border-stone-800 bg-stone-900 p-6 text-white shadow-[0_1px_2px_rgba(15,23,42,0.08)]">
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{calculateAggregation(currentPlan).totalBudget}</div>
-                                    <div className="text-xs text-slate-400">Tổng ngân sách</div>
+                                    <div className="text-2xl font-normal tracking-tight">
+                                        {calculateAggregation(currentPlan).totalBudget}
+                                    </div>
+                                    <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-400">
+                                        Tổng ngân sách
+                                    </div>
                                 </div>
-                                <div className="h-8 w-px bg-slate-600"></div>
+                                <div className="h-8 w-px bg-stone-600" aria-hidden />
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{calculateAggregation(currentPlan).phases}</div>
-                                    <div className="text-xs text-slate-400">Giai đoạn</div>
+                                    <div className="text-2xl font-normal tracking-tight">
+                                        {calculateAggregation(currentPlan).phases}
+                                    </div>
+                                    <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-400">
+                                        Giai đoạn
+                                    </div>
                                 </div>
-                                <div className="h-8 w-px bg-slate-600"></div>
+                                <div className="h-8 w-px bg-stone-600" aria-hidden />
                                 <div className="text-center">
-                                    <div className="text-2xl font-bold">{calculateAggregation(currentPlan).timeline}</div>
-                                    <div className="text-xs text-slate-400">Thời gian</div>
+                                    <div className="text-2xl font-normal tracking-tight">
+                                        {calculateAggregation(currentPlan).timeline}
+                                    </div>
+                                    <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] text-stone-400">
+                                        Thời gian
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                     ) : (
                         /* Create View - Form with Planning Modes */
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            {/* Left: Input Form */}
-                            <div className="space-y-6">
-                                {/* Planning Mode Toggle */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <Scale size={20} className="text-indigo-600" />
-                                        Chế độ Lập kế hoạch
+                        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
+                            <div className="space-y-8">
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h2 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <Scale size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                        Chế độ lập kế hoạch
                                     </h2>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {PLANNING_MODES.map(mode => (
+                                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                        {PLANNING_MODES.map((mode) => (
                                             <button
                                                 key={mode.value}
+                                                type="button"
                                                 onClick={() => setPlanningMode(mode.value)}
-                                                className={`p-3 rounded-xl border-2 transition-all text-left ${planningMode === mode.value
-                                                    ? 'border-indigo-500 bg-indigo-50'
-                                                    : 'border-slate-200 hover:border-slate-300'
+                                                className={`rounded-2xl border p-4 text-left transition-all ${planningMode === mode.value
+                                                    ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200'
+                                                    : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
                                                     }`}
                                             >
-                                                <mode.icon size={20} className={planningMode === mode.value ? 'text-indigo-600' : 'text-slate-400'} />
-                                                <div className="font-medium text-sm mt-2">{mode.label}</div>
-                                                <div className="text-xs text-slate-500 mt-1">{mode.desc}</div>
+                                                <mode.icon
+                                                    size={20}
+                                                    strokeWidth={1.25}
+                                                    className={planningMode === mode.value ? 'text-stone-800' : 'text-stone-400'}
+                                                />
+                                                <div className="mt-2 text-sm font-medium text-stone-900">{mode.label}</div>
+                                                <div className="mt-1 text-xs font-normal leading-relaxed text-stone-500">{mode.desc}</div>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Basic Info */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <Briefcase size={20} className="text-indigo-600" />
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h2 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <Briefcase size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
                                         Thông tin cơ bản
                                     </h2>
                                     <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">Thương hiệu *</label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Thương hiệu *</label>
                                                 <input
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: Coca-Cola"
                                                     value={brand}
-                                                    onChange={e => setBrand(e.target.value)}
+                                                    onChange={(e) => setBrand(e.target.value)}
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">Sản phẩm *</label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Sản phẩm *</label>
                                                 <input
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: Nước ngọt có gas"
                                                     value={product}
-                                                    onChange={e => setProduct(e.target.value)}
+                                                    onChange={(e) => setProduct(e.target.value)}
                                                 />
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">Ngành hàng *</label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Ngành hàng *</label>
                                                 <select
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     value={industry}
-                                                    onChange={e => setIndustry(e.target.value)}
+                                                    onChange={(e) => setIndustry(e.target.value)}
                                                 >
-                                                    {INDUSTRIES.map(ind => (
-                                                        <option key={ind.value} value={ind.value}>{ind.label}</option>
+                                                    {INDUSTRIES.map((ind) => (
+                                                        <option key={ind.value} value={ind.value}>
+                                                            {ind.label}
+                                                        </option>
                                                     ))}
                                                 </select>
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">Giá sản phẩm (AOV) *</label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Giá sản phẩm (AOV) *</label>
                                                 <input
                                                     type="number"
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: 50000"
                                                     value={productPrice}
-                                                    onChange={e => setProductPrice(e.target.value)}
+                                                    onChange={(e) => setProductPrice(e.target.value)}
                                                 />
-                                                <p className="text-xs text-slate-400 mt-1">Giá trung bình mỗi đơn hàng</p>
+                                                <p className="mt-1 text-xs font-normal text-stone-400">Giá trung bình mỗi đơn hàng</p>
                                             </div>
                                         </div>
 
-                                        {/* Campaign Focus Toggle */}
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">Mục tiêu chiến dịch</label>
-                                            <div className="grid grid-cols-2 gap-2">
+                                            <label className="mb-2 block text-sm font-medium text-stone-800">Mục tiêu chiến dịch</label>
+                                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                                 <button
+                                                    type="button"
                                                     onClick={() => setCampaignFocus('BRANDING')}
-                                                    className={`p-3 rounded-xl border-2 text-sm font-medium ${campaignFocus === 'BRANDING'
-                                                        ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                                        : 'border-slate-200 text-slate-600'
+                                                    className={`rounded-2xl border p-3 text-left text-sm font-medium transition-all ${campaignFocus === 'BRANDING'
+                                                        ? 'border-stone-900 bg-stone-50 text-stone-900 ring-1 ring-stone-200'
+                                                        : 'border-stone-200 text-stone-600 hover:border-stone-300'
                                                         }`}
                                                 >
-                                                    🎨 Branding / Awareness
+                                                    Branding / Awareness
                                                 </button>
                                                 <button
+                                                    type="button"
                                                     onClick={() => setCampaignFocus('CONVERSION')}
-                                                    className={`p-3 rounded-xl border-2 text-sm font-medium ${campaignFocus === 'CONVERSION'
-                                                        ? 'border-green-500 bg-green-50 text-green-700'
-                                                        : 'border-slate-200 text-slate-600'
+                                                    className={`rounded-2xl border p-3 text-left text-sm font-medium transition-all ${campaignFocus === 'CONVERSION'
+                                                        ? 'border-stone-900 bg-stone-50 text-stone-900 ring-1 ring-stone-200'
+                                                        : 'border-stone-200 text-stone-600 hover:border-stone-300'
                                                         }`}
                                                 >
-                                                    💰 Sales / Conversion
+                                                    Sales / Conversion
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Asset Checklist */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <Package size={20} className="text-indigo-600" />
-                                        Asset Checklist
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h2 className="mb-2 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <Package size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                        Asset checklist
                                     </h2>
-                                    <p className="text-xs text-slate-500 mb-4">Điều chỉnh channels dựa trên tài sản hiện có</p>
+                                    <p className="mb-6 text-xs font-normal text-stone-500">
+                                        Điều chỉnh kênh dựa trên tài sản hiện có
+                                    </p>
 
-                                    <div className="space-y-3">
-                                        {/* Website Toggle */}
-                                        <label className="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                                    <div className="space-y-2">
+                                        <div className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-stone-50/60 p-3 transition-colors hover:bg-stone-50">
                                             <div className="flex items-center gap-3">
-                                                <Monitor size={18} className={hasWebsite ? 'text-green-600' : 'text-slate-400'} />
+                                                <Monitor
+                                                    size={18}
+                                                    strokeWidth={1.25}
+                                                    className={hasWebsite ? 'text-stone-800' : 'text-stone-400'}
+                                                />
                                                 <div>
-                                                    <div className="text-sm font-medium">Website</div>
-                                                    <div className="text-xs text-slate-500">Bật Remarketing, Google Ads</div>
+                                                    <div className="text-sm font-medium text-stone-900">Website</div>
+                                                    <div className="text-xs font-normal text-stone-500">Remarketing, Google Ads</div>
                                                 </div>
                                             </div>
                                             <button
+                                                type="button"
                                                 onClick={() => setHasWebsite(!hasWebsite)}
-                                                className={`w-12 h-6 rounded-full transition-colors ${hasWebsite ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                                className={`relative h-6 w-12 rounded-full transition-colors ${hasWebsite ? 'bg-stone-800' : 'bg-stone-300'}`}
+                                                aria-pressed={hasWebsite}
                                             >
-                                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${hasWebsite ? 'right-1' : 'left-1'}`} />
+                                                <span
+                                                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${hasWebsite ? 'right-1' : 'left-1'}`}
+                                                />
                                             </button>
-                                        </label>
+                                        </div>
 
-                                        {/* Customer List Toggle */}
-                                        <label className="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                                        <div className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-stone-50/60 p-3 transition-colors hover:bg-stone-50">
                                             <div className="flex items-center gap-3">
-                                                <Database size={18} className={hasCustomerList ? 'text-green-600' : 'text-slate-400'} />
+                                                <Database
+                                                    size={18}
+                                                    strokeWidth={1.25}
+                                                    className={hasCustomerList ? 'text-stone-800' : 'text-stone-400'}
+                                                />
                                                 <div>
-                                                    <div className="text-sm font-medium">Customer List</div>
-                                                    <div className="text-xs text-slate-500">Bật CRM, Email, SMS, Zalo</div>
+                                                    <div className="text-sm font-medium text-stone-900">Customer list</div>
+                                                    <div className="text-xs font-normal text-stone-500">CRM, Email, SMS, Zalo</div>
                                                 </div>
                                             </div>
                                             <button
+                                                type="button"
                                                 onClick={() => setHasCustomerList(!hasCustomerList)}
-                                                className={`w-12 h-6 rounded-full transition-colors ${hasCustomerList ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                                className={`relative h-6 w-12 rounded-full transition-colors ${hasCustomerList ? 'bg-stone-800' : 'bg-stone-300'}`}
+                                                aria-pressed={hasCustomerList}
                                             >
-                                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${hasCustomerList ? 'right-1' : 'left-1'}`} />
+                                                <span
+                                                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${hasCustomerList ? 'right-1' : 'left-1'}`}
+                                                />
                                             </button>
-                                        </label>
+                                        </div>
 
-                                        {/* Creative Assets Toggle */}
-                                        <label className="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                                        <div className="flex cursor-pointer items-center justify-between rounded-xl border border-stone-100 bg-stone-50/60 p-3 transition-colors hover:bg-stone-50">
                                             <div className="flex items-center gap-3">
-                                                <Image size={18} className={hasCreativeAssets ? 'text-green-600' : 'text-slate-400'} />
+                                                <Image
+                                                    size={18}
+                                                    strokeWidth={1.25}
+                                                    className={hasCreativeAssets ? 'text-stone-800' : 'text-stone-400'}
+                                                />
                                                 <div>
-                                                    <div className="text-sm font-medium">Creative Assets</div>
-                                                    <div className="text-xs text-slate-500">Có Video/Ảnh sẵn</div>
+                                                    <div className="text-sm font-medium text-stone-900">Creative assets</div>
+                                                    <div className="text-xs font-normal text-stone-500">Video / ảnh sẵn có</div>
                                                 </div>
                                             </div>
                                             <button
+                                                type="button"
                                                 onClick={() => setHasCreativeAssets(!hasCreativeAssets)}
-                                                className={`w-12 h-6 rounded-full transition-colors ${hasCreativeAssets ? 'bg-green-500' : 'bg-slate-300'} relative`}
+                                                className={`relative h-6 w-12 rounded-full transition-colors ${hasCreativeAssets ? 'bg-stone-800' : 'bg-stone-300'}`}
+                                                aria-pressed={hasCreativeAssets}
                                             >
-                                                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${hasCreativeAssets ? 'right-1' : 'left-1'}`} />
+                                                <span
+                                                    className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${hasCreativeAssets ? 'right-1' : 'left-1'}`}
+                                                />
                                             </button>
-                                        </label>
+                                        </div>
                                     </div>
 
-                                    {/* Disabled channels warning */}
                                     {budgetDistribution && budgetDistribution.disabled_channels.length > 0 && (
-                                        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                            <div className="text-xs font-medium text-amber-800 mb-1">Channels bị tắt:</div>
-                                            <ul className="text-xs text-amber-700 space-y-1">
+                                        <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50/70 p-3">
+                                            <div className="mb-1 text-xs font-medium text-amber-900">Kênh bị tắt:</div>
+                                            <ul className="space-y-1 text-xs font-normal text-amber-800/90">
                                                 {budgetDistribution.disabled_channels.map((ch, i) => (
                                                     <li key={i}>• {ch}</li>
                                                 ))}
@@ -860,61 +926,56 @@ const IMCPlanner: React.FC = () => {
                                     )}
                                 </div>
 
-                                {/* Financial Inputs - Dynamic based on Planning Mode */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                    <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <DollarSign size={20} className="text-indigo-600" />
-                                        {planningMode === 'BUDGET_DRIVEN' ? 'Ngân sách' :
-                                            planningMode === 'GOAL_DRIVEN' ? 'Mục tiêu Doanh thu' : 'Kiểm tra Khả thi'}
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h2 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <DollarSign size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                        {planningMode === 'BUDGET_DRIVEN'
+                                            ? 'Ngân sách'
+                                            : planningMode === 'GOAL_DRIVEN'
+                                              ? 'Mục tiêu doanh thu'
+                                              : 'Kiểm tra khả thi'}
                                     </h2>
                                     <div className="space-y-4">
-                                        {/* Budget Input - for BUDGET_DRIVEN and AUDIT */}
                                         {(planningMode === 'BUDGET_DRIVEN' || planningMode === 'AUDIT') && (
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                                    💰 Ngân sách (VNĐ) *
-                                                </label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Ngân sách (VNĐ) *</label>
                                                 <input
                                                     type="number"
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: 100000000"
                                                     value={budget}
-                                                    onChange={e => setBudget(e.target.value)}
+                                                    onChange={(e) => setBudget(e.target.value)}
                                                 />
-                                                <p className="text-xs text-slate-400 mt-1">Tối thiểu 20 triệu VND</p>
+                                                <p className="mt-1 text-xs font-normal text-stone-400">Tối thiểu 20 triệu VND</p>
                                             </div>
                                         )}
 
-                                        {/* Revenue Target - for GOAL_DRIVEN and AUDIT */}
                                         {(planningMode === 'GOAL_DRIVEN' || planningMode === 'AUDIT') && (
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-2">
-                                                    🎯 Mục tiêu Doanh thu (VNĐ) *
-                                                </label>
+                                                <label className="mb-2 block text-sm font-medium text-stone-800">Mục tiêu doanh thu (VNĐ) *</label>
                                                 <input
                                                     type="number"
-                                                    className="w-full p-3 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: 500000000"
                                                     value={revenueTarget}
-                                                    onChange={e => setRevenueTarget(e.target.value)}
+                                                    onChange={(e) => setRevenueTarget(e.target.value)}
                                                 />
                                             </div>
                                         )}
 
-                                        {/* Timeline */}
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 mb-2">
-                                                📅 Thời gian: {timeline} tuần
+                                            <label className="mb-2 block text-sm font-medium text-stone-800">
+                                                Thời gian: {timeline} tuần
                                             </label>
                                             <input
                                                 type="range"
                                                 min="4"
                                                 max="24"
                                                 value={timeline}
-                                                onChange={e => setTimeline(parseInt(e.target.value))}
-                                                className="w-full"
+                                                onChange={(e) => setTimeline(parseInt(e.target.value, 10))}
+                                                className="w-full accent-stone-800"
                                             />
-                                            <div className="flex justify-between text-xs text-slate-400">
+                                            <div className="flex justify-between text-xs font-normal text-stone-400">
                                                 <span>4 tuần</span>
                                                 <span>24 tuần</span>
                                             </div>
@@ -922,159 +983,165 @@ const IMCPlanner: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* Generate Button */}
                                 <button
+                                    type="button"
                                     onClick={handleGenerate}
                                     disabled={generating}
-                                    className="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     {generating ? (
                                         <>
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                                             Đang tạo chiến lược...
                                         </>
                                     ) : (
                                         <>
-                                            <Sparkles size={20} />
+                                            <Sparkles size={19} strokeWidth={1.25} />
                                             Generate Strategic IMC
                                         </>
                                     )}
                                 </button>
                             </div>
 
-                            {/* Right: Preview/Instructions */}
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                                <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                    <Lightbulb size={20} className="text-amber-500" />
-                                    {previewMetrics ? 'Ước tính Hiệu suất' : 'Strategic Framework'}
+                            <div className={`${cardClass} h-fit p-6 md:p-8`}>
+                                <h2 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Lightbulb size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                    {previewMetrics ? 'Ước tính hiệu suất' : 'Strategic Framework'}
                                 </h2>
 
                                 {previewMetrics ? (
-                                    /* Live Preview Metrics */
-                                    <div className="space-y-4">
-                                        {/* Feasibility Status */}
-                                        <div className={`p-4 rounded-xl border ${previewMetrics.feasibility.risk_level === 'LOW' ? 'bg-green-50 border-green-200' :
-                                            previewMetrics.feasibility.risk_level === 'MEDIUM' ? 'bg-amber-50 border-amber-200' :
-                                                previewMetrics.feasibility.risk_level === 'HIGH' ? 'bg-orange-50 border-orange-200' :
-                                                    'bg-red-50 border-red-200'
-                                            }`}>
-                                            <div className="text-sm font-medium">{previewMetrics.feasibility.warning_message}</div>
+                                    <div className="space-y-5">
+                                        <div
+                                            className={`rounded-2xl border p-4 ${previewMetrics.feasibility.risk_level === 'LOW'
+                                                ? 'border-stone-200 bg-stone-50/80'
+                                                : previewMetrics.feasibility.risk_level === 'MEDIUM'
+                                                  ? 'border-amber-100 bg-amber-50/70'
+                                                  : previewMetrics.feasibility.risk_level === 'HIGH'
+                                                    ? 'border-orange-100 bg-orange-50/70'
+                                                    : 'border-rose-100 bg-rose-50/70'
+                                                }`}
+                                        >
+                                            <div className="text-sm font-medium text-stone-900">
+                                                {previewMetrics.feasibility.warning_message}
+                                            </div>
                                             {previewMetrics.feasibility.recommendation && (
-                                                <p className="text-xs mt-2 text-slate-600">{previewMetrics.feasibility.recommendation}</p>
+                                                <p className="mt-2 text-xs font-normal text-stone-600">
+                                                    {previewMetrics.feasibility.recommendation}
+                                                </p>
                                             )}
                                         </div>
 
-                                        {/* Key Metrics Grid */}
                                         <div className="grid grid-cols-2 gap-3">
-                                            <div className="p-3 bg-slate-50 rounded-xl text-center">
-                                                <div className="text-xs text-slate-500">Tổng ngân sách</div>
-                                                <div className="text-lg font-bold text-slate-800">
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50/60 p-3 text-center">
+                                                <div className="text-xs font-normal text-stone-500">Tổng ngân sách</div>
+                                                <div className="text-lg font-medium text-stone-900">
                                                     {IMCService.formatVND(previewMetrics.total_budget)}
                                                 </div>
                                             </div>
-                                            <div className="p-3 bg-slate-50 rounded-xl text-center">
-                                                <div className="text-xs text-slate-500">Media Spend</div>
-                                                <div className="text-lg font-bold text-blue-600">
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50/60 p-3 text-center">
+                                                <div className="text-xs font-normal text-stone-500">Media spend</div>
+                                                <div className="text-lg font-medium text-stone-900">
                                                     {IMCService.formatVND(previewMetrics.media_spend)}
                                                 </div>
                                             </div>
-                                            <div className="p-3 bg-slate-50 rounded-xl text-center">
-                                                <div className="text-xs text-slate-500">Est. Traffic</div>
-                                                <div className="text-lg font-bold text-indigo-600">
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50/60 p-3 text-center">
+                                                <div className="text-xs font-normal text-stone-500">Est. traffic</div>
+                                                <div className="text-lg font-medium text-stone-900">
                                                     {previewMetrics.estimated_traffic.toLocaleString()}
                                                 </div>
                                             </div>
-                                            <div className="p-3 bg-slate-50 rounded-xl text-center">
-                                                <div className="text-xs text-slate-500">Est. Orders</div>
-                                                <div className="text-lg font-bold text-purple-600">
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50/60 p-3 text-center">
+                                                <div className="text-xs font-normal text-stone-500">Est. orders</div>
+                                                <div className="text-lg font-medium text-stone-900">
                                                     {previewMetrics.estimated_orders.toLocaleString()}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Revenue & ROAS */}
-                                        <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-200">
-                                            <div className="flex justify-between items-center">
+                                        <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                            <div className="flex items-center justify-between gap-4">
                                                 <div>
-                                                    <div className="text-xs text-indigo-600">Est. Revenue</div>
-                                                    <div className="text-xl font-bold text-indigo-700">
+                                                    <div className="text-xs font-normal text-stone-500">Est. revenue</div>
+                                                    <div className="text-xl font-medium text-stone-900">
                                                         {IMCService.formatVND(previewMetrics.estimated_revenue)}
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-xs text-indigo-600">ROAS</div>
-                                                    <div className={`text-2xl font-bold ${previewMetrics.implied_roas >= 3 ? 'text-green-600' :
-                                                        previewMetrics.implied_roas >= 2 ? 'text-amber-600' :
-                                                            'text-red-600'
-                                                        }`}>
+                                                    <div className="text-xs font-normal text-stone-500">ROAS</div>
+                                                    <div
+                                                        className={`text-2xl font-medium ${previewMetrics.implied_roas >= 3
+                                                            ? 'text-stone-900'
+                                                            : previewMetrics.implied_roas >= 2
+                                                              ? 'text-stone-600'
+                                                              : 'text-stone-500'
+                                                            }`}
+                                                    >
                                                         {previewMetrics.implied_roas.toFixed(1)}x
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Benchmarks */}
-                                        <div className="p-3 bg-slate-100 rounded-lg text-xs text-slate-500">
-                                            <div className="font-medium text-slate-700 mb-1">Industry Benchmarks:</div>
+                                        <div className="rounded-xl border border-stone-100 bg-stone-50/50 p-3 text-xs font-normal text-stone-600">
+                                            <div className="mb-1 font-medium text-stone-800">Industry benchmarks</div>
                                             <div>• CPC: 4,000 VND | CR: {campaignFocus === 'CONVERSION' ? '2%' : '1%'}</div>
                                             <div>• Target ROAS: {campaignFocus === 'CONVERSION' ? '3.0x' : '1.5x'}</div>
                                         </div>
 
                                         {/* Budget Distribution Breakdown */}
                                         {budgetDistribution && (
-                                            <div className="mt-4 space-y-3">
-                                                <div className="text-sm font-bold text-slate-700">💰 Budget Split</div>
+                                            <div className="mt-2 space-y-4">
+                                                <div className="text-sm font-medium text-stone-800">Budget split</div>
 
-                                                {/* Stacked Bar */}
-                                                <div className="h-6 rounded-lg overflow-hidden flex">
+                                                <div className="flex h-6 overflow-hidden rounded-lg">
                                                     <div
-                                                        className="bg-purple-500 flex items-center justify-center text-white text-xs font-bold"
+                                                        className="flex items-center justify-center bg-stone-700 text-xs font-medium text-white"
                                                         style={{ width: `${budgetDistribution.production_ratio * 100}%` }}
                                                     >
                                                         {Math.round(budgetDistribution.production_ratio * 100)}%
                                                     </div>
                                                     <div
-                                                        className="bg-blue-500 flex items-center justify-center text-white text-xs font-bold"
+                                                        className="flex items-center justify-center bg-stone-400 text-xs font-medium text-white"
                                                         style={{ width: `${(1 - budgetDistribution.production_ratio) * 100}%` }}
                                                     >
                                                         {Math.round((1 - budgetDistribution.production_ratio) * 100)}%
                                                     </div>
                                                 </div>
-                                                <div className="flex justify-between text-xs text-slate-500">
-                                                    <span>🎨 Production: {IMCService.formatVND(budgetDistribution.production_budget)}</span>
-                                                    <span>📺 Media: {IMCService.formatVND(budgetDistribution.media_budget)}</span>
+                                                <div className="flex justify-between text-xs font-normal text-stone-500">
+                                                    <span>Production: {IMCService.formatVND(budgetDistribution.production_budget)}</span>
+                                                    <span>Media: {IMCService.formatVND(budgetDistribution.media_budget)}</span>
                                                 </div>
 
-                                                {/* Channel Breakdown */}
-                                                <div className="text-sm font-bold text-slate-700 mt-4">📊 Channel Allocation</div>
-                                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                                <div className="text-sm font-medium text-stone-800">Channel allocation</div>
+                                                <div className="custom-scrollbar max-h-64 space-y-2 overflow-y-auto">
                                                     {budgetDistribution.channels.map((ch, i) => (
                                                         <div
                                                             key={i}
-                                                            className={`p-3 rounded-lg border text-xs ${ch.warning ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'
+                                                            className={`rounded-xl border p-3 text-xs ${ch.warning ? 'border-amber-100 bg-amber-50/60' : 'border-stone-100 bg-stone-50/50'
                                                                 }`}
                                                         >
-                                                            <div className="flex justify-between items-start mb-2">
-                                                                <div className="font-medium text-slate-800">{ch.channel_name}</div>
-                                                                <div className="text-right">
-                                                                    <div className="font-bold text-indigo-600">{IMCService.formatVND(ch.total_allocation)}</div>
+                                                            <div className="mb-2 flex items-start justify-between gap-2">
+                                                                <div className="font-medium text-stone-900">{ch.channel_name}</div>
+                                                                <div className="text-right font-medium text-stone-900">
+                                                                    {IMCService.formatVND(ch.total_allocation)}
                                                                 </div>
                                                             </div>
-                                                            <div className="flex gap-2 mb-2">
-                                                                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+                                                            <div className="mb-2 flex flex-wrap gap-2">
+                                                                <span className="rounded border border-stone-200 bg-white px-2 py-0.5 text-stone-700">
                                                                     Media: {IMCService.formatVND(ch.media_spend)}
                                                                 </span>
-                                                                <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded">
+                                                                <span className="rounded border border-stone-200 bg-white px-2 py-0.5 text-stone-700">
                                                                     Sản xuất: {IMCService.formatVND(ch.production_cost)}
                                                                 </span>
                                                             </div>
-                                                            <div className="text-slate-600 mb-1">
-                                                                Est. {ch.estimated_kpi.metric}: <strong>{ch.estimated_kpi.value.toLocaleString()}</strong>
+                                                            <div className="mb-1 text-stone-600">
+                                                                Est. {ch.estimated_kpi.metric}:{' '}
+                                                                <strong className="text-stone-900">{ch.estimated_kpi.value.toLocaleString()}</strong>
                                                                 {ch.estimated_kpi.unit_cost > 0 && ` @ ${IMCService.formatVND(ch.estimated_kpi.unit_cost)}`}
                                                             </div>
-                                                            <div className="text-indigo-600 italic">{ch.action_item}</div>
+                                                            <div className="italic text-stone-600">{ch.action_item}</div>
                                                             {ch.warning && (
-                                                                <div className="mt-1 text-amber-700 font-medium">{ch.warning}</div>
+                                                                <div className="mt-1 font-medium text-amber-900">{ch.warning}</div>
                                                             )}
                                                         </div>
                                                     ))}
@@ -1083,25 +1150,32 @@ const IMCPlanner: React.FC = () => {
                                         )}
                                     </div>
                                 ) : (
-                                    /* Default Instructions */
-                                    <div className="space-y-4 text-sm text-slate-600">
-                                        <div className="p-4 bg-slate-50 rounded-xl">
-                                            <h4 className="font-bold text-slate-800 mb-2">📊 Nhập Giá sản phẩm</h4>
-                                            <p className="text-xs">Điền giá sản phẩm (AOV) để xem ước tính hiệu suất realtime.</p>
+                                    <div className="space-y-4 text-sm font-normal text-stone-600">
+                                        <div className="rounded-2xl border border-stone-100 bg-stone-50/60 p-5">
+                                            <h4 className="mb-2 font-medium text-stone-900">Nhập giá sản phẩm</h4>
+                                            <p className="text-xs leading-relaxed">
+                                                Điền giá sản phẩm (AOV) để xem ước tính hiệu suất theo thời gian thực.
+                                            </p>
                                         </div>
 
-                                        <div className="p-4 bg-slate-50 rounded-xl">
-                                            <h4 className="font-bold text-slate-800 mb-2">🎯 3 Chế độ Lập kế hoạch</h4>
-                                            <ul className="mt-2 space-y-1 text-xs">
-                                                <li><span className="font-medium text-indigo-600">Budget-Driven:</span> Có ngân sách → Ước tính doanh thu</li>
-                                                <li><span className="font-medium text-indigo-600">Goal-Driven:</span> Có mục tiêu → Tính ngân sách cần</li>
-                                                <li><span className="font-medium text-indigo-600">Audit:</span> Nhập cả hai → Đánh giá khả thi</li>
+                                        <div className="rounded-2xl border border-stone-100 bg-stone-50/60 p-5">
+                                            <h4 className="mb-2 font-medium text-stone-900">Ba chế độ lập kế hoạch</h4>
+                                            <ul className="mt-2 space-y-2 text-xs leading-relaxed">
+                                                <li>
+                                                    <span className="font-medium text-stone-900">Budget-driven:</span> Có ngân sách → ước tính doanh thu.
+                                                </li>
+                                                <li>
+                                                    <span className="font-medium text-stone-900">Goal-driven:</span> Có mục tiêu → tính ngân sách cần.
+                                                </li>
+                                                <li>
+                                                    <span className="font-medium text-stone-900">Audit:</span> Nhập cả hai → đánh giá khả thi.
+                                                </li>
                                             </ul>
                                         </div>
 
-                                        <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
-                                            <h4 className="font-bold text-amber-800 mb-2">⚠️ Feasibility Check</h4>
-                                            <p className="text-amber-700 text-xs">
+                                        <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-5">
+                                            <h4 className="mb-2 font-medium text-amber-950">Feasibility check</h4>
+                                            <p className="text-xs leading-relaxed text-amber-900/90">
                                                 Hệ thống sẽ cảnh báo nếu ROAS mục tiêu không khả thi (&gt;8x).
                                             </p>
                                         </div>

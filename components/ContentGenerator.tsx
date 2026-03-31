@@ -7,13 +7,19 @@ import { Toast, ToastType } from './Toast';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 
+const cardClass =
+  'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+  'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
 const PLATFORMS = [
-  { id: 'facebook', label: 'Facebook', icon: Facebook, color: 'text-blue-600', bg: 'bg-blue-50' },
-  { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'text-pink-600', bg: 'bg-pink-50' },
-  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, color: 'text-blue-700', bg: 'bg-blue-50' },
-  { id: 'threads', label: 'Threads', icon: AtSign, color: 'text-black', bg: 'bg-stone-100' },
-  { id: 'tiktok', label: 'TikTok', icon: Video, color: 'text-black', bg: 'bg-stone-100' },
-  { id: 'seo', label: 'SEO Web', icon: Search, color: 'text-green-600', bg: 'bg-green-50' },
+  { id: 'facebook', label: 'Facebook', icon: Facebook },
+  { id: 'instagram', label: 'Instagram', icon: Instagram },
+  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin },
+  { id: 'threads', label: 'Threads', icon: AtSign },
+  { id: 'tiktok', label: 'TikTok', icon: Video },
+  { id: 'seo', label: 'SEO Web', icon: Search },
 ];
 
 interface ContentGeneratorProps {
@@ -21,7 +27,6 @@ interface ContentGeneratorProps {
 }
 
 const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
-  // --- Context ---
   const { currentBrand } = useBrand();
 
   const [sampleContent, setSampleContent] = useState('');
@@ -30,13 +35,11 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
   const [results, setResults] = useState<Record<string, any>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Manual Mode State
   const [useManualMode, setUseManualMode] = useState(false);
   const [manualBrandName, setManualBrandName] = useState('');
   const [manualTone, setManualTone] = useState('');
   const [manualAudience, setManualAudience] = useState('');
 
-  // History States
   const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<ContentHistoryRecord[]>([]);
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
@@ -51,16 +54,14 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
     loadHistory();
   }, [showHistory]);
 
-  // Handle Initial Data injection
   useEffect(() => {
     if (initialData) {
-      let content = "";
+      let content = '';
       if (initialData.topic) content += `TOPIC: ${initialData.topic} \n`;
       if (initialData.context) content += `\nCONTEXT: \n${initialData.context} `;
 
       if (content) {
         setSampleContent(content);
-        // Optionally select a default platform if none selected
         if (selectedPlatforms.length === 0) {
           setSelectedPlatforms(['facebook']);
         }
@@ -69,8 +70,8 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
   }, [initialData]);
 
   const togglePlatform = (id: string) => {
-    setSelectedPlatforms(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+    setSelectedPlatforms((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
     );
   };
 
@@ -78,72 +79,67 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
     if (selectedPlatforms.length === PLATFORMS.length) {
       setSelectedPlatforms([]);
     } else {
-      setSelectedPlatforms(PLATFORMS.map(p => p.id));
+      setSelectedPlatforms(PLATFORMS.map((p) => p.id));
     }
   };
 
   const handleGenerate = async () => {
-    if (!sampleContent.trim() || selectedPlatforms.length === 0) return;
-
-    // Validation for Manual Mode
-    if (useManualMode && (!manualBrandName.trim() || !manualTone.trim())) {
-      alert("Vui lòng nhập Tên thương hiệu và Giọng văn khi dùng chế độ thủ công.");
+    if (!sampleContent.trim() || selectedPlatforms.length === 0) {
+      setToast({ message: 'Vui lòng nhập nội dung và chọn ít nhất một nền tảng.', type: 'error' });
       return;
     }
-    // Validation for Brand Mode
+
+    if (useManualMode && (!manualBrandName.trim() || !manualTone.trim())) {
+      setToast({ message: 'Vui lòng nhập Tên thương hiệu và Giọng văn khi dùng chế độ thủ công.', type: 'error' });
+      return;
+    }
     if (!useManualMode && !currentBrand) {
-      alert("Vui lòng chọn Brand Vault hoặc chuyển sang chế độ thủ công.");
+      setToast({ message: 'Vui lòng chọn Brand từ Vault hoặc chuyển sang chế độ thủ công.', type: 'error' });
       return;
     }
 
     setIsGenerating(true);
-    setResults({}); // Clear previous results
+    setResults({});
 
-    // Prepare Context Prompt based on Mode
-    let contextPrompt = "";
+    let contextPrompt = '';
 
     if (useManualMode) {
-      // MANUAL MODE PROMPT
       contextPrompt = `
         BRAND GUIDELINES(MANUAL INPUT):
 - Brand Name: ${manualBrandName}
 - Tone of Voice: ${manualTone}
-- Target Audience: ${manualAudience || "General Audience"}
+- Target Audience: ${manualAudience || 'General Audience'}
         
-        Ensure the generated content aligns perfectly with this ad - hoc brand identity.
+        Ensure the generated content aligns perfectly with this ad-hoc brand identity.
         `;
     } else if (currentBrand) {
-      // BRAND VAULT MODE PROMPT
       contextPrompt = `
         BRAND GUIDELINES(STRICTLY FOLLOW):
 - Brand Name: ${currentBrand.identity.name}
-- Tone of Voice: ${currentBrand.strategy.toneOfVoice || "Professional yet engaging"}
-- Target Audience: ${currentBrand.audience.demographics || "General Audience"}
-- Core Values: ${currentBrand.strategy.coreValues || "Quality, Innovation"}
+- Tone of Voice: ${currentBrand.strategy.toneOfVoice || 'Professional yet engaging'}
+- Target Audience: ${currentBrand.audience.demographics || 'General Audience'}
+- Core Values: ${currentBrand.strategy.coreValues || 'Quality, Innovation'}
 - Mission: ${currentBrand.strategy.mission}
         
         Ensure the generated content aligns perfectly with this brand identity.
         `;
     }
 
-    // Combine original content with brand context
     const fullPrompt = `${contextPrompt} \n\nORIGINAL CONTENT / TOPIC: \n"${sampleContent}"`;
 
     try {
-      // We pass the enhanced prompt to the service
       const generatedData = await generateMultiPlatformContent(fullPrompt, selectedPlatforms);
       setResults(generatedData);
 
-      // Auto-save to history
       const newRecord: ContentHistoryRecord = {
         id: Date.now().toString(),
         timestamp: Date.now(),
         originalContent: sampleContent,
         selectedPlatforms: selectedPlatforms,
-        results: generatedData
+        results: generatedData,
       };
       await ContentGeneratorService.addContentHistory(newRecord);
-
+      setToast({ message: 'Đã tạo content!', type: 'success' });
     } catch (e) {
       setToast({ message: 'Có lỗi xảy ra khi tạo content!', type: 'error' });
     } finally {
@@ -156,14 +152,15 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
     setSelectedPlatforms(record.selectedPlatforms);
     setResults(record.results);
     setShowHistory(false);
+    setToast({ message: 'Đã tải bản ghi.', type: 'success' });
   };
 
   const handleDeleteHistory = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    if (confirm("Xóa lịch sử này?")) {
+    if (confirm('Xóa lịch sử này?')) {
       const success = await ContentGeneratorService.deleteContentHistory(id);
       if (success) {
-        setHistory(prev => prev.filter(h => h.id !== id));
+        setHistory((prev) => prev.filter((h) => h.id !== id));
         setToast({ message: 'Đã xóa!', type: 'success' });
       }
     }
@@ -180,7 +177,7 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
       timestamp: Date.now(),
       originalContent: sampleContent,
       selectedPlatforms: selectedPlatforms,
-      results: results
+      results: results,
     };
 
     const success = await ContentGeneratorService.addContentHistory(newRecord);
@@ -192,12 +189,11 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
   };
 
   const handleCopy = (content: any, id: string) => {
-    let textToCopy = "";
+    let textToCopy = '';
 
     if (typeof content === 'string') {
       textToCopy = content;
     } else if (typeof content === 'object' && content !== null) {
-      // Format object content (like SEO) into a readable string
       const parts = [];
       if (content.title_tag) parts.push(`Title: ${content.title_tag} `);
       if (content.meta_description) parts.push(`Meta Description: ${content.meta_description} `);
@@ -216,313 +212,142 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto pt-10 px-4 pb-20">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 border-b border-slate-100 pb-6">
-        <div className="flex-1">
-          <h2 className="text-3xl font-bold flex items-center gap-3 text-slate-800 mb-3">
-            <PenTool className="text-slate-700" strokeWidth={1.5} />
-            Viết Content Đa Nền Tảng
-          </h2>
-
-          {/* Context Indicator */}
-          <div className="flex items-center gap-2">
+    <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+      <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+        <div className="max-w-2xl">
+          <div className="mb-2 flex items-center gap-2 text-stone-400">
+            <PenTool size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">Omnichannel Content</span>
+          </div>
+          <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">Viết Content Đa Nền Tảng</h1>
+          <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+            Tối ưu nội dung theo từng kênh, gắn với Brand Vault hoặc nhập thủ công.
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {!useManualMode && currentBrand && (
-              <div className="text-sm text-indigo-600 font-medium flex items-center gap-1 bg-indigo-50 px-3 py-1 rounded-lg">
-                <Sparkles size={14} /> Brand: {currentBrand.identity.name}
-              </div>
+              <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50/80 px-3 py-1 text-xs font-medium text-stone-700">
+                <Sparkles size={12} strokeWidth={1.25} /> Brand: {currentBrand.identity.name}
+              </span>
             )}
             {useManualMode && (
-              <div className="text-sm text-slate-600 font-medium flex items-center gap-1 bg-slate-100 px-3 py-1 rounded-lg">
-                <Edit3 size={14} /> Chế độ Thủ công
-              </div>
+              <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-white px-3 py-1 text-xs font-medium text-stone-600">
+                <Edit3 size={12} strokeWidth={1.25} /> Chế độ thủ công
+              </span>
             )}
           </div>
         </div>
 
-        {/* Actions Container */}
-        <div className="flex flex-col gap-3">
-          {/* Mode Toggle */}
-          <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex shrink-0 flex-col gap-3 md:items-end">
+          <div className="grid w-full max-w-[360px] grid-cols-2 gap-2 rounded-2xl border border-stone-200 bg-stone-50/50 p-1">
             <button
+              type="button"
               onClick={() => setUseManualMode(false)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${!useManualMode ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-all ${
+                !useManualMode
+                  ? 'bg-white font-semibold text-stone-900 shadow-[0_1px_2px_rgba(15,23,42,0.08)] ring-1 ring-stone-200'
+                  : 'font-medium text-stone-500 hover:bg-white hover:text-stone-700'
+              }`}
             >
-              <ShieldCheck size={16} /> Brand Vault
+              <ShieldCheck size={16} strokeWidth={1.25} /> Brand Vault
             </button>
             <button
+              type="button"
               onClick={() => setUseManualMode(true)}
-              className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${useManualMode ? 'bg-slate-100 text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm transition-all ${
+                useManualMode
+                  ? 'bg-white font-semibold text-stone-900 shadow-[0_1px_2px_rgba(15,23,42,0.08)] ring-1 ring-stone-200'
+                  : 'font-medium text-stone-500 hover:bg-white hover:text-stone-700'
+              }`}
             >
-              <Edit3 size={16} /> Thủ công
+              <Edit3 size={16} strokeWidth={1.25} /> Thủ công
             </button>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${
+                showHistory
+                  ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                  : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+              }`}
+            >
+              <History size={17} strokeWidth={1.25} /> Lịch sử
+            </button>
             {Object.keys(results).length > 0 && (
               <button
+                type="button"
                 onClick={handleSaveManual}
-                className="group bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-emerald-200 shadow-sm hover:shadow-md flex items-center gap-2 text-sm font-bold transition-all"
+                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
               >
-                <Save size={16} className="group-hover:scale-110 transition-transform" />
-                Lưu
+                <Save size={17} strokeWidth={1.25} /> Lưu
               </button>
             )}
-
-            <button
-              onClick={() => setShowHistory(true)}
-              className="group bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-4 py-2.5 rounded-xl border border-slate-200 hover:border-blue-200 shadow-sm hover:shadow-md flex items-center gap-2 text-sm font-bold transition-all"
-            >
-              <History size={16} className="group-hover:scale-110 transition-transform" />
-              Lịch sử
-            </button>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-        {/* Input Section */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
-
-          {/* 1. Context Setup (Dynamic based on Mode) */}
-          <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100 animate-in fade-in slide-in-from-left-4">
-            <label className="block text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide border-b border-slate-100 pb-2">
-              1. Thiết lập Ngữ cảnh
-            </label>
-
-            {useManualMode ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Tên Thương hiệu</label>
-                  <input
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500"
-                    placeholder="VD: OptiMKT..."
-                    value={manualBrandName}
-                    onChange={e => setManualBrandName(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Giọng văn (Tone of Voice)</label>
-                  <input
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500"
-                    placeholder="VD: Chuyên nghiệp, Hài hước..."
-                    value={manualTone}
-                    onChange={e => setManualTone(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">Đối tượng (Audience)</label>
-                  <input
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500"
-                    placeholder="VD: GenZ, Nhân viên văn phòng..."
-                    value={manualAudience}
-                    onChange={e => setManualAudience(e.target.value)}
-                  />
-                </div>
+      <div
+        className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
+        style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,420px) 1fr' : 'minmax(0,420px) 1fr' }}
+      >
+        {showHistory && (
+          <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+            <div className="border-b border-stone-100 px-5 py-4">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
+                  <Clock size={18} strokeWidth={1.25} className="text-stone-400" />
+                  Lịch sử
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowHistory(false)}
+                  className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                  aria-label="Đóng"
+                >
+                  <X size={18} strokeWidth={1.25} />
+                </button>
               </div>
-            ) : (
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-2">Chọn Brand từ Vault</label>
-                <BrandSelector />
-                {!currentBrand && <p className="text-xs text-red-500 mt-2">Vui lòng chọn Brand để tiếp tục.</p>}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100">
-            <label className="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
-              2. Nhập Content Mẫu / Ý tưởng
-            </label>
-            <textarea
-              className="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 min-h-[150px] resize-y text-slate-800 transition-all"
-              placeholder="Paste bài viết gốc, link sản phẩm, hoặc ý tưởng chính của bạn vào đây..."
-              value={sampleContent}
-              onChange={(e) => setSampleContent(e.target.value)}
-            />
-          </div>
-
-          <div className="bg-white p-6 rounded-3xl shadow-soft border border-slate-100">
-            <div className="flex justify-between items-center mb-4">
-              <label className="block text-sm font-bold text-slate-700 uppercase tracking-wide">
-                3. Chọn Nền Tảng
-              </label>
-              <button
-                onClick={toggleSelectAll}
-                className="text-sm font-medium flex items-center gap-2 hover:bg-slate-100 px-2 py-1 rounded transition-colors text-slate-600"
-              >
-                {selectedPlatforms.length === PLATFORMS.length ? <CheckSquare size={16} strokeWidth={1.5} className="text-indigo-600" /> : <Square size={16} strokeWidth={1.5} />}
-                <span>Chọn tất cả</span>
-              </button>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {PLATFORMS.map(platform => {
-                const isSelected = selectedPlatforms.includes(platform.id);
-                const Icon = platform.icon;
-                return (
-                  <button
-                    key={platform.id}
-                    onClick={() => togglePlatform(platform.id)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left font-medium text-sm
-                      ${isSelected
-                        ? 'border-indigo-500 bg-indigo-600 text-white shadow-md shadow-indigo-200'
-                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white hover:border-slate-300 hover:shadow-sm'
-                      }`}
-                  >
-                    <Icon size={20} strokeWidth={1.5} className={isSelected ? 'text-white' : platform.color} />
-                    <span>{platform.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || !sampleContent || selectedPlatforms.length === 0}
-            className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 transition-all shadow-[0_4px_14px_0_rgba(79,70,229,0.3)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.4)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 disabled:shadow-none"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="animate-spin" size={24} strokeWidth={1.5} /> Đang viết content...
-              </>
-            ) : (
-              <>
-                <Sparkles size={24} strokeWidth={1.5} /> Tạo Content Ngay
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Output Section */}
-        <div className="lg:col-span-7">
-          <label className="block text-sm font-bold text-slate-700 mb-4 uppercase tracking-wide">
-            4. Kết Quả
-          </label>
-
-          <div className="space-y-6">
-            {Object.keys(results).length === 0 && !isGenerating && (
-              <div className="p-12 text-center border-2 border-dashed border-slate-200 rounded-3xl text-slate-400 bg-white/50">
-                Nhập nội dung và chọn nền tảng để bắt đầu.
-              </div>
-            )}
-
-            {isGenerating && (
-              <div className="p-12 text-center">
-                <div className="inline-block animate-bounce mb-2">
-                  <Sparkles size={32} className="text-yellow-400" strokeWidth={1.5} />
-                </div>
-                <p className="text-slate-500 font-medium">AI đang suy nghĩ và tối ưu hóa cho từng nền tảng...</p>
-              </div>
-            )}
-
-            {PLATFORMS.map(p => {
-              const content = results[p.id];
-              if (!content) return null;
-
-              return (
-                <div key={p.id} className="bg-white rounded-3xl border border-slate-100 shadow-soft overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
-                  <div className={`px - 4 py - 3 border - b border - slate - 100 flex justify - between items - center ${p.bg} `}>
-                    <div className="flex items-center gap-2 font-bold text-slate-800">
-                      <p.icon size={18} strokeWidth={1.5} className={p.color} />
-                      {p.label}
-                    </div>
-                    <button
-                      onClick={() => handleCopy(content, p.id)}
-                      className="flex items-center gap-1 text-xs font-bold uppercase px-3 py-1.5 bg-white rounded-lg border border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-colors shadow-sm"
-                    >
-                      {copiedId === p.id ? <Check size={14} strokeWidth={1.5} className="text-green-600" /> : <Copy size={14} strokeWidth={1.5} />}
-                      {copiedId === p.id ? 'Đã copy' : 'Copy'}
-                    </button>
-                  </div>
-
-                  <div className="p-6 text-slate-700 leading-relaxed">
-                    {typeof content === 'string' ? (
-                      <div className="whitespace-pre-wrap">{content}</div>
-                    ) : (
-                      /* Handle Object Rendering (e.g., SEO structure) */
-                      <div className="space-y-4">
-                        {content.title_tag && (
-                          <div>
-                            <div className="text-[10px] font-bold uppercase text-slate-400 mb-1">Title Tag</div>
-                            <div className="font-bold text-lg bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-800">{content.title_tag}</div>
-                          </div>
-                        )}
-                        {content.meta_description && (
-                          <div>
-                            <div className="text-[10px] font-bold uppercase text-slate-400 mb-1">Meta Description</div>
-                            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-600">{content.meta_description}</div>
-                          </div>
-                        )}
-                        {content.paragraph && (
-                          <div>
-                            <div className="text-[10px] font-bold uppercase text-slate-400 mb-1">Optimized Content</div>
-                            <div className="whitespace-pre-wrap">{content.paragraph}</div>
-                          </div>
-                        )}
-                        {/* Fallback for unknown object structure */}
-                        {!content.title_tag && !content.meta_description && !content.paragraph && (
-                          <pre className="text-xs bg-slate-50 p-2 rounded">{JSON.stringify(content, null, 2)}</pre>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* History Modal */}
-      {showHistory && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl border border-slate-100">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-slate-800">Lịch sử tạo content</h3>
-              <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-700">
-                <X size={24} strokeWidth={1.5} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
               {history.length === 0 ? (
-                <p className="text-center text-slate-400 py-10">Chưa có lịch sử.</p>
+                <div className="py-10 text-center text-sm font-normal text-stone-400">Chưa có lịch sử.</div>
               ) : (
                 history.map((record) => (
                   <div
                     key={record.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleLoadHistory(record)}
-                    className="group p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-white hover:shadow-md cursor-pointer transition-all"
+                    onKeyDown={(e) => e.key === 'Enter' && handleLoadHistory(record)}
+                    className="group cursor-pointer rounded-2xl border border-stone-200/90 p-3 transition-all hover:border-stone-300 hover:bg-stone-50/50"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2 text-xs text-slate-400">
-                        <Clock size={14} strokeWidth={1.5} />
-                        <span>{new Date(record.timestamp).toLocaleString('vi-VN')}</span>
-                      </div>
+                    <div className="mb-2 flex items-start justify-between gap-2">
+                      <p className="line-clamp-2 text-sm font-medium text-stone-900">{record.originalContent}</p>
                       <button
+                        type="button"
                         onClick={(e) => handleDeleteHistory(e, record.id)}
-                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                        className="shrink-0 rounded-lg p-1.5 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                        aria-label="Xóa"
                       >
-                        <Trash2 size={16} strokeWidth={1.5} />
+                        <Trash2 size={14} strokeWidth={1.25} />
                       </button>
                     </div>
-
-                    <div className="mb-3">
-                      <p className="font-medium text-slate-800 line-clamp-2">{record.originalContent}</p>
-                    </div>
-
-                    <div className="flex gap-2 flex-wrap">
-                      {record.selectedPlatforms.map(pId => {
-                        const p = PLATFORMS.find(pl => pl.id === pId);
+                    <p className="mb-2 text-xs text-stone-400">{new Date(record.timestamp).toLocaleString('vi-VN')}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {record.selectedPlatforms.map((pId) => {
+                        const p = PLATFORMS.find((pl) => pl.id === pId);
                         if (!p) return null;
                         const Icon = p.icon;
                         return (
-                          <div key={pId} className={`flex items - center gap - 1 text - [10px] font - bold uppercase px - 2 py - 1 rounded - md border ${p.bg} ${p.color} border - transparent`}>
-                            <Icon size={12} strokeWidth={1.5} /> {p.label}
-                          </div>
-                        )
+                          <span
+                            key={pId}
+                            className="inline-flex items-center gap-1 rounded-md border border-stone-200 bg-stone-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-600"
+                          >
+                            <Icon size={12} strokeWidth={1.25} /> {p.label}
+                          </span>
+                        );
                       })}
                     </div>
                   </div>
@@ -530,8 +355,215 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
               )}
             </div>
           </div>
+        )}
+
+        <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+          <h2 className="mb-6 text-lg font-medium tracking-tight text-stone-900">Thông tin & nền tảng</h2>
+
+          <div className="space-y-8">
+            <section>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">1. Thiết lập ngữ cảnh</h3>
+              {useManualMode ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Tên thương hiệu</label>
+                    <input
+                      className={inputClass}
+                      placeholder="VD: OptiMKT..."
+                      value={manualBrandName}
+                      onChange={(e) => setManualBrandName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Giọng văn (Tone)</label>
+                    <input
+                      className={inputClass}
+                      placeholder="VD: Chuyên nghiệp, Hài hước..."
+                      value={manualTone}
+                      onChange={(e) => setManualTone(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Đối tượng</label>
+                    <input
+                      className={inputClass}
+                      placeholder="VD: Gen Z, nhân viên văn phòng..."
+                      value={manualAudience}
+                      onChange={(e) => setManualAudience(e.target.value)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-stone-500">Chọn Brand từ Vault</label>
+                  <BrandSelector />
+                  {!currentBrand && (
+                    <p className="mt-2 text-xs font-medium text-rose-600">Vui lòng chọn Brand để tiếp tục.</p>
+                  )}
+                </div>
+              )}
+            </section>
+
+            <section className="border-t border-stone-100 pt-8">
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">2. Nội dung mẫu / ý tưởng</h3>
+              <textarea
+                className={`${inputClass} min-h-[150px] resize-y`}
+                placeholder="Paste bài viết gốc, link sản phẩm, hoặc ý tưởng chính của bạn vào đây..."
+                value={sampleContent}
+                onChange={(e) => setSampleContent(e.target.value)}
+              />
+            </section>
+
+            <section className="border-t border-stone-100 pt-8">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">3. Chọn nền tảng</h3>
+                <button
+                  type="button"
+                  onClick={toggleSelectAll}
+                  className="inline-flex items-center gap-2 rounded-lg px-2 py-1 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-100"
+                >
+                  {selectedPlatforms.length === PLATFORMS.length ? (
+                    <CheckSquare size={16} strokeWidth={1.25} className="text-stone-800" />
+                  ) : (
+                    <Square size={16} strokeWidth={1.25} />
+                  )}
+                  Chọn tất cả
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {PLATFORMS.map((platform) => {
+                  const isSelected = selectedPlatforms.includes(platform.id);
+                  const Icon = platform.icon;
+                  return (
+                    <button
+                      key={platform.id}
+                      type="button"
+                      onClick={() => togglePlatform(platform.id)}
+                      className={`flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-all ${
+                        isSelected
+                          ? 'border-stone-900 bg-stone-900 text-white shadow-sm'
+                          : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50/80'
+                      }`}
+                    >
+                      <Icon size={18} strokeWidth={1.25} className={isSelected ? 'text-white' : 'text-stone-500'} />
+                      <span>{platform.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" strokeWidth={1.25} />
+                Đang viết content...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-5 w-5" strokeWidth={1.25} />
+                Tạo content ngay
+              </>
+            )}
+          </button>
         </div>
-      )}
+
+        <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">4. Kết quả</h2>
+
+          {Object.keys(results).length === 0 && !isGenerating && (
+            <div className="flex min-h-[360px] flex-col items-center justify-center text-stone-400">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80">
+                <PenTool size={28} strokeWidth={1.25} className="text-stone-300" />
+              </div>
+              <p className="max-w-xs text-center text-sm font-normal">Nhập nội dung và chọn nền tảng để bắt đầu.</p>
+            </div>
+          )}
+
+          {isGenerating && (
+            <div className="flex min-h-[360px] flex-col items-center justify-center text-stone-400">
+              <div className="relative mb-8 h-14 w-14">
+                <div className="absolute inset-0 rounded-full border-4 border-stone-100"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-stone-800 animate-spin"></div>
+              </div>
+              <p className="mb-2 text-sm font-semibold text-stone-600">AI đang tối ưu cho từng nền tảng...</p>
+              <p className="text-sm font-normal text-stone-400">Vui lòng chờ trong giây lát.</p>
+            </div>
+          )}
+
+          {Object.keys(results).length > 0 && !isGenerating && (
+            <div className="space-y-4">
+              {PLATFORMS.map((p) => {
+                const content = results[p.id];
+                if (!content) return null;
+                const Icon = p.icon;
+
+                return (
+                  <div key={p.id} className="rounded-2xl border border-stone-200 overflow-hidden">
+                    <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/50 px-5 py-3.5">
+                      <div className="flex items-center gap-2.5 text-sm font-semibold text-stone-800">
+                        <Icon size={17} strokeWidth={1.25} className="text-stone-500" />
+                        {p.label}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(content, p.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          copiedId === p.id
+                            ? 'border-stone-300 bg-stone-100 text-stone-600'
+                            : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50/80'
+                        }`}
+                      >
+                        {copiedId === p.id ? (
+                          <><Check size={13} strokeWidth={1.25} /> Đã copy</>
+                        ) : (
+                          <><Copy size={13} strokeWidth={1.25} /> Copy</>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="p-5">
+                      {typeof content === 'string' ? (
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{content}</p>
+                      ) : (
+                        <div className="space-y-3">
+                          {content.title_tag && (
+                            <div>
+                              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400">Title Tag</div>
+                              <div className="rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-sm font-bold text-stone-900">{content.title_tag}</div>
+                            </div>
+                          )}
+                          {content.meta_description && (
+                            <div>
+                              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400">Meta Description</div>
+                              <div className="rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-sm text-stone-600 leading-relaxed">{content.meta_description}</div>
+                            </div>
+                          )}
+                          {content.paragraph && (
+                            <div>
+                              <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-400">Optimized Content</div>
+                              <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{content.paragraph}</p>
+                            </div>
+                          )}
+                          {!content.title_tag && !content.meta_description && !content.paragraph && (
+                            <pre className="overflow-x-auto rounded-xl border border-stone-200 bg-stone-50/80 p-3 text-xs text-stone-700">{JSON.stringify(content, null, 2)}</pre>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>

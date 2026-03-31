@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Film, Play, Image as ImageIcon, Download, Maximize2, X, Clapperboard, RefreshCw, Save, History, Clock } from 'lucide-react';
+import { Plus, Trash2, Film, Play, Download, Maximize2, X, Clapperboard, RefreshCw, Save, History, Clock } from 'lucide-react';
 import { generateStoryboardFrame } from '../services/geminiService';
 import { StorageService } from '../services/storageService';
 import { StoryFrame, StoryboardProject } from '../types';
@@ -7,6 +7,12 @@ import { Toast, ToastType } from './Toast';
 import { ConfirmDialog } from './ConfirmDialog';
 
 const STYLES = ['Cinematic', 'Anime', 'Line Art', 'Watercolor', 'Cyberpunk', 'Realistic', 'Sketch'];
+
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
 
 const FrameVisual: React.FC = () => {
     const [projectId, setProjectId] = useState<string>(Date.now().toString());
@@ -67,7 +73,7 @@ const FrameVisual: React.FC = () => {
         const project: StoryboardProject = {
             id: projectId,
             name: projectName,
-            createdAt: parseInt(projectId), // rough approximation if new
+            createdAt: parseInt(projectId),
             updatedAt: Date.now(),
             style: selectedStyle,
             frames: frames
@@ -114,10 +120,10 @@ const FrameVisual: React.FC = () => {
     };
 
     const addFrame = () => {
-        setFrames([...frames, { 
-            id: Date.now().toString(), 
-            script: '', 
-            isLoading: false 
+        setFrames([...frames, {
+            id: Date.now().toString(),
+            script: '',
+            isLoading: false
         }]);
     };
 
@@ -143,16 +149,15 @@ const FrameVisual: React.FC = () => {
 
         const imageUrl = await generateStoryboardFrame(frame.script, selectedStyle);
 
-        setFrames(prev => prev.map(f => f.id === frame.id ? { 
-            ...f, 
-            isLoading: false, 
+        setFrames(prev => prev.map(f => f.id === frame.id ? {
+            ...f,
+            isLoading: false,
             imageUrl: imageUrl || undefined,
             error: imageUrl ? undefined : "Lỗi tạo ảnh"
         } : f));
     };
 
     const generateAll = async () => {
-        // Validate if there's any script
         const hasScript = frames.some(f => f.script.trim().length > 0);
         if (!hasScript) {
             showToast("Vui lòng nhập kịch bản trước khi tạo ảnh", "error");
@@ -160,7 +165,6 @@ const FrameVisual: React.FC = () => {
         }
 
         setIsGlobalGenerating(true);
-        // Process sequentially using Promise.all to trigger all requests
         const promises = frames.map(async (frame) => {
             if (frame.script.trim()) {
                 return generateSingleFrame(frame);
@@ -172,237 +176,278 @@ const FrameVisual: React.FC = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto pt-10 px-6 pb-20">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                        <Clapperboard className="text-slate-700" strokeWidth={1.5} />
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Clapperboard size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Visual Production
+                        </span>
+                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
                         Frame Visual Storyboard
-                    </h2>
-                    <div className="flex items-center gap-2 mt-2">
-                         <input 
-                            className="text-slate-500 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-indigo-500 focus:outline-none transition-colors"
+                    </h1>
+                    <div className="mt-2 flex items-center gap-2">
+                        <input
+                            className="border-b border-transparent bg-transparent py-0.5 text-sm font-normal text-stone-500 outline-none transition-colors hover:border-stone-300 focus:border-stone-400 focus:text-stone-700"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             placeholder="Tên dự án..."
-                         />
+                        />
                     </div>
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-3">
-                     <button 
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <button
+                        type="button"
                         onClick={handleCreateNew}
-                        className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all"
-                     >
-                        <Plus size={18} strokeWidth={1.5} /> <span className="hidden lg:inline">Tạo mới</span>
-                     </button>
-                     
-                     <button 
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                    >
+                        <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => setShowHistory(true)}
-                        className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all"
-                     >
-                        <History size={18} strokeWidth={1.5} /> <span className="hidden lg:inline">Lịch sử</span>
-                     </button>
-
-                     <button 
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                    >
+                        <History size={17} strokeWidth={1.25} /> Lịch sử
+                    </button>
+                    <button
+                        type="button"
                         onClick={handleSave}
-                        className="bg-white border border-slate-200 text-slate-600 px-3 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all"
-                     >
-                        <Save size={18} strokeWidth={1.5} /> <span className="hidden lg:inline">Lưu</span>
-                     </button>
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                    >
+                        <Save size={17} strokeWidth={1.25} /> Lưu
+                    </button>
 
-                     <div className="w-px h-8 bg-slate-300 mx-1 hidden md:block"></div>
+                    <div className="h-6 w-px bg-stone-200 hidden md:block" />
 
-                     <select 
-                        className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-100 shadow-sm"
-                        value={selectedStyle}
-                        onChange={(e) => setSelectedStyle(e.target.value)}
-                     >
-                         {STYLES.map(s => <option key={s} value={s}>{s} Style</option>)}
-                     </select>
-                     
-                     <button 
+                    {/* Style Selector */}
+                    <div className="inline-flex rounded-full border border-stone-200 bg-stone-50 p-1">
+                        {STYLES.map(s => (
+                            <button
+                                key={s}
+                                type="button"
+                                onClick={() => setSelectedStyle(s)}
+                                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                                    selectedStyle === s
+                                        ? 'bg-white text-stone-900 shadow-[0_1px_2px_rgba(15,23,42,0.06)]'
+                                        : 'text-stone-500 hover:text-stone-700'
+                                }`}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        type="button"
                         onClick={generateAll}
                         disabled={isGlobalGenerating}
-                        className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5"
-                     >
-                        {isGlobalGenerating ? <RefreshCw className="animate-spin" size={20}/> : <Play size={20} fill="currentColor"/>}
+                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {isGlobalGenerating ? <RefreshCw className="h-5 w-5 animate-spin" /> : <Play size={17} fill="currentColor" />}
                         Generate All
-                     </button>
+                    </button>
                 </div>
-            </div>
+            </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {frames.map((frame, index) => (
-                    <div key={frame.id} className="group bg-white rounded-3xl border border-slate-200 shadow-soft overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300">
-                        {/* Header */}
-                        <div className="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                            <span className="font-bold text-slate-500 uppercase text-xs tracking-wider">Frame {index + 1}</span>
-                            <button 
-                                onClick={() => removeFrame(frame.id)}
-                                className="text-slate-300 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                            >
-                                <Trash2 size={16} strokeWidth={1.5} />
-                            </button>
-                        </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {frames.map((frame, index) => (
+                        <div key={frame.id} className={`${cardClass} flex flex-col overflow-hidden transition-all hover:shadow-[0_4px_12px_rgba(15,23,42,0.06)]`}>
+                            {/* Header */}
+                            <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/60 px-5 py-3">
+                                <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-stone-500">
+                                    Frame {index + 1}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => removeFrame(frame.id)}
+                                    className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                >
+                                    <Trash2 size={15} strokeWidth={1.25} />
+                                </button>
+                            </div>
 
-                        {/* Image Area */}
-                        <div className="aspect-video bg-slate-100 relative group/img">
-                            {frame.isLoading ? (
-                                <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
-                                    <div className="flex flex-col items-center gap-2 text-indigo-500">
-                                        <RefreshCw className="animate-spin" size={32} />
-                                        <span className="text-xs font-bold uppercase tracking-wide">Creating Visual...</span>
+                            {/* Image Area */}
+                            <div className="relative aspect-video bg-stone-100">
+                                {frame.isLoading ? (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-stone-100">
+                                        <RefreshCw className="h-8 w-8 animate-spin text-stone-400" />
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-500">Creating Visual...</span>
                                     </div>
-                                </div>
-                            ) : frame.imageUrl ? (
-                                <>
-                                    <img 
-                                        src={frame.imageUrl} 
-                                        alt={`Frame ${index + 1}`} 
-                                        className="w-full h-full object-cover"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover/img:opacity-100 gap-2">
-                                         <button 
-                                            onClick={() => setLightboxUrl(frame.imageUrl!)}
-                                            className="bg-white text-slate-800 p-2 rounded-xl hover:scale-110 transition-transform shadow-lg"
-                                            title="Xem lớn"
-                                         >
-                                            <Maximize2 size={20} strokeWidth={1.5} />
-                                         </button>
-                                         <a 
-                                            href={frame.imageUrl}
-                                            download={`storyboard-frame-${index+1}.png`}
-                                            className="bg-indigo-600 text-white p-2 rounded-xl hover:scale-110 transition-transform shadow-lg"
-                                            title="Tải xuống"
-                                         >
-                                            <Download size={20} strokeWidth={1.5} />
-                                         </a>
-                                         <button 
-                                            onClick={() => generateSingleFrame(frame)}
-                                            className="bg-white text-indigo-600 p-2 rounded-xl hover:scale-110 transition-transform shadow-lg"
-                                            title="Tạo lại"
-                                         >
-                                            <RefreshCw size={20} strokeWidth={1.5} />
-                                         </button>
+                                ) : frame.imageUrl ? (
+                                    <>
+                                        <img
+                                            src={frame.imageUrl}
+                                            alt={`Frame ${index + 1}`}
+                                            className="h-full w-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/0 opacity-0 transition-all group-hover/img:bg-black/20 group-hover/img:opacity-100">
+                                            <button
+                                                type="button"
+                                                onClick={() => setLightboxUrl(frame.imageUrl!)}
+                                                className="rounded-xl bg-white p-2 shadow-lg transition-transform hover:scale-110"
+                                                title="Xem lớn"
+                                            >
+                                                <Maximize2 size={18} strokeWidth={1.25} />
+                                            </button>
+                                            <a
+                                                href={frame.imageUrl}
+                                                download={`storyboard-frame-${index + 1}.png`}
+                                                className="rounded-xl bg-stone-900 p-2 text-white shadow-lg transition-transform hover:scale-110"
+                                                title="Tải xuống"
+                                            >
+                                                <Download size={18} strokeWidth={1.25} />
+                                            </a>
+                                            <button
+                                                type="button"
+                                                onClick={() => generateSingleFrame(frame)}
+                                                className="rounded-xl bg-white p-2 shadow-lg transition-transform hover:scale-110"
+                                                title="Tạo lại"
+                                            >
+                                                <RefreshCw size={18} strokeWidth={1.25} />
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="flex h-full w-full flex-col items-center justify-center text-stone-300">
+                                        <Film size={40} strokeWidth={1} />
+                                        <p className="mt-2 text-sm font-medium">Chưa có hình ảnh</p>
+                                        {frame.error && <p className="mt-1 text-xs text-rose-500">{frame.error}</p>}
                                     </div>
-                                </>
-                            ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
-                                    <Film size={48} strokeWidth={1} />
-                                    <p className="text-sm font-medium mt-2">Chưa có hình ảnh</p>
-                                    {frame.error && <p className="text-xs text-red-400 mt-1">{frame.error}</p>}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Script Input */}
-                        <div className="p-4 flex-1 flex flex-col">
-                            <textarea 
-                                className="w-full flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all resize-none min-h-[100px]"
-                                placeholder="Mô tả chi tiết cảnh phim, hành động, góc máy..."
-                                value={frame.script}
-                                onChange={(e) => updateScript(frame.id, e.target.value)}
-                            />
-                            <div className="mt-3 flex justify-end">
-                                {!frame.isLoading && (
-                                    <button 
-                                        onClick={() => generateSingleFrame(frame)}
-                                        disabled={!frame.script.trim()}
-                                        className="text-xs font-bold text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-                                    >
-                                        {frame.imageUrl ? 'Regenerate' : 'Generate'}
-                                    </button>
                                 )}
                             </div>
-                        </div>
-                    </div>
-                ))}
 
-                {/* Add New Frame Button */}
-                <button 
-                    onClick={addFrame}
-                    className="aspect-video rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group"
-                >
-                    <div className="bg-slate-100 group-hover:bg-white p-4 rounded-full mb-3 transition-colors shadow-sm">
-                        <Plus size={32} strokeWidth={1.5} />
-                    </div>
-                    <span className="font-bold text-lg">Thêm Frame Mới</span>
-                </button>
+                            {/* Script Input */}
+                            <div className="flex flex-1 flex-col p-4">
+                                <textarea
+                                    className="min-h-[100px] flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-200/80 transition-all"
+                                    placeholder="Mô tả chi tiết cảnh phim, hành động, góc máy..."
+                                    value={frame.script}
+                                    onChange={(e) => updateScript(frame.id, e.target.value)}
+                                />
+                                <div className="mt-3 flex justify-end">
+                                    {!frame.isLoading && (
+                                        <button
+                                            type="button"
+                                            onClick={() => generateSingleFrame(frame)}
+                                            disabled={!frame.script.trim()}
+                                            className="rounded-full bg-stone-900 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {frame.imageUrl ? 'Regenerate' : 'Generate'}
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* Add New Frame Button */}
+                    <button
+                        type="button"
+                        onClick={addFrame}
+                        className="flex aspect-video flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50/40 text-stone-400 transition-all hover:border-stone-300 hover:bg-stone-100/60 hover:text-stone-600"
+                    >
+                        <div className="mb-3 rounded-full bg-stone-100 p-4 shadow-sm transition-colors group-hover:bg-white">
+                            <Plus size={28} strokeWidth={1.25} />
+                        </div>
+                        <span className="text-base font-medium">Thêm Frame Mới</span>
+                    </button>
+                </div>
             </div>
 
             {/* Lightbox */}
             {lightboxUrl && (
-                <div className="fixed inset-0 bg-slate-900/90 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-                    <button 
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200"
+                    onClick={() => setLightboxUrl(null)}
+                >
+                    <button
                         onClick={() => setLightboxUrl(null)}
-                        className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 p-2 rounded-full transition-colors"
+                        className="absolute top-6 right-6 rounded-full bg-white/10 p-2 text-white/70 transition-colors hover:bg-white/20 hover:text-white"
                     >
-                        <X size={32} strokeWidth={1.5} />
+                        <X size={28} strokeWidth={1.25} />
                     </button>
-                    <img 
-                        src={lightboxUrl} 
-                        className="max-w-full max-h-[90vh] rounded-lg shadow-2xl" 
-                        alt="Full View" 
+                    <img
+                        src={lightboxUrl}
+                        className="max-h-[90vh] max-w-full rounded-2xl object-contain shadow-2xl"
+                        alt="Full View"
                     />
                 </div>
             )}
 
             {/* History Modal */}
             {showHistory && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl animate-in fade-in zoom-in border border-slate-100">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                            <h3 className="text-xl font-bold text-slate-800">Lịch sử Storyboard</h3>
-                            <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-700">
-                                <X size={24} strokeWidth={1.5} />
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm"
+                    onClick={() => setShowHistory(false)}
+                >
+                    <div
+                        className="flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between border-b border-stone-100 bg-stone-50/60 p-5">
+                            <h3 className="flex items-center gap-2 text-lg font-medium tracking-tight text-stone-900">
+                                <History size={20} strokeWidth={1.25} className="text-stone-400" />
+                                Lịch sử Storyboard
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setShowHistory(false)}
+                                className="rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+                            >
+                                <X size={20} strokeWidth={1.25} />
                             </button>
                         </div>
-                        
-                        <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div className="grid max-h-[60vh] grid-cols-1 gap-4 overflow-y-auto p-5 md:grid-cols-2">
                             {savedProjects.length === 0 ? (
-                                <div className="col-span-2 text-center py-10 text-slate-400">
+                                <div className="col-span-2 py-12 text-center text-sm text-stone-400">
                                     Chưa có dự án nào được lưu.
                                 </div>
                             ) : (
                                 savedProjects.map(project => (
-                                    <div 
+                                    <div
                                         key={project.id}
+                                        role="button"
+                                        tabIndex={0}
                                         onClick={() => handleLoadProject(project)}
-                                        className="group p-4 bg-white border border-slate-200 rounded-2xl cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all flex gap-4"
+                                        onKeyDown={(e) => e.key === 'Enter' && handleLoadProject(project)}
+                                        className="group flex cursor-pointer gap-4 rounded-2xl border border-stone-200 bg-white p-4 transition-all hover:border-stone-300 hover:bg-stone-50/60"
                                     >
-                                        <div className="w-32 aspect-video bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-100">
+                                        <div className="aspect-video w-32 shrink-0 overflow-hidden rounded-xl border border-stone-100 bg-stone-100">
                                             {project.frames.find(f => f.imageUrl) ? (
-                                                <img 
-                                                    src={project.frames.find(f => f.imageUrl)?.imageUrl} 
-                                                    className="w-full h-full object-cover" 
+                                                <img
+                                                    src={project.frames.find(f => f.imageUrl)?.imageUrl}
+                                                    className="h-full w-full object-cover"
                                                     alt="Thumb"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                    <Film size={20} />
+                                                <div className="flex h-full w-full items-center justify-center text-stone-300">
+                                                    <Film size={18} strokeWidth={1.25} />
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="font-bold text-slate-800 truncate">{project.name}</h4>
-                                                <button 
+                                        <div className="flex min-w-0 flex-1 flex-col">
+                                            <div className="mb-1 flex items-start justify-between gap-2">
+                                                <h4 className="truncate text-sm font-medium text-stone-900">{project.name}</h4>
+                                                <button
+                                                    type="button"
                                                     onClick={(e) => handleDeleteProject(e, project.id)}
-                                                    className="text-slate-300 hover:text-red-500 p-1 rounded-md hover:bg-red-50"
+                                                    className="shrink-0 rounded-lg p-1 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={14} strokeWidth={1.25} />
                                                 </button>
                                             </div>
-                                            <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                                <Clock size={12} /> {new Date(project.updatedAt).toLocaleDateString('vi-VN')}
+                                            <div className="flex items-center gap-1 text-[11px] text-stone-400">
+                                                <Clock size={11} strokeWidth={1.25} />
+                                                {new Date(project.updatedAt).toLocaleDateString('vi-VN')}
                                             </div>
-                                            <div className="mt-3 flex gap-2">
-                                                <span className="text-xs font-medium bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md border border-indigo-100">
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-1 text-[11px] font-medium text-stone-600">
                                                     {project.style}
                                                 </span>
-                                                <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded-md border border-slate-200">
+                                                <span className="rounded-full border border-stone-200 bg-stone-50 px-2 py-1 text-[11px] font-medium text-stone-600">
                                                     {project.frames.length} frames
                                                 </span>
                                             </div>

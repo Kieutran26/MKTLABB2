@@ -6,24 +6,33 @@ import { JourneyStage } from '../types';
 import { generateCustomerJourney, JourneyMapperInput, validateJourneyInput, JourneyValidationResult } from '../services/geminiService';
 import toast, { Toaster } from 'react-hot-toast';
 
-const STAGE_EMOJIS = ['🤯', '🤔', '🤩', '🔄', '🥰'];
+const cardClass =
+    'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
+const inputClass =
+    'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
+
+const textareaClass = `${inputClass} resize-none`;
+
+const STAGE_LABELS = ['Awareness', 'Consideration', 'Conversion', 'Retention', 'Loyalty'];
+
 const STAGE_COLORS = [
-    { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', accent: 'bg-blue-500', light: 'bg-blue-100' },
-    { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', accent: 'bg-amber-500', light: 'bg-amber-100' },
-    { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', accent: 'bg-emerald-500', light: 'bg-emerald-100' },
-    { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', accent: 'bg-purple-500', light: 'bg-purple-100' },
-    { bg: 'bg-pink-50', border: 'border-pink-200', text: 'text-pink-700', accent: 'bg-pink-500', light: 'bg-pink-100' },
+    { bg: 'bg-white', border: 'border-stone-200/90 border-l-[3px] border-l-stone-800', text: 'text-stone-900', accent: 'bg-stone-900', light: 'bg-stone-100' },
+    { bg: 'bg-white', border: 'border-stone-200/90 border-l-[3px] border-l-amber-600/45', text: 'text-stone-900', accent: 'bg-stone-900', light: 'bg-stone-100' },
+    { bg: 'bg-white', border: 'border-stone-200/90 border-l-[3px] border-l-emerald-600/45', text: 'text-stone-900', accent: 'bg-stone-900', light: 'bg-stone-100' },
+    { bg: 'bg-white', border: 'border-stone-200/90 border-l-[3px] border-l-sky-600/45', text: 'text-stone-900', accent: 'bg-stone-900', light: 'bg-stone-100' },
+    { bg: 'bg-white', border: 'border-stone-200/90 border-l-[3px] border-l-rose-500/45', text: 'text-stone-900', accent: 'bg-stone-900', light: 'bg-stone-100' },
 ];
 
-const PSYCHOLOGICAL_DRIVERS = {
-    'FOMO': { color: 'bg-orange-100 text-orange-700', icon: '⏰' },
-    'Trust': { color: 'bg-blue-100 text-blue-700', icon: '🛡️' },
-    'Greed': { color: 'bg-yellow-100 text-yellow-700', icon: '💰' },
-    'Pride': { color: 'bg-purple-100 text-purple-700', icon: '👑' },
-    'Fear': { color: 'bg-red-100 text-red-700', icon: '😨' },
-    'Curiosity': { color: 'bg-cyan-100 text-cyan-700', icon: '🔍' },
-    'Security': { color: 'bg-green-100 text-green-700', icon: '🔒' },
-    'Belonging': { color: 'bg-indigo-100 text-indigo-700', icon: '🤝' },
+const PSYCHOLOGICAL_DRIVERS: Record<string, { color: string }> = {
+    FOMO: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Trust: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Greed: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Pride: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Fear: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Curiosity: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Security: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
+    Belonging: { color: 'border border-stone-200 bg-stone-50 text-stone-800' },
 };
 
 // Validation Result Modal
@@ -37,51 +46,54 @@ const ValidationModal = ({
     onCancel: () => void;
 }) => {
     const statusConfig = {
-        PASS: { bg: 'bg-emerald-50', border: 'border-emerald-200', icon: CheckCircle, iconColor: 'text-emerald-500', title: '✅ Dữ liệu hợp lệ' },
-        WARNING: { bg: 'bg-amber-50', border: 'border-amber-200', icon: AlertTriangle, iconColor: 'text-amber-500', title: '⚠️ Cảnh báo' },
-        FAIL: { bg: 'bg-rose-50', border: 'border-rose-200', icon: XCircle, iconColor: 'text-rose-500', title: '❌ Dữ liệu không hợp lệ' },
+        PASS: { bg: 'bg-emerald-50/80', border: 'border-emerald-200', icon: CheckCircle, iconColor: 'text-emerald-600', title: 'Dữ liệu hợp lệ' },
+        WARNING: { bg: 'bg-amber-50/80', border: 'border-amber-200', icon: AlertTriangle, iconColor: 'text-amber-600', title: 'Cảnh báo' },
+        FAIL: { bg: 'bg-rose-50/80', border: 'border-rose-200', icon: XCircle, iconColor: 'text-rose-600', title: 'Dữ liệu không hợp lệ' },
     };
     const config = statusConfig[result.validation_status];
     const Icon = config.icon;
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className={`${config.bg} ${config.border} border rounded-2xl p-6 max-w-md w-full shadow-xl`}>
-                <div className="flex items-center gap-3 mb-4">
-                    <Icon size={28} className={config.iconColor} />
-                    <h3 className="text-lg font-bold text-slate-800">{config.title}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm">
+            <div className={`w-full max-w-md rounded-2xl border-2 p-6 shadow-xl ${config.border} ${config.bg}`}>
+                <div className="mb-4 flex items-center gap-3">
+                    <Icon size={26} strokeWidth={1.25} className={config.iconColor} />
+                    <h3 className="font-sans text-lg font-medium tracking-tight text-stone-900">{config.title}</h3>
                 </div>
 
-                <p className="text-sm text-slate-600 mb-4 leading-relaxed">{result.message_to_user}</p>
+                <p className="mb-4 text-sm font-normal leading-relaxed text-stone-700">{result.message_to_user}</p>
 
                 {result.corrected_suggestion && (
-                    <div className="bg-white rounded-lg p-3 mb-4 border border-slate-200">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Đề xuất sửa:</span>
-                        <p className="text-sm font-medium text-slate-700">{result.corrected_suggestion}</p>
+                    <div className="mb-4 rounded-xl border border-stone-200 bg-white p-3">
+                        <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">Đề xuất sửa</span>
+                        <p className="text-sm font-medium text-stone-800">{result.corrected_suggestion}</p>
                     </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     {result.validation_status === 'FAIL' ? (
                         <button
+                            type="button"
                             onClick={onCancel}
-                            className="flex-1 py-2.5 bg-slate-600 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors"
+                            className="flex-1 rounded-full bg-stone-900 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
                         >
                             Quay lại sửa
                         </button>
                     ) : (
                         <>
                             <button
+                                type="button"
                                 onClick={onCancel}
-                                className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors"
+                                className="flex-1 rounded-full border border-stone-200 bg-white py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
                             >
                                 Hủy
                             </button>
                             <button
+                                type="button"
                                 onClick={onConfirm}
-                                className="flex-1 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                                className="flex flex-1 items-center justify-center gap-2 rounded-full bg-stone-900 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
                             >
-                                <Sparkles size={16} />
+                                <Sparkles size={16} strokeWidth={1.25} />
                                 {result.validation_status === 'WARNING' ? 'Tiếp tục' : 'Tạo Journey Map'}
                             </button>
                         </>
@@ -92,7 +104,7 @@ const ValidationModal = ({
     );
 };
 
-const ContentIdeaCard = ({ idea }: { idea: string }) => {
+const ContentIdeaCard: React.FC<{ idea: string }> = ({ idea }) => {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -103,9 +115,9 @@ const ContentIdeaCard = ({ idea }: { idea: string }) => {
     };
 
     return (
-        <div className="group flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2 hover:border-slate-300 hover:shadow-sm transition-all">
-            <Lightbulb size={12} className="text-amber-500 shrink-0" />
-            <span className="text-xs text-slate-600 flex-1 line-clamp-1">{idea}</span>
+        <div className="group flex items-center gap-2 rounded-lg border border-stone-200/90 bg-white px-3 py-2 transition-all hover:border-stone-300">
+            <Lightbulb size={12} strokeWidth={1.25} className="shrink-0 text-stone-400" />
+            <span className="line-clamp-1 flex-1 text-xs font-normal text-stone-700">{idea}</span>
             <button
                 onClick={handleCopy}
                 className={`p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity ${copied ? 'text-green-500' : 'text-slate-400 hover:text-slate-600'}`}
@@ -117,9 +129,12 @@ const ContentIdeaCard = ({ idea }: { idea: string }) => {
 };
 
 // 5-Stage Journey Card
-const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index: number; isLast: boolean }) => {
+const JourneyStageCard: React.FC<{ stage: JourneyStage; index: number; isLast: boolean }> = ({
+    stage,
+    index,
+    isLast,
+}) => {
     const colors = STAGE_COLORS[index] || STAGE_COLORS[0];
-    const emoji = STAGE_EMOJIS[index] || '📍';
     const [expanded, setExpanded] = useState(false);
     const [showActions, setShowActions] = useState(false);
 
@@ -127,24 +142,25 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
 
     return (
         <div className="flex items-stretch">
-            <div className={`flex-1 ${colors.bg} ${colors.border} border rounded-2xl p-4 min-w-[320px] max-w-[360px]`}>
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-3">
-                    <span className="text-2xl">{emoji}</span>
-                    <div className="flex-1">
-                        <h3 className={`text-sm font-bold ${colors.text}`}>{stage.stage}</h3>
+            <div className={`flex min-w-[320px] max-w-[360px] flex-1 flex-col rounded-2xl border p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)] ${colors.bg} ${colors.border}`}>
+                <div className="mb-3 flex items-center gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-xs font-semibold text-stone-700">
+                        {index + 1}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <h3 className={`text-sm font-semibold tracking-tight ${colors.text}`}>{stage.stage}</h3>
                         {stage.stage_goal && (
-                            <p className="text-[10px] text-slate-500 mt-0.5">{stage.stage_goal}</p>
+                            <p className="mt-0.5 text-[10px] font-normal text-stone-500">{stage.stage_goal}</p>
                         )}
                     </div>
                 </div>
 
                 {/* Layer 1: Customer Mindset */}
                 {hasNewFormat && stage.mindset ? (
-                    <div className="bg-white/70 rounded-xl p-3 mb-2 border border-white">
-                        <div className="flex items-center gap-1.5 mb-2">
-                            <Brain size={10} className="text-purple-500" />
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Mindset</span>
+                    <div className="mb-2 rounded-xl border border-stone-100 bg-stone-50/60 p-3">
+                        <div className="mb-2 flex items-center gap-1.5">
+                            <Brain size={10} strokeWidth={1.25} className="text-stone-500" />
+                            <span className="text-[9px] font-semibold uppercase tracking-wider text-stone-500">Mindset</span>
                         </div>
                         <div className="space-y-1">
                             <div className="flex items-start gap-2">
@@ -162,17 +178,17 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
                         </div>
                     </div>
                 ) : (
-                    <div className="bg-white/70 rounded-xl p-3 mb-2 border border-white">
-                        <p className="text-xs text-slate-600 italic">"{stage.customer_mindset}"</p>
+                    <div className="mb-2 rounded-xl border border-stone-100 bg-stone-50/60 p-3">
+                        <p className="text-xs font-normal italic text-stone-700">&ldquo;{stage.customer_mindset}&rdquo;</p>
                     </div>
                 )}
 
                 {/* Layer 2: Barriers (Red) */}
                 {hasNewFormat && stage.barriers && stage.barriers.length > 0 && (
-                    <div className="bg-rose-50 rounded-xl p-2.5 mb-2 border border-rose-200">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                            <ShieldAlert size={10} className="text-rose-500" />
-                            <span className="text-[9px] font-bold text-rose-500 uppercase">Brick Wall</span>
+                    <div className="mb-2 rounded-xl border border-rose-100 bg-rose-50/50 p-2.5">
+                        <div className="mb-1.5 flex items-center gap-1.5">
+                            <ShieldAlert size={10} strokeWidth={1.25} className="text-rose-600/80" />
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-rose-900/80">Brick Wall</span>
                         </div>
                         <div className="space-y-0.5">
                             {stage.barriers.slice(0, 3).map((barrier, idx) => (
@@ -187,10 +203,10 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
 
                 {/* Layer 3: Solutions (Green) */}
                 {hasNewFormat && stage.solutions && stage.solutions.length > 0 && (
-                    <div className="bg-emerald-50 rounded-xl p-2.5 mb-2 border border-emerald-200">
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                            <Hammer size={10} className="text-emerald-500" />
-                            <span className="text-[9px] font-bold text-emerald-500 uppercase">Hammer</span>
+                    <div className="mb-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-2.5">
+                        <div className="mb-1.5 flex items-center gap-1.5">
+                            <Hammer size={10} strokeWidth={1.25} className="text-emerald-700/70" />
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-emerald-900/80">Hammer</span>
                         </div>
                         <div className="space-y-0.5">
                             {stage.solutions.slice(0, 3).map((solution, idx) => (
@@ -211,8 +227,8 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
                             className="flex items-center gap-1.5 w-full justify-between mb-1.5"
                         >
                             <div className="flex items-center gap-1.5">
-                                <Megaphone size={10} className="text-indigo-500" />
-                                <span className="text-[9px] font-bold text-slate-400 uppercase">Action Items ({stage.action_items.length})</span>
+                                <Megaphone size={10} strokeWidth={1.25} className="text-stone-500" />
+                                <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">Action Items ({stage.action_items.length})</span>
                             </div>
                             {showActions ? <ChevronUp size={12} className="text-slate-400" /> : <ChevronDown size={12} className="text-slate-400" />}
                         </button>
@@ -221,10 +237,10 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
                                 {stage.action_items.map((item: any, idx: number) => {
                                     const driver = PSYCHOLOGICAL_DRIVERS[item.psychological_driver as keyof typeof PSYCHOLOGICAL_DRIVERS] || PSYCHOLOGICAL_DRIVERS.Curiosity;
                                     return (
-                                        <div key={idx} className="bg-white border border-slate-200 rounded-lg p-2.5">
-                                            <div className="flex items-center gap-2 mb-1.5">
-                                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${driver.color}`}>
-                                                    {driver.icon} {item.psychological_driver}
+                                        <div key={idx} className="rounded-lg border border-stone-200/90 bg-white p-2.5">
+                                            <div className="mb-1.5 flex items-center gap-2">
+                                                <span className={`rounded px-1.5 py-0.5 text-[9px] font-semibold ${driver.color}`}>
+                                                    {item.psychological_driver}
                                                 </span>
                                                 <span className="text-[9px] text-slate-400">{item.format}</span>
                                             </div>
@@ -242,14 +258,14 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
                 {hasNewFormat && stage.kpis && stage.kpis.length > 0 && (
                     <div className="mb-2">
                         <div className="flex items-center gap-1.5 mb-1.5">
-                            <BarChart3 size={10} className="text-indigo-500" />
-                            <span className="text-[9px] font-bold text-slate-400 uppercase">KPIs</span>
+                            <BarChart3 size={10} strokeWidth={1.25} className="text-stone-500" />
+                            <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">KPIs</span>
                         </div>
                         <div className="grid grid-cols-2 gap-1">
                             {stage.kpis.slice(0, 4).map((kpi, idx) => (
-                                <div key={idx} className="bg-indigo-50 border border-indigo-100 rounded-lg p-1.5">
-                                    <div className="text-[9px] font-bold text-indigo-700">{kpi.metric}</div>
-                                    <div className="text-[10px] font-bold text-indigo-900">{kpi.target}</div>
+                                <div key={idx} className="rounded-lg border border-stone-200 bg-stone-50/80 p-1.5">
+                                    <div className="text-[9px] font-semibold text-stone-700">{kpi.metric}</div>
+                                    <div className="text-[10px] font-semibold text-stone-900">{kpi.target}</div>
                                 </div>
                             ))}
                         </div>
@@ -258,9 +274,9 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
 
                 {/* Key Message */}
                 <div className={`${colors.accent} text-white rounded-xl p-2.5 mb-2`}>
-                    <div className="flex items-center gap-1.5 mb-1">
-                        <Target size={10} />
-                        <span className="text-[9px] font-bold uppercase opacity-80">Key Message</span>
+                    <div className="mb-1 flex items-center gap-1.5">
+                        <Target size={10} strokeWidth={1.25} />
+                        <span className="text-[9px] font-semibold uppercase tracking-wide opacity-90">Key Message</span>
                     </div>
                     <p className="text-[10px] font-medium leading-relaxed">{stage.key_message}</p>
                 </div>
@@ -279,8 +295,8 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
                     className="flex items-center gap-1.5 w-full justify-between"
                 >
                     <div className="flex items-center gap-1.5">
-                        <Lightbulb size={10} className="text-amber-500" />
-                        <span className="text-[9px] font-bold text-slate-400 uppercase">Content Ideas ({stage.content_ideas?.length || 0})</span>
+                        <Lightbulb size={10} strokeWidth={1.25} className="text-stone-400" />
+                        <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">Content Ideas ({stage.content_ideas?.length || 0})</span>
                     </div>
                     {expanded ? <ChevronUp size={12} className="text-slate-400" /> : <ChevronDown size={12} className="text-slate-400" />}
                 </button>
@@ -296,8 +312,8 @@ const JourneyStageCard = ({ stage, index, isLast }: { stage: JourneyStage; index
             {/* Arrow Connector */}
             {!isLast && (
                 <div className="flex items-center px-2">
-                    <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center">
-                        <ArrowRight size={14} className="text-slate-400" />
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-stone-50">
+                        <ArrowRight size={14} strokeWidth={1.25} className="text-stone-400" />
                     </div>
                 </div>
             )}
@@ -374,7 +390,7 @@ const CustomerJourneyMapper: React.FC = () => {
                 setJourneyData(result);
                 toast.success(`Journey Map ${result.length} giai đoạn đã sẵn sàng!`, {
                     icon: '🗺️',
-                    style: { borderRadius: '12px', background: '#F0FDF4', color: '#166534', fontWeight: 600, fontSize: '14px' }
+                    style: { borderRadius: '12px', background: '#fafaf9', border: '1px solid #e7e5e4' }
                 });
             } else {
                 toast.error('Không thể tạo Journey Map.');
@@ -445,10 +461,9 @@ const CustomerJourneyMapper: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
-            {/* Validation Modal */}
             {validationResult && validationResult.validation_status !== 'PASS' && (
                 <ValidationModal
                     result={validationResult}
@@ -457,256 +472,292 @@ const CustomerJourneyMapper: React.FC = () => {
                 />
             )}
 
-            {/* Header */}
-            <div className="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shrink-0 z-10">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-indigo-500/10 text-indigo-600 rounded-xl flex items-center justify-center">
-                        <Map size={18} strokeWidth={2} />
+            <header className="z-10 flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Map size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Customer Journey
+                        </span>
                     </div>
-                    <div>
-                        <h1 className="text-base font-bold text-slate-800">Customer Journey Mapper V3</h1>
-                        <p className="text-[10px] text-slate-500 font-medium">5-Stage Model • Psychological Drivers • Action Items</p>
-                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        Customer Journey Mapper V3
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        5-Stage Model • Psychological Drivers • Action Items
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-wrap gap-2">
                     <button
+                        type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-lg transition-all text-xs"
+                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                            }`}
                     >
-                        <History size={14} /> ({savedJourneys.length})
+                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedJourneys.length})
                     </button>
                     {journeyData && (
                         <>
-                            <button onClick={handleNew} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-lg transition-all text-xs">
-                                <Plus size={14} /> Mới
+                            <button
+                                type="button"
+                                onClick={handleNew}
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                            >
+                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
                             </button>
-                            <button onClick={handleSave} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg transition-all text-xs">
-                                <Save size={14} /> Lưu
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                            >
+                                <Save size={17} strokeWidth={1.25} /> Lưu
                             </button>
                         </>
                     )}
                 </div>
-            </div>
+            </header>
 
-            <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: showHistory ? '360px 280px 1fr' : '360px 1fr' }}>
-                {/* LEFT: Form */}
-                <div className="bg-white border-r border-slate-200 p-6 overflow-y-auto h-full">
-                    <div className="mb-5">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className="w-5 h-5 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold">1</span>
-                            <h2 className="text-sm font-bold text-slate-800">Deep Dive Context</h2>
-                        </div>
-                        <p className="text-[11px] text-slate-500 pl-7">Càng chi tiết, AI càng tạo strategy cụ thể.</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pl-1">
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Sản phẩm / Thương hiệu *</label>
-                            <input
-                                {...register('productBrand', { required: 'Bắt buộc' })}
-                                placeholder="VD: Phần mềm KiotViet"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                            {errors.productBrand && <p className="text-[10px] text-red-500 mt-1">{errors.productBrand.message}</p>}
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Target Audience *</label>
-                            <textarea
-                                {...register('targetAudience', { required: 'Bắt buộc' })}
-                                placeholder="VD: Chủ shop 25-45 tuổi, quản lý bằng Excel..."
-                                rows={2}
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none"
-                            />
-                        </div>
-
-                        {/* NEW: USP */}
-                        <div>
-                            <div className="flex items-center justify-between mb-1.5">
-                                <label className="block text-xs font-bold text-slate-700">USP (Điểm bán độc đáo)</label>
-                                <HelpCircle size={12} className="text-slate-400" />
-                            </div>
-                            <input
-                                {...register('usp')}
-                                placeholder="VD: Giao 2h, Công nghệ Đức độc quyền"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                            <p className="text-[9px] text-slate-400 mt-0.5">Dùng trong Consideration để đánh đối thủ</p>
-                        </div>
-
-                        {/* NEW: Pain Point */}
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Pain Point khách hàng</label>
-                            <input
-                                {...register('painPoint')}
-                                placeholder="VD: Sợ kem trộn không rõ nguồn gốc"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                            <p className="text-[9px] text-slate-400 mt-0.5">Dùng để tạo Hook trong Awareness</p>
-                        </div>
-
-                        {/* Competitor */}
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Đối thủ cạnh tranh</label>
-                            <input
-                                {...register('competitor')}
-                                placeholder="VD: Sapo, Haravan, MISA"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                        </div>
-
-                        {/* Price Segment */}
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Phân khúc giá</label>
-                            <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100 rounded-xl">
-                                {[
-                                    { value: 'low', label: 'Low', desc: 'Impulse' },
-                                    { value: 'mid', label: 'Mid', desc: 'Cân nhắc' },
-                                    { value: 'high', label: 'High', desc: 'Consultative' }
-                                ].map(opt => (
-                                    <button
-                                        key={opt.value}
-                                        type="button"
-                                        onClick={() => setValue('priceSegment', opt.value as any)}
-                                        className={`py-2 rounded-lg text-center transition-all ${priceSegment === opt.value ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500'}`}
-                                    >
-                                        <div className="text-xs font-bold">{opt.label}</div>
-                                        <div className="text-[9px] text-slate-400">{opt.desc}</div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Mục tiêu chuyển đổi *</label>
-                            <input
-                                {...register('conversionGoal', { required: 'Bắt buộc' })}
-                                placeholder="VD: Đăng ký dùng thử 14 ngày"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-1.5">Kênh tiếp cận *</label>
-                            <input
-                                {...register('channels', { required: 'Bắt buộc' })}
-                                placeholder="VD: Facebook, TikTok, Google Ads"
-                                className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isGenerating || isValidating}
-                            className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
-                        >
-                            {isValidating ? (
-                                <>
-                                    <ShieldCheck size={16} className="animate-pulse" />
-                                    <span className="text-sm">Đang kiểm tra dữ liệu...</span>
-                                </>
-                            ) : isGenerating ? (
-                                <>
-                                    <Loader2 size={16} className="animate-spin" />
-                                    <span className="text-sm">{thinkingStep || 'Đang xử lý...'}</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles size={16} />
-                                    Tạo 5-Stage Journey Map
-                                </>
-                            )}
-                        </button>
-                    </form>
-                </div>
-
-                {/* HISTORY SIDEBAR */}
+            <div
+                className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
+                style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,400px) 1fr' : 'minmax(0,400px) 1fr' }}
+            >
                 {showHistory && (
-                    <div className="bg-white border-r border-slate-200 p-4 overflow-y-auto h-full">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-bold text-slate-800">Lịch sử</h3>
-                            <button onClick={() => setShowHistory(false)} className="p-1 hover:bg-slate-100 rounded-lg">
-                                <X size={16} className="text-slate-400" />
+                    <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                        <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+                            <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
+                                <History size={18} strokeWidth={1.25} className="text-stone-400" />
+                                Lịch sử
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setShowHistory(false)}
+                                className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                                aria-label="Đóng"
+                            >
+                                <X size={18} strokeWidth={1.25} />
                             </button>
                         </div>
-                        {savedJourneys.length === 0 ? (
-                            <div className="text-center py-8 text-slate-400">
-                                <History size={24} className="mx-auto mb-2 opacity-30" />
-                                <p className="text-xs">Chưa có lịch sử</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-2">
-                                {savedJourneys.map((item) => (
+                        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
+                            {savedJourneys.length === 0 ? (
+                                <div className="py-10 text-center text-sm text-stone-400">
+                                    <History size={24} strokeWidth={1.25} className="mx-auto mb-2 opacity-40" />
+                                    Chưa có lịch sử
+                                </div>
+                            ) : (
+                                savedJourneys.map((item) => (
                                     <div
                                         key={item.id}
-                                        className="group bg-slate-50 border border-slate-200 rounded-xl p-3 hover:border-indigo-500/30 cursor-pointer"
+                                        role="button"
+                                        tabIndex={0}
+                                        className="group cursor-pointer rounded-2xl border border-stone-200/90 p-3 transition-all hover:border-stone-300 hover:bg-stone-50/50"
                                         onClick={() => handleLoad(item)}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleLoad(item)}
                                     >
-                                        <div className="flex items-start justify-between gap-2 mb-1">
-                                            <h4 className="text-xs font-bold text-slate-800 line-clamp-1">{item.input.productBrand}</h4>
+                                        <div className="mb-1 flex items-start justify-between gap-2">
+                                            <h4 className="line-clamp-1 text-sm font-medium text-stone-900">{item.input.productBrand}</h4>
                                             <button
+                                                type="button"
                                                 onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                                                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded"
+                                                className="shrink-0 rounded-lg p-1.5 text-stone-400 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                                                aria-label="Xóa"
                                             >
-                                                <Trash2 size={12} className="text-red-500" />
+                                                <Trash2 size={14} strokeWidth={1.25} />
                                             </button>
                                         </div>
-                                        <p className="text-[9px] text-slate-400">{new Date(item.timestamp).toLocaleString('vi-VN')}</p>
+                                        <p className="text-xs text-stone-400">{new Date(item.timestamp).toLocaleString('vi-VN')}</p>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
                 )}
 
-                {/* RIGHT: Journey Map */}
-                <div className="p-6 overflow-auto bg-slate-50 h-full">
-                    {!journeyData && !isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-400">
-                            <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mb-4 shadow-sm">
-                                <Map size={28} strokeWidth={1.5} className="text-slate-300" />
+                <div className={`${cardClass} min-h-0 overflow-y-auto border-r-0 md:border-r md:border-sky-200/40 md:pr-1`}>
+                    <div className="p-6 md:p-8">
+                        <div className="mb-6">
+                            <div className="mb-2 flex items-center gap-2">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-[11px] font-semibold text-stone-700">
+                                    1
+                                </span>
+                                <h2 className="font-sans text-lg font-medium tracking-tight text-stone-900">Deep Dive Context</h2>
                             </div>
-                            <p className="text-base font-bold text-slate-600">5-Stage Journey Map</p>
-                            <p className="text-xs text-slate-400 mt-1">Awareness → Consideration → Conversion → Retention → Loyalty</p>
+                            <p className="pl-9 text-sm font-normal text-stone-500">Càng chi tiết, AI càng tạo strategy cụ thể.</p>
                         </div>
-                    )}
 
-                    {isGenerating && (
-                        <div className="h-full flex flex-col items-center justify-center">
-                            <div className="relative w-14 h-14 mb-6">
-                                <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-                                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-500 animate-spin"></div>
-                            </div>
-                            <p className="text-sm font-bold text-indigo-600 mb-1">{thinkingStep}</p>
-                            <p className="text-xs text-slate-400">Đang xây dựng Psychological Battle Plan...</p>
-                        </div>
-                    )}
-
-                    {journeyData && !isGenerating && (
-                        <div className="min-w-max">
-                            {/* Stage Legend */}
-                            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-200">
-                                {['Awareness', 'Consideration', 'Conversion', 'Retention', 'Loyalty'].map((name, idx) => (
-                                    <div key={name} className="flex items-center gap-1.5">
-                                        <span className="text-lg">{STAGE_EMOJIS[idx]}</span>
-                                        <span className={`text-[10px] font-bold ${STAGE_COLORS[idx].text}`}>{name}</span>
-                                    </div>
-                                ))}
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Sản phẩm / Thương hiệu *</label>
+                                <input
+                                    {...register('productBrand', { required: 'Bắt buộc' })}
+                                    placeholder="VD: Phần mềm KiotViet"
+                                    className={inputClass}
+                                />
+                                {errors.productBrand && <p className="mt-1 text-xs text-red-600">{errors.productBrand.message}</p>}
                             </div>
 
-                            {/* Horizontal Flow */}
-                            <div className="flex items-stretch gap-0">
-                                {journeyData.map((stage, idx) => (
-                                    <JourneyStageCard
-                                        key={idx}
-                                        stage={stage}
-                                        index={idx}
-                                        isLast={idx === journeyData.length - 1}
-                                    />
-                                ))}
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Target Audience *</label>
+                                <textarea
+                                    {...register('targetAudience', { required: 'Bắt buộc' })}
+                                    placeholder="VD: Chủ shop 25-45 tuổi, quản lý bằng Excel..."
+                                    rows={2}
+                                    className={textareaClass}
+                                />
                             </div>
-                        </div>
-                    )}
+
+                            <div>
+                                <div className="mb-2 flex items-center justify-between">
+                                    <label className="text-sm font-medium text-stone-800">USP (Điểm bán độc đáo)</label>
+                                    <HelpCircle size={14} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                </div>
+                                <input
+                                    {...register('usp')}
+                                    placeholder="VD: Giao 2h, Công nghệ Đức độc quyền"
+                                    className={inputClass}
+                                />
+                                <p className="mt-1 text-xs font-normal text-stone-400">Dùng trong Consideration để đánh đối thủ</p>
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Pain Point khách hàng</label>
+                                <input
+                                    {...register('painPoint')}
+                                    placeholder="VD: Sợ kem trộn không rõ nguồn gốc"
+                                    className={inputClass}
+                                />
+                                <p className="mt-1 text-xs font-normal text-stone-400">Dùng để tạo Hook trong Awareness</p>
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Đối thủ cạnh tranh</label>
+                                <input
+                                    {...register('competitor')}
+                                    placeholder="VD: Sapo, Haravan, MISA"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Phân khúc giá</label>
+                                <div className="grid grid-cols-3 gap-1 rounded-xl border border-stone-200 bg-stone-100/80 p-1">
+                                    {[
+                                        { value: 'low', label: 'Low', desc: 'Impulse' },
+                                        { value: 'mid', label: 'Mid', desc: 'Cân nhắc' },
+                                        { value: 'high', label: 'High', desc: 'Consultative' }
+                                    ].map(opt => (
+                                        <button
+                                            key={opt.value}
+                                            type="button"
+                                            onClick={() => setValue('priceSegment', opt.value as 'low' | 'mid' | 'high')}
+                                            className={`rounded-lg py-2 text-center transition-all ${priceSegment === opt.value
+                                                ? 'border border-stone-200 bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
+                                                : 'text-stone-500 hover:text-stone-700'
+                                                }`}
+                                        >
+                                            <div className="text-xs font-semibold">{opt.label}</div>
+                                            <div className="text-[10px] font-normal text-stone-400">{opt.desc}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Mục tiêu chuyển đổi *</label>
+                                <input
+                                    {...register('conversionGoal', { required: 'Bắt buộc' })}
+                                    placeholder="VD: Đăng ký dùng thử 14 ngày"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-2 block text-sm font-medium text-stone-800">Kênh tiếp cận *</label>
+                                <input
+                                    {...register('channels', { required: 'Bắt buộc' })}
+                                    placeholder="VD: Facebook, TikTok, Google Ads"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isGenerating || isValidating}
+                                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {isValidating ? (
+                                    <>
+                                        <ShieldCheck size={18} strokeWidth={1.25} className="animate-pulse" />
+                                        <span>Đang kiểm tra dữ liệu...</span>
+                                    </>
+                                ) : isGenerating ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" strokeWidth={1.25} />
+                                        <span>{thinkingStep || 'Đang xử lý...'}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles size={18} strokeWidth={1.25} />
+                                        Tạo 5-Stage Journey Map
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div className={`${cardClass} min-h-0 overflow-auto`}>
+                    <div className="p-6 md:p-8">
+                        {!journeyData && !isGenerating && (
+                            <div className="flex min-h-[280px] flex-col items-center justify-center text-stone-400">
+                                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                    <Map size={28} strokeWidth={1.25} className="text-stone-300" />
+                                </div>
+                                <p className="text-base font-medium text-stone-700">5-Stage Journey Map</p>
+                                <p className="mt-1 text-center text-sm font-normal text-stone-500">
+                                    Awareness → Consideration → Conversion → Retention → Loyalty
+                                </p>
+                            </div>
+                        )}
+
+                        {isGenerating && (
+                            <div className="flex min-h-[280px] flex-col items-center justify-center">
+                                <div className="relative mb-6 h-14 w-14">
+                                    <div className="absolute inset-0 rounded-full border-4 border-stone-100" />
+                                    <div className="absolute inset-0 animate-spin rounded-full border-4 border-transparent border-t-stone-800" />
+                                </div>
+                                <p className="mb-1 text-sm font-medium text-stone-800">{thinkingStep}</p>
+                                <p className="text-xs font-normal text-stone-500">Đang xây dựng Psychological Battle Plan...</p>
+                            </div>
+                        )}
+
+                        {journeyData && !isGenerating && (
+                            <div className="min-w-max">
+                                <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-stone-200 pb-3">
+                                    {STAGE_LABELS.map((name, idx) => (
+                                        <div key={name} className="flex items-center gap-2">
+                                            <span className="flex h-6 w-6 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-[10px] font-semibold text-stone-600">
+                                                {idx + 1}
+                                            </span>
+                                            <span className={`text-[10px] font-semibold ${STAGE_COLORS[idx]?.text ?? 'text-stone-800'}`}>{name}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-stretch gap-0">
+                                    {journeyData.map((stage, idx) => (
+                                        <JourneyStageCard
+                                            key={idx}
+                                            stage={stage}
+                                            index={idx}
+                                            isLast={idx === journeyData.length - 1}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
