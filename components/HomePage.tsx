@@ -215,143 +215,164 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
 
     return (
         <div className="min-h-screen bg-soft-bg">
-            {/* Translation — nền kem khớp các section Neubrutalism */}
-            <div className="border-b border-slate-200 bg-[#F5F5F0]">
+            {/* Dịch thuật AI — cùng nền & viền với Dashboard / Khám phá công cụ */}
+            <div className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-14 md:px-10 md:py-20">
                 <TranslationView />
             </div>
 
-            {/* Dashboard — Neubrutalism (khớp Feature V2 / Khám phá công cụ) */}
-            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
-                <div className="max-w-6xl mx-auto">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-3">
+            {/* Dashboard — editorial minimal (cùng ngôn ngữ với Khám phá công cụ) */}
+            <div className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-14 md:px-10 md:py-20">
+                <div className="mx-auto max-w-6xl">
+                    <header className="mb-10 md:mb-12 max-w-2xl">
+                        <div className="mb-4 flex items-center gap-3 text-stone-400">
                             <span
-                                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black bg-[#FEF3C7] text-[#B45309] shadow-[1px_1px_0_0_#000]"
+                                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FEF3C7] text-[#B45309]"
                                 aria-hidden
                             >
-                                <BarChart3 size={22} strokeWidth={1.5} />
+                                <BarChart3 size={20} strokeWidth={1.25} />
                             </span>
+                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                Tổng quan
+                            </span>
+                        </div>
+                        <h2 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
                             Dashboard
                         </h2>
-                        <p className="text-slate-600 font-semibold text-sm">
+                        <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
                             Quản lý công việc và theo dõi tiến trình sử dụng công cụ.
                         </p>
-                    </div>
+                    </header>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
+                    <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-12">
                         {/* To-Do List */}
-                        <div className="group bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
-                            <div className="flex items-center justify-between gap-2 mb-5">
-                                <h3 className="font-black text-black flex items-center gap-2 text-base">
-                                    <span
-                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-black bg-[#D1FAE5] text-[#047857] shadow-[1px_1px_0_0_#000]"
+                        <div className="rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-300 md:p-10 hover:border-stone-300">
+                            <div className="mb-8 flex flex-wrap items-start justify-between gap-3">
+                                <div className="flex items-start gap-5">
+                                    <div
+                                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#D1FAE5] text-[#047857]"
                                         aria-hidden
                                     >
-                                        <CheckCircle2 size={20} strokeWidth={1.5} />
-                                    </span>
-                                    To-Do List
-                                </h3>
-                                <span className="rounded-full border border-black bg-[#D1FAE5] px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-[#047857]">
+                                        <CheckCircle2 size={22} strokeWidth={1.25} />
+                                    </div>
+                                    <div className="min-w-0 pt-0.5">
+                                        <h3 className="font-sans text-xl font-medium tracking-tight text-stone-900">
+                                            To-Do List
+                                        </h3>
+                                    </div>
+                                </div>
+                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-emerald-800/90">
                                     {completedTasks}/{tasks.length} hoàn thành
                                 </span>
                             </div>
 
-                            <div className="flex gap-2 mb-4">
+                            <div className="mb-6 flex gap-2">
                                 <input
                                     type="text"
                                     value={newTaskText}
                                     onChange={(e) => setNewTaskText(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
                                     placeholder="Thêm công việc mới..."
-                                    className="flex-1 min-w-0 px-4 py-2.5 rounded-xl border border-black bg-white text-sm font-semibold text-black placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                    className="min-w-0 flex-1 rounded-xl border border-stone-200/90 bg-white px-4 py-2.5 text-sm font-normal text-stone-800 placeholder:text-stone-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:ring-offset-2"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddTask}
-                                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-black bg-[#48b9a7] text-white shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-x-[1px] active:translate-y-[1px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                    className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl bg-[#3d9b8c] text-white transition-colors hover:bg-[#358f81] focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:ring-offset-2"
                                     aria-label="Thêm công việc"
                                 >
-                                    <Plus size={20} strokeWidth={1.5} />
+                                    <Plus size={20} strokeWidth={1.25} />
                                 </button>
                             </div>
 
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar">
+                            <div className="custom-scrollbar max-h-[300px] space-y-0 overflow-y-auto">
                                 {tasks.length === 0 ? (
-                                    <div className="text-center py-10 text-slate-500 border-t border-black pt-6">
-                                        <Circle size={36} strokeWidth={1.5} className="mx-auto mb-2 text-black/25" />
-                                        <p className="text-sm font-semibold">Chưa có công việc nào</p>
+                                    <div className="border-t border-stone-100 pt-8 text-center text-stone-500">
+                                        <Circle size={32} strokeWidth={1.25} className="mx-auto mb-3 text-stone-300" />
+                                        <p className="text-sm font-normal">Chưa có công việc nào</p>
                                     </div>
                                 ) : (
-                                    tasks.map(task => (
-                                        <div
-                                            key={task.id}
-                                            className={`flex items-center gap-3 p-3 rounded-xl border border-black transition-colors group ${task.completed
-                                                ? 'bg-[#D1FAE5]/40'
-                                                : 'bg-white hover:bg-black/[0.03]'
-                                                }`}
-                                        >
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleTask(task.id)}
-                                                className={`w-5 h-5 shrink-0 rounded-full border border-black flex items-center justify-center transition-colors ${task.completed
-                                                    ? 'bg-[#48b9a7] text-white'
-                                                    : 'bg-white hover:bg-[#F5F5F0]'
-                                                    }`}
+                                    <ul className="border-t border-stone-100">
+                                        {tasks.map(task => (
+                                            <li
+                                                key={task.id}
+                                                className="border-b border-stone-100 last:border-0"
                                             >
-                                                {task.completed && <Check size={12} strokeWidth={2.5} />}
-                                            </button>
-                                            <span className={`flex-1 text-sm font-semibold ${task.completed ? 'text-slate-500 line-through' : 'text-slate-800'
-                                                }`}>
-                                                {task.text}
-                                            </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => deleteTask(task.id)}
-                                                className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-600 transition-opacity p-1"
-                                                aria-label="Xóa công việc"
-                                            >
-                                                <Trash2 size={14} strokeWidth={1.5} />
-                                            </button>
-                                        </div>
-                                    ))
+                                                <div
+                                                    className={`group flex items-center gap-3 rounded-lg px-1 py-3 transition-colors ${task.completed ? 'bg-emerald-50/50' : 'hover:bg-stone-50/80'
+                                                        }`}
+                                                >
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleTask(task.id)}
+                                                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${task.completed
+                                                            ? 'border-[#3d9b8c] bg-[#3d9b8c] text-white'
+                                                            : 'border-stone-300 bg-white hover:border-stone-400'
+                                                            }`}
+                                                    >
+                                                        {task.completed && <Check size={12} strokeWidth={2.5} />}
+                                                    </button>
+                                                    <span
+                                                        className={`min-w-0 flex-1 text-sm font-normal ${task.completed ? 'text-stone-400 line-through' : 'text-stone-700'
+                                                            }`}
+                                                    >
+                                                        {task.text}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => deleteTask(task.id)}
+                                                        className="p-1 text-stone-300 opacity-0 transition-opacity hover:text-red-600 group-hover:opacity-100"
+                                                        aria-label="Xóa công việc"
+                                                    >
+                                                        <Trash2 size={14} strokeWidth={1.25} />
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 )}
                             </div>
 
                             {tasks.length > 0 && (
-                                <div className="mt-5 pt-5 border-t border-black">
+                                <div className="mt-8 border-t border-stone-100 pt-8">
                                     <div className="flex items-center gap-4">
-                                        <div className="relative w-16 h-16 flex-shrink-0">
+                                        <div className="relative h-16 w-16 shrink-0">
                                             <div
-                                                className="w-full h-full rounded-full border border-black"
+                                                className="h-full w-full rounded-full border border-stone-200/90"
                                                 style={{
-                                                    background: `conic-gradient(#48b9a7 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
+                                                    background: `conic-gradient(#3d9b8c 0deg ${taskCompletionRate * 3.6}deg, #fcd34d ${taskCompletionRate * 3.6}deg 360deg)`
                                                 }}
                                             />
-                                            <div className="absolute inset-1.5 bg-white rounded-full flex items-center justify-center border border-black/10">
-                                                <span className="text-sm font-black text-black">{taskCompletionRate}%</span>
+                                            <div className="absolute inset-1.5 flex items-center justify-center rounded-full border border-stone-100 bg-white">
+                                                <span className="text-sm font-medium text-stone-800">{taskCompletionRate}%</span>
                                             </div>
                                         </div>
 
-                                        <div className="flex-1 grid grid-cols-3 gap-2">
-                                            <div className="text-center p-2 rounded-xl border border-black bg-[#D1FAE5]">
-                                                <div className="text-lg font-black text-[#047857]">{completedTasks}</div>
-                                                <div className="text-[10px] font-bold text-[#047857]/80 uppercase tracking-wide">Hoàn thành</div>
+                                        <div className="grid flex-1 grid-cols-3 gap-2">
+                                            <div className="rounded-xl border border-stone-100 bg-emerald-50/60 p-2 text-center">
+                                                <div className="text-lg font-medium text-emerald-800">{completedTasks}</div>
+                                                <div className="text-[10px] font-medium uppercase tracking-wide text-emerald-800/70">
+                                                    Hoàn thành
+                                                </div>
                                             </div>
-                                            <div className="text-center p-2 rounded-xl border border-black bg-[#FEF3C7]">
-                                                <div className="text-lg font-black text-[#B45309]">{pendingTasks}</div>
-                                                <div className="text-[10px] font-bold text-[#B45309]/80 uppercase tracking-wide">Chờ xử lý</div>
+                                            <div className="rounded-xl border border-stone-100 bg-amber-50/60 p-2 text-center">
+                                                <div className="text-lg font-medium text-amber-900">{pendingTasks}</div>
+                                                <div className="text-[10px] font-medium uppercase tracking-wide text-amber-900/70">
+                                                    Chờ xử lý
+                                                </div>
                                             </div>
-                                            <div className="text-center p-2 rounded-xl border border-black bg-[#F5F5F0]">
-                                                <div className="text-lg font-black text-black">{tasks.length}</div>
-                                                <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Tổng cộng</div>
+                                            <div className="rounded-xl border border-stone-100 bg-stone-50 p-2 text-center">
+                                                <div className="text-lg font-medium text-stone-800">{tasks.length}</div>
+                                                <div className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                                    Tổng cộng
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="mt-4">
-                                        <div className="h-3 rounded-full border border-black bg-white overflow-hidden">
+                                        <div className="h-2.5 overflow-hidden rounded-full bg-stone-100">
                                             <div
-                                                className="h-full bg-[#48b9a7] transition-all duration-500"
+                                                className="h-full rounded-full bg-[#3d9b8c] transition-all duration-500"
                                                 style={{ width: `${taskCompletionRate}%` }}
                                             />
                                         </div>
@@ -361,38 +382,41 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                         </div>
 
                         {/* Thống kê tổng quan */}
-                        <div className="group bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none">
-                            <div className="flex items-center justify-between mb-5">
-                                <h3 className="font-black text-black flex items-center gap-2 text-base">
-                                    <span
-                                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-black bg-[#EDE9FE] text-[#5B21B6] shadow-[1px_1px_0_0_#000]"
-                                        aria-hidden
-                                    >
-                                        <PieChart size={20} strokeWidth={1.5} />
-                                    </span>
-                                    Thống kê tổng quan
-                                </h3>
+                        <div className="rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-300 md:p-10 hover:border-stone-300">
+                            <div className="mb-8 flex items-start gap-5">
+                                <div
+                                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#EDE9FE] text-[#5B21B6]"
+                                    aria-hidden
+                                >
+                                    <PieChart size={22} strokeWidth={1.25} />
+                                </div>
+                                <div className="min-w-0 pt-0.5">
+                                    <h3 className="font-sans text-xl font-medium tracking-tight text-stone-900">
+                                        Thống kê tổng quan
+                                    </h3>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6 mb-4">
+                            <div className="mb-6 grid grid-cols-2 gap-8">
                                 <div className="text-center">
-                                    <div className="relative w-24 h-24 mx-auto mb-3">
+                                    <div className="relative mx-auto mb-3 h-24 w-24">
                                         <div
-                                            className="w-full h-full rounded-full border border-black"
+                                            className="h-full w-full rounded-full border border-stone-200/90"
                                             style={{
-                                                background: tasks.length > 0
-                                                    ? `conic-gradient(#48b9a7 0deg ${taskCompletionRate * 3.6}deg, #fbbf24 ${taskCompletionRate * 3.6}deg 360deg)`
-                                                    : '#e2e8f0'
+                                                background:
+                                                    tasks.length > 0
+                                                        ? `conic-gradient(#3d9b8c 0deg ${taskCompletionRate * 3.6}deg, #fcd34d ${taskCompletionRate * 3.6}deg 360deg)`
+                                                        : '#e7e5e4'
                                             }}
                                         />
-                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center border border-black/10">
-                                            <div className="text-lg font-black text-black">{taskCompletionRate}%</div>
+                                        <div className="absolute inset-2 flex items-center justify-center rounded-full border border-stone-100 bg-white">
+                                            <div className="text-lg font-medium text-stone-800">{taskCompletionRate}%</div>
                                         </div>
                                     </div>
-                                    <div className="text-xs font-black text-black mb-2">To-Do Progress</div>
-                                    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700">
+                                    <div className="mb-2 text-xs font-medium text-stone-800">To-Do Progress</div>
+                                    <div className="flex flex-col justify-center gap-2 text-xs font-normal text-stone-600 sm:flex-row sm:gap-4">
                                         <div className="flex items-center justify-center gap-1.5">
-                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#48b9a7]" />
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#3d9b8c]" />
                                             <span>Xong ({completedTasks})</span>
                                         </div>
                                         <div className="flex items-center justify-center gap-1.5">
@@ -403,70 +427,78 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                                 </div>
 
                                 <div className="text-center">
-                                    <div className="relative w-24 h-24 mx-auto mb-3">
+                                    <div className="relative mx-auto mb-3 h-24 w-24">
                                         <div
-                                            className="w-full h-full rounded-full border border-black"
+                                            className="h-full w-full rounded-full border border-stone-200/90"
                                             style={{ background: generateDonutGradient() }}
                                         />
-                                        <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center border border-black/10">
-                                            <div className="text-lg font-black text-black">{totalItems}</div>
+                                        <div className="absolute inset-2 flex items-center justify-center rounded-full border border-stone-100 bg-white">
+                                            <div className="text-lg font-medium text-stone-800">{totalItems}</div>
                                         </div>
                                     </div>
-                                    <div className="text-xs font-black text-black mb-2">Dữ liệu đã lưu</div>
-                                    <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 text-xs font-semibold text-slate-700">
+                                    <div className="mb-2 text-xs font-medium text-stone-800">Dữ liệu đã lưu</div>
+                                    <div className="flex flex-col justify-center gap-2 text-xs font-normal text-stone-600 sm:flex-row sm:gap-4">
                                         <div className="flex items-center justify-center gap-1.5">
-                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#48b9a7]" />
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-[#3d9b8c]" />
                                             <span>Tools ({activeTools.length})</span>
                                         </div>
                                         <div className="flex items-center justify-center gap-1.5">
-                                            <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+                                            <span className="h-2 w-2 shrink-0 rounded-full bg-stone-300" />
                                             <span>Còn lại ({trackedTools.length - activeTools.length})</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="pt-4 border-t border-black">
-                                <div className="text-xs font-black text-black mb-2">Công cụ đang dùng</div>
+                            <div className="border-t border-stone-100 pt-6">
+                                <div className="mb-3 text-xs font-medium text-stone-800">Công cụ đang dùng</div>
                                 <div className="flex flex-wrap gap-2">
                                     {activeTools.length === 0 ? (
-                                        <div className="text-xs font-semibold text-slate-500">Chưa có dữ liệu</div>
+                                        <div className="text-xs font-normal text-stone-500">Chưa có dữ liệu</div>
                                     ) : (
                                         activeTools.map(tool => (
                                             <button
                                                 key={tool.id}
                                                 type="button"
                                                 onClick={() => setView(tool.viewId)}
-                                                className="flex items-center gap-1.5 rounded-full border border-black bg-white px-2.5 py-1 text-xs font-bold text-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                                className="flex items-center gap-1.5 rounded-full border border-stone-200/90 bg-stone-50/80 px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:border-stone-300 hover:bg-stone-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:ring-offset-2"
                                             >
                                                 <span
-                                                    className="h-2 w-2 shrink-0 rounded-full border border-black"
+                                                    className="h-2 w-2 shrink-0 rounded-full"
                                                     style={{ backgroundColor: tool.color }}
                                                 />
                                                 <span>{tool.name}</span>
-                                                <span className="font-black">{progressData[tool.id]}</span>
+                                                <span className="text-stone-500">{progressData[tool.id]}</span>
                                             </button>
                                         ))
                                     )}
                                 </div>
                             </div>
 
-                            <div className="mt-4 pt-4 border-t border-black grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-stone-100 pt-6 sm:grid-cols-4">
                                 <div className="text-center">
-                                    <div className="text-xl font-black text-[#047857]">{completedTasks}</div>
-                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Task xong</div>
+                                    <div className="text-xl font-medium text-emerald-800">{completedTasks}</div>
+                                    <div className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                        Task xong
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-black text-[#B45309]">{pendingTasks}</div>
-                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Task chờ</div>
+                                    <div className="text-xl font-medium text-amber-800">{pendingTasks}</div>
+                                    <div className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                        Task chờ
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-black text-[#5B21B6]">{activeTools.length}</div>
-                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Tools dùng</div>
+                                    <div className="text-xl font-medium text-violet-800">{activeTools.length}</div>
+                                    <div className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                        Tools dùng
+                                    </div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-xl font-black text-black">{totalItems}</div>
-                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wide">Mục lưu</div>
+                                    <div className="text-xl font-medium text-stone-900">{totalItems}</div>
+                                    <div className="text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                        Mục lưu
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -474,51 +506,79 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                 </div>
             </div>
 
-            {/* Feature Guides V2 — Neubrutalism: mảnh viền + hover nhấn xuống (shadow → 0, translate theo offset) */}
-            <div className="px-4 py-8 md:px-8 border-b border-slate-200 bg-[#F5F5F0]">
-                <div className="max-w-6xl mx-auto">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-black text-black mb-2 flex items-center gap-2">
-                            <BookOpen className="text-black" size={26} strokeWidth={1.5} /> Hướng dẫn tính năng V2
+            {/* Hướng dẫn tính năng — cùng ngôn ngữ visual với Khám phá công cụ (editorial minimal) */}
+            <div className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-14 md:px-10 md:py-20">
+                <div className="mx-auto max-w-6xl">
+                    <header className="mb-12 md:mb-16 max-w-2xl">
+                        <div className="mb-4 flex items-center gap-3 text-stone-400">
+                            <BookOpen size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                Hướng dẫn
+                            </span>
+                        </div>
+                        <h2 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                            Hướng dẫn tính năng
                         </h2>
-                        <p className="text-slate-600 font-semibold text-sm">Nâng cấp AI — click thẻ để mở công cụ.</p>
-                    </div>
+                        <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            Nâng cấp AI — nhấn thẻ để mở công cụ tương ứng.
+                        </p>
+                    </header>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 md:gap-6">
+                    <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-10 xl:grid-cols-4 xl:gap-8">
                         {featureGuides.map(feature => (
                             <button
                                 type="button"
                                 key={feature.id}
-                                className="group text-left bg-white rounded-[20px] border border-black p-6 md:p-8 shadow-[3px_3px_0_0_#000] cursor-pointer transition-[transform,box-shadow] duration-100 ease-out hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2"
+                                className="group text-left rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-300 md:p-10 hover:border-stone-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-300 focus-visible:ring-offset-2"
                                 onClick={() => setView(feature.id as ViewState)}
                             >
-                                <div className="flex items-start justify-between gap-2 mb-5">
+                                <div className="mb-8 flex items-start gap-5">
                                     <div
-                                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-black shadow-[1px_1px_0_0_#000] transition-[transform,box-shadow] duration-100 ease-out group-hover:translate-x-[1px] group-hover:translate-y-[1px] group-hover:shadow-none"
+                                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
                                         style={{ backgroundColor: feature.accentSoftBg, color: feature.accentIcon }}
                                         aria-hidden
                                     >
-                                        <feature.icon size={28} strokeWidth={1.5} />
+                                        <feature.icon size={22} strokeWidth={1.25} />
                                     </div>
-                                    <span className="rounded-full border border-black bg-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-                                        {feature.hashBadge}
-                                    </span>
+                                    <div className="min-w-0 pt-0.5">
+                                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                                            <h3 className="font-sans text-xl font-medium tracking-tight text-stone-900">
+                                                {feature.name}
+                                            </h3>
+                                            <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-stone-500">
+                                                {feature.hashBadge}
+                                            </span>
+                                        </div>
+                                        <p className="mt-2 text-sm font-normal text-stone-500">{feature.stackTag}</p>
+                                    </div>
                                 </div>
 
-                                <h4 className="font-black text-black text-base leading-tight">{feature.name}</h4>
-                                <p className="mt-1 text-sm font-semibold text-slate-500">{feature.stackTag}</p>
-
-                                <ul className="mt-4 space-y-2.5 border-t border-black pt-4">
+                                <ul className="border-t border-stone-100 pt-6">
                                     {feature.tips.map((tip, idx) => (
-                                        <li key={idx} className="flex items-start gap-2 text-xs font-medium leading-snug text-slate-700">
-                                            <span className="mt-0.5 shrink-0 font-black" style={{ color: feature.accentBullet }}>›</span>
-                                            <span>{tip}</span>
+                                        <li key={idx} className="border-b border-stone-100 last:border-0">
+                                            <div className="flex items-start gap-3 py-3.5">
+                                                <ArrowRight
+                                                    size={15}
+                                                    strokeWidth={1.25}
+                                                    className="mt-0.5 shrink-0 text-stone-300"
+                                                    style={{ color: feature.accentBullet }}
+                                                    aria-hidden
+                                                />
+                                                <span className="text-sm font-normal leading-relaxed text-stone-600">
+                                                    {tip}
+                                                </span>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
 
-                                <div className="mt-6 flex items-center gap-1 text-sm font-black text-black">
-                                    Khám phá <ArrowRight size={16} strokeWidth={1.5} className="shrink-0" />
+                                <div className="mt-6 flex items-center gap-1 text-sm font-medium text-stone-600 transition-colors group-hover:text-stone-900">
+                                    Khám phá
+                                    <ArrowRight
+                                        size={15}
+                                        strokeWidth={1.25}
+                                        className="shrink-0 text-stone-300 transition-colors group-hover:text-stone-500"
+                                    />
                                 </div>
                             </button>
                         ))}
@@ -527,7 +587,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
             </div>
 
             {/* Khám phá công cụ — Editorial Minimalism (chỉ section này) */}
-            <div className="border-b border-stone-200/70 bg-[#FAF9F7] px-5 py-14 md:px-10 md:py-20">
+            <div className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-14 md:px-10 md:py-20">
                 <div className="mx-auto max-w-6xl">
                     <header className="mb-12 md:mb-16 max-w-2xl">
                         <div className="mb-4 flex items-center gap-3 text-stone-400">
@@ -536,7 +596,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                                 Marketing stack
                             </span>
                         </div>
-                        <h2 className="font-serif text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                        <h2 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
                             Khám phá công cụ
                         </h2>
                         <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
@@ -559,7 +619,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
                                         <category.icon size={22} strokeWidth={1.25} />
                                     </div>
                                     <div className="min-w-0 pt-0.5">
-                                        <h3 className="font-serif text-xl font-medium tracking-tight text-stone-900">
+                                        <h3 className="font-sans text-xl font-medium tracking-tight text-stone-900">
                                             {category.title}
                                         </h3>
                                         <p className="mt-2 text-sm font-normal leading-relaxed text-stone-500">

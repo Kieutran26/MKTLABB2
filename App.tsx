@@ -58,6 +58,7 @@ import { ConfirmProvider } from './components/ConfirmModal';
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<ViewState>('HOME_DASHBOARD');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Flexible config: can study by Set IDs OR by a specific list of Words
   const [studyConfig, setStudyConfig] = useState<{
     mode: StudyMode,
@@ -225,10 +226,23 @@ function AppContent() {
     <div className="flex min-h-screen bg-soft-bg text-soft-text font-sans selection:bg-indigo-100 selection:text-indigo-800">
       {/* Sidebar is hidden when in full-screen study session or Landing Page */}
       {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && (
-        <Sidebar currentView={currentView} setView={setCurrentView} />
+        <Sidebar
+          currentView={currentView}
+          setView={setCurrentView}
+          collapsed={sidebarCollapsed}
+          onCollapsedChange={setSidebarCollapsed}
+        />
       )}
 
-      <main className={`flex-1 transition-all duration-300 relative ${currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' ? 'ml-64' : ''}`}>
+      <main
+        className={`flex-1 transition-all duration-300 relative ${
+          currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO'
+            ? sidebarCollapsed
+              ? 'ml-[4.75rem]'
+              : 'ml-[17rem]'
+            : ''
+        }`}
+      >
         {/* Global Header / Brand Switcher Area */}
         {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && (
           // Only show BrandSelector on specific pages if needed, or globally here.

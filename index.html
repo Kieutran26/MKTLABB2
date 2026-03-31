@@ -12,7 +12,7 @@
         extend: {
           colors: {
             soft: {
-              bg: '#F8FAFC',       // Slate 50 - Nền chính mát mẻ
+              bg: '#FCFDFC',       // Nền chính trắng ngà nhẹ
               surface: '#FFFFFF',  // Trắng cho thẻ
               primary: '#6366F1',  // Indigo 500 - Màu chủ đạo mềm
               secondary: '#EC4899',// Pink 500
@@ -24,6 +24,9 @@
           },
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Plus Jakarta Sans"', 'sans-serif'],
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
           },
           boxShadow: {
             'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)', // Bóng đổ siêu mềm
@@ -35,7 +38,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" crossorigin="anonymous">
 
   <!-- React Flow Styles -->
@@ -125,6 +128,15 @@
       font-size: 1.5rem !important;
       font-weight: 800;
       color: #1e293b;
+    }
+
+    /* Support hiding scrollbars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
     }
   </style>
 

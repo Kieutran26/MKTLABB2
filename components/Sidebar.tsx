@@ -5,17 +5,66 @@ import {
   CheckSquare, PenTool, Image as ImageIcon, PlusSquare, Mail, Film, Link2,
   MonitorPlay, Calculator, TrendingUp, ShieldCheck, Radar, Users, BrainCircuit, Lightbulb, Target,
   CalendarDays, Brain, FileText, FileCheck, Zap, Map, PieChart, Activity, Compass, DollarSign, Heart,
-  HelpCircle, Globe, Layers, Rocket
+  HelpCircle, Globe, Layers, Rocket, Sparkles, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
+
+const SIDEBAR_BG = '#FCFDFC';
+const NAV_TEXT = '#4A4A4A';
+const BORDER_SUBTLE = '#E8E5E1';
 
 interface SidebarProps {
   currentView: ViewState;
   setView: (view: ViewState) => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
+type NavItem = {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  badge?: 'new';
+};
+
+const BadgeNew = () => (
+  <span
+    className="shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold tracking-wide"
+    style={{ backgroundColor: '#FFE8D6', color: '#C45C26' }}
+  >
+    Mới
+  </span>
+);
+
+const BadgeVersion = ({ children }: { children: React.ReactNode }) => (
+  <span
+    className="shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold tracking-wide"
+    style={{ backgroundColor: '#FFE8D6', color: '#C45C26' }}
+  >
+    {children}
+  </span>
+);
+
 const NavGroup = ({
-  title, icon: Icon, expanded, setExpanded, items, setView, currentView
-}: any) => {
+  title,
+  icon: Icon,
+  expanded,
+  setExpanded,
+  items,
+  setView,
+  currentView,
+  collapsed,
+  onExpandSidebar,
+}: {
+  title: string;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  expanded: boolean;
+  setExpanded: (v: boolean) => void;
+  items: NavItem[];
+  setView: (view: ViewState) => void;
+  currentView: ViewState;
+  collapsed: boolean;
+  onExpandSidebar: () => void;
+}) => {
   const isActive = (id: string) => {
     if (currentView === id) return true;
     if (id === 'LEARN_SELECT' && currentView === 'LEARN_SESSION') return true;
@@ -23,72 +72,84 @@ const NavGroup = ({
     return false;
   };
 
-  const hasActive = items.some((item: any) => isActive(item.id));
+  const hasActive = items.some((item) => isActive(item.id));
+
+  if (collapsed) {
+    return (
+      <div className="flex justify-center py-1">
+        <button
+          type="button"
+          title={title}
+          onClick={onExpandSidebar}
+          className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10"
+          style={{ color: hasActive ? NAV_TEXT : `${NAV_TEXT}99` }}
+          aria-label={title}
+        >
+          <Icon size={20} strokeWidth={1.5} />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="py-0.5">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="group w-full flex items-center gap-2 px-2.5 py-2 text-left transition-colors duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1 rounded-lg hover:bg-stone-100/60"
+        className={`group w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors duration-150 hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+          hasActive && !expanded ? 'bg-black/[0.06]' : ''
+        }`}
+        style={{ color: NAV_TEXT }}
       >
-        <span
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
-          style={{ color: '#78716c' }}
-          aria-hidden
-        >
-          <Icon size={14} strokeWidth={1.25} />
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden>
+          <Icon size={18} strokeWidth={1.5} />
         </span>
-        <span className="min-w-0 flex-1 text-xs font-normal leading-tight tracking-tight text-stone-600 transition-colors group-hover:text-stone-800">
+        <span
+          className="min-w-0 flex-1 text-[11px] font-medium leading-snug tracking-tight"
+          style={{ color: NAV_TEXT }}
+        >
           {title}
         </span>
         {hasActive && (
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-stone-400" aria-hidden />
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full opacity-50" style={{ backgroundColor: NAV_TEXT }} aria-hidden />
         )}
-        {expanded
-          ? <ChevronDown size={13} strokeWidth={1.25} className="shrink-0 text-stone-400" />
-          : <ChevronRight size={13} strokeWidth={1.25} className="shrink-0 text-stone-400" />
-        }
+        {expanded ? (
+          <ChevronDown size={16} strokeWidth={1.5} className="shrink-0 opacity-45" style={{ color: NAV_TEXT }} />
+        ) : (
+          <ChevronRight size={16} strokeWidth={1.5} className="shrink-0 opacity-45" style={{ color: NAV_TEXT }} />
+        )}
       </button>
 
       <div
         className={`overflow-hidden transition-all duration-250 ease-in-out
           ${expanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
       >
-        <div className="mt-0.5 mb-1 ml-3.5 border-l border-stone-200/90 pl-2">
+        <div className="mt-0.5 mb-1 ml-4 border-l pl-3" style={{ borderColor: BORDER_SUBTLE }}>
           <ul className="space-y-0.5">
-          {items.map((item: any) => {
-            const active = isActive(item.id);
-            const ItemIcon = item.icon;
-            return (
-              <li key={item.id}>
-                <button
-                  type="button"
-                  onClick={() => setView(item.id as ViewState)}
-                  className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1
-                    ${active
-                      ? 'font-semibold'
-                      : 'font-medium text-stone-500 hover:text-stone-800'
+            {items.map((item) => {
+              const active = isActive(item.id);
+              const ItemIcon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => setView(item.id as ViewState)}
+                    className={`group w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 hover:bg-black/[0.06] ${
+                      active ? 'bg-black/[0.06]' : ''
                     }`}
-                >
-                  <span
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
-                    style={{ color: active ? '#78716c' : '#a8a29e' }}
-                    aria-hidden
+                    style={{ color: NAV_TEXT }}
                   >
-                    {ItemIcon ? (
-                      <ItemIcon size={14} strokeWidth={1.25} />
-                    ) : null}
-                  </span>
-                  <span
-                    className={`min-w-0 flex-1 truncate leading-tight transition-colors ${active ? 'text-stone-900' : ''}`}
-                  >
-                    {item.label}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center opacity-80" aria-hidden>
+                      {ItemIcon ? <ItemIcon size={16} strokeWidth={1.5} /> : null}
+                    </span>
+                    <span className="min-w-0 flex-1 text-[11px] font-normal leading-snug">
+                      {item.label}
+                    </span>
+                    {item.badge === 'new' ? <BadgeNew /> : null}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -96,7 +157,12 @@ const NavGroup = ({
   );
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  currentView,
+  setView,
+  collapsed = false,
+  onCollapsedChange,
+}) => {
   const [learnExpanded, setLearnExpanded] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [strategyExpanded, setStrategyExpanded] = useState(true);
@@ -104,19 +170,21 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
   const [designExpanded, setDesignExpanded] = useState(false);
   const [adsExpanded, setAdsExpanded] = useState(false);
 
-  const learnItems = [
+  const expandSidebar = () => onCollapsedChange?.(false);
+
+  const learnItems: NavItem[] = [
     { id: 'HOME', label: 'Dịch văn bản', icon: Home },
-    { id: 'LEARN_SELECT', label: 'Bắt đầu học', icon: GraduationCap },
+    { id: 'LEARN_SELECT', label: 'Bắt đầu học', icon: GraduationCap, badge: 'new' },
     { id: 'VOCAB_MANAGER', label: 'Quản lý từ vựng', icon: Library },
     { id: 'STARRED', label: 'Từ đã đánh dấu', icon: Star },
   ];
 
-  const planItems = [
+  const planItems: NavItem[] = [
     { id: 'PLAN_CALENDAR', label: 'Lịch thanh toán', icon: Calendar },
     { id: 'PLAN_LIST', label: 'Danh sách Plans', icon: List },
   ];
 
-  const strategyItems = [
+  const strategyItems: NavItem[] = [
     { id: 'MASTERMIND_STRATEGY', label: 'Mastermind Strategy', icon: Brain },
     { id: 'IMC_PLANNER', label: 'IMC Planner', icon: Target },
     { id: 'STP_MODEL', label: 'STP Model', icon: Layers },
@@ -133,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'AUDIENCE_EMOTION_MAP', label: 'Audience Emotion Map', icon: Heart },
   ];
 
-  const ideationItems = [
+  const ideationItems: NavItem[] = [
     { id: 'HOOK_GENERATOR', label: 'Hook Generator', icon: Zap },
     { id: 'CONTENT_WRITER', label: 'Viết Content', icon: PenTool },
     { id: 'MINDMAP_GENERATOR', label: 'Mindmap AI', icon: BrainCircuit },
@@ -144,7 +212,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'CREATIVE_ANGLE_EXPLORER', label: 'Creative Angle Explorer', icon: Lightbulb },
   ];
 
-  const designItems = [
+  const designItems: NavItem[] = [
     { id: 'VISUAL_EMAIL', label: 'Visual Email', icon: Mail },
     { id: 'FRAME_VISUAL', label: 'Frame Visual', icon: Film },
     { id: 'MOCKUP_GENERATOR', label: 'Mockup Generator', icon: MonitorPlay },
@@ -153,7 +221,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'CHAIN_LINK', label: 'Chain Link', icon: Link2 },
   ];
 
-  const adsItems = [
+  const adsItems: NavItem[] = [
     { id: 'BUDGET_ALLOCATOR', label: 'Budget Allocator', icon: PieChart },
     { id: 'UTM_BUILDER', label: 'UTM Builder', icon: Link2 },
     { id: 'AB_TESTING', label: 'A/B Testing Calc', icon: Calculator },
@@ -161,58 +229,90 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
     { id: 'ADS_HEALTH_CHECKER', label: 'Ads Health Checker', icon: Activity },
   ];
 
-  const logoActive = currentView === 'HOME_DASHBOARD' || currentView === 'HOME';
-  const footerActive = currentView === 'LANDING_INTRO' || currentView === 'FEATURES_GUIDE';
+  const singleNavItems: { id: ViewState; label: string; icon: typeof CheckSquare }[] = [
+    { id: 'TODO', label: 'To-Do List', icon: CheckSquare },
+    { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe },
+    { id: 'MARKETING_KNOWLEDGE', label: 'Kho Kiến Thức', icon: BookOpen },
+    { id: 'TOOLKIT', label: 'Bộ Công Cụ', icon: Zap },
+  ];
 
   return (
-    <aside className="w-60 bg-[#FAF9F7] h-screen fixed left-0 top-0 border-r border-stone-200/80 flex flex-col z-20 font-sans text-xs">
-      {/* Logo */}
-      <div className="px-5 py-6">
+    <aside
+      className="h-screen fixed left-0 top-0 z-20 flex flex-col border-r transition-[width] duration-300 ease-out"
+      style={{
+        width: collapsed ? '4.75rem' : '17rem',
+        backgroundColor: SIDEBAR_BG,
+        borderColor: BORDER_SUBTLE,
+        fontFamily: '"Plus Jakarta Sans", sans-serif',
+        color: NAV_TEXT,
+      }}
+    >
+      {/* Nút thu gọn nhỏ nằm đè trên mép phải sidebar, giữa chiều dọc */}
+      <button
+        type="button"
+        onClick={() => onCollapsedChange?.(!collapsed)}
+        className="fixed z-50 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-[left,background-color] duration-300 ease-out hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 top-[42px]"
+        style={{
+          borderColor: BORDER_SUBTLE,
+          left: collapsed ? 'calc(4.75rem - 14px)' : 'calc(17rem - 14px)',
+        }}
+        aria-label={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+        title={collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'}
+      >
+        {collapsed ? (
+          <PanelLeftOpen size={16} strokeWidth={1.5} style={{ color: '#2C2C2C' }} />
+        ) : (
+          <PanelLeftClose size={16} strokeWidth={1.5} style={{ color: '#2C2C2C' }} />
+        )}
+      </button>
+
+      {/* Header: logo */}
+      <div className={`flex shrink-0 items-center ${collapsed ? 'flex-col gap-2 px-2 py-5' : 'justify-start gap-2 px-4 py-5'}`}>
         <button
           type="button"
           onClick={() => setView('HOME_DASHBOARD')}
-          className="group flex w-full items-center gap-3 px-1 py-1 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1 rounded-lg hover:bg-stone-100/60 transition-colors duration-150"
+          className={`group flex min-w-0 items-center gap-2.5 rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${collapsed ? 'justify-center px-0' : 'px-1'}`}
+          title="Trang chủ"
         >
-          <span
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
-            aria-hidden
-          >
-            <GraduationCap
-              size={18}
-              strokeWidth={1.25}
-              className="text-stone-600"
-            />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center" aria-hidden>
+            <Sparkles size={22} strokeWidth={1.5} style={{ color: NAV_TEXT }} />
           </span>
-          <span className="text-lg font-normal tracking-tight text-stone-800">
-            OptiMKT
-          </span>
+          {!collapsed && (
+            <span
+              className="truncate text-[0.875rem] font-semibold tracking-tight"
+              style={{ fontFamily: '"Plus Jakarta Sans", sans-serif', color: '#2C2C2C' }}
+            >
+              OptiM.KI
+            </span>
+          )}
         </button>
       </div>
 
-      {/* Divider */}
-      <div className="mx-5 border-t border-stone-200/80" />
+      <div className="mx-4 border-t" style={{ borderColor: BORDER_SUBTLE }} />
 
-      {/* Nav */}
-      <nav className="flex-1 min-h-0 py-3 pb-24 overflow-y-auto custom-scrollbar px-2.5 space-y-0.5">
-
+      <nav className="no-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
         <NavGroup
-          title="Strategy & Research"
+          title="Models & Content"
           icon={Brain}
           expanded={strategyExpanded}
           setExpanded={setStrategyExpanded}
           items={strategyItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
         <NavGroup
-          title="Ideation & Content"
+          title="Idea Strategy AI"
           icon={Lightbulb}
           expanded={ideationExpanded}
           setExpanded={setIdeationExpanded}
           items={ideationItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
         <NavGroup
@@ -223,6 +323,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           items={designItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
         <NavGroup
@@ -233,9 +335,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           items={adsItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
-        <div className="my-3 mx-1 border-t border-stone-200/80" />
+        <div className="my-3 mx-1 border-t" style={{ borderColor: BORDER_SUBTLE }} />
 
         <NavGroup
           title="Học Tiếng Anh"
@@ -245,79 +349,123 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView }) => {
           items={learnItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
         <NavGroup
-          title="Quản lý Plans"
+          title="Quản lý Plan"
           icon={CreditCard}
           expanded={planExpanded}
           setExpanded={setPlanExpanded}
           items={planItems}
           setView={setView}
           currentView={currentView}
+          collapsed={collapsed}
+          onExpandSidebar={expandSidebar}
         />
 
-        {/* Single items */}
-        {[
-          { id: 'TODO', label: 'To-Do List', icon: CheckSquare },
-          { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe },
-          { id: 'MARKETING_KNOWLEDGE', label: 'Kho Kiến Thức', icon: BookOpen },
-          { id: 'TOOLKIT', label: 'Bộ Công Cụ', icon: Zap },
-        ].map(({ id, label, icon: Icon }) => {
-          const active = currentView === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setView(id as ViewState)}
-              className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none focus-visible:ring-1 focus-visible:ring-stone-300 focus-visible:ring-offset-1
-                ${active
-                  ? 'font-semibold text-stone-900'
-                  : 'font-medium text-stone-500 hover:text-stone-800 hover:bg-stone-100/60'
+        {!collapsed &&
+          singleNavItems.map(({ id, label, icon: Icon }) => {
+            const active = currentView === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setView(id)}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+                  active ? 'bg-black/[0.06]' : ''
                 }`}
-            >
-              <span
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors duration-150"
-                style={{ color: active ? '#78716c' : '#a8a29e' }}
-                aria-hidden
+                style={{ color: NAV_TEXT }}
               >
-                <Icon size={14} strokeWidth={1.25} />
-              </span>
-              <span className={`min-w-0 flex-1 truncate text-left leading-tight transition-colors ${active ? 'text-stone-900 font-medium' : 'text-stone-600'}`}>{label}</span>
-            </button>
-          );
-        })}
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center opacity-90" aria-hidden>
+                  <Icon size={18} strokeWidth={1.5} />
+                </span>
+                <span className="min-w-0 flex-1 truncate text-left text-[11px] font-medium leading-snug">{label}</span>
+              </button>
+            );
+          })}
+
+        {collapsed &&
+          singleNavItems.map(({ id, label, icon: Icon }) => {
+            const active = currentView === id;
+            return (
+              <div key={id} className="flex justify-center py-1">
+                <button
+                  type="button"
+                  title={label}
+                  onClick={() => {
+                    setView(id);
+                    expandSidebar();
+                  }}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06]"
+                  style={{ color: active ? NAV_TEXT : `${NAV_TEXT}99` }}
+                  aria-label={label}
+                >
+                  <Icon size={20} strokeWidth={1.5} />
+                </button>
+              </div>
+            );
+          })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-stone-200/80 px-4 py-4 bg-[#FAF9F7] space-y-1">
-        <button
-          type="button"
-          onClick={() => setView('LANDING_INTRO')}
-          className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none
-            ${currentView === 'LANDING_INTRO'
-              ? 'text-stone-900 font-semibold'
-              : 'text-stone-400 hover:text-stone-700'
-            }`}
-        >
-          <Rocket size={13} strokeWidth={1.25} className="shrink-0 text-stone-500" />
-          <span className="min-w-0 leading-tight text-stone-600">Xem Landing Page</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('FEATURES_GUIDE')}
-          className={`group w-full flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-all duration-150 focus:outline-none
-            ${currentView === 'FEATURES_GUIDE'
-              ? 'text-stone-900 font-semibold'
-              : 'text-stone-400 hover:text-stone-700'
-            }`}
-        >
-          <HelpCircle size={13} strokeWidth={1.25} className="shrink-0 text-stone-500" />
-          <span className="min-w-0 leading-tight text-stone-600">Hướng dẫn sử dụng</span>
-        </button>
-        <div className="pt-1 text-center text-[10px] font-medium text-stone-400 tracking-wide">
-          v1.7.0 &middot; OptiMKT
-        </div>
+      <div
+        className="shrink-0 space-y-1 border-t px-3 py-4"
+        style={{ backgroundColor: SIDEBAR_BG, borderColor: BORDER_SUBTLE }}
+      >
+        {!collapsed ? (
+          <>
+            <button
+              type="button"
+              onClick={() => setView('LANDING_INTRO')}
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+                currentView === 'LANDING_INTRO' ? 'bg-black/[0.06]' : ''
+              }`}
+              style={{ color: NAV_TEXT }}
+            >
+              <Rocket size={18} strokeWidth={1.5} className="shrink-0 opacity-90" />
+              <span className="min-w-0 flex-1 text-[11px] font-medium leading-snug">Xem Landing Page</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('FEATURES_GUIDE')}
+              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-black/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 ${
+                currentView === 'FEATURES_GUIDE' ? 'bg-black/[0.06]' : ''
+              }`}
+              style={{ color: NAV_TEXT }}
+            >
+              <HelpCircle size={18} strokeWidth={1.5} className="shrink-0 opacity-90" />
+              <span className="min-w-0 flex-1 text-[11px] font-medium leading-snug">Hướng dẫn sử dụng</span>
+              <BadgeVersion>V2.5 Update</BadgeVersion>
+            </button>
+            <div className="pt-1 text-center text-[10px] font-medium tracking-wide opacity-45" style={{ color: NAV_TEXT }}>
+              v1.7.0 · OptiM.KI
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            <button
+              type="button"
+              title="Xem Landing Page"
+              onClick={() => setView('LANDING_INTRO')}
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06]"
+              style={{ color: currentView === 'LANDING_INTRO' ? NAV_TEXT : `${NAV_TEXT}99` }}
+              aria-label="Xem Landing Page"
+            >
+              <Rocket size={20} strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              title="Hướng dẫn sử dụng"
+              onClick={() => setView('FEATURES_GUIDE')}
+              className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-black/[0.06]"
+              style={{ color: currentView === 'FEATURES_GUIDE' ? NAV_TEXT : `${NAV_TEXT}99` }}
+              aria-label="Hướng dẫn sử dụng"
+            >
+              <HelpCircle size={20} strokeWidth={1.5} />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

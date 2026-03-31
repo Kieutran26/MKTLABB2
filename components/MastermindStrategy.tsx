@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users, CalendarDays, BarChart, History, X, Save, Edit3, Check, Rocket } from 'lucide-react'; import { generateMastermindStrategy } from '../services/geminiService';
+import {
+    Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users,
+    CalendarDays, History, X, Save, Check, Rocket,
+} from 'lucide-react';
+import { generateMastermindStrategy } from '../services/geminiService';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
@@ -175,67 +179,86 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     if (viewMode === 'create') {
         return (
-            <div className="max-w-4xl mx-auto pt-10 px-6 pb-20">
-                <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
-                            <Brain className="text-indigo-600" strokeWidth={1.5} />
-                            Mastermind Strategy
-                        </h2>
-                        <p className="text-slate-500 mt-1">Xây dựng chiến lược nội dung tổng thể dựa trên kết nối con người.</p>
+            <div className="min-h-full border-b border-stone-200/70 bg-[#FCFDFC] px-5 pb-20 pt-10 md:px-10">
+                <div className="mx-auto max-w-6xl">
+                    <header className="mb-10 flex flex-col gap-8 lg:mb-12 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="max-w-2xl">
+                            <div className="mb-4 flex items-center gap-3 text-stone-400">
+                                <Brain size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                    Chiến lược nội dung
+                                </span>
+                            </div>
+                            <h2 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                                Mastermind Strategy
+                            </h2>
+                            <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                                Xây dựng chiến lược nội dung tổng thể dựa trên kết nối con người.
+                            </p>
+                            {!useManual && (
+                                <div className="mt-6 rounded-2xl border border-stone-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                    <BrandSelector />
+                                </div>
+                            )}
+                        </div>
 
-                        {!useManual && <div className="mt-4"><BrandSelector /></div>}
-                    </div>
-
-                    <div className="flex flex-col items-end gap-3">
-                        <div className="flex items-center gap-3 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex shrink-0 flex-col items-stretch gap-3 sm:items-end">
+                            <div className="flex items-center gap-1 rounded-2xl border border-stone-200/90 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                <button
+                                    type="button"
+                                    onClick={() => setUseManual(false)}
+                                    className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${!useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
+                                >
+                                    Brand Vault
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setUseManual(true)}
+                                    className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
+                                >
+                                    Thủ công
+                                </button>
+                            </div>
                             <button
-                                onClick={() => setUseManual(false)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${!useManual ? 'bg-slate-100 text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                                type="button"
+                                onClick={() => setShowHistory(true)}
+                                className="flex items-center justify-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 sm:justify-end"
                             >
-                                Brand Vault
-                            </button>
-                            <button
-                                onClick={() => setUseManual(true)}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${useManual ? 'bg-indigo-50 text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                Thủ công
+                                <History size={16} strokeWidth={1.25} aria-hidden /> Lịch sử
                             </button>
                         </div>
-                        <button
-                            onClick={() => setShowHistory(true)}
-                            className="text-slate-500 hover:text-indigo-600 text-sm font-bold flex items-center gap-2 transition-colors"
-                        >
-                            <History size={16} /> Lịch sử
-                        </button>
-                    </div>
-                </div>
+                    </header>
 
-                <div className="bg-white rounded-3xl shadow-soft border border-slate-100 overflow-hidden">
-                    {/* Step Indicators */}
-                    <div className="flex border-b border-slate-100">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className={`flex-1 p-4 text-center text-sm font-bold border-b-2 transition-colors ${step === i ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-400'}`}>
+                    <article className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                    <div className="flex border-b border-stone-100">
+                        {[1, 2, 3].map((i) => (
+                            <div
+                                key={i}
+                                className={`flex-1 border-b-2 py-4 text-center text-sm font-medium transition-colors ${step === i ? 'border-stone-900 text-stone-900' : 'border-transparent text-stone-400'}`}
+                            >
                                 Giai đoạn {i}
                             </div>
                         ))}
                     </div>
 
-                    <div className="p-8 min-h-[400px]">
+                    <div className="min-h-[400px] p-8 md:p-10">
                         {/* STEP 1: CONTEXT */}
                         {step === 1 && (
                             <div className="space-y-6 animate-in slide-in-from-right">
-                                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Users className="text-indigo-500" /> Thấu hiểu (The Context)</h3>
+                                <h3 className="flex items-center gap-2.5 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Users className="text-stone-400" size={20} strokeWidth={1.25} aria-hidden />
+                                    Thấu hiểu <span className="font-normal text-stone-400">(The Context)</span>
+                                </h3>
 
                                 {useManual ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-4 p-5 rounded-2xl border border-indigo-100 bg-indigo-50/30">
-                                            <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">Chủ thể (Brand)</div>
+                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div className="space-y-4 rounded-2xl border border-stone-200/90 bg-stone-50/50 p-6">
+                                            <div className="mb-1 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">Chủ thể (Brand)</div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Tên thương hiệu</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Tên thương hiệu</label>
                                                 <input
-                                                    className="w-full p-2.5 bg-white border border-indigo-100 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: OptiMKT"
                                                     value={manualBrandName}
                                                     onChange={e => setManualBrandName(e.target.value)}
@@ -243,9 +266,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Tầm nhìn & Sứ mệnh</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Tầm nhìn & Sứ mệnh</label>
                                                 <textarea
-                                                    className="w-full p-2.5 bg-white border border-indigo-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 h-20 resize-none"
+                                                    className="h-20 w-full resize-none rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="Chúng tôi muốn trở thành..."
                                                     value={manualBrandVision}
                                                     onChange={e => setManualBrandVision(e.target.value)}
@@ -253,9 +276,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Giá trị cốt lõi</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Giá trị cốt lõi</label>
                                                 <textarea
-                                                    className="w-full p-2.5 bg-white border border-indigo-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 h-16 resize-none"
+                                                    className="h-16 w-full resize-none rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: Tận tâm, Sáng tạo, Bền vững..."
                                                     value={manualBrandValues}
                                                     onChange={e => setManualBrandValues(e.target.value)}
@@ -263,13 +286,13 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
                                         </div>
 
-                                        <div className="space-y-4 p-5 rounded-2xl border border-pink-100 bg-pink-50/30">
-                                            <div className="text-xs font-bold text-pink-400 uppercase tracking-wider mb-2">Đối tượng (Audience)</div>
+                                        <div className="space-y-4 rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+                                            <div className="mb-1 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">Đối tượng (Audience)</div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Tên nhóm khách hàng</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Tên nhóm khách hàng</label>
                                                 <input
-                                                    className="w-full p-2.5 bg-white border border-pink-100 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-100"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm font-medium text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="VD: GenZ yêu môi trường"
                                                     value={manualAudienceName}
                                                     onChange={e => setManualAudienceName(e.target.value)}
@@ -277,9 +300,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Nỗi đau (Pain Points)</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Nỗi đau (Pain Points)</label>
                                                 <textarea
-                                                    className="w-full p-2.5 bg-white border border-pink-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-100 h-16 resize-none"
+                                                    className="h-16 w-full resize-none rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="Họ đang gặp khó khăn gì?"
                                                     value={manualAudiencePain}
                                                     onChange={e => setManualAudiencePain(e.target.value)}
@@ -287,9 +310,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Mong muốn (Motivations)</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Mong muốn (Motivations)</label>
                                                 <input
-                                                    className="w-full p-2.5 bg-white border border-pink-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-100"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="Họ khao khát điều gì?"
                                                     value={manualAudienceDesire}
                                                     onChange={e => setManualAudienceDesire(e.target.value)}
@@ -297,9 +320,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                             </div>
 
                                             <div>
-                                                <label className="block text-xs font-bold text-slate-500 mb-1">Hành vi (Behaviors)</label>
+                                                <label className="mb-1 block text-xs font-medium text-stone-500">Hành vi (Behaviors)</label>
                                                 <input
-                                                    className="w-full p-2.5 bg-white border border-pink-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-100"
+                                                    className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                                     placeholder="Thói quen online, sở thích..."
                                                     value={manualAudienceBehavior}
                                                     onChange={e => setManualAudienceBehavior(e.target.value)}
@@ -309,32 +332,37 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     </div>
                                 ) : (
                                     !currentBrand ? (
-                                        <div className="p-4 bg-red-50 text-red-600 rounded-xl text-sm text-center">Vui lòng chọn Brand ở trên để tiếp tục.</div>
+                                        <div className="rounded-2xl border border-rose-100 bg-rose-50/60 px-4 py-4 text-center text-sm font-normal text-rose-800">
+                                            Vui lòng chọn Brand ở trên để tiếp tục.
+                                        </div>
                                     ) : (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                                                <div className="text-xs font-bold text-slate-400 uppercase mb-2">Chủ thể (Brand)</div>
-                                                <div className="font-bold text-slate-800 text-lg mb-1">{currentBrand.identity.name}</div>
-                                                <p className="text-sm text-slate-600 line-clamp-3">{currentBrand.strategy.vision}</p>
+                                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                            <div className="rounded-2xl border border-stone-200/90 bg-stone-50/50 p-6">
+                                                <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">Chủ thể (Brand)</div>
+                                                <div className="mb-1 text-lg font-medium tracking-tight text-stone-900">{currentBrand.identity.name}</div>
+                                                <p className="line-clamp-3 text-sm font-normal leading-relaxed text-stone-600">{currentBrand.strategy.vision}</p>
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-bold text-slate-700 mb-2">Đối tượng (Audience)</label>
-                                                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                                    {availablePersonas.map(p => (
-                                                        <div
+                                                <label className="mb-3 block text-sm font-medium text-stone-800">Đối tượng (Audience)</label>
+                                                <div className="custom-scrollbar max-h-[300px] space-y-2 overflow-y-auto pr-1">
+                                                    {availablePersonas.map((p) => (
+                                                        <button
+                                                            type="button"
                                                             key={p.id}
                                                             onClick={() => setSelectedPersona(p)}
-                                                            className={`p-3 rounded-xl border cursor-pointer flex items-center gap-3 transition-all ${selectedPersona?.id === p.id ? 'border-indigo-500 bg-indigo-50 ring-1 ring-indigo-200' : 'border-slate-200 hover:border-indigo-200'}`}
+                                                            className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all ${selectedPersona?.id === p.id ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/80'}`}
                                                         >
-                                                            <img src={p.avatarUrl} className="w-10 h-10 rounded-full bg-white" />
-                                                            <div>
-                                                                <div className="font-bold text-sm text-slate-800">{p.fullname}</div>
-                                                                <div className="text-xs text-slate-500">{p.jobTitle}</div>
+                                                            <img src={p.avatarUrl} alt="" className="h-10 w-10 shrink-0 rounded-full bg-white object-cover" />
+                                                            <div className="min-w-0">
+                                                                <div className="truncate text-sm font-medium text-stone-900">{p.fullname}</div>
+                                                                <div className="truncate text-xs font-normal text-stone-500">{p.jobTitle}</div>
                                                             </div>
-                                                        </div>
+                                                        </button>
                                                     ))}
-                                                    {availablePersonas.length === 0 && <div className="text-sm text-slate-400 italic">Chưa có Persona nào. Hãy tạo ở module Persona Builder.</div>}
+                                                    {availablePersonas.length === 0 && (
+                                                        <div className="text-sm font-normal italic text-stone-400">Chưa có Persona nào. Hãy tạo ở module Persona Builder.</div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -346,12 +374,15 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                         {/* STEP 2: GOAL */}
                         {step === 2 && (
                             <div className="space-y-6 animate-in slide-in-from-right">
-                                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Target className="text-red-500" /> Mục tiêu (The Goal)</h3>
+                                <h3 className="flex items-center gap-2.5 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Target className="text-stone-400" size={20} strokeWidth={1.25} aria-hidden />
+                                    Mục tiêu <span className="font-normal text-stone-400">(The Goal)</span>
+                                </h3>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Objective (Mục tiêu chuyển đổi)</label>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Objective (Mục tiêu chuyển đổi)</label>
                                     <textarea
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 h-24 resize-none"
+                                        className="h-24 w-full resize-none rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                         placeholder="VD: Chuyển đổi từ 'Biết' sang 'Tin tưởng'. Tăng tỉ lệ đăng ký dùng thử..."
                                         value={objective}
                                         onChange={e => setObjective(e.target.value)}
@@ -359,9 +390,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Perception (Nhận thức mong muốn)</label>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Perception (Nhận thức mong muốn)</label>
                                     <textarea
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 h-24 resize-none"
+                                        className="h-24 w-full resize-none rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                         placeholder="VD: Khách hàng nghĩ về thương hiệu như một người bạn đồng hành tin cậy, không phải người bán hàng..."
                                         value={perception}
                                         onChange={e => setPerception(e.target.value)}
@@ -373,62 +404,98 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                         {/* STEP 3: DIRECTION */}
                         {step === 3 && (
                             <div className="space-y-6 animate-in slide-in-from-right">
-                                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><Compass className="text-blue-500" /> Định hướng (The Direction)</h3>
+                                <h3 className="flex items-center gap-2.5 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <Compass className="text-stone-400" size={20} strokeWidth={1.25} aria-hidden />
+                                    Định hướng <span className="font-normal text-stone-400">(The Direction)</span>
+                                </h3>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-slate-700 mb-2">Tone & Style (Giọng điệu & Phong cách)</label>
+                                    <label className="mb-2 block text-sm font-medium text-stone-800">Tone & Style (Giọng điệu & Phong cách)</label>
                                     <input
-                                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500"
+                                        className="w-full rounded-xl border border-stone-200 bg-white p-4 text-sm text-stone-800 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
                                         placeholder="VD: Hài hước, Châm biếm, Nghiêm túc, Chuyên gia..."
                                         value={tone}
                                         onChange={e => setTone(e.target.value)}
                                     />
                                 </div>
 
-                                <div className="p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-sm text-indigo-800">
-                                    💡 AI sẽ tổng hợp thông tin từ 3 giai đoạn để xây dựng chiến lược "Human Connection" hoàn chỉnh.
+                                <div className="rounded-2xl border border-stone-200/90 bg-stone-50/70 p-4 text-sm font-normal leading-relaxed text-stone-600">
+                                    AI sẽ tổng hợp thông tin từ 3 giai đoạn để xây dựng chiến lược “Human Connection” hoàn chỉnh.
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="p-6 border-t border-slate-100 flex justify-between bg-slate-50">
+                    <div className="flex justify-between border-t border-stone-100 bg-stone-50/40 px-6 py-5 md:px-10">
                         {step > 1 ? (
-                            <button onClick={() => setStep(step - 1)} className="px-6 py-3 text-slate-500 font-bold hover:bg-slate-200 rounded-xl transition-colors">Quay lại</button>
-                        ) : <div></div>}
+                            <button
+                                type="button"
+                                onClick={() => setStep(step - 1)}
+                                className="rounded-full px-5 py-2.5 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
+                            >
+                                Quay lại
+                            </button>
+                        ) : (
+                            <div />
+                        )}
 
                         {step < 3 ? (
-                            <button onClick={() => setStep(step + 1)} disabled={!useManual && step === 1 && !selectedPersona} className="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-900 transition-colors flex items-center gap-2 disabled:opacity-50">
-                                Tiếp theo <ArrowRight size={16} />
+                            <button
+                                type="button"
+                                onClick={() => setStep(step + 1)}
+                                disabled={!useManual && step === 1 && !selectedPersona}
+                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-40"
+                            >
+                                Tiếp theo <ArrowRight size={16} strokeWidth={1.25} />
                             </button>
                         ) : (
                             <button
+                                type="button"
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
-                                className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200 disabled:opacity-70 flex items-center gap-2"
+                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-8 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-50"
                             >
-                                {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
-                                Lập Chiến lược
+                                {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} strokeWidth={1.25} />}
+                                Lập chiến lược
                             </button>
                         )}
                     </div>
+                    </article>
                 </div>
 
                 {/* History Modal */}
                 {showHistory && (
-                    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in border border-slate-100 flex flex-col max-h-[80vh]">
-                            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-3xl">
-                                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><History size={20} /> Lịch sử Chiến lược</h3>
-                                <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-700 bg-white p-1 rounded-full shadow-sm"><X size={20} /></button>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/30 p-4 backdrop-blur-[2px]">
+                        <div className="flex max-h-[80vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.08)]">
+                            <div className="flex items-center justify-between border-b border-stone-100 px-6 py-5">
+                                <h3 className="flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <History size={18} strokeWidth={1.25} aria-hidden /> Lịch sử chiến lược
+                                </h3>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowHistory(false)}
+                                    className="rounded-full p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                                    aria-label="Đóng"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
-                            <div className="p-6 overflow-y-auto space-y-3 custom-scrollbar">
-                                {historyList.length === 0 ? <div className="text-center py-10 text-slate-400">Chưa có chiến lược nào.</div> : historyList.map(s => (
-                                    <div key={s.id} onClick={() => loadStrategy(s)} className="p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 hover:bg-slate-50 cursor-pointer transition-all">
-                                        <div className="font-bold text-slate-800 mb-1">{s.name}</div>
-                                        <div className="text-xs text-slate-400">{new Date(s.createdAt).toLocaleDateString('vi-VN')}</div>
-                                    </div>
-                                ))}
+                            <div className="custom-scrollbar space-y-2 overflow-y-auto p-6">
+                                {historyList.length === 0 ? (
+                                    <div className="py-12 text-center text-sm font-normal text-stone-400">Chưa có chiến lược nào.</div>
+                                ) : (
+                                    historyList.map((s) => (
+                                        <button
+                                            type="button"
+                                            key={s.id}
+                                            onClick={() => loadStrategy(s)}
+                                            className="w-full cursor-pointer rounded-xl border border-stone-100 p-4 text-left transition-all hover:border-stone-200 hover:bg-stone-50/80"
+                                        >
+                                            <div className="mb-0.5 font-medium text-stone-900">{s.name}</div>
+                                            <div className="text-xs font-normal text-stone-400">{new Date(s.createdAt).toLocaleDateString('vi-VN')}</div>
+                                        </button>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>
@@ -445,74 +512,90 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         const { result } = strategyResult;
 
         return (
-            <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
-                <div className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setViewMode('create')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors">
-                            <ArrowRight size={24} strokeWidth={1.5} className="rotate-180" />
-                        </button>
-                        <h2 className="text-lg font-bold text-slate-800 truncate max-w-md">{strategyResult.name}</h2>
-                    </div>
-                    <div className="flex gap-3">
+            <div className="flex h-screen flex-col overflow-hidden border-b border-stone-200/70 bg-[#FCFDFC]">
+                <div className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-stone-200/90 bg-white/90 px-5 backdrop-blur-sm md:h-16 md:px-8">
+                    <div className="flex min-w-0 items-center gap-3">
                         <button
-                            onClick={handleSave}
-                            className="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-slate-50 hover:text-indigo-600 shadow-sm transition-all text-sm"
+                            type="button"
+                            onClick={() => setViewMode('create')}
+                            className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
+                            aria-label="Quay lại"
                         >
-                            <Save size={16} /> Lưu
+                            <ArrowRight size={22} strokeWidth={1.25} className="rotate-180" />
                         </button>
-                        <button onClick={handleDeploy} className="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-sm transition-all text-sm">
-                            <CalendarDays size={16} /> Deploy to Calendar
+                        <h2 className="max-w-[min(100%,20rem)] truncate font-sans text-base font-medium tracking-tight text-stone-900 md:max-w-md md:text-lg">
+                            {strategyResult.name}
+                        </h2>
+                    </div>
+                    <div className="flex shrink-0 gap-2 md:gap-3">
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50 md:px-4 md:text-sm"
+                        >
+                            <Save size={15} strokeWidth={1.25} /> Lưu
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDeploy}
+                            className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-stone-800 md:px-4 md:text-sm"
+                        >
+                            <CalendarDays size={15} strokeWidth={1.25} /> Deploy to Calendar
                         </button>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8">
-                    <div className="max-w-6xl mx-auto space-y-8 pb-20">
+                <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
+                    <div className="mx-auto max-w-6xl space-y-8 pb-20">
 
                         {/* BLOCK 1: THE CORE */}
-                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500"></div>
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                                {/* Brand Side */}
-                                <div className="text-center w-48">
-                                    <div className="w-20 h-20 mx-auto bg-indigo-100 rounded-2xl flex items-center justify-center mb-3">
-                                        <Sparkles className="text-indigo-600" size={32} />
+                        <div className="relative overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:p-10">
+                            <div className="absolute left-0 top-0 h-px w-full bg-stone-200" aria-hidden />
+                            <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+                                <div className="w-48 text-center">
+                                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-stone-100">
+                                        <Sparkles className="text-stone-600" size={28} strokeWidth={1.25} />
                                     </div>
-                                    <div className="font-bold text-slate-800">Brand Truth</div>
+                                    <div className="text-xs font-medium uppercase tracking-[0.12em] text-stone-400">Brand Truth</div>
                                 </div>
 
-                                {/* The Bridge */}
-                                <div className="flex-1 text-center relative">
-                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Insight & Connection</div>
-                                    <div className="text-2xl md:text-3xl font-black text-slate-800 leading-tight">
-                                        "{result.coreMessage}"
+                                <div className="relative flex-1 text-center">
+                                    <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">Insight & Connection</div>
+                                    <div className="font-sans text-2xl font-normal leading-snug tracking-tight text-stone-900 md:text-3xl">
+                                        &ldquo;{result.coreMessage}&rdquo;
                                     </div>
-                                    <div className="mt-4 text-sm text-slate-500 bg-slate-50 inline-block px-4 py-2 rounded-full border border-slate-100">
+                                    <div className="mt-4 inline-block rounded-full border border-stone-100 bg-stone-50/80 px-4 py-2 text-sm font-normal text-stone-600">
                                         {result.insight}
                                     </div>
                                 </div>
 
-                                {/* Audience Side */}
-                                <div className="text-center w-48">
-                                    <div className="w-20 h-20 mx-auto bg-pink-100 rounded-full flex items-center justify-center mb-3">
-                                        <Heart className="text-pink-600" size={32} />
+                                <div className="w-48 text-center">
+                                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+                                        <Heart className="text-stone-600" size={28} strokeWidth={1.25} />
                                     </div>
-                                    <div className="font-bold text-slate-800">Customer Pain</div>
+                                    <div className="text-xs font-medium uppercase tracking-[0.12em] text-stone-400">Customer Pain</div>
                                 </div>
                             </div>
                         </div>
 
                         {/* BLOCK 2: THE BRAIN */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-slate-800 text-white p-6 rounded-3xl shadow-lg">
-                                <h4 className="font-bold text-slate-400 uppercase text-xs mb-4 flex items-center gap-2"><Target size={14} /> Objective</h4>
-                                <p className="text-lg font-medium leading-relaxed">{strategyResult.objective}</p>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                            <div className="rounded-2xl border border-stone-200/90 bg-stone-900 p-6 text-white shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
+                                <h4 className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">
+                                    <Target size={14} strokeWidth={1.25} /> Objective
+                                </h4>
+                                <p className="text-base font-normal leading-relaxed text-stone-100">{strategyResult.objective}</p>
                             </div>
-                            <div className="md:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                                <h4 className="font-bold text-slate-400 uppercase text-xs mb-4 flex items-center gap-2"><Lightbulb size={14} /> Key Messages</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] md:col-span-2">
+                                <h4 className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">
+                                    <Lightbulb size={14} strokeWidth={1.25} /> Key Messages
+                                </h4>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
                                     {result.keyMessages.map((msg, i) => (
-                                        <div key={i} className="p-4 bg-yellow-50 rounded-2xl border border-yellow-100 text-yellow-900 font-medium text-sm">
+                                        <div
+                                            key={i}
+                                            className="rounded-2xl border border-stone-100 bg-stone-50/80 p-4 text-sm font-normal leading-relaxed text-stone-800"
+                                        >
                                             {msg}
                                         </div>
                                     ))}
@@ -522,44 +605,52 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                         {/* BLOCK 3: THE ART */}
                         <div>
-                            <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                <Sparkles className="text-purple-500" size={24} /> The Art (Creative Angles)
+                            <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <Sparkles className="text-stone-400" size={22} strokeWidth={1.25} />
+                                The Art <span className="font-normal text-stone-400">(Creative Angles)</span>
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <div className="bg-white p-6 rounded-3xl border border-slate-200">
-                                    <h4 className="font-bold text-slate-700 mb-3 border-b pb-2">Visual & Mood</h4>
-                                    <ul className="list-disc list-inside text-sm text-slate-600 space-y-2">
-                                        {result.contentAngles.visual.map((item, i) => <li key={i}>{item}</li>)}
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                    <h4 className="mb-3 border-b border-stone-100 pb-2 text-sm font-medium text-stone-900">Visual & Mood</h4>
+                                    <ul className="list-inside list-disc space-y-2 text-sm font-normal leading-relaxed text-stone-600">
+                                        {result.contentAngles.visual.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                        ))}
                                     </ul>
                                 </div>
-                                <div className="bg-white p-6 rounded-3xl border border-slate-200">
-                                    <h4 className="font-bold text-slate-700 mb-3 border-b pb-2">Storytelling</h4>
-                                    <ul className="list-disc list-inside text-sm text-slate-600 space-y-2">
-                                        {result.contentAngles.story.map((item, i) => <li key={i}>{item}</li>)}
+                                <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                    <h4 className="mb-3 border-b border-stone-100 pb-2 text-sm font-medium text-stone-900">Storytelling</h4>
+                                    <ul className="list-inside list-disc space-y-2 text-sm font-normal leading-relaxed text-stone-600">
+                                        {result.contentAngles.story.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                        ))}
                                     </ul>
                                 </div>
-                                <div className="bg-white p-6 rounded-3xl border border-slate-200">
-                                    <h4 className="font-bold text-slate-700 mb-3 border-b pb-2">Action & Activation</h4>
-                                    <ul className="list-disc list-inside text-sm text-slate-600 space-y-2">
-                                        {result.contentAngles.action.map((item, i) => <li key={i}>{item}</li>)}
+                                <div className="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                    <h4 className="mb-3 border-b border-stone-100 pb-2 text-sm font-medium text-stone-900">Action & Activation</h4>
+                                    <ul className="list-inside list-disc space-y-2 text-sm font-normal leading-relaxed text-stone-600">
+                                        {result.contentAngles.action.map((item, i) => (
+                                            <li key={i}>{item}</li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
                         </div>
 
                         {/* BLOCK 4: THE MAP */}
-                        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-                            <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                                <Map className="text-green-500" size={24} /> The Map (Channel Strategy)
+                        <div className="rounded-2xl border border-stone-200/90 bg-white p-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                            <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <Map className="text-stone-400" size={22} strokeWidth={1.25} />
+                                The Map <span className="font-normal text-stone-400">(Channel Strategy)</span>
                             </h3>
                             <div className="space-y-4">
                                 {Object.entries(result.channelStrategy).map(([channel, weight]) => (
                                     <div key={channel} className="flex items-center gap-4">
-                                        <div className="w-32 font-bold text-slate-700">{channel}</div>
-                                        <div className="flex-1 h-4 bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${weight}%` }}></div>
+                                        <div className="w-28 shrink-0 text-sm font-medium text-stone-800 md:w-36">{channel}</div>
+                                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-stone-100">
+                                            <div className="h-full rounded-full bg-stone-800" style={{ width: `${weight}%` }} />
                                         </div>
-                                        <div className="w-12 text-right font-mono text-slate-500 font-bold">{weight}%</div>
+                                        <div className="w-10 shrink-0 text-right font-mono text-xs font-medium text-stone-500">{weight}%</div>
                                     </div>
                                 ))}
                             </div>
@@ -621,12 +712,12 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                             <div className="pt-2">
                                 {/* Rocket Icon - Clean Style */}
-                                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4 group">
-                                    <Rocket className="h-8 w-8 text-purple-600 group-hover:-translate-y-1 transition-transform duration-300" strokeWidth={2} />
+                                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 group">
+                                    <Rocket className="h-8 w-8 text-stone-700 transition-transform duration-300 group-hover:-translate-y-1" strokeWidth={1.75} />
                                 </div>
 
-                                <h3 className="text-xl font-bold text-slate-900 mb-1">Chiến lược sẵn sàng!</h3>
-                                <p className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-4">Dữ liệu đã được chuẩn bị</p>
+                                <h3 className="mb-1 text-xl font-semibold tracking-tight text-stone-900">Chiến lược sẵn sàng!</h3>
+                                <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.15em] text-stone-400">Dữ liệu đã được chuẩn bị</p>
 
                                 <p className="text-[15px] text-slate-500 mb-8 px-2 leading-relaxed">
                                     Tuyệt vời! AI sẽ tự động dán thông tin chiến lược vừa tạo vào <span className="font-semibold text-slate-700">Smart Content Calendar</span> ngay bây giờ.
@@ -635,9 +726,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 {/* Primary Button */}
                                 <button
                                     onClick={confirmDeploy}
-                                    className="w-full inline-flex items-center justify-center gap-2 rounded-[14px] bg-[#545BE8] px-4 py-3.5 text-[15px] font-bold text-white shadow-sm hover:bg-[#4349c2] transition-colors mb-3"
+                                    className="mb-3 inline-flex w-full items-center justify-center gap-2 rounded-[14px] bg-stone-900 px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-stone-800"
                                 >
-                                    Mở Lịch Nội Dung <ArrowRight size={18} />
+                                    Mở Lịch Nội Dung <ArrowRight size={18} strokeWidth={1.25} />
                                 </button>
 
                                 {/* Secondary Action */}
