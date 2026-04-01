@@ -350,145 +350,135 @@ const NewsPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#FCFDFC] p-8 font-sans">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">News Intelligence</p>
-                    <h1 className="text-3xl font-normal text-stone-900 mb-2 tracking-tight">Tin Tức Tổng Hợp</h1>
-                    <p className="text-stone-500">Cập nhật tin tức mới nhất về Tài chính, Marketing & Công nghệ</p>
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            {/* ── Standardized Header ────────────────────────────────────────── */}
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <RefreshCw size={20} strokeWidth={1.25} className={`shrink-0 ${loading ? 'animate-spin' : ''}`} aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            News Intelligence
+                        </span>
+                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        Tin Tức Tổng Hợp
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Cập nhật tin tức mới nhất về Tài chính, Marketing & Công nghệ hàng ngày.
+                    </p>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                    {/* Realtime Status */}
-                    <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-col items-end gap-3 pt-2">
+                     {/* Realtime Status Overlay */}
+                     <div className="flex items-center gap-2">
                         {isRealtimeConnected ? (
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-medium">
-                                <Wifi size={12} />
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                                <Wifi size={10} />
                                 <span>Realtime</span>
                             </div>
                         ) : (
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 text-stone-500 rounded-full text-xs font-medium">
-                                <WifiOff size={12} />
-                                <span>Đang kết nối...</span>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 text-stone-500 rounded-full text-[10px] font-medium uppercase">
+                                <WifiOff size={10} />
+                                <span>Kết nối...</span>
                             </div>
                         )}
                         {lastUpdated && (
-                            <span className="text-xs text-stone-400">
-                                Cập nhật: {lastUpdated.toLocaleTimeString('vi-VN')}
+                            <span className="text-[10px] text-stone-400 font-medium">
+                                Last seen {lastUpdated.toLocaleTimeString('vi-VN')}
                             </span>
                         )}
                     </div>
 
-                    {/* Action Buttons Row */}
                     <div className="flex items-center gap-3">
-                        {/* Category Filter */}
-                        <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
-                            {categories.map(cat => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setFilter(cat)}
-                                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1.5
-                                        ${filter === cat
-                                            ? 'bg-stone-900 text-white shadow-sm'
-                                            : 'text-stone-500 hover:bg-white hover:text-stone-900'
-                                        }`}
-                                >
-                                    <span>{cat === 'All' ? 'Tất cả' : cat}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === cat ? 'bg-stone-700 text-white' : 'bg-stone-200 text-stone-500'}`}>
-                                        {getCategoryCount(cat)}
-                                    </span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* Action Buttons */}
                         <button
                             onClick={() => fetchNews()}
-                            className="rounded-full border border-stone-200 bg-white p-2 text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors"
-                            title="Làm mới"
+                            className="rounded-full border border-stone-200 bg-white p-2.5 text-stone-500 shadow-sm transition-all hover:bg-stone-50 hover:text-stone-900"
                         >
-                            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                            <RefreshCw size={18} strokeWidth={1.5} className={loading ? 'animate-spin' : ''} />
                         </button>
+                        
                         <button
                             onClick={crawlNews}
                             disabled={crawling}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-800 disabled:opacity-50"
-                            title="Thu thập tin mới từ các nguồn RSS"
+                            className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-50"
                         >
                             <Download size={16} className={crawling ? 'animate-bounce' : ''} />
-                            <span>{crawling ? 'Đang crawl...' : 'Crawl'}</span>
+                            <span>{crawling ? 'Crawling...' : 'Crawl'}</span>
                         </button>
+
                         <button
                             onClick={() => setShowDeleteModal(true)}
-                            className="rounded-full border border-stone-200 bg-white p-2 text-rose-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                            title="Quản lý xóa bài"
+                            className="rounded-full border border-stone-200 bg-white p-2.5 text-rose-400 shadow-sm transition-all hover:bg-rose-50 hover:text-rose-600"
                         >
-                            <Trash2 size={18} />
+                            <Trash2 size={18} strokeWidth={1.5} />
                         </button>
                     </div>
+                </div>
+            </header>
 
-                    {/* Advanced Filters Row */}
-                    <div className="flex items-center gap-3 flex-wrap">
-                        {/* Source Dropdown */}
-                        <select
-                            value={sourceFilter}
-                            onChange={(e) => setSourceFilter(e.target.value)}
-                            className={`${inputClass} cursor-pointer`}
+            {/* ── Filter Bar Overlay ────────────────────────────────────────── */}
+            <div className="flex shrink-0 items-center gap-4 border-b border-stone-100 bg-[#FCFDFC]/80 px-5 py-3 backdrop-blur-md md:px-8">
+                <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setFilter(cat)}
+                            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all flex items-center gap-1.5
+                                ${filter === cat
+                                    ? 'bg-white text-stone-900 shadow-sm'
+                                    : 'text-stone-500 hover:text-stone-900'
+                                }`}
                         >
-                            <option value="all">Tất cả nguồn</option>
-                            {uniqueSources.map(source => (
-                                <option key={source} value={source}>{source}</option>
-                            ))}
-                        </select>
+                            <span>{cat === 'All' ? 'Tất cả' : cat}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${filter === cat ? 'bg-stone-100 text-stone-600' : 'bg-stone-200/50 text-stone-400'}`}>
+                                {getCategoryCount(cat)}
+                            </span>
+                        </button>
+                    ))}
+                </div>
 
-                        {/* Date Filters */}
-                        <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
-                            {[
-                                { key: 'all', label: 'Tất cả' },
-                                { key: 'new', label: 'Mới' },
-                                { key: 'today', label: 'Hôm nay' },
-                                { key: 'yesterday', label: 'Hôm qua' },
-                            ].map(item => (
-                                <button
-                                    key={item.key}
-                                    onClick={() => { setDateFilter(item.key as any); setFilterDate(''); }}
-                                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all
-                                        ${dateFilter === item.key
-                                            ? 'bg-stone-900 text-white'
-                                            : 'text-stone-500 hover:bg-white'
-                                        }`}
-                                >
-                                    {item.label}
-                                </button>
-                            ))}
-                        </div>
+                <div className="h-4 w-px bg-stone-200" />
+                
+                <div className="flex items-center gap-3 overflow-x-auto no-scrollbar">
+                    <select
+                        value={sourceFilter}
+                        onChange={(e) => setSourceFilter(e.target.value)}
+                        className="rounded-full border border-stone-200 bg-white px-4 py-1.5 text-sm text-stone-700 outline-none hover:border-stone-300"
+                    >
+                        <option value="all">Mọi nguồn tin</option>
+                        {uniqueSources.map(source => (
+                            <option key={source} value={source}>{source}</option>
+                        ))}
+                    </select>
 
-                        {/* Custom Date Picker */}
-                        <div className="flex items-center gap-1">
-                            <input
-                                type="date"
-                                value={filterDate}
-                                onChange={(e) => { setFilterDate(e.target.value); setDateFilter('custom'); }}
-                                className="rounded-xl border border-stone-200 bg-white px-2 py-1 text-xs text-stone-700 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80"
-                            />
-                            {filterDate && (
-                                <button
-                                    onClick={() => { setFilterDate(''); setDateFilter('all'); }}
-                                    className="p-1 text-stone-400 hover:text-stone-600"
-                                >
-                                    <X size={14} />
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Filter Count */}
-                        <span className="text-xs text-stone-400">
-                            {filteredArticles.length} / {articles.length} tin
-                        </span>
+                    <div className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 p-1">
+                         {(['all', 'new', 'today', 'yesterday'] as const).map(item => (
+                            <button
+                                key={item}
+                                onClick={() => { setDateFilter(item); setFilterDate(''); }}
+                                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all
+                                    ${dateFilter === item
+                                        ? 'bg-stone-900 text-white shadow-sm'
+                                        : 'text-stone-500 hover:text-stone-900'
+                                    }`}
+                            >
+                                {item === 'all' ? 'Toàn bộ' : item === 'new' ? 'Tin mới' : item === 'today' ? 'Hôm nay' : 'Hôm qua'}
+                            </button>
+                        ))}
                     </div>
+
+                    <input
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => { setFilterDate(e.target.value); setDateFilter('custom'); }}
+                        className="rounded-full border border-stone-200 bg-white px-4 py-1.5 text-xs text-stone-700 outline-none hover:border-stone-300"
+                    />
                 </div>
             </div>
+
+            {/* ── Scrollable Content Area ───────────────────────────────────── */}
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">
+                <div className="mx-auto max-w-7xl">
 
             {/* Delete Modal */}
             {showDeleteModal && (
@@ -602,8 +592,10 @@ const NewsPage: React.FC = () => {
                         ))}
                     </div>
                 )}
+                </div>
             </div>
         </div>
+    </div>
     );
 };
 

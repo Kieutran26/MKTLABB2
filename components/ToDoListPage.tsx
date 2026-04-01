@@ -51,21 +51,28 @@ const ToDoListPage: React.FC = () => {
     });
 
     return (
-        <div className="h-screen overflow-auto bg-[#FCFDFC] px-6 pb-20 pt-10 font-sans">
-            <div className="mx-auto max-w-6xl">
-                {/* Header */}
-                <div className="mb-8 flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-500">
-                            <ListTodo size={22} strokeWidth={1.5} />
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">Personal Productivity</p>
-                            <h1 className="text-3xl font-normal tracking-tight text-stone-900">To-Do List</h1>
-                            <p className="mt-1 text-sm text-stone-500">Quản lý công việc và theo dõi tiến độ của bạn</p>
-                        </div>
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            {/* ── Standardized Header ────────────────────────────────────────── */}
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <ListTodo size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Personal Productivity
+                        </span>
                     </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        To-Do List
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Quản lý công việc và theo dõi tiến độ của bạn một cách khoa học.
+                    </p>
                 </div>
+            </header>
+
+            {/* ── Scrollable Content Area ───────────────────────────────────── */}
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">
+                <div className="mx-auto max-w-7xl">
 
                 {/* Stats Cards Row */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -335,19 +342,20 @@ const ToDoListPage: React.FC = () => {
                             <div className="rounded-2xl border border-stone-200 bg-white p-6">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-100 text-stone-600">
-                                        <Sparkles size={18} />
-                                    </div>
-                                    <span className="font-medium text-stone-900">Tuyệt vời!</span>
+                                    <Sparkles size={18} />
                                 </div>
-                                <p className="text-sm text-stone-600">
-                                    Bạn đã hoàn thành {completionRate}% công việc. Tiếp tục phát huy!
-                                </p>
+                                <span className="font-medium text-stone-900">Tuyệt vời!</span>
                             </div>
-                        )}
-                    </div>
+                            <p className="text-sm text-stone-600">
+                                Bạn đã hoàn thành {completionRate}% công việc. Tiếp tục phát huy!
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
+    </div>
+</div>
     );
 };
 
