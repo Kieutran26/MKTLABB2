@@ -179,23 +179,38 @@ const UtmBuilder: React.FC = () => {
     );
 
     return (
-        <div className="h-screen overflow-y-auto bg-[#FCFDFC] px-6 pb-20 pt-10 font-sans">
-            <div className="mx-auto mb-8 flex max-w-7xl items-end justify-between">
-                <div>
-                    <h2 className="flex items-center gap-3 text-3xl font-normal tracking-tight text-stone-900">
-                        <Link2 className="text-stone-400" strokeWidth={1.25} size={30} />
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            {/* ── Standardized Header ────────────────────────────────────────── */}
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Link2 size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Công cụ UTM
+                        </span>
+                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
                         UTM Builder & Manager
-                    </h2>
-                    <p className="mt-2 text-sm text-stone-500">Tạo, quản lý và theo dõi link chiến dịch Marketing một cách chuyên nghiệp.</p>
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Tạo, quản lý và theo dõi link chiến dịch Marketing một cách chuyên nghiệp.
+                    </p>
                 </div>
-                <button 
-                    onClick={() => setShowSettings(true)}
-                    className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-800"
-                >
-                    <Settings size={18} strokeWidth={1.25} />
-                    <span>Cấu hình Rút gọn</span>
-                </button>
-            </div>
+
+                <div className="flex shrink-0 items-center justify-end pt-2">
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900"
+                    >
+                        <Settings size={18} strokeWidth={1.25} />
+                        <span>Cấu hình Rút gọn</span>
+                    </button>
+                </div>
+            </header>
+
+            {/* ── Scrollable Content Area ───────────────────────────────────── */}
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">
+                <div className="mx-auto max-w-7xl">
 
             {/* BUILDER AREA */}
             <div className={`${cardClass} mx-auto mb-8 max-w-7xl p-8`}>
@@ -483,6 +498,8 @@ const UtmBuilder: React.FC = () => {
             )}
 
             {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+                </div>
+            </div>
         </div>
     );
 };
