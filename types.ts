@@ -741,14 +741,103 @@ export interface MastermindStrategy {
     insight: string;
     coreMessage: string;
     keyMessages: string[];
+    
+    brand_context?: {
+      persona: {
+        demographics: string;
+        psychographics: string;
+        behaviors: string;
+        journey: string;
+      };
+      pain_gain: {
+        ranked_pains: Array<{ content: string; impact: 'High' | 'Med' | 'Low'; message_link: string }>;
+        top_gains: string[];
+      };
+      positioning: {
+        current_state: string;
+        differentiator: string;
+        competitive_map: {
+          x_axis: string; // e.g. "Price Low-High"
+          y_axis: string; // e.g. "Mass-Premium"
+          brand_position: { x: number; y: number; label: string };
+          competitors: Array<{ x: number; y: number; label: string }>;
+          description: string;
+        };
+      };
+    };
+    
+    strategic_goals?: {
+      smart_goals: Array<{ goal: string; metric: string; baseline: string; target: string; deadline: string; owner: string }>;
+      kpi_dashboard: string[];
+      resource_allocation: {
+        budget_split: Record<string, { percent: string; rationale: string; kpi: string }>;
+        workforce: string;
+      };
+      roadmap_90day: {
+        months: Array<{
+          month_name: string;
+          priority: string;
+          actions: string[];
+          kpi: string;
+          owner: string;
+        }>;
+      };
+    };
+    
+    tone_of_voice?: {
+      personality: {
+        adjectives: string[];
+        human_persona: string;
+      };
+      spectrum: {
+        formal_casual: string;
+        serious_playful: string;
+        authority_friendly: string;
+        traditional_modern: string;
+      };
+      writing_rules: {
+        always: string[];
+        never: string[];
+        word_pairs: Array<{ do: string; dont: string }>;
+      };
+      channel_examples: {
+        social: string;
+        tiktok: string;
+        email: string;
+      };
+    };
+    
+    action_plan?: {
+      quick_wins: string[];
+      risks: string[];
+      expert_advice: {
+        the_must_do: string;
+        common_pitfall: string;
+        hidden_opportunity: string;
+      };
+    };
+    
+    conclusion?: {
+      summary: string;
+      positioning_statement: string;
+      final_notes: string;
+    };
+
     contentAngles: {
       text: string[];
       visual: string[];
       story: string[];
       data: string[];
       action: string[];
+      weekly_distribution: string; // e.g. "3 Visual : 2 Story : 1 Action"
+      sample_week_schedule: string;
+      real_examples?: {
+        facebook_caption: string;
+        tiktok_hook: string;
+        specific_cta: string;
+      };
     };
-    channelStrategy: Record<string, number>; // Channel name -> Weight %
+    channelStrategy: Record<string, number>; 
   };
   createdAt: number;
 }

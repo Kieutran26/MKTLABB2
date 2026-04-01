@@ -28,10 +28,38 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     const [isGenerating, setIsGenerating] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
     const [viewMode, setViewMode] = useState<'create' | 'dashboard'>('create');
+    const [availableStrategies, setAvailableStrategies] = useState<MastermindStrategy[]>([]);
     const [showHistory, setShowHistory] = useState(false);
 
     const [showSaveSuccessModal, setShowSaveSuccessModal] = useState(false);
     const [showDeploySuccessModal, setShowDeploySuccessModal] = useState(false);
+
+    useEffect(() => {
+        // Load from DB first
+        const loadHistory = async () => {
+            try {
+                const dbHistory = await MastermindService.getMastermindStrategies();
+                
+                // Fallback / Merge with LocalStorage
+                const localHistoryRaw = localStorage.getItem('mktlab_mastermind_history');
+                const localHistory: MastermindStrategy[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
+                
+                // Merge and remove duplicates by ID
+                const mergedMap = new Map();
+                localHistory.forEach((s: MastermindStrategy) => mergedMap.set(s.id, s));
+                dbHistory.forEach((s: MastermindStrategy) => mergedMap.set(s.id, s));
+                
+                const finalHistory = Array.from(mergedMap.values() as IterableIterator<MastermindStrategy>).sort((a,b) => b.createdAt - a.createdAt);
+                setAvailableStrategies(finalHistory);
+            } catch (e) {
+                // If DB fails, just show Local
+                const localHistoryRaw = localStorage.getItem('mktlab_mastermind_history');
+                const localHistory: MastermindStrategy[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
+                setAvailableStrategies(localHistory.sort((a: MastermindStrategy, b: MastermindStrategy) => b.createdAt - a.createdAt));
+            }
+        };
+        loadHistory();
+    }, []);
 
     // Manual Inputs - Brand
     const [manualBrandName, setManualBrandName] = useState('');
@@ -51,11 +79,16 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     // Form Inputs
     const [objective, setObjective] = useState('');
     const [perception, setPerception] = useState('');
+    const [resources, setResources] = useState('');
+    const [timeline, setTimeline] = useState('');
+    const [baselineMetrics, setBaselineMetrics] = useState('');
     const [tone, setTone] = useState('');
+    const [emotion, setEmotion] = useState('');
+    const [channels, setChannels] = useState('');
+    const [competitors, setCompetitors] = useState('');
 
     // Results
     const [strategyResult, setStrategyResult] = useState<MastermindStrategy | null>(null);
-    const [historyList, setHistoryList] = useState<MastermindStrategy[]>([]);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -73,12 +106,6 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
             setAvailablePersonas([]);
             setSelectedPersona(null);
         }
-
-        const loadHistory = async () => {
-            const strategies = await MastermindService.getMastermindStrategies();
-            setHistoryList(strategies);
-        };
-        loadHistory();
     }, [currentBrand, activeTab]);
 
     const showToast = (message: string, type: ToastType = 'info') => {
@@ -97,26 +124,40 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
         setIsGenerating(true);
         let brandInfo = activeTab === 'manual' 
-          ? `Name: ${manualBrandName}. Vision: ${manualBrandVision}. Values: ${manualBrandValues}`
-          : `Name: ${currentBrand?.identity.name}. Vision: ${currentBrand?.strategy.vision}. Values: ${currentBrand?.strategy.coreValues.join(', ')}`;
+          ? `Tên thương hiệu: ${manualBrandName}. Tầm nhìn & Giá trị: ${manualBrandVision}.`
+          : `Thương hiệu (Vault): ${currentBrand?.identity.name}. Tầm nhìn: ${currentBrand?.strategy.vision}. Giá trị cốt lõi: ${currentBrand?.strategy.coreValues.join(', ')}.`;
         
         let audienceInfo = activeTab === 'manual'
-          ? `Name: ${manualAudienceName}. Pain: ${manualAudiencePain}. Desire: ${manualAudienceDesire}`
-          : `Name: ${selectedPersona?.fullname}. Bio: ${selectedPersona?.bio}. Pain: ${selectedPersona?.frustrations.join(', ')}`;
+          ? `Tên khách hàng: ${manualAudienceName}. Nỗi đau & Khao khát: ${manualAudiencePain}`
+          : `Persona (Vault): ${selectedPersona?.fullname}. Thói quen: ${selectedPersona?.bio}. Nỗi đau: ${selectedPersona?.frustrations.join(', ')}. Khao khát: ${selectedPersona?.goals.join(', ')}.`;
+
+        let baselineStr = baselineMetrics.trim() ? baselineMetrics : "[Trống - Yêu cầu bổ sung để xác nhận target thực tế]";
+        let goalInfo = `Mục tiêu kinh doanh: ${objective}. Kỳ vọng cụ thể: ${perception}. Nguồn lực hiện có: ${resources}. Timeline thực hiện: ${timeline}. Số liệu hiện tại (Baseline): ${baselineStr}`;
+        let vibeInfo = `Tính cách thương hiệu: ${tone}. Cảm xúc muốn tạo ra: ${emotion}. Kênh truyền thông chính: ${channels}. Đối thủ cạnh tranh: ${competitors}.`;
 
         try {
-            const result = await generateMastermindStrategy(brandInfo, audienceInfo, objective, perception, tone);
+            const result = await generateMastermindStrategy(brandInfo, audienceInfo, goalInfo, vibeInfo, tone);
             if (result) {
                 const newStrategy: MastermindStrategy = {
                     id: Date.now().toString(),
-                    name: activeTab === 'manual' ? `${manualBrandName} x ${manualAudienceName}` : `${currentBrand?.identity.name} x ${selectedPersona?.fullname}`,
-                    brandId: activeTab === 'manual' ? 'manual' : currentBrand!.id,
-                    personaId: activeTab === 'manual' ? 'manual' : selectedPersona!.id,
-                    objective, perception, tone, result,
+                    name: `Chiến lược ${manualBrandName || currentBrand?.identity.name || 'Mới'} - ${new Date().toLocaleDateString('vi-VN')}`,
+                    brandId: currentBrand?.id || 'manual',
+                    personaId: selectedPersona?.id || 'manual',
+                    objective,
+                    perception,
+                    tone,
+                    result,
                     createdAt: Date.now()
                 };
                 setStrategyResult(newStrategy);
-                await MastermindService.saveMastermindStrategy(newStrategy);
+                
+                // Temp save to LocalStorage
+                const localRaw = localStorage.getItem('mktlab_mastermind_history');
+                const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
+                const updatedLocal = [newStrategy, ...local].slice(0, 50); // Keep top 50
+                localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updatedLocal));
+                setAvailableStrategies(updatedLocal);
+
                 setViewMode('dashboard');
             }
         } catch (e) {
@@ -132,10 +173,35 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         setShowHistory(false);
     };
 
+    const handleSave = async () => {
+        if (!strategyResult) return;
+        try {
+            // Save to DB
+            await MastermindService.saveMastermindStrategy(strategyResult);
+            
+            // Also ensure it's in LocalStorage for redundancy
+            const localRaw = localStorage.getItem('mktlab_mastermind_history');
+            const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
+            if (!local.find(s => s.id === strategyResult.id)) {
+                localStorage.setItem('mktlab_mastermind_history', JSON.stringify([strategyResult, ...local]));
+            }
+            
+            showToast("Đã lưu chiến lược thành công", "success");
+        } catch (e) {
+            // If DB fails, inform user but confirm Local exists
+            showToast("Lưu DB lỗi, nhưng đã lưu tạm vào Local Storage", "info");
+        }
+    };
+
+    const handleDeploy = () => {
+        setShowDeploySuccessModal(true);
+    };
+
     const confirmDeploy = () => {
         if (strategyResult && onDeployToCalendar) {
             onDeployToCalendar(strategyResult);
             setShowDeploySuccessModal(false);
+            showToast("Đã chuyển dữ liệu sang Calendar", "success");
         }
     };
 
@@ -196,12 +262,12 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                     <div className="space-y-4">
                                                         <label className="text-[10px] font-bold uppercase text-stone-400">Thương hiệu</label>
                                                         <input className="w-full p-3 rounded-xl border border-stone-200 text-sm" placeholder="Tên thương hiệu..." value={manualBrandName} onChange={e => setManualBrandName(e.target.value)} />
-                                                        <textarea className="w-full p-3 h-24 rounded-xl border border-stone-200 text-sm" placeholder="Tầm nhìn & Giá trị..." value={manualBrandVision} onChange={e => setManualBrandVision(e.target.value)} />
+                                                        <textarea className="w-full p-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Tầm nhìn & Giá trị (Vision & Mission)..." value={manualBrandVision} onChange={e => setManualBrandVision(e.target.value)} />
                                                     </div>
                                                     <div className="space-y-4">
                                                         <label className="text-[10px] font-bold uppercase text-stone-400">Đối tượng</label>
-                                                        <input className="w-full p-3 rounded-xl border border-stone-200 text-sm" placeholder="Tên khách hàng..." value={manualAudienceName} onChange={e => setManualAudienceName(e.target.value)} />
-                                                        <textarea className="w-full p-3 h-24 rounded-xl border border-stone-200 text-sm" placeholder="Nỗi đau & Khao khát..." value={manualAudiencePain} onChange={e => setManualAudiencePain(e.target.value)} />
+                                                        <input className="w-full p-3 rounded-xl border border-stone-200 text-sm" placeholder="Tên khách hàng mục tiêu..." value={manualAudienceName} onChange={e => setManualAudienceName(e.target.value)} />
+                                                        <textarea className="w-full p-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Nỗi đau & Khao khát (Pain & Desire)..." value={manualAudiencePain} onChange={e => setManualAudiencePain(e.target.value)} />
                                                     </div>
                                                 </div>
                                             ) : (
@@ -214,19 +280,25 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     )}
                                     {step === 2 && (
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                                            <div className="flex items-center gap-3"><Target className="text-stone-400" /> <h3 className="text-lg font-medium">Goal: Mục tiêu thực tế</h3></div>
-                                            <div className="space-y-6">
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Objective (Mục tiêu thay đổi)</label><textarea className="w-full p-4 h-28 rounded-xl border border-stone-200 text-sm" placeholder="Khách hàng sẽ thay đổi hành vi gì sau khi xem Content?" value={objective} onChange={e => setObjective(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Perception (Nhận thức mong muốn)</label><textarea className="w-full p-4 h-28 rounded-xl border border-stone-200 text-sm" placeholder="Họ sẽ nhớ gì về chúng ta?" value={perception} onChange={e => setPerception(e.target.value)} /></div>
+                                            <div className="flex items-center gap-3"><Target className="text-stone-400" /> <h3 className="text-lg font-medium">Goal: Mục tiêu chiến lược</h3></div>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Mục tiêu kinh doanh</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Tăng 20% doanh thu..." value={objective} onChange={e => setObjective(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Kỳ vọng cụ thể</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: 1000 lead mới trong 1 tháng..." value={perception} onChange={e => setPerception(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Nguồn lực hiện có</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Đội ngũ 3 người, ngân sách 50tr..." value={resources} onChange={e => setResources(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Timeline thực hiện</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Chiến dịch 3 tháng, bắt đầu từ..." value={timeline} onChange={e => setTimeline(e.target.value)} /></div>
+                                                <div className="col-span-2"><label className="text-xs font-semibold text-red-600 mb-2 block">Số liệu hiện tại (Bắt buộc - Followers, Reach, Leads...)</label><input className="w-full p-4 rounded-xl border border-red-100 bg-red-50/10 text-sm focus:border-red-400 focus:ring-red-400" placeholder="VD: 5k Followers, 10k Reach/tháng, 50 Leads... (Nếu để trống AI sẽ cảnh báo)" value={baselineMetrics} onChange={e => setBaselineMetrics(e.target.value)} /></div>
                                             </div>
                                         </div>
                                     )}
                                     {step === 3 && (
-                                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 text-center py-10">
-                                            <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6"><Compass size={40} className="text-stone-800" /></div>
-                                            <h3 className="text-2xl font-medium">Sẵn sàng lập chiến lược</h3>
-                                            <p className="text-stone-500 max-w-md mx-auto">AI sẽ kết hợp toàn bộ bối cảnh để tạo ra các Creative Angle và Kế hoạch phân phối đa kênh.</p>
-                                            <div className="max-w-sm mx-auto pt-6"><label className="text-xs font-semibold text-stone-700 mb-2 block text-left">Giọng điệu (Tone of Voice)</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Truyền cảm hứng, Chuyên gia, Gần gũi..." value={tone} onChange={e => setTone(e.target.value)} /></div>
+                                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+                                            <div className="flex items-center gap-3"><Compass className="text-stone-400" /> <h3 className="text-lg font-medium">Tactics: Thiết lập giọng điệu & Kênh</h3></div>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Tính cách thương hiệu (Tone)</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Truyền cảm hứng, Chuyên gia..." value={tone} onChange={e => setTone(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Cảm xúc muốn tạo ra</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Khát khao, Tin tưởng, Tò mò..." value={emotion} onChange={e => setEmotion(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Kênh truyền thông chính</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Facebook, TikTok, YouTube..." value={channels} onChange={e => setChannels(e.target.value)} /></div>
+                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Đối thủ cạnh tranh</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="Liệt kê top 3 đối thủ..." value={competitors} onChange={e => setCompetitors(e.target.value)} /></div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -247,10 +319,14 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                         <div className="bg-white rounded-3xl w-full max-w-lg h-[60vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
                             <header className="p-6 border-b border-stone-100 flex justify-between items-center"><h3 className="font-medium">Lịch sử chiến lược</h3><button onClick={() => setShowHistory(false)}><X size={20} className="text-stone-300" /></button></header>
                             <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                                {historyList.map(s => <button key={s.id} onClick={() => loadStrategy(s)} className="w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 transition-all">
-                                    <div className="font-medium text-stone-900">{s.name}</div>
-                                    <div className="text-[10px] text-stone-400 mt-1">{new Date(s.createdAt).toLocaleDateString()}</div>
-                                </button>)}
+                                {availableStrategies.length === 0 ? (
+                                    <div className="text-center text-stone-500">Chưa có lịch sử chiến lược.</div>
+                                ) : (
+                                    availableStrategies.map(s => <button key={s.id} onClick={() => loadStrategy(s)} className="w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 transition-all">
+                                        <div className="font-medium text-stone-900">{s.name}</div>
+                                        <div className="text-[10px] text-stone-400 mt-1">{new Date(s.createdAt).toLocaleDateString()}</div>
+                                    </button>)
+                                )}
                             </div>
                         </div>
                     </div>
@@ -276,24 +352,272 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                 <div className="flex-1 overflow-y-auto p-10">
                     <div className="mx-auto max-w-6xl space-y-8 pb-10">
-                        <div className="p-10 rounded-3xl border border-stone-200 bg-white shadow-sm flex items-center justify-between gap-10">
-                             <div className="flex-1 text-center border-r border-stone-100 pr-10"><div className="text-[10px] font-bold uppercase text-amber-500 mb-2">Core Message</div><div className="text-2xl font-medium text-stone-900">"{result.coreMessage}"</div></div>
-                             <div className="flex-1 text-center"><div className="text-[10px] font-bold uppercase text-emerald-500 mb-2">Strategic Insight</div><p className="text-stone-600 leading-relaxed italic">{result.insight}</p></div>
+                    <div className="mx-auto max-w-5xl space-y-24 pb-32">
+                        {/* Section 1: Executive Summary & Core Concept */}
+                        <div className="space-y-12">
+                             <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-end">
+                                 <div>
+                                     <div className="text-[10px] font-bold tracking-[0.2em] text-blue-600 mb-2">01 / BRAND FOUNDATION</div>
+                                     <h3 className="text-3xl font-serif text-slate-900 tracking-tight">Core Strategy</h3>
+                                 </div>
+                                 <div className="text-right max-w-md hidden md:block">
+                                     <p className="text-xs text-slate-500 italic">"The essence of the brand distilled into actionable insights and core messaging."</p>
+                                 </div>
+                             </div>
+                             
+                             <div className="grid grid-cols-12 gap-8 md:gap-16 items-start">
+                                 <div className="col-span-12 md:col-span-8 space-y-8">
+                                     <div className="text-[10px] font-bold uppercase text-slate-400 tracking-[0.15em]">Core Message</div>
+                                     <h2 className="text-4xl md:text-5xl font-serif text-blue-950 leading-[1.1] tracking-tighter">
+                                         "{result.coreMessage}"
+                                     </h2>
+                                     <p className="text-stone-600 leading-relaxed text-lg font-serif">{result.conclusion?.summary}</p>
+                                 </div>
+                                 <div className="col-span-12 md:col-span-4 border-l border-stone-200 pl-8 space-y-6">
+                                     <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Expert Insight</div>
+                                     <p className="text-stone-900 leading-relaxed font-medium italic text-sm">
+                                         {result.insight}
+                                     </p>
+                                     <div className="space-y-4 pt-6 border-t border-stone-200">
+                                         <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Key Messages</div>
+                                         <ul className="space-y-3">
+                                             {result.keyMessages.map((m, i) => (
+                                                 <li key={i} className="text-xs font-medium text-stone-800 flex gap-3"><span className="text-stone-300 font-serif italic">{String(i+1).padStart(2, '0')}</span> {m}</li>
+                                             ))}
+                                         </ul>
+                                     </div>
+                                 </div>
+                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-6">
-                             <div className="p-6 rounded-2xl bg-stone-900 text-white"><div className="text-[10px] font-bold uppercase text-stone-500 mb-4 tracking-widest">Objective</div><p className="text-stone-100 leading-relaxed">{strategyResult.objective}</p></div>
-                             <div className="col-span-2 p-6 rounded-2xl border border-stone-200 bg-white"><div className="text-[10px] font-bold uppercase text-stone-400 mb-4 tracking-widest">Key Messages</div><div className="grid grid-cols-3 gap-4">{result.keyMessages.map((m, i) => <div key={i} className="p-4 rounded-xl bg-stone-50 text-sm text-stone-700 leading-relaxed font-medium">{m}</div>)}</div></div>
+                        {/* Section 2: Consumer Insight & Competitive Edge */}
+                        <div className="space-y-12">
+                             <div className="border-b border-rose-200 pb-4">
+                                 <div className="text-[10px] font-bold tracking-[0.2em] text-rose-600 mb-2">02 / MARKET & AUDIENCE</div>
+                                 <h3 className="text-2xl font-serif text-rose-950 tracking-tight">Competitive Landscape</h3>
+                             </div>
+
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 divide-y md:divide-y-0 md:divide-x divide-rose-100">
+                                 {/* Persona Column */}
+                                 <div className="space-y-10 md:pr-12">
+                                     <div>
+                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Target Persona</div>
+                                         <div className="text-sm text-stone-800 leading-relaxed font-serif italic border-l-2 border-stone-900 pl-4">{result.brand_context?.persona.psychographics}</div>
+                                     </div>
+                                     <div>
+                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Buying Behavior</div>
+                                         <div className="text-sm text-stone-900 font-medium">{result.brand_context?.persona.behaviors}</div>
+                                     </div>
+                                     <div className="pt-4 space-y-4">
+                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Pain Points & Triggers</div>
+                                         <div className="space-y-3">
+                                             {result.brand_context?.pain_gain.ranked_pains.map((p, i) => (
+                                                 <div key={i} className="group relative pl-4 border-l border-stone-200 hover:border-stone-900 transition-colors">
+                                                     <div className="flex items-center gap-2 mb-1">
+                                                         <span className={`text-[9px] font-bold uppercase tracking-wider ${p.impact === 'High' ? 'text-red-600' : p.impact === 'Med' ? 'text-amber-600' : 'text-blue-600'}`}>[{p.impact} Impact]</span>
+                                                     </div>
+                                                     <p className="text-xs font-semibold text-stone-900 mb-1 leading-snug">{p.content}</p>
+                                                     <p className="text-[10px] text-stone-500 italic font-serif">→ {p.message_link}</p>
+                                                 </div>
+                                             ))}
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 {/* Competitive Space Column */}
+                                 {result.brand_context?.positioning && (
+                                     <div className="md:pl-12 space-y-10">
+                                         <div>
+                                             <div className="text-[10px] font-bold text-rose-400 tracking-widest uppercase mb-4">Brand Differentiator</div>
+                                             <p className="text-lg font-serif text-rose-900 leading-snug">"{result.brand_context.positioning.differentiator}"</p>
+                                         </div>
+                                         <div className="bg-rose-50 p-6 border border-rose-100 space-y-4 relative">
+                                             <div className="absolute top-0 right-0 p-4 opacity-5"><Map size={80} className="text-rose-900" /></div>
+                                             <div className="text-[10px] font-bold text-rose-500 tracking-widest uppercase">2x2 Matrix Definition</div>
+                                             <p className="text-xs text-rose-900 leading-relaxed font-medium relative z-10">{result.brand_context.positioning.competitive_map.description}</p>
+                                         </div>
+                                     </div>
+                                 )}
+                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-6">
-                            {['visual', 'story', 'action'].map(key => (
-                                <div key={key} className="p-6 rounded-2xl border border-stone-100 bg-white shadow-sm">
-                                    <div className="text-[10px] font-bold uppercase text-stone-400 mb-4 tracking-widest">{key}</div>
-                                    <ul className="space-y-3">{result.contentAngles[key as keyof typeof result.contentAngles].map((item, i) => <li key={i} className="text-sm text-stone-600 flex gap-2"><div className="w-1 h-1 rounded-full bg-stone-400 mt-2 shrink-0" /> {item}</li>)}</ul>
-                                </div>
-                            ))}
+                        {/* Section 3: Strategic Goals & Roadmap */}
+                        <div className="space-y-12">
+                             <div className="border-b border-stone-300 pb-4">
+                                 <div className="text-[10px] font-bold tracking-[0.2em] text-stone-500 mb-2">03 / EXECUTION & METRICS</div>
+                                 <h3 className="text-2xl font-serif text-stone-900 tracking-tight">90-Day Tactical Roadmap</h3>
+                             </div>
+
+                             <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l border-stone-200">
+                                 {result.strategic_goals?.roadmap_90day.months.map((m, i) => (
+                                     <div key={i} className="p-8 border-r border-b border-stone-200 space-y-8 bg-white hover:bg-stone-50 transition-colors">
+                                         <div className="flex justify-between items-baseline border-b border-stone-100 pb-4">
+                                             <div className="text-sm font-serif font-bold tracking-widest uppercase">{m.month_name}</div>
+                                             <span className="text-[9px] font-bold text-stone-500 uppercase tracking-widest border border-stone-200 px-2 py-0.5">{m.owner}</span>
+                                         </div>
+                                         <div className="space-y-5">
+                                             <div className="text-sm font-bold text-stone-900 leading-snug">{m.priority}</div>
+                                             <ul className="space-y-3">
+                                                 {m.actions.map((a, j) => <li key={j} className="text-xs text-stone-600 flex gap-3 leading-relaxed"><span className="text-stone-300 font-serif italic">{j+1}.</span> {a}</li>)}
+                                             </ul>
+                                         </div>
+                                         <div className="pt-6 border-t border-stone-900">
+                                             <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-1">Target KPI</div>
+                                             <div className="text-sm font-bold text-stone-900">{m.kpi}</div>
+                                         </div>
+                                     </div>
+                                 ))}
+                             </div>
+
+                             <div className="bg-stone-900 text-white p-8 md:p-12">
+                                 <div className="text-[10px] font-bold text-stone-400 uppercase tracking-[0.2em] mb-8">SMART Metrics Breakdown</div>
+                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                                     {result.strategic_goals?.smart_goals.slice(0, 4).map((g, i) => (
+                                         <div key={i} className="space-y-3 border-l border-white/20 pl-4">
+                                             <div className="text-[10px] font-bold text-stone-300 uppercase tracking-wider">{g.goal}</div>
+                                             <div className="text-sm text-stone-400 font-serif">{g.baseline} <span className="text-white mx-1 font-sans">→</span> <span className="text-white font-bold font-sans">{g.target}</span></div>
+                                         </div>
+                                     ))}
+                                 </div>
+                             </div>
                         </div>
+
+                        {/* Section 4: Media Tactics & Content Distribution */}
+                        <div className="space-y-12">
+                             <div className="border-b border-stone-300 pb-4">
+                                 <div className="text-[10px] font-bold tracking-[0.2em] text-stone-500 mb-2">04 / DISTRIBUTION & ANGLES</div>
+                                 <h3 className="text-2xl font-serif text-stone-900 tracking-tight">Content Strategy</h3>
+                             </div>
+
+                             <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+                                 {/* Left: Channel Allocation */}
+                                 <div className="md:col-span-4 space-y-8">
+                                     <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em] border-b border-stone-200 pb-3">Channel Allocation</div>
+                                     <div className="space-y-6">
+                                         {Object.entries(result.strategic_goals?.resource_allocation.budget_split || {}).map(([name, data]: [string, any]) => (
+                                             <div key={name} className="space-y-3 group">
+                                                 <div className="flex justify-between items-baseline text-sm font-bold border-b border-stone-200 pb-2 group-hover:border-stone-900 transition-colors">
+                                                     <span className="uppercase tracking-widest">{name}</span>
+                                                     <span className="text-stone-500 font-serif">{data.percent}</span>
+                                                 </div>
+                                                 <p className="text-[11px] text-stone-600 leading-relaxed font-serif italic">"{data.rationale}"</p>
+                                                 <div className="text-[10px] font-bold text-stone-900 uppercase tracking-widest">{data.kpi}</div>
+                                             </div>
+                                         ))}
+                                     </div>
+                                 </div>
+
+                                 {/* Right: Content Angles & Examples */}
+                                 <div className="md:col-span-8 space-y-12 md:pl-8 md:border-l border-stone-200">
+                                     <div className="space-y-8">
+                                         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-stone-200 pb-3 gap-2">
+                                             <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Content Angles</div>
+                                             <div className="text-[10px] font-bold text-stone-900 uppercase tracking-widest">{result.contentAngles.weekly_distribution}</div>
+                                         </div>
+                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                                             {['visual', 'story', 'action'].map(key => (
+                                                 <div key={key} className="space-y-4">
+                                                     <div className="text-[10px] font-bold uppercase text-stone-900 tracking-widest">{key}</div>
+                                                     <ul className="space-y-2">
+                                                         {result.contentAngles[key as keyof typeof result.contentAngles] && Array.isArray(result.contentAngles[key as keyof typeof result.contentAngles]) ? (result.contentAngles[key as keyof typeof result.contentAngles] as string[]).map((item, i) => <li key={i} className="text-xs text-stone-600 leading-relaxed pl-2 border-l border-stone-200"> {item}</li>) : null}
+                                                     </ul>
+                                                 </div>
+                                             ))}
+                                         </div>
+                                     </div>
+
+                                     {/* Editorial Treatment for Real Examples */}
+                                     {result.contentAngles.real_examples && (
+                                         <div className="border border-stone-300 p-8 space-y-8 bg-white relative">
+                                             <div className="absolute top-0 left-8 -translate-y-1/2 bg-white px-2">
+                                                <div className="text-[10px] font-bold text-stone-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 bg-stone-900 rounded-full"></span> Real Execution
+                                                </div>
+                                             </div>
+                                             <div className="grid grid-cols-1 gap-8">
+                                                 <div className="space-y-3">
+                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Facebook Extended Copy</div>
+                                                     <p className="text-sm font-serif text-stone-800 leading-loose border-l-2 border-stone-900 pl-6 whitespace-pre-wrap">{result.contentAngles.real_examples.facebook_caption}</p>
+                                                 </div>
+                                                 <div className="space-y-3">
+                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">TikTok Hook Sequence</div>
+                                                     <p className="text-sm font-serif text-stone-800 leading-loose border-l-2 border-stone-900 pl-6 whitespace-pre-wrap">{result.contentAngles.real_examples.tiktok_hook}</p>
+                                                 </div>
+                                                 <div className="space-y-3">
+                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Call-To-Action (CTA)</div>
+                                                     <p className="text-sm text-stone-900 leading-loose font-bold pl-6 uppercase tracking-wider">{result.contentAngles.real_examples.specific_cta}</p>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     )}
+
+                                     <div className="bg-stone-50 p-6 border-l-4 border-stone-300">
+                                         <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Sample 1-Week Schedule</div>
+                                         <p className="text-xs text-stone-700 leading-relaxed font-serif whitespace-pre-wrap">{result.contentAngles.sample_week_schedule}</p>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+
+                        {/* Section 5: Tone of Voice & Expert Advice */}
+                        <div className="space-y-12 pt-8 border-t-[8px] border-stone-900">
+                             <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+                                 {/* Left: Tone of Voice */}
+                                 {result.tone_of_voice && (
+                                     <div className="md:col-span-4 space-y-8">
+                                         <div className="text-[10px] font-bold tracking-[0.2em] text-stone-500 pb-4 border-b border-stone-200">05 / TONE OF VOICE</div>
+                                         <div className="text-xl font-serif text-stone-900 tracking-tight leading-snug">
+                                             "{result.tone_of_voice.personality.human_persona}"
+                                         </div>
+                                         <div className="space-y-6 pt-6">
+                                             {[
+                                                 { label: 'Formal / Casual', val: parseInt(result.tone_of_voice.spectrum.formal_casual) },
+                                                 { label: 'Serious / Playful', val: parseInt(result.tone_of_voice.spectrum.serious_playful) },
+                                                 { label: 'Authority / Friendly', val: parseInt(result.tone_of_voice.spectrum.authority_friendly) },
+                                             ].map(s => (
+                                                 <div key={s.label} className="space-y-2">
+                                                     <div className="flex justify-between text-[9px] uppercase tracking-widest text-stone-500 font-bold"><span>■ {s.label.split('/')[0]}</span><span>{s.label.split('/')[1]} ■</span></div>
+                                                     <div className="h-[2px] bg-stone-200 relative">
+                                                         <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-3 bg-stone-900" style={{ left: `calc(${s.val}% - 3px)` }}></div>
+                                                     </div>
+                                                 </div>
+                                             ))}
+                                         </div>
+                                     </div>
+                                 )}
+
+                                 {/* Right: CMO Advice */}
+                                 <div className="md:col-span-8 space-y-8 md:pl-12 md:border-l border-stone-200">
+                                     <div className="text-[10px] font-bold tracking-[0.2em] text-stone-500 pb-4 border-b border-stone-200 flex justify-between">
+                                         <span>06 / EXPERT DIRECTIVES</span>
+                                         <span className="text-stone-900">FROM THE CMO'S DESK</span>
+                                     </div>
+                                     
+                                     {result.action_plan?.expert_advice && (
+                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                                             <div className="space-y-4">
+                                                 <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest border-b border-stone-200 pb-2">The Must-Do</div>
+                                                 <p className="text-xs font-medium text-stone-900 leading-relaxed font-serif">{result.action_plan.expert_advice.the_must_do}</p>
+                                             </div>
+                                             <div className="space-y-4">
+                                                 <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest border-b border-stone-200 pb-2">Common Pitfall</div>
+                                                 <p className="text-xs font-medium text-stone-500 line-through leading-relaxed font-serif">{result.action_plan.expert_advice.common_pitfall}</p>
+                                             </div>
+                                             <div className="space-y-4">
+                                                 <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest border-b border-stone-200 pb-2">Hidden Opportunity</div>
+                                                 <p className="text-xs font-bold text-stone-900 leading-relaxed font-serif">{result.action_plan.expert_advice.hidden_opportunity}</p>
+                                             </div>
+                                         </div>
+                                     )}
+                                     
+                                     <div className="pt-12 mt-8 border-t border-stone-200">
+                                         <div className="text-[10px] font-bold text-stone-400 uppercase mb-6 tracking-[0.2em]">Final Positioning Statement</div>
+                                         <p className="text-2xl md:text-3xl font-serif text-stone-900 leading-snug tracking-tight">"{result.conclusion?.positioning_statement}"</p>
+                                     </div>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
                 

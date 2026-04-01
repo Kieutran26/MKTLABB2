@@ -1056,49 +1056,142 @@ export const generateContentCalendar = async (
 export const generateMastermindStrategy = async (
     brandInfo: string,
     audienceInfo: string,
-    objective: string,
-    perception: string,
+    goalInfo: string,
+    vibeInfo: string,
     tone: string
 ): Promise<any> => {
-    const systemPrompt = `Role: World - class Chief Marketing Officer(CMO).
+    const systemPrompt = `Bạn là một Giám đốc Marketing cấp cao (CMO) với hơn 15 năm kinh nghiệm thực chiến tại Việt Nam và Đông Nam Á.
 
-    Task: Create a Holistic Content Strategy based on the "Human Connection" model.
+Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ).
+
+**INPUT DATA:**
+- Bối cảnh thương hiệu: ${brandInfo}
+- Thấu hiểu đối tượng: ${audienceInfo}
+- Mục tiêu chiến lược: ${goalInfo}
+- Phong thái & Tactical: ${vibeInfo}
+
+**REQUIRED OUTPUT STRUCTURE (STRICT JSON ONLY):**
+{
+    "insight": "1 câu insight đắt giá theo công thức: '[Đối tượng] muốn [X] nhưng thực ra cần [Y] vì [lý do tâm lý sâu xa]'",
+    "coreMessage": "1 concept trung tâm (Big Idea) kết nối Context + Goal + TOV",
+    "keyMessages": ["3-5 thông điệp chính lan tỏa từ Big Idea"],
     
-    ** INPUTS:**
-    - Brand: ${brandInfo}
-- Audience: ${audienceInfo}
-- Objective: ${objective}
-- Desired Perception: ${perception}
-- Tone / Style: ${tone}
-
-    ** REQUIRED OUTPUT STRUCTURE(JSON ONLY):**
-    {
-        "insight": "The intersection of Brand Truth and Audience Pain Point.",
-        "coreMessage": "One powerful sentence summarizing the campaign.",
-        "keyMessages": ["Message 1", "Message 2", "Message 3"],
-        "contentAngles": {
-            "text": ["Slogan ideas", "Headline ideas"],
-            "visual": ["Moodboard description", "Color palette suggestion"],
-            "story": ["Brand story angle", "Customer success story angle"],
-            "data": ["Key statistic to prove authority"],
-            "action": ["Activation campaign idea", "Minigame idea"]
+    "brand_context": {
+        "persona": {
+            "demographics": "Chi tiết nhân khẩu học",
+            "psychographics": "Chi tiết tâm lý học",
+            "behaviors": "Hành vi mua sắm",
+            "journey": "Mô tả ngắn gọn hành trình khách hàng"
         },
-        "channelStrategy": {
-            "Facebook": 40,
-            "TikTok": 30,
-            "Website": 20,
-            "Email": 10
+        "pain_gain": {
+            "ranked_pains": [
+                { "content": "Nội dung nỗi đau", "impact": "High/Med/Low", "message_link": "Thông điệp cụ thể dùng để giải quyết nỗi đau này" }
+            ],
+            "top_gains": ["3 khao khát thật sự"]
+        },
+        "positioning": {
+            "current_state": "Vị thế hiện tại trong tâm trí khách hàng",
+            "differentiator": "Điểm khác biệt cốt lõi",
+            "competitive_map": {
+                "x_axis": "Ví dụ: Giá thấp - cao",
+                "y_axis": "Ví dụ: Đại chúng - Cao cấp",
+                "brand_position": { "x": 50, "y": 50, "label": "Tên brand" },
+                "competitors": [
+                    { "x": 20, "y": 80, "label": "Đối thủ A" }
+                ],
+                "description": "Giải thích vị trí của brand so với đối thủ trên ma trận 2x2"
+            }
         }
-    }
+    },
+    
+    "strategic_goals": {
+        "smart_goals": [
+            { "goal": "Tên mục tiêu", "metric": "Chỉ số", "baseline": "Con số hiện tại (ước lượng)", "target": "Con số kỳ vọng", "deadline": "Thời hạn", "owner": "Trách nhiệm" }
+        ],
+        "kpi_dashboard": ["5-7 chỉ số quan trọng nhất"],
+        "resource_allocation": {
+            "budget_split": { 
+                "Tên kênh": { "percent": "Percentage%", "rationale": "Lý do phân bổ (VD: Kênh chính có tệp khách 45-65t)", "kpi": "KPI riêng cho kênh" } 
+            },
+            "workforce": "Nhân lực đề xuất"
+        },
+        "roadmap_90day": {
+            "months": [
+                { "month_name": "Tháng 1", "priority": "Ưu tiên chính", "actions": ["Action 1", "Action 2", "Action 3"], "kpi": "KPI cần đạt", "owner": "Người phụ trách" }
+            ]
+        }
+    },
+    
+    "tone_of_voice": {
+        "personality": {
+            "adjectives": ["4 tính từ cốt lõi"],
+            "human_persona": "Nếu thương hiệu là một người, họ là ai?"
+        },
+        "spectrum": {
+            "formal_casual": "0-100",
+            "serious_playful": "0-100",
+            "authority_friendly": "0-100",
+            "traditional_modern": "0-100"
+        },
+        "writing_rules": {
+            "always": ["5 điều LUÔN làm"],
+            "never": ["5 điều KHÔNG BAO GIỜ làm"],
+            "word_pairs": [{ "do": "Dùng", "dont": "Tránh" }]
+        },
+        "channel_examples": { "social": "Caption mẫu", "tiktok": "Hook mẫu", "email": "Subject mẫu" }
+    },
+    
+    "action_plan": {
+        "quick_wins": ["3 việc làm ngay trong 30 ngày"],
+        "risks": ["Top 3 rủi ro"],
+        "expert_advice": {
+            "the_must_do": "Điều quan trọng nhất phải làm đúng",
+            "common_pitfall": "Cạm bẫy hay gặp nhất (Sâu sắc)",
+            "hidden_opportunity": "Cơ hội đang bị bỏ ngỏ (Sâu sắc)"
+        }
+    },
+    
+    "conclusion": {
+        "summary": "Tóm tắt trong 3 câu",
+        "positioning_statement": "Câu định vị thương hiệu",
+        "final_notes": "Lời nhắn nhủ chuyên gia"
+    },
 
-    ** CRITICAL:** All content must be in ** VIETNAMESE **.
-    Return ONLY valid JSON.
-    `;
+    "contentAngles": {
+        "text": ["Slogan/Headline"],
+        "visual": ["Moodboard"],
+        "story": ["Brand story"],
+        "data": ["Key stat"],
+        "action": ["Activation"],
+        "weekly_distribution": "Tỷ lệ phân bổ (VD: 3 Visual : 2 Story : 1 Action)",
+        "sample_week_schedule": "Ví dụ 1 tuần content cụ thể từ Thứ 2 đến Chủ Nhật",
+        "real_examples": {
+            "facebook_caption": "1 Caption Facebook ĐẦY ĐỦ (viết content dài, không dùng gạch đầu dòng mô tả)",
+            "tiktok_hook": "Hook TikTok 3 giây đầu (Ghi rõ: Câu nói + Cảnh quay)",
+            "specific_cta": "1 lời kêu gọi hành động cụ thể, kích thích chuyển đổi (không dùng CTA chung chung)"
+        }
+    },
+    "channelStrategy": { "Facebook": 40, "TikTok": 30, "Website": 20, "Email": 10 }
+}
+
+**CRITICAL QUALITY CONTROL:**
+- Ngôn ngữ: TIẾNG VIỆT, chuyên nghiệp, sắc búa, không sáo rỗng.
+- Expert Note & Roadmap phải CỤ THỂ theo ngành hàng và đối tượng khách hàng của user cung cấp. 
+- Roadmap bắt buộc dùng số liệu BASELINE thật từ user để tính toán target. NẾU USER ĐỂ TRỐNG BASELINE -> AI PHẢI GHI RÕ: "Cần bổ sung baseline để xác nhận target này thực tế." trong phần conclusion hoặc summary.
+- Bắt buộc xuất ra Content Mix hàng tuần:
+  • Tỷ lệ: [X] Visual - [Y] Story - [Z] Action
+  • Với mỗi loại, viết 1 ví dụ thật:
+    — Caption Facebook đầy đủ (không phải mô tả)
+    — Hook TikTok 3 giây đầu (câu nói + cảnh quay gợi ý)
+    — CTA cụ thể (không phải 'kêu gọi hành động chung chung')
+  Không chấp nhận mô tả kiểu 'nên viết về...' — phải là nội dung thật có thể đăng ngay.
+- BẮT BUỘC viết 01 đoạn Competitive Positioning: So sánh brand khác đối thủ [X] ở điểm nào, và đề xuất chiếm trục cạnh tranh nào (giá / chất lượng / cảm xúc / tiện lợi).
+- Return ONLY valid JSON.`;
 
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `Generate Mastermind Strategy`,
+            contents: `Generate Deep Mastermind Strategy Report`,
             config: {
                 systemInstruction: systemPrompt,
                 responseMimeType: "application/json",
