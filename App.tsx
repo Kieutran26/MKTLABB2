@@ -60,7 +60,7 @@ import { ConfirmProvider } from './components/ConfirmModal';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [currentView, setCurrentView] = useState<ViewState>('HOME_DASHBOARD');
+  const [currentView, setCurrentView] = useState<ViewState>('LANDING_INTRO');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Flexible config: can study by Set IDs OR by a specific list of Words
   const [studyConfig, setStudyConfig] = useState<{
@@ -119,8 +119,8 @@ function AppContent() {
       );
     }
 
-    // Not logged in → show login page
-    if (!user) {
+    // Not logged in → show login page (except for LANDING_INTRO)
+    if (!user && currentView !== 'LANDING_INTRO') {
       return <LoginPage />;
     }
 
