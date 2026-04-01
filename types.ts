@@ -838,6 +838,7 @@ export interface MastermindStrategy {
       };
     };
     channelStrategy: Record<string, number>; 
+    htmlOutput?: string; // HTML Output from gemini generateMastermindStrategy
   };
   createdAt: number;
 }

@@ -353,6 +353,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 <div className="flex-1 overflow-y-auto p-10">
                     <div className="mx-auto max-w-6xl space-y-8 pb-10">
                     <div className="mx-auto max-w-5xl space-y-24 pb-32">
+                        {result.htmlOutput ? (
+                            <div dangerouslySetInnerHTML={{ __html: result.htmlOutput }} className="w-full bg-white text-stone-900 rounded-sm shadow-sm" />
+                        ) : (
+                            <>
                         {/* Section 1: Executive Summary & Core Concept */}
                         <div className="space-y-12">
                              <div className="border-b-2 border-stone-200 pb-4 flex justify-between items-end">
@@ -618,6 +622,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                  </div>
                              </div>
                         </div>
+                        </>
+                        )}
                     </div>
                     </div>
                 </div>

@@ -1062,7 +1062,7 @@ export const generateMastermindStrategy = async (
 ): Promise<any> => {
     const systemPrompt = `Bạn là một Giám đốc Marketing cấp cao (CMO) với hơn 15 năm kinh nghiệm thực chiến tại Việt Nam và Đông Nam Á.
 
-Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ).
+Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ) dưới dạng HTML chuẩn SEO theo phong cách Editorial Minimalism.
 
 **INPUT DATA:**
 - Bối cảnh thương hiệu: ${brandInfo}
@@ -1070,123 +1070,140 @@ Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marke
 - Mục tiêu chiến lược: ${goalInfo}
 - Phong thái & Tactical: ${vibeInfo}
 
-**REQUIRED OUTPUT STRUCTURE (STRICT JSON ONLY):**
+**YÊU CẦU DESIGN SYSTEM (Đã có CSS sẵn trong project):**
+Bạn phải sử dụng chính xác các class và cấu trúc HTML sau để tạo ra báo cáo. Wrapper ngoài cùng phải là <div class="mastermind-page">.
+
+**CẤU TRÚC HTML MẪU VÀ CÁC CLASS BẮT BUỘC:**
+
+1. **HEADER:**
+<div class="doc-header">
+    <div>
+        <div class="doc-eyebrow">Chiến lược Mastermind · [Tên Ngành Hàng]</div>
+        <div class="doc-title">[Tên Thương Hiệu] × <em>[Khách Hàng Mục Tiêu]</em></div>
+    </div>
+    <div class="doc-meta">
+        <span class="doc-date">Q[X] · 2026</span>
+        <span class="doc-tag">Chiến lược tổng thể</span>
+    </div>
+</div>
+
+2. **BIG IDEA:**
+<div class="big-idea">
+    <div class="bi-label">Big Idea · Core Message</div>
+    <div class="bi-quote">"[Câu slogan/thông điệp cốt lõi đắt giá]"</div>
+    <div class="bi-sub">[Giải thích ngắn gọn ý nghĩa chiến lược của Big Idea này]</div>
+</div>
+
+3. **INSIGHT STRIP (3 Cột):**
+<div class="insight-strip">
+    <div class="ins-item">
+        <div class="ins-num">01</div>
+        <div class="ins-label">Core Insight</div>
+        <div class="ins-val">[Ghi insight theo công thức: Muốn X nhưng cần Y vì lý do Z]</div>
+    </div>
+    <div class="ins-item">
+        <div class="ins-num">02</div>
+        <div class="ins-label">Baseline hiện tại</div>
+        <div class="ins-val">[Các chỉ số hiện tại dựa trên input user, nếu trống hãy ước lượng thông minh]</div>
+    </div>
+    <div class="ins-item">
+        <div class="ins-num">03</div>
+        <div class="ins-label">Mục tiêu 90 ngày</div>
+        <div class="ins-val">[Các chỉ số KPI kỳ vọng sau 3 tháng]</div>
+    </div>
+</div>
+
+4. **TWO COLUMN SECTION (Persona & Competitive):**
+<div class="two-col">
+    <div class="section">
+        <div class="section-head"><div class="section-icon"></div><span class="section-title">Persona & Hành trình</span></div>
+        <div class="persona-name">[Tên đại diện], [Tuổi]</div>
+        <div class="persona-tag">[Nghề nghiệp] · [Địa điểm] · [Thu nhập]<br>[Sở thích/Thói quen]</div>
+        <div class="persona-body">[Mô tả sâu về tâm lý và thói quen]</div>
+        <div style="margin-bottom:6px;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500">Nỗi đau sâu nhất</div>
+        <div class="pain-item"><div class="pain-dot red"></div>[Pain point 1]</div>
+        [Thêm các pain-item khác...]
+    </div>
+    <div class="section">
+        <div class="section-head"><div class="section-icon warn"></div><span class="section-title">Competitive Space</span></div>
+        <div class="comp-body">[Phân tích bối cảnh cạnh tranh hiện tại]</div>
+        <div class="comp-axis">
+            <div class="axis-row">
+                <div class="axis-label">[Trục X]</div>
+                <div class="axis-track">
+                    <div class="axis-fill" style="width:[X]%"></div>
+                    <div class="axis-marker marker-us" style="left:[X-2]%"></div>
+                    <div class="axis-marker marker-them" style="left:[Y]%"></div>
+                </div>
+            </div>
+            [Thêm các trục axis-row khác...]
+        </div>
+        <div class="axis-legend">
+            <div class="leg"><div class="leg-dot" style="background:var(--accent)"></div>Thương hiệu</div>
+            <div class="leg"><div class="leg-dot" style="background:var(--ink-4)"></div>Đối thủ TB</div>
+        </div>
+    </div>
+</div>
+
+5. **ROADMAP (3 Cột):**
+<div class="roadmap">
+    <div class="section-head"><div class="section-icon"></div><span class="section-title">Lộ trình 90 ngày</span></div>
+    <div class="roadmap-grid">
+        <div class="rm-col">
+            <div class="rm-month">Tháng 1</div>
+            <div class="rm-theme">[Chủ đề chính]</div>
+            <div class="rm-item"><div class="rm-dot"></div>[Hành động 1]</div>
+            <div class="rm-kpi">Target: [KPI chi tiết]</div>
+        </div>
+        [Tương tự cho Tháng 2 và Tháng 3]
+    </div>
+</div>
+
+6. **CHANNEL ALLOCATION (Grid các card):**
+<div class="channel-section">
+    <div class="section-head"><span class="section-title">Phân bổ kênh & KPI</span></div>
+    <div class="channel-grid">
+        <div class="ch-card">
+            <div class="ch-top"><span class="ch-name">[Tên Kênh]</span><span class="ch-pct">[X]%</span></div>
+            <div class="ch-bar"><div class="ch-fill" style="width:[X]%"></div></div>
+            <div class="ch-kpi">[KPI & Lý do chọn kênh]</div>
+        </div>
+        [Thêm các ch-card khác...]
+    </div>
+</div>
+
+7. **CONTENT MIX & EXAMPLES:**
+<div class="content-section">
+    <div class="section-head"><span class="section-title">Content Mix hàng tuần</span></div>
+    <div class="content-tabs">
+        <div class="ct-tab">
+            <div class="ct-type visual">Visual</div>
+            <div class="ct-ratio">[Số bài]×</div>
+            <div class="ct-example">"[Ví dụ nội dung thật đăng ngay]"</div>
+            <div class="ct-hook"><strong>Hook TikTok:</strong> [Câu nói/Cảnh quay]</div>
+        </div>
+        [Tương tự cho Story và Action]
+    </div>
+</div>
+
+8. **CMO FINAL ADVICE:**
+<div class="cmo-section">
+    <div class="cmo-head"><div class="cmo-label">Lời khuyên từ CMO</div><div class="cmo-sig">Expert Note</div></div>
+    <div class="cmo-grid">
+        <div class="cmo-item"><div class="cmo-num">I.</div><div class="cmo-text">[Lời khuyên quan trọng nhất]</div></div>
+        <div class="cmo-item"><div class="cmo-num">II.</div><div class="cmo-text">[Cạm bẫy cần tránh]</div></div>
+        <div class="cmo-item"><div class="cmo-num">III.</div><div class="cmo-text">[Cơ hội chưa khai phá]</div></div>
+    </div>
+    <div class="cmo-quote">"[Câu định vị thương hiệu cuối cùng gợi cảm hứng]"</div>
+</div>
+
+Hãy viết báo cáo cực kỳ giá trị, đúng thực tế và ngôn từ "sắc búa". ĐÂY LÀ ĐẦU RA (RETURN) CHO ỨNG DỤNG THEO ĐỊNH DẠNG JSON. DO NOT INCLUDE ANY MARKDOWN FENCES LIKE \`\`\`json OUTSIDE OF JSON.
+
+**OUTPUT FORMAT (STRICT JSON ONLY):**
 {
-    "insight": "1 câu insight đắt giá theo công thức: '[Đối tượng] muốn [X] nhưng thực ra cần [Y] vì [lý do tâm lý sâu xa]'",
-    "coreMessage": "1 concept trung tâm (Big Idea) kết nối Context + Goal + TOV",
-    "keyMessages": ["3-5 thông điệp chính lan tỏa từ Big Idea"],
-    
-    "brand_context": {
-        "persona": {
-            "demographics": "Chi tiết nhân khẩu học",
-            "psychographics": "Chi tiết tâm lý học",
-            "behaviors": "Hành vi mua sắm",
-            "journey": "Mô tả ngắn gọn hành trình khách hàng"
-        },
-        "pain_gain": {
-            "ranked_pains": [
-                { "content": "Nội dung nỗi đau", "impact": "High/Med/Low", "message_link": "Thông điệp cụ thể dùng để giải quyết nỗi đau này" }
-            ],
-            "top_gains": ["3 khao khát thật sự"]
-        },
-        "positioning": {
-            "current_state": "Vị thế hiện tại trong tâm trí khách hàng",
-            "differentiator": "Điểm khác biệt cốt lõi",
-            "competitive_map": {
-                "x_axis": "Ví dụ: Giá thấp - cao",
-                "y_axis": "Ví dụ: Đại chúng - Cao cấp",
-                "brand_position": { "x": 50, "y": 50, "label": "Tên brand" },
-                "competitors": [
-                    { "x": 20, "y": 80, "label": "Đối thủ A" }
-                ],
-                "description": "Giải thích vị trí của brand so với đối thủ trên ma trận 2x2"
-            }
-        }
-    },
-    
-    "strategic_goals": {
-        "smart_goals": [
-            { "goal": "Tên mục tiêu", "metric": "Chỉ số", "baseline": "Con số hiện tại (ước lượng)", "target": "Con số kỳ vọng", "deadline": "Thời hạn", "owner": "Trách nhiệm" }
-        ],
-        "kpi_dashboard": ["5-7 chỉ số quan trọng nhất"],
-        "resource_allocation": {
-            "budget_split": { 
-                "Tên kênh": { "percent": "Percentage%", "rationale": "Lý do phân bổ (VD: Kênh chính có tệp khách 45-65t)", "kpi": "KPI riêng cho kênh" } 
-            },
-            "workforce": "Nhân lực đề xuất"
-        },
-        "roadmap_90day": {
-            "months": [
-                { "month_name": "Tháng 1", "priority": "Ưu tiên chính", "actions": ["Action 1", "Action 2", "Action 3"], "kpi": "KPI cần đạt", "owner": "Người phụ trách" }
-            ]
-        }
-    },
-    
-    "tone_of_voice": {
-        "personality": {
-            "adjectives": ["4 tính từ cốt lõi"],
-            "human_persona": "Nếu thương hiệu là một người, họ là ai?"
-        },
-        "spectrum": {
-            "formal_casual": "0-100",
-            "serious_playful": "0-100",
-            "authority_friendly": "0-100",
-            "traditional_modern": "0-100"
-        },
-        "writing_rules": {
-            "always": ["5 điều LUÔN làm"],
-            "never": ["5 điều KHÔNG BAO GIỜ làm"],
-            "word_pairs": [{ "do": "Dùng", "dont": "Tránh" }]
-        },
-        "channel_examples": { "social": "Caption mẫu", "tiktok": "Hook mẫu", "email": "Subject mẫu" }
-    },
-    
-    "action_plan": {
-        "quick_wins": ["3 việc làm ngay trong 30 ngày"],
-        "risks": ["Top 3 rủi ro"],
-        "expert_advice": {
-            "the_must_do": "Điều quan trọng nhất phải làm đúng",
-            "common_pitfall": "Cạm bẫy hay gặp nhất (Sâu sắc)",
-            "hidden_opportunity": "Cơ hội đang bị bỏ ngỏ (Sâu sắc)"
-        }
-    },
-    
-    "conclusion": {
-        "summary": "Tóm tắt trong 3 câu",
-        "positioning_statement": "Câu định vị thương hiệu",
-        "final_notes": "Lời nhắn nhủ chuyên gia"
-    },
-
-    "contentAngles": {
-        "text": ["Slogan/Headline"],
-        "visual": ["Moodboard"],
-        "story": ["Brand story"],
-        "data": ["Key stat"],
-        "action": ["Activation"],
-        "weekly_distribution": "Tỷ lệ phân bổ (VD: 3 Visual : 2 Story : 1 Action)",
-        "sample_week_schedule": "Ví dụ 1 tuần content cụ thể từ Thứ 2 đến Chủ Nhật",
-        "real_examples": {
-            "facebook_caption": "1 Caption Facebook ĐẦY ĐỦ (viết content dài, không dùng gạch đầu dòng mô tả)",
-            "tiktok_hook": "Hook TikTok 3 giây đầu (Ghi rõ: Câu nói + Cảnh quay)",
-            "specific_cta": "1 lời kêu gọi hành động cụ thể, kích thích chuyển đổi (không dùng CTA chung chung)"
-        }
-    },
-    "channelStrategy": { "Facebook": 40, "TikTok": 30, "Website": 20, "Email": 10 }
-}
-
-**CRITICAL QUALITY CONTROL:**
-- Ngôn ngữ: TIẾNG VIỆT, chuyên nghiệp, sắc búa, không sáo rỗng.
-- Expert Note & Roadmap phải CỤ THỂ theo ngành hàng và đối tượng khách hàng của user cung cấp. 
-- Roadmap bắt buộc dùng số liệu BASELINE thật từ user để tính toán target. NẾU USER ĐỂ TRỐNG BASELINE -> AI PHẢI GHI RÕ: "Cần bổ sung baseline để xác nhận target này thực tế." trong phần conclusion hoặc summary.
-- Bắt buộc xuất ra Content Mix hàng tuần:
-  • Tỷ lệ: [X] Visual - [Y] Story - [Z] Action
-  • Với mỗi loại, viết 1 ví dụ thật:
-    — Caption Facebook đầy đủ (không phải mô tả)
-    — Hook TikTok 3 giây đầu (câu nói + cảnh quay gợi ý)
-    — CTA cụ thể (không phải 'kêu gọi hành động chung chung')
-  Không chấp nhận mô tả kiểu 'nên viết về...' — phải là nội dung thật có thể đăng ngay.
-- BẮT BUỘC viết 01 đoạn Competitive Positioning: So sánh brand khác đối thủ [X] ở điểm nào, và đề xuất chiếm trục cạnh tranh nào (giá / chất lượng / cảm xúc / tiện lợi).
-- Return ONLY valid JSON.`;
+    "coreMessage": "Tên chiến lược cốt lõi (5-10 từ)",
+    "htmlOutput": "<div class='mastermind-page'>...toàn bộ nội dung HTML ở đây...</div>"
+}`;
 
     try {
         const response = await ai.models.generateContent({
