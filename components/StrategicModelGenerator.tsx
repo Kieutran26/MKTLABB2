@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Target, Download, Loader2, Sparkles, Grid, Filter, LayoutTemplate, HelpCircle, CheckCircle2, Edit3, X, Check, Layers, Package, DollarSign, MapPin, Megaphone, Save, History, Trash2 } from 'lucide-react';
+import { Target, Download, Loader2, Sparkles, Grid, Filter, LayoutTemplate, HelpCircle, CheckCircle2, Edit3, X, Check, Layers, Package, DollarSign, MapPin, Megaphone, Save, History, Trash2, Lock, Diamond, ChevronRight, Zap } from 'lucide-react';
 import { generateStrategicModel, generateAllStrategicModels, StrategicModelData } from '../services/geminiService';
 import { StrategicModelService, SavedStrategicModel } from '../services/strategicModelService';
 import { toPng } from 'html-to-image';
 import { Toast, ToastType } from './Toast';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import { saasService } from '../services/saasService';
+import { useAuth } from './AuthContext';
 
 const cardClass =
     'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -25,6 +27,7 @@ const MODELS = [
 ];
 
 const StrategicModelGenerator: React.FC = () => {
+    const { user } = useAuth();
     const { currentBrand } = useBrand();
     const [productInfo, setProductInfo] = useState('');
     const [selectedModel, setSelectedModel] = useState('SWOT');
@@ -46,6 +49,9 @@ const StrategicModelGenerator: React.FC = () => {
 
     const [showHistory, setShowHistory] = useState(false);
     const [savedModels, setSavedModels] = useState<SavedStrategicModel[]>([]);
+    const [profile, setProfile] = useState<any>(null);
+    const [quota, setQuota] = useState<any>(null);
+    const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
 
     useEffect(() => {
         if (currentBrand && !useManual) {
@@ -56,22 +62,39 @@ const StrategicModelGenerator: React.FC = () => {
     }, [currentBrand, useManual]);
 
     useEffect(() => {
+        const loadUserData = async () => {
+            if (!user) return;
+            const p = await saasService.getUserProfile(user.uid);
+            const q = await saasService.getUserQuota(user.uid);
+            setProfile(p);
+            setQuota(q);
+        };
+
         const loadHistory = async () => {
             const models = await StrategicModelService.getStrategicModels();
             setSavedModels(models);
         };
+        
+        loadUserData();
         loadHistory();
-    }, []);
+    }, [user]);
 
     const showToast = (message: string, type: ToastType = 'info') => {
         setToast({ message, type });
     };
 
     const getContext = () => {
-        if (useManual) {
+        if (activeTab === 'manual') {
             return `Brand Name: ${manualBrandName || 'Unknown'}.`;
         } else if (currentBrand) {
-            return `Brand: ${currentBrand.identity.name}. Target Audience: ${currentBrand.audience.demographics.join(', ')}. Core Values: ${currentBrand.strategy.coreValues.join(', ')}.`;
+            return `
+                Thương hiệu: ${currentBrand.identity.name}. 
+                Lĩnh vực: ${currentBrand.industry}. 
+                Tầm nhìn: ${currentBrand.strategy.vision}. 
+                Giá trị cốt lõi: ${currentBrand.strategy.coreValues.join(', ')}. 
+                Phân khúc khách hàng: ${currentBrand.audience.demographics.join(', ')}.
+                Nghiên cứu thị trường: ${currentBrand.market?.trends?.join(', ') || ''}
+            `;
         }
         return "";
     };
@@ -82,12 +105,41 @@ const StrategicModelGenerator: React.FC = () => {
             return;
         }
 
+        if (!user) {
+            showToast("Vui lòng đăng nhập để sử dụng tính năng này", "error");
+            return;
+        }
+
         setIsGenerating(true);
         try {
+            // Logic check quota/tier would go here if we want to block BEFORE generation
+            // For now, let's just generate and then save which increments quota
             const data = await generateStrategicModel(productInfo, selectedModel, getContext());
+            
+            // Save to DB and check quota via the RPC function
+            const savedData = await saasService.saveMarketingPlan(
+                user.uid,
+                selectedModel,
+                `${selectedModel} Analysis - ${new Date().toLocaleDateString()}`,
+                { productInfo, context: getContext() },
+                data,
+                currentBrand?.id
+            );
+
+            if (!savedData) {
+                showToast("Hết lượt dùng hoặc lỗi lưu trữ. Vui lòng nâng cấp gói!", "error");
+                setIsGenerating(false);
+                return;
+            }
+
             setResults(prev => ({ ...prev, [selectedModel]: data }));
-        } catch (error) {
-            showToast("Lỗi khi tạo mô hình.", "error");
+            showToast(`Đã tạo xong ${selectedModel}!`, "success");
+        } catch (error: any) {
+            if (error.message?.includes('QUOTA_EXCEEDED')) {
+                showToast("Bạn đã hết lượt dùng gói Free. Vui lòng nâng cấp!", "error");
+            } else {
+                showToast("Lỗi khi tạo mô hình.", "error");
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -343,54 +395,60 @@ const StrategicModelGenerator: React.FC = () => {
                     <div className="mb-2 flex items-center gap-2 text-stone-400">
                         <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
                         <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Chiến lược Marketing
+                            Marketing Strategy Engine
                         </span>
                     </div>
                     <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
                         Strategic Model Generator
                     </h1>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                        Tạo các khung chiến lược marketing chuẩn (SWOT, AIDA...) bằng AI.
-                    </p>
+                    <div className="mt-1 flex items-center gap-3">
+                        <p className="text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            Phân tích SWOT, AIDA, 4P bằng AI thông minh.
+                        </p>
+                        {quota && (
+                            <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium text-stone-600">
+                                <Zap size={10} className="text-amber-500 fill-amber-500" />
+                                {quota.plan_limit - quota.plan_creation_count} lượt còn lại
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex shrink-0 flex-wrap gap-2 pt-2">
-                    <div className="inline-flex gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                    <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm">
                         <button
                             type="button"
-                            onClick={() => setUseManual(false)}
-                            className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${!useManual
-                                ? 'bg-stone-900 text-white shadow-sm'
-                                : 'text-stone-600 hover:bg-stone-50/80'
+                            onClick={() => setActiveTab('manual')}
+                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
+                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
+                                : 'text-stone-500 hover:text-stone-700'
                                 }`}
                         >
-                            Brand Vault
+                            ✍️ Thủ công
                         </button>
                         <button
                             type="button"
-                            onClick={() => setUseManual(true)}
-                            className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${useManual
-                                ? 'bg-stone-900 text-white shadow-sm'
-                                : 'text-stone-600 hover:bg-stone-50/80'
+                            onClick={() => setActiveTab('vault')}
+                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
+                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
+                                : 'text-stone-500 hover:text-stone-700'
                                 }`}
                         >
-                            Thủ công
+                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
+                            Brand Vault
                         </button>
                     </div>
                     <button
                         type="button"
                         onClick={handleSave}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50"
                     >
                         <Save size={17} strokeWidth={1.25} /> Lưu
                     </button>
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
-                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
-                            }`}
+                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50"
                     >
                         <History size={17} strokeWidth={1.25} /> Lịch sử
                     </button>
@@ -399,91 +457,148 @@ const StrategicModelGenerator: React.FC = () => {
 
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
                 <div className="mx-auto max-w-7xl">
-                    {!useManual && (
-                        <div className="mb-8">
-                            <BrandSelector />
-                        </div>
-                    )}
-
-                <div className="mb-8">
-                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-0">
-                        <div className="border-stone-200/80 lg:col-span-4 lg:border-r lg:pr-8">
-                            <label className="mb-3 block text-sm font-medium text-stone-800">Chọn mô hình</label>
-                            <div className="space-y-2">
-                                {MODELS.map(m => {
-                                    const hasData = results[m.id] !== null;
-                                    return (
-                                        <button
-                                            key={m.id}
-                                            type="button"
-                                            onClick={() => setSelectedModel(m.id)}
-                                            className={`relative flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all ${selectedModel === m.id
-                                                ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200'
-                                                : 'border-stone-200/90 bg-white hover:border-stone-300 hover:bg-stone-50/50'
-                                                } ${!hasData ? 'opacity-80' : ''}`}
-                                        >
-                                            <div className={`rounded-lg border p-1.5 ${selectedModel === m.id ? 'border-stone-200 bg-white' : 'border-stone-100 bg-stone-50/80'} text-stone-700`}>
-                                                <m.icon size={16} strokeWidth={1.25} />
-                                            </div>
-                                            <div className="min-w-0 flex-1">
-                                                <div className="text-sm font-medium text-stone-900">{m.name}</div>
-                                                <div className="truncate text-xs font-normal text-stone-500">{m.desc}</div>
-                                            </div>
-                                            {hasData && <Check className="shrink-0 text-emerald-600" size={16} strokeWidth={1.25} />}
-                                        </button>
-                                    );
-                                })}
+                    {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
+                        <div className="mb-12 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-xl">
+                            <div className="grid grid-cols-1 md:grid-cols-2">
+                                <div className="p-10 md:p-14">
+                                    <div className="mb-6 inline-flex rounded-2xl bg-amber-50 p-3 text-amber-600">
+                                        <Diamond size={32} />
+                                    </div>
+                                    <h2 className="mb-4 text-3xl font-medium tracking-tight text-stone-900">Tính năng Brand Vault</h2>
+                                    <p className="mb-8 text-lg text-stone-500">
+                                        Kết nối trực tiếp với "DNA Thương hiệu" của bạn để tạo ra những chiến lược marketing chính xác vượt trội.
+                                    </p>
+                                    <ul className="mb-10 space-y-4">
+                                        {[
+                                            "Tự động đồng bộ Tầm nhìn & Giá trị cốt lõi",
+                                            "Phân tích sâu khách hàng mục tiêu đã lưu",
+                                            "Đề xuất chiến lược khớp 100% với Brand Voice",
+                                            "Tiết kiệm 90% thời gian nhập dữ liệu thủ công"
+                                        ].map((text, i) => (
+                                            <li key={i} className="flex items-center gap-3 text-stone-700">
+                                                <div className="rounded-full bg-emerald-50 p-1 text-emerald-600">
+                                                    <Check size={14} strokeWidth={3} />
+                                                </div>
+                                                {text}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button className="flex items-center gap-2 rounded-2xl bg-stone-900 px-8 py-4 font-medium text-white shadow-lg transition-transform hover:scale-105 active:scale-95">
+                                        Nâng cấp Pro Max ngay <ChevronRight size={18} />
+                                    </button>
+                                </div>
+                                <div className="relative flex items-center justify-center bg-stone-50 p-10 overflow-hidden">
+                                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                                        <Target size={400} />
+                                     </div>
+                                     <div className={`${cardClass} relative z-10 w-full max-w-sm rotate-2 scale-95 p-6 blur-[1px] grayscale opacity-50`}>
+                                         <div className="mb-4 h-4 w-1/2 rounded bg-stone-200" />
+                                         <div className="mb-2 h-3 w-full rounded bg-stone-100" />
+                                         <div className="mb-8 h-3 w-2/3 rounded bg-stone-100" />
+                                         <div className="grid grid-cols-2 gap-4">
+                                             <div className="h-24 rounded-xl bg-stone-100" />
+                                             <div className="h-24 rounded-xl bg-stone-100" />
+                                         </div>
+                                     </div>
+                                     <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white/80 p-6 shadow-2xl backdrop-blur-md">
+                                         <Lock size={40} className="text-stone-400" />
+                                     </div>
+                                </div>
                             </div>
                         </div>
-
-                        <div className="flex flex-col gap-4 lg:col-span-8 lg:pl-8">
-                            {useManual && (
-                                <div>
-                                    <label className="mb-2 block text-sm font-medium text-stone-800">Tên thương hiệu (thủ công)</label>
-                                    <div className="relative">
-                                        <Edit3 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" strokeWidth={1.25} />
-                                        <input
-                                            className={`${inputClass} pl-10 font-medium`}
-                                            placeholder="Nhập tên thương hiệu..."
-                                            value={manualBrandName}
-                                            onChange={e => setManualBrandName(e.target.value)}
-                                        />
-                                    </div>
+                    ) : (
+                        <>
+                            {activeTab === 'vault' && (
+                                <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <BrandSelector />
                                 </div>
                             )}
-                            <div className="flex flex-1 flex-col">
-                                <label className="mb-2 block text-sm font-medium text-stone-800">
-                                    {useManual ? 'Mô tả sản phẩm / dịch vụ chi tiết' : `Thông tin sản phẩm (${currentBrand ? currentBrand.identity.name : 'Chưa chọn brand'})`}
-                                </label>
-                                <textarea
-                                    className={`${textareaClass} mb-4 min-h-[140px]`}
-                                    placeholder="Mô tả sản phẩm, đối tượng khách hàng, mục tiêu..."
-                                    value={productInfo}
-                                    onChange={e => setProductInfo(e.target.value)}
-                                />
-                                <div className="flex flex-wrap justify-end gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={handleGenerateAll}
-                                        disabled={isGenerating}
-                                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 disabled:opacity-60"
-                                    >
-                                        <Layers size={18} strokeWidth={1.25} /> Phân tích toàn diện (All)
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleGenerateSingle}
-                                        disabled={isGenerating}
-                                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800 disabled:opacity-60"
-                                    >
-                                        {isGenerating ? <Loader2 className="animate-spin" size={18} strokeWidth={1.25} /> : <Sparkles size={18} strokeWidth={1.25} />}
-                                        Tạo {selectedModel}
-                                    </button>
+
+                        <div className="mb-12">
+                            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-0">
+                                <div className="border-stone-200/80 lg:col-span-4 lg:border-r lg:pr-10">
+                                    <label className="mb-4 block text-xs font-semibold uppercase tracking-widest text-stone-500">Mô hình phân tích</label>
+                                    <div className="space-y-2.5">
+                                        {MODELS.map(m => {
+                                            const hasData = results[m.id] !== null;
+                                            return (
+                                                <button
+                                                    key={m.id}
+                                                    type="button"
+                                                    onClick={() => setSelectedModel(m.id)}
+                                                    className={`group relative flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all ${selectedModel === m.id
+                                                        ? 'border-stone-900 bg-stone-900 text-white shadow-md'
+                                                        : 'border-stone-200 bg-white hover:border-stone-400 hover:bg-stone-50'
+                                                        }`}
+                                                >
+                                                    <div className={`rounded-xl border p-2 transition-colors ${selectedModel === m.id ? 'border-white/20 bg-white/10 text-white' : 'border-stone-100 bg-stone-50 text-stone-600 group-hover:bg-white'}`}>
+                                                        <m.icon size={18} strokeWidth={1.25} />
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className={`text-sm font-medium ${selectedModel === m.id ? 'text-white' : 'text-stone-900'}`}>{m.name}</div>
+                                                        <div className={`truncate text-[11px] ${selectedModel === m.id ? 'text-white/60' : 'text-stone-400'}`}>{m.desc}</div>
+                                                    </div>
+                                                    {hasData && (
+                                                        <div className={`rounded-full p-1 ${selectedModel === m.id ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-600'}`}>
+                                                            <Check size={12} strokeWidth={3} />
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-6 lg:col-span-8 lg:pl-10">
+                                    {activeTab === 'manual' && (
+                                        <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                                            <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-stone-500">Tên thương hiệu</label>
+                                            <div className="relative">
+                                                <Edit3 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-300" strokeWidth={1.25} />
+                                                <input
+                                                    className="w-full rounded-2xl border border-stone-200 bg-white py-4 pl-12 pr-4 text-stone-900 placeholder:text-stone-400 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                                                    placeholder="Ví dụ: Blue Vigor Travel"
+                                                    value={manualBrandName}
+                                                    onChange={e => setManualBrandName(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex flex-1 flex-col">
+                                        <label className="mb-2 block text-xs font-semibold uppercase tracking-widest text-stone-500">
+                                            {activeTab === 'manual' ? 'Dịch vụ / Sản phẩm chi tiết' : `Sản phẩm (${currentBrand ? currentBrand.identity.name : 'Vui lòng chọn Brand'})`}
+                                        </label>
+                                        <textarea
+                                            className="min-h-[160px] w-full resize-none rounded-2xl border border-stone-200 bg-white p-5 text-stone-900 placeholder:text-stone-400 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900"
+                                            placeholder="Phân tích chuyên sâu hơn bằng cách mô tả chi tiết sản phẩm, đối tượng khách hàng mục tiêu..."
+                                            value={productInfo}
+                                            onChange={e => setProductInfo(e.target.value)}
+                                        />
+                                        <div className="mt-6 flex flex-wrap justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={handleGenerateAll}
+                                                disabled={isGenerating}
+                                                className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-6 py-3 text-sm font-medium text-stone-600 shadow-sm transition-all hover:bg-stone-50 disabled:opacity-50"
+                                            >
+                                                <Layers size={18} strokeWidth={1.25} /> Tất cả mô hình
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleGenerateSingle}
+                                                disabled={isGenerating}
+                                                className="inline-flex items-center gap-2 rounded-2xl bg-stone-900 px-8 py-3 text-sm font-medium text-white shadow-lg transition-all hover:bg-stone-800 hover:shadow-xl active:scale-95 disabled:opacity-50"
+                                            >
+                                                {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
+                                                Tạo {selectedModel}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        </>
+                    )}
 
                 {currentResult ? (
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
