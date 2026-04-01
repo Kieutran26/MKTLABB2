@@ -400,12 +400,12 @@ const StrategicModelGenerator: React.FC = () => {
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
                 <div className="mx-auto max-w-7xl">
                     {!useManual && (
-                        <div className="mb-8 rounded-2xl border border-stone-100 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)] p-3">
+                        <div className="mb-8">
                             <BrandSelector />
                         </div>
                     )}
 
-                <div className={`${cardClass} mb-8 p-6 md:p-8`}>
+                <div className="mb-8">
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-0">
                         <div className="border-stone-200/80 lg:col-span-4 lg:border-r lg:pr-8">
                             <label className="mb-3 block text-sm font-medium text-stone-800">Chọn mô hình</label>

@@ -676,10 +676,10 @@ const ABTestingCalc: React.FC = () => {
                     )}
                     <button
                         onClick={() => setShowHistoryModal(true)}
-                        className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50"
+                        title={`Lịch sử (${savedTests.length})`}
                     >
-                        <FolderOpen size={16} />
-                        Lịch sử ({savedTests.length})
+                        <FolderOpen size={18} strokeWidth={1.25} />
                     </button>
                 </div>
             </header>

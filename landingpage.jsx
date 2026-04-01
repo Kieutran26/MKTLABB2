@@ -48,7 +48,6 @@ const SIDEBAR_ITEMS = [
   { icon: Lightbulb, label: 'Idea Strategy AI', children: ['Insight Finder', 'Trend Scanner', 'Persona Builder'] },
   { icon: Palette, label: 'Design & Visuals', children: ['Visual Brief', 'Mockup Generator', 'Key Visuals'] },
   { icon: Megaphone, label: 'Ads & Performance', children: ['Budget Allocation', 'A/B Testing', 'ROAS Forecaster'] },
-  { icon: GraduationCap, label: 'Học Tiếng Anh', children: [] },
   { icon: BookOpen, label: 'Quản lý Plan', children: [] },
   { icon: ListChecks, label: 'To-Do List', children: [] },
   { icon: Globe, label: 'Tin Tức Tổng Hợp', children: [] },

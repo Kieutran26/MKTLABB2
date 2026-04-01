@@ -4,7 +4,7 @@ import { ViewState } from '../types';
 import { useAuth } from './AuthContext';
 import {
   Home, GraduationCap, Library, Star, ChevronDown, ChevronRight, BookOpen, CreditCard, Calendar, List,
-  CheckSquare, PenTool, Image as ImageIcon, PlusSquare, Mail, Film, Link2,
+  CheckSquare, PenTool, ImageIcon, PlusSquare, Mail, Film, Link2,
   MonitorPlay, Calculator, TrendingUp, ShieldCheck, Radar, Users, BrainCircuit, Lightbulb, Target,
   CalendarDays, Brain, FileText, FileCheck, Zap, Map, PieChart, Activity, Compass, DollarSign, Heart,
   HelpCircle, Globe, Layers, Rocket, Sparkles, PanelLeftClose, PanelLeftOpen,
@@ -36,15 +36,6 @@ const BadgeNew = () => (
     style={{ backgroundColor: '#FFE8D6', color: '#C45C26' }}
   >
     Mới
-  </span>
-);
-
-const BadgeVersion = ({ children }: { children: React.ReactNode }) => (
-  <span
-    className="shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold tracking-wide"
-    style={{ backgroundColor: '#FFE8D6', color: '#C45C26' }}
-  >
-    {children}
   </span>
 );
 
@@ -169,7 +160,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   user,
 }) => {
   const { signOutUser } = useAuth();
-  const [learnExpanded, setLearnExpanded] = useState(false);
   const [planExpanded, setPlanExpanded] = useState(false);
   const [strategyExpanded, setStrategyExpanded] = useState(true);
   const [ideationExpanded, setIdeationExpanded] = useState(false);
@@ -198,13 +188,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
   const avatarUrl = user?.photoURL;
   const initials = getUserInitials(user?.displayName, user?.email);
-
-  const learnItems: NavItem[] = [
-    { id: 'HOME', label: 'Dịch văn bản', icon: Home },
-    { id: 'LEARN_SELECT', label: 'Bắt đầu học', icon: GraduationCap, badge: 'new' },
-    { id: 'VOCAB_MANAGER', label: 'Quản lý từ vựng', icon: Library },
-    { id: 'STARRED', label: 'Từ đã đánh dấu', icon: Star },
-  ];
 
   const planItems: NavItem[] = [
     { id: 'PLAN_CALENDAR', label: 'Lịch thanh toán', icon: Calendar },
@@ -256,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'ADS_HEALTH_CHECKER', label: 'Ads Health Checker', icon: Activity },
   ];
 
-  const singleNavItems: { id: ViewState; label: string; icon: typeof CheckSquare }[] = [
+  const singleNavItems: { id: ViewState; label: string; icon: any }[] = [
     { id: 'TODO', label: 'To-Do List', icon: CheckSquare },
     { id: 'NEWS_AGGREGATOR', label: 'Tin Tức Tổng Hợp', icon: Globe },
     { id: 'MARKETING_KNOWLEDGE', label: 'Kho Kiến Thức', icon: BookOpen },
@@ -274,7 +257,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         color: NAV_TEXT,
       }}
     >
-      {/* Nút thu gọn nhỏ nằm đè trên mép phải sidebar, giữa chiều dọc */}
       <button
         type="button"
         onClick={() => onCollapsedChange?.(!collapsed)}
@@ -293,7 +275,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
       </button>
 
-      {/* Header: logo */}
       <div className={`flex shrink-0 items-center ${collapsed ? 'flex-col gap-2 px-2 py-5' : 'justify-start gap-2 px-4 py-5'}`}>
         <button
           type="button"
@@ -369,18 +350,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="my-3 mx-1 border-t" style={{ borderColor: BORDER_SUBTLE }} />
 
         <NavGroup
-          title="Học Tiếng Anh"
-          icon={BookOpen}
-          expanded={learnExpanded}
-          setExpanded={setLearnExpanded}
-          items={learnItems}
-          setView={setView}
-          currentView={currentView}
-          collapsed={collapsed}
-          onExpandSidebar={expandSidebar}
-        />
-
-        <NavGroup
           title="Quản lý Plan"
           icon={CreditCard}
           expanded={planExpanded}
@@ -442,7 +411,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {!collapsed ? (
           <>
-            {/* User Profile Row */}
             <div className="relative mb-1">
               <button
                 type="button"
@@ -478,7 +446,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
               </button>
 
-              {/* Dropdown Menu */}
               {userMenuOpen && (
                 <>
                   <div
@@ -531,7 +498,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </>
         ) : (
           <div className="flex flex-col items-center gap-1">
-            {/* Collapsed user avatar */}
             {avatarUrl ? (
               <img
                 src={avatarUrl}

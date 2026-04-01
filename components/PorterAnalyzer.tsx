@@ -175,12 +175,13 @@ const PorterAnalyzer: React.FC = () => {
                     <button
                         type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors ${showHistory
                             ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
                             : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
                             }`}
+                        title={`Lịch sử (${savedAnalyses.length})`}
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedAnalyses.length})
+                        <History size={18} strokeWidth={1.25} />
                     </button>
                     {analysisData && (
                         <>

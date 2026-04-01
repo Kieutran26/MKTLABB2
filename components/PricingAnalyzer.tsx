@@ -220,9 +220,10 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-stone-900 text-white shadow-sm transition-colors hover:bg-stone-800"
+                        title="Lịch sử"
                     >
-                        <History size={16} strokeWidth={1.25} /> Lịch sử
+                        <History size={18} strokeWidth={1.25} />
                     </button>
                 </div>
             </header>
