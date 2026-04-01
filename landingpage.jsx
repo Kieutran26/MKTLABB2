@@ -1047,105 +1047,255 @@ function Testimonials() {
 }
 
 function Pricing({ setView }) {
+  const [hoveredPlan, setHoveredPlan] = useState<number | null>(null);
+
   return (
-    <section id="pricing" className="py-28 px-6 bg-gray-900">
-      <div className="max-w-6xl mx-auto">
+    <section id="pricing" className="py-32 px-6 bg-gradient-to-b from-white via-gray-50/30 to-white relative overflow-hidden">
+      {/* Subtle background pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.015]">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(142,20%,38%) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
+      </div>
+
+      <div className="max-w-6xl mx-auto relative">
+        {/* Editorial Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-20"
+        >
+          {/* Label */}
+          <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.25em] text-[hsl(142,20%,38%)] mb-6">
+            Investment
+          </span>
+
+          {/* Headline */}
+          <h2 className="font-['Playfair_Display'] text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 mb-6 leading-[1.1]">
+            Simple, Transparent
+            <br />
+            <span className="italic text-[hsl(142,20%,38%)]">Pricing</span>
+          </h2>
+
+          {/* Subheadline */}
+          <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
+            Chọn gói phù hợp với quy mô của bạn. Không có phí ẩn, không có bất ngờ.
+          </p>
+
+          {/* Toggle placeholder */}
+          <div className="mt-8 inline-flex items-center gap-3 bg-gray-100 rounded-full p-1">
+            <span className="px-4 py-1.5 text-sm font-medium text-gray-900 bg-white rounded-full shadow-sm">Monthly</span>
+            <span className="px-4 py-1.5 text-sm font-medium text-gray-500">Yearly <span className="text-[hsl(142,20%,38%)] font-semibold">-20%</span></span>
+          </div>
+        </motion.div>
+
+        {/* Pricing Cards - Using flexbox for better alignment */}
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 justify-center items-stretch">
+          {/* Free Plan */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0 }}
+            onMouseEnter={() => setHoveredPlan(0)}
+            onMouseLeave={() => setHoveredPlan(null)}
+            className={`relative flex flex-col rounded-3xl p-8 bg-white border transition-all duration-500 hover:border-[hsl(142,20%,38%)]/30 hover:shadow-xl hover:shadow-gray-900/5 lg:w-72 ${hoveredPlan === 0 ? 'lg:scale-[1.02]' : ''}`}
+          >
+            {/* Plan header */}
+            <div className="mb-8">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-3 text-gray-400">
+                {PLANS[0].name}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="font-['Playfair_Display'] text-5xl font-bold tracking-tight text-gray-900">
+                  {PLANS[0].price}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {PLANS[0].period}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-500">
+                {PLANS[0].desc}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px mb-8 bg-gray-100" />
+
+            {/* Features */}
+            <ul className="space-y-4 flex-1 mb-8">
+              {PLANS[0].features.map((feature, j) => (
+                <li key={j} className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-[hsl(142,20%,38%)]/10">
+                    <Check size={12} className="text-[hsl(142,20%,38%)]" />
+                  </div>
+                  <span className="text-sm leading-relaxed text-gray-600">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href={setView ? '#' : '/register'}
+              onClick={(e) => onAppLink(e, setView)}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl h-14 text-sm font-semibold transition-all duration-300 bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/20"
+            >
+              {PLANS[0].cta}
+              <ArrowRight size={16} />
+            </a>
+          </motion.div>
+
+          {/* Featured Plan (Professional) */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="relative flex flex-col rounded-3xl p-8 lg:p-10 bg-[hsl(142,20%,38%)] text-white lg:-mt-4 lg:mb-4 shadow-2xl shadow-[hsl(142,20%,38%)]/20 lg:w-80"
+          >
+            {/* Featured badge */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full bg-white text-[hsl(142,20%,38%)] shadow-lg">
+                <Sparkles className="w-3 h-3" /> Recommended
+              </span>
+            </div>
+
+            {/* Plan header */}
+            <div className="mb-8">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-3 text-white/70">
+                {PLANS[1].name}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="font-['Playfair_Display'] text-5xl font-bold tracking-tight text-white">
+                  {PLANS[1].price}
+                </span>
+                <span className="text-sm text-white/60">
+                  {PLANS[1].period}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-white/80">
+                {PLANS[1].desc}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px mb-8 bg-white/20" />
+
+            {/* Features */}
+            <ul className="space-y-4 flex-1 mb-8">
+              {PLANS[1].features.map((feature, j) => (
+                <li key={j} className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-white/20">
+                    <Check size={12} className="text-white" />
+                  </div>
+                  <span className="text-sm leading-relaxed text-white/90">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href={setView ? '#' : '/register'}
+              onClick={(e) => onAppLink(e, setView)}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl h-14 text-sm font-semibold transition-all duration-300 bg-white text-[hsl(142,20%,38%)] hover:bg-white/90 hover:scale-[1.02]"
+            >
+              {PLANS[1].cta}
+              <ArrowRight size={16} />
+            </a>
+          </motion.div>
+
+          {/* Enterprise Plan */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            onMouseEnter={() => setHoveredPlan(2)}
+            onMouseLeave={() => setHoveredPlan(null)}
+            className={`relative flex flex-col rounded-3xl p-8 bg-white border transition-all duration-500 hover:border-[hsl(142,20%,38%)]/30 hover:shadow-xl hover:shadow-gray-900/5 lg:w-72 ${hoveredPlan === 2 ? 'lg:scale-[1.02]' : ''}`}
+          >
+            {/* Plan header */}
+            <div className="mb-8">
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.2em] mb-3 text-gray-400">
+                {PLANS[2].name}
+              </h3>
+              <div className="flex items-baseline gap-2 mb-2">
+                <span className="font-['Playfair_Display'] text-5xl font-bold tracking-tight text-gray-900">
+                  {PLANS[2].price}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-500">
+                {PLANS[2].desc}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px mb-8 bg-gray-100" />
+
+            {/* Features */}
+            <ul className="space-y-4 flex-1 mb-8">
+              {PLANS[2].features.map((feature, j) => (
+                <li key={j} className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-[hsl(142,20%,38%)]/10">
+                    <Check size={12} className="text-[hsl(142,20%,38%)]" />
+                  </div>
+                  <span className="text-sm leading-relaxed text-gray-600">
+                    {feature}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <a
+              href={setView ? '#' : '/register'}
+              onClick={(e) => onAppLink(e, setView)}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl h-14 text-sm font-semibold transition-all duration-300 bg-gray-900 text-white hover:bg-gray-800 hover:shadow-lg hover:shadow-gray-900/20"
+            >
+              {PLANS[2].cta}
+              <ArrowRight size={16} />
+            </a>
+          </motion.div>
+        </div>
+
+        {/* Trust badges */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mt-16 flex flex-wrap items-center justify-center gap-8 text-gray-400"
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40 mb-3">
-            Bảng giá
-          </p>
-          <h2 className="font-['Playfair_Display'] text-3xl sm:text-4xl font-bold tracking-tight text-white mb-3">
-            Chọn gói phù hợp với bạn
-          </h2>
-          <p className="text-sm text-white/50 max-w-md mx-auto">
-            Bắt đầu miễn phí, nâng cấp khi bạn sẵn sàng phát triển.
-          </p>
+          {[
+            { icon: Shield, text: 'SSL Encrypted' },
+            { icon: Clock, text: '14-day free trial' },
+            { icon: Check, text: 'No credit card required' },
+            { icon: Users, text: '2,000+ teams' },
+          ].map((item, idx) => (
+            <div key={idx} className="flex items-center gap-2 text-xs font-medium">
+              <item.icon size={14} className="text-[hsl(142,20%,38%)]" />
+              <span>{item.text}</span>
+            </div>
+          ))}
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {PLANS.map((plan, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 * i }}
-              className={`relative rounded-2xl p-7 flex flex-col ${
-                plan.featured
-                  ? 'bg-white text-gray-900 shadow-2xl scale-[1.02]'
-                  : 'bg-white/8 text-white/80 border border-white/15'
-              }`}
-            >
-              {plan.featured && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold px-3 py-1 rounded-full bg-[hsl(142,20%,38%)] text-white">
-                    <Sparkles className="w-3 h-3" /> Phổ biến nhất
-                  </span>
-                </div>
-              )}
-              <div className="mb-6">
-                <h3
-                  className={`font-semibold text-sm mb-1 ${
-                    plan.featured ? 'text-gray-500' : 'text-white/50'
-                  }`}
-                >
-                  {plan.name}
-                </h3>
-                <div className="flex items-end gap-1 mb-2">
-                  <span
-                    className={`font-['Playfair_Display'] text-4xl font-bold ${
-                      plan.featured ? 'text-gray-900' : 'text-white'
-                    }`}
-                  >
-                    {plan.price}
-                  </span>
-                  {plan.period && (
-                    <span className={`text-sm mb-2 ${plan.featured ? 'text-gray-400' : 'text-white/40'}`}>
-                      {plan.period}
-                    </span>
-                  )}
-                </div>
-                <p className={`text-sm ${plan.featured ? 'text-gray-500' : 'text-white/40'}`}>
-                  {plan.desc}
-                </p>
-              </div>
-              <ul className="space-y-3 flex-1 mb-7">
-                {plan.features.map((feature, j) => (
-                  <li key={j} className="flex items-start gap-3 text-sm">
-                    <Check
-                      className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
-                        plan.featured ? 'text-[hsl(142,20%,38%)]' : 'text-white/50'
-                      }`}
-                    />
-                    <span className={plan.featured ? 'text-gray-700' : 'text-white/70'}>
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <a
-                href={setView ? '#' : '/register'}
-                onClick={(e) => onAppLink(e, setView)}
-                className={`w-full inline-flex items-center justify-center rounded-full h-11 text-sm font-medium transition-colors cursor-pointer ${
-                  plan.featured
-                    ? 'bg-gray-900 text-white hover:bg-gray-800'
-                    : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
-                }`}
-              >
-                {plan.cta}
-              </a>
-            </motion.div>
-          ))}
-        </div>
-
-        <p className="text-center text-sm text-white/40 mt-8">
-          Tất cả các gói đều bao gồm • Không phí ẩn • Huỷ bất kỳ lúc nào
+        {/* FAQ Link */}
+        <p className="text-center mt-8 text-sm text-gray-500">
+          Questions?{' '}
+          <a href="#faq" className="text-[hsl(142,20%,38%)] font-medium hover:underline">
+            Check our FAQ
+          </a>
+          {' '}or{' '}
+          <a href="#" className="text-[hsl(142,20%,38%)] font-medium hover:underline">
+            talk to sales
+          </a>
         </p>
       </div>
     </section>
