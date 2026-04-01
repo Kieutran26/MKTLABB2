@@ -18,13 +18,6 @@ interface Props {
     isActive: boolean;
 }
 
-interface SavedPricingAnalysis {
-    id: string;
-    name: string;
-    input: PricingAnalyzerInput;
-    result: PricingAnalyzerResult;
-    createdAt: number;
-}
 
 // ── Shared editorial styles ────────────────────────────────────────────────
 const pageWrap =
@@ -188,37 +181,55 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
     if (!isActive) return null;
 
     return (
-        <div className={pageWrap}>
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
-            {/* ── Page ───────────────────────────────────────────────── */}
-            <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
-
-                {/* ── Header ──────────────────────────────────────────── */}
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-5">
-                    <div>
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-500">
+            {/* ── Standardized Header ────────────────────────────────────────── */}
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <BarChart3 size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
                             Phân tích chiến lược
-                        </p>
-                        <h1 className="text-3xl font-normal tracking-tight text-stone-900 sm:text-4xl">
-                            Pricing Analyzer
-                        </h1>
+                        </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button type="button" onClick={handleNew} className={btnGhost} title="Tạo mới">
-                            <RotateCcw size={15} strokeWidth={1.5} />
-                            Tạo mới
-                        </button>
-                        <button type="button" onClick={handleSave} disabled={!result} className={btnGhost} title="Lưu">
-                            <Save size={15} strokeWidth={1.5} />
-                            Lưu
-                        </button>
-                        <button type="button" onClick={() => setShowHistory(true)} className={btnGhost} title="Lịch sử">
-                            <History size={15} strokeWidth={1.5} />
-                            Lịch sử
-                        </button>
-                    </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        Pricing Analyzer
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Xác định mức giá tối ưu dựa trên COGS, đối thủ và định vị thương hiệu.
+                    </p>
                 </div>
+
+                <div className="flex shrink-0 items-center justify-end gap-2 pt-2">
+                    <button
+                        type="button"
+                        onClick={handleNew}
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900"
+                    >
+                        <RotateCcw size={16} strokeWidth={1.25} /> Tạo mới
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        disabled={!result}
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900 disabled:opacity-40"
+                    >
+                        <Save size={16} strokeWidth={1.25} /> Lưu
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setShowHistory(true)}
+                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                    >
+                        <History size={16} strokeWidth={1.25} /> Lịch sử
+                    </button>
+                </div>
+            </header>
+
+            {/* ── Scrollable Content Area ───────────────────────────────────── */}
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">
+                <div className="mx-auto max-w-6xl">
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
 
@@ -568,8 +579,9 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                     </div>
                 </div>
             </div>
+        </div>
 
-            {/* ── History Drawer ───────────────────────────────────────── */}
+        {/* ── History Drawer ───────────────────────────────────────── */}
             {showHistory && (
                 <>
                     <div className="fixed inset-0 z-30 bg-black/15"

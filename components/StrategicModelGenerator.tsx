@@ -337,73 +337,73 @@ const StrategicModelGenerator: React.FC = () => {
     const currentResult = results[selectedModel];
 
     return (
-        <div className="min-h-full bg-[#FCFDFC] px-4 pb-16 pt-8 md:px-8">
-            <div className="mx-auto max-w-7xl">
-                <header className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="max-w-2xl">
-                        <div className="mb-2 flex items-center gap-2 text-stone-400">
-                            <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                                Chiến lược Marketing
-                            </span>
-                        </div>
-                        <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                            Strategic Model Generator
-                        </h1>
-                        <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                            Tạo các khung chiến lược marketing chuẩn (SWOT, AIDA...) bằng AI.
-                        </p>
-                        {!useManual && (
-                            <div className="mt-5 rounded-2xl border border-stone-100 bg-white/80 p-3 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
-                                <BrandSelector />
-                            </div>
-                        )}
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                <div className="max-w-2xl">
+                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                        <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                            Chiến lược Marketing
+                        </span>
                     </div>
+                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                        Strategic Model Generator
+                    </h1>
+                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                        Tạo các khung chiến lược marketing chuẩn (SWOT, AIDA...) bằng AI.
+                    </p>
+                </div>
 
-                    <div className="flex flex-col gap-3 lg:items-end">
-                        <div className="inline-flex w-full max-w-sm gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:w-auto">
-                            <button
-                                type="button"
-                                onClick={() => setUseManual(false)}
-                                className={`flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors sm:flex-none ${!useManual
-                                    ? 'bg-stone-900 text-white shadow-sm'
-                                    : 'text-stone-600 hover:bg-stone-50/80'
-                                    }`}
-                            >
-                                Brand Vault
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setUseManual(true)}
-                                className={`flex-1 rounded-full px-4 py-2.5 text-sm font-medium transition-colors sm:flex-none ${useManual
-                                    ? 'bg-stone-900 text-white shadow-sm'
-                                    : 'text-stone-600 hover:bg-stone-50/80'
-                                    }`}
-                            >
-                                Thủ công
-                            </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onClick={handleSave}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                            >
-                                <Save size={17} strokeWidth={1.25} /> Lưu
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setShowHistory(true)}
-                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
-                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
-                                    }`}
-                            >
-                                <History size={17} strokeWidth={1.25} /> Lịch sử
-                            </button>
-                        </div>
+                <div className="flex shrink-0 flex-wrap gap-2 pt-2">
+                    <div className="inline-flex gap-1 rounded-full border border-stone-200 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                        <button
+                            type="button"
+                            onClick={() => setUseManual(false)}
+                            className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${!useManual
+                                ? 'bg-stone-900 text-white shadow-sm'
+                                : 'text-stone-600 hover:bg-stone-50/80'
+                                }`}
+                        >
+                            Brand Vault
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setUseManual(true)}
+                            className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${useManual
+                                ? 'bg-stone-900 text-white shadow-sm'
+                                : 'text-stone-600 hover:bg-stone-50/80'
+                                }`}
+                        >
+                            Thủ công
+                        </button>
                     </div>
-                </header>
+                    <button
+                        type="button"
+                        onClick={handleSave}
+                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                    >
+                        <Save size={17} strokeWidth={1.25} /> Lưu
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setShowHistory(true)}
+                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
+                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                            }`}
+                    >
+                        <History size={17} strokeWidth={1.25} /> Lịch sử
+                    </button>
+                </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
+                <div className="mx-auto max-w-7xl">
+                    {!useManual && (
+                        <div className="mb-8 rounded-2xl border border-stone-100 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.03)] p-3">
+                            <BrandSelector />
+                        </div>
+                    )}
 
                 <div className={`${cardClass} mb-8 p-6 md:p-8`}>
                     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-0">
@@ -592,6 +592,7 @@ const StrategicModelGenerator: React.FC = () => {
                 )}
 
                 {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+                </div>
             </div>
         </div>
     );

@@ -179,42 +179,36 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     if (viewMode === 'create') {
         return (
-            <div className="min-h-full border-b border-stone-200/70 bg-[#FCFDFC] px-5 pb-20 pt-10 md:px-10">
-                <div className="mx-auto max-w-6xl">
-                    <header className="mb-10 flex flex-col gap-8 lg:mb-12 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+                <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
                         <div className="max-w-2xl">
-                            <div className="mb-4 flex items-center gap-3 text-stone-400">
+                            <div className="mb-2 flex items-center gap-2 text-stone-400">
                                 <Brain size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
                                 <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
                                     Chiến lược nội dung
                                 </span>
                             </div>
-                            <h2 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                            <h2 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
                                 Mastermind Strategy
                             </h2>
-                            <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
                                 Xây dựng chiến lược nội dung tổng thể dựa trên kết nối con người.
                             </p>
-                            {!useManual && (
-                                <div className="mt-6 rounded-2xl border border-stone-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
-                                    <BrandSelector />
-                                </div>
-                            )}
                         </div>
 
-                        <div className="flex shrink-0 flex-col items-stretch gap-3 sm:items-end">
-                            <div className="flex items-center gap-1 rounded-2xl border border-stone-200/90 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                        <div className="flex shrink-0 flex-wrap gap-3">
+                            <div className="flex items-center gap-1 rounded-full border border-stone-200/90 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                                 <button
                                     type="button"
                                     onClick={() => setUseManual(false)}
-                                    className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${!useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
+                                    className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${!useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
                                 >
                                     Brand Vault
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setUseManual(true)}
-                                    className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
+                                    className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${useManual ? 'bg-stone-100 text-stone-900' : 'text-stone-500 hover:text-stone-800'}`}
                                 >
                                     Thủ công
                                 </button>
@@ -222,12 +216,22 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                             <button
                                 type="button"
                                 onClick={() => setShowHistory(true)}
-                                className="flex items-center justify-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 sm:justify-end"
+                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:border-stone-300 hover:bg-stone-50/80"
                             >
-                                <History size={16} strokeWidth={1.25} aria-hidden /> Lịch sử
+                                <History size={17} strokeWidth={1.25} /> Lịch sử ({historyList.length})
                             </button>
                         </div>
                     </header>
+                    <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
+                        <div className="mx-auto max-w-6xl">
+                    
+                    {!useManual && (
+                        <div className="mb-10 mx-auto max-w-xl">
+                            <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                                <BrandSelector />
+                            </div>
+                        </div>
+                    )}
 
                     <article className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
                     <div className="flex border-b border-stone-100">
@@ -461,7 +465,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                         )}
                     </div>
                     </article>
-                </div>
+                        </div>
+                    </div>
 
                 {/* History Modal */}
                 {showHistory && (
@@ -513,37 +518,55 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
         return (
             <div className="flex h-screen flex-col overflow-hidden border-b border-stone-200/70 bg-[#FCFDFC]">
-                <div className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-stone-200/90 bg-white/90 px-5 backdrop-blur-sm md:h-16 md:px-8">
-                    <div className="flex min-w-0 items-center gap-3">
+                <header className="z-20 flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
+                    <div className="flex min-w-0 items-start gap-4">
                         <button
                             type="button"
                             onClick={() => setViewMode('create')}
-                            className="rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
+                            className="mt-1 rounded-full p-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900"
                             aria-label="Quay lại"
                         >
                             <ArrowRight size={22} strokeWidth={1.25} className="rotate-180" />
                         </button>
-                        <h2 className="max-w-[min(100%,20rem)] truncate font-sans text-base font-medium tracking-tight text-stone-900 md:max-w-md md:text-lg">
-                            {strategyResult.name}
-                        </h2>
+                        <div className="max-w-2xl">
+                            <div className="mb-2 flex items-center gap-2 text-stone-400">
+                                <Brain size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                    Chiến lược nội dung
+                                </span>
+                            </div>
+                            <h2 className="font-sans text-2xl font-normal tracking-tight text-stone-900">
+                                {strategyResult.name}
+                            </h2>
+                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500">
+                                Phân tích kết nối con người dựa trên thông tin đã nhập
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex shrink-0 gap-2 md:gap-3">
+                    <div className="flex shrink-0 flex-wrap gap-2 pt-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowHistory(true)}
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:border-stone-300 hover:bg-stone-50/80"
+                        >
+                            <History size={17} strokeWidth={1.25} /> Lịch sử ({historyList.length})
+                        </button>
                         <button
                             type="button"
                             onClick={handleSave}
-                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50 md:px-4 md:text-sm"
+                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:border-stone-300 hover:bg-stone-50/80"
                         >
-                            <Save size={15} strokeWidth={1.25} /> Lưu
+                            <Save size={17} strokeWidth={1.25} /> Lưu
                         </button>
                         <button
                             type="button"
                             onClick={handleDeploy}
-                            className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-stone-800 md:px-4 md:text-sm"
+                            className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
                         >
-                            <CalendarDays size={15} strokeWidth={1.25} /> Deploy to Calendar
+                            <CalendarDays size={17} strokeWidth={1.25} /> Deploy to Calendar
                         </button>
                     </div>
-                </div>
+                </header>
 
                 <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
                     <div className="mx-auto max-w-6xl space-y-8 pb-20">

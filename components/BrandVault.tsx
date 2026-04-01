@@ -393,23 +393,24 @@ const BrandVault: React.FC = () => {
 
     if (viewMode === 'list') {
         return (
-            <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
-                <header className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:px-8">
-                    <div className="mx-auto flex max-w-6xl flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div className="max-w-2xl">
-                            <div className="mb-2 flex items-center gap-2 text-stone-400">
-                                <ShieldCheck size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                                    Brand system
-                                </span>
-                            </div>
-                            <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                                Brand Vault
-                            </h1>
-                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                                Quản lý tài sản và hồ sơ đa thương hiệu.
-                            </p>
+            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+                <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
+                    <div className="max-w-2xl">
+                        <div className="mb-2 flex items-center gap-2 text-stone-400">
+                            <ShieldCheck size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                            <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                Brand system
+                            </span>
                         </div>
+                        <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                            Brand Vault
+                        </h1>
+                        <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            Quản lý tài sản và hồ sơ đa thương hiệu.
+                        </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center pt-2">
                         <button
                             type="button"
                             onClick={handleCreateNew}
@@ -420,7 +421,8 @@ const BrandVault: React.FC = () => {
                     </div>
                 </header>
 
-                <div className="mx-auto max-w-6xl px-5 pt-8 md:px-8">
+                <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
+                    <div className="mx-auto max-w-7xl">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {brands.length === 0 ? (
                             <div className={`${cardClass} col-span-full flex min-h-[320px] flex-col items-center justify-center p-12 text-center md:p-16`}>
@@ -492,8 +494,9 @@ const BrandVault: React.FC = () => {
                     </div>
                 </div>
             </div>
-        );
-    }
+        </div>
+    );
+}
 
     // EDIT VIEW
     if (!editingBrand) return null;
@@ -806,7 +809,6 @@ const BrandVault: React.FC = () => {
                                 />
                             </div>
                         )}
-
                     </div>
                 </div>
             </div>

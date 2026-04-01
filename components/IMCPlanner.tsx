@@ -296,51 +296,48 @@ const IMCPlanner: React.FC = () => {
         'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 
     return (
-        <>
-            <div className="min-h-full border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-10 md:px-10">
-                <div className="mx-auto max-w-7xl">
-                    {/* Header — Editorial Minimalism */}
-                    <header className="mb-10 flex flex-col gap-6 md:mb-12 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
                         <div className="max-w-2xl">
-                            <div className="mb-4 flex items-center gap-3 text-stone-400">
+                            <div className="mb-2 flex items-center gap-2 text-stone-400">
                                 <Lightbulb size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
                                 <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
                                     Lập kế hoạch IMC
                                 </span>
                             </div>
-                            <h1 className="font-sans text-3xl font-normal tracking-tight text-stone-900 md:text-4xl">
+                            <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
                                 IMC Planner V2
                             </h1>
-                            <p className="mt-4 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
+                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
                                 Strategic Framework: 3 lớp mục tiêu → 3 giai đoạn thực thi.
                             </p>
                         </div>
-                        <div className="flex shrink-0 flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onClick={handleResetForm}
-                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${viewMode === 'create'
-                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
-                                    }`}
-                            >
-                                <Plus size={17} strokeWidth={1.25} />
-                                Tạo mới
-                            </button>
+                        <div className="flex shrink-0 flex-wrap gap-2 pt-2">
                             <button
                                 type="button"
                                 onClick={() => setViewMode('history')}
-                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${viewMode === 'history'
+                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all ${viewMode === 'history'
                                     ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
                                     : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
                                     }`}
                             >
-                                <History size={17} strokeWidth={1.25} />
-                                Lịch sử ({savedPlans.length})
+                                <History size={17} strokeWidth={1.25} /> Lịch sử ({savedPlans.length})
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleResetForm}
+                                className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all ${viewMode === 'create'
+                                    ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
+                                    : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                                    }`}
+                            >
+                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
                             </button>
                         </div>
-                    </header>
-
+            </header>
+            <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
+                <div className="mx-auto max-w-7xl">
+                    
                     {/* History View */}
                     {viewMode === 'history' ? (
                         <div className={`${cardClass} p-6 md:p-8`}>
@@ -457,24 +454,49 @@ const IMCPlanner: React.FC = () => {
                             </div>
 
                             {/* Campaign Header */}
-                            <div className={`${cardClass} p-6 md:p-8`}>
-                                <h2 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                                    {currentPlan.campaign_name}
-                                </h2>
-                                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-stone-500">
-                                    <span>{currentPlan.brand}</span>
-                                    <span className="text-stone-300" aria-hidden>
-                                        •
-                                    </span>
-                                    <span>{currentPlan.product}</span>
-                                    <span className="text-stone-300" aria-hidden>
-                                        •
-                                    </span>
-                                    <span className="inline-flex items-center gap-1">
-                                        <Building2 size={14} strokeWidth={1.25} /> {currentPlan.industry}
-                                    </span>
+                            <header className="mb-10 flex flex-col gap-4 border-b border-stone-200/70 pb-6 lg:mb-12 lg:flex-row lg:items-start lg:justify-between">
+                                <div className="max-w-2xl">
+                                    <div className="mb-2 flex items-center gap-2 text-stone-400">
+                                        <Lightbulb size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
+                                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
+                                            Kế hoạch chiến dịch
+                                        </span>
+                                    </div>
+                                    <h2 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
+                                        {currentPlan.campaign_name}
+                                    </h2>
+                                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-normal text-stone-500">
+                                        <span>{currentPlan.brand}</span>
+                                        <span className="text-stone-300" aria-hidden>•</span>
+                                        <span>{currentPlan.product}</span>
+                                        <span className="text-stone-300" aria-hidden>•</span>
+                                        <span className="inline-flex items-center gap-1">
+                                            <Building2 size={14} strokeWidth={1.25} /> {currentPlan.industry}
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
+                                <div className="flex shrink-0 flex-wrap gap-2 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setViewMode('history')}
+                                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all hover:border-stone-300 hover:bg-stone-50/80"
+                                    >
+                                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedPlans.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSave}
+                                        disabled={saving || saved}
+                                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all shadow-sm ${saved
+                                            ? 'border border-stone-200 bg-stone-100 text-stone-800 cursor-not-allowed'
+                                            : 'bg-stone-900 text-white hover:bg-stone-800'
+                                            }`}
+                                    >
+                                        {saving ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : (saved ? <Check size={17} /> : <Save size={17} />)}
+                                        {saving ? 'Đang lưu...' : (saved ? 'Đã lưu' : 'Lưu chiến dịch')}
+                                    </button>
+                                </div>
+                            </header>
 
                             {/* Validation Warnings */}
                             {currentPlan.validation_warnings && currentPlan.validation_warnings.length > 0 && (
@@ -1172,7 +1194,6 @@ const IMCPlanner: React.FC = () => {
                                                 </li>
                                             </ul>
                                         </div>
-
                                         <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-5">
                                             <h4 className="mb-2 font-medium text-amber-950">Feasibility check</h4>
                                             <p className="text-xs leading-relaxed text-amber-900/90">
@@ -1188,35 +1209,35 @@ const IMCPlanner: React.FC = () => {
             </div>
 
             {/* Toast Notification */}
-            {toast && (
-                <div className="fixed bottom-6 right-6 z-50">
-                    <div className={`px-5 py-4 rounded-2xl shadow-lg border flex items-center gap-3 ${toast.type === 'success'
-                        ? 'bg-white border-emerald-200 text-emerald-700'
-                        : 'bg-white border-red-200 text-red-700'
-                        }`}>
-                        {toast.type === 'success' ? (
-                            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <Check size={16} className="text-emerald-600" />
-                            </div>
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                                <AlertTriangle size={16} className="text-red-600" />
-                            </div>
-                        )}
-                        <span className="text-sm font-medium">{toast.message}</span>
-                        <button
-                            onClick={() => setToast(null)}
-                            className="ml-2 p-1 rounded-full hover:bg-slate-100 transition-colors"
-                        >
-                            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+            {toast && toast.show && (
+                    <div className="fixed bottom-6 right-6 z-50">
+                        <div className={`px-5 py-4 rounded-2xl shadow-lg border flex items-center gap-3 ${toast.type === 'success'
+                            ? 'bg-white border-emerald-200 text-emerald-700'
+                            : 'bg-white border-red-200 text-red-700'
+                            }`}>
+                            {toast.type === 'success' ? (
+                                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                                    <Check size={16} className="text-emerald-600" />
+                                </div>
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                                    <AlertTriangle size={16} className="text-red-600" />
+                                </div>
+                            )}
+                            <span className="text-sm font-medium">{toast.message}</span>
+                            <button
+                                onClick={() => setToast(null)}
+                                className="ml-2 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                            >
+                                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </>
-    );
+                )}
+            </div>
+        );
 };
 
 export default IMCPlanner;
