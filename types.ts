@@ -60,6 +60,11 @@ export interface IMCStrategicFoundation {
   business_obj: string;      // Revenue/Market share target (e.g., "Tăng 20% doanh thu Q4")
   marketing_obj: string;     // Behavior change: Trial/Switch/Repeat/Increase Basket
   communication_obj: string; // Perception change in consumer's mind
+  competitive_angle?: {
+    competitor_says: string;
+    we_say_differently: string;
+    gap_we_occupy: string;
+  };
 }
 
 // KPI structure for each phase
@@ -105,6 +110,12 @@ export interface IMCExecutionPhase {
   kpis: IMCPhaseKPI;
   // Deep-dive fields
   execution_details?: IMCExecutionDetails;
+  weekly_checkpoint?: {
+    week_indicator: string;     // e.g., "Cuối tuần 2"
+    target_metric: string;      // e.g., "Đạt 100 leads"
+    if_reached: string;         // e.g., "Tiếp tục triển khai theo kế hoạch"
+    if_not_reached: string;     // Contingency plan e.g., "Cắt kênh FB, dồn ngân sách vào Search"
+  };
 }
 
 // Main IMC Plan V2 Interface
@@ -119,6 +130,37 @@ export interface IMCPlan {
   strategic_foundation: IMCStrategicFoundation;
   imc_execution: IMCExecutionPhase[];
   validation_warnings?: string[];  // Golden Thread validation warnings
+  // Extended CMO-grade fields
+  golden_thread_warnings?: string[];
+  kpi_dashboard?: {
+    primary_kpis: string[];
+    secondary_kpis: string[];
+    vanity_metrics_to_avoid: string[];
+  };
+  revenue_projection?: {
+    formula: string;
+    reach: string;
+    ctr: string;
+    conversion_rate: string;
+    aov: string;
+    projected_revenue: string;
+    breakeven_orders: string;
+  };
+  scenarios?: Array<{
+    name: string;
+    probability: string;
+    condition?: string;
+    leads: string;
+    revenue: string;
+    roas: string;
+    roi: string;
+  }>;
+  expert_notes?: {
+    key_success_factor: string;
+    risks: Array<{ issue: string; mitigation: string }>;
+    opportunity: string;
+    frank_advice: string;
+  };
   created_at: number;
 }
 

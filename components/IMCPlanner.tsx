@@ -581,13 +581,14 @@ const IMCPlanner: React.FC = () => {
                                 </div>
                             </header>
 
-                            {currentPlan.validation_warnings && currentPlan.validation_warnings.length > 0 && (
+                            {( (currentPlan.validation_warnings && currentPlan.validation_warnings.length > 0) || (currentPlan.golden_thread_warnings && currentPlan.golden_thread_warnings.length > 0) ) && (
                                 <div className="rounded-2xl border border-amber-100 bg-amber-50/70 p-5">
                                     <div className="mb-2 flex items-center gap-2 text-sm font-medium text-amber-900">
                                         <AlertTriangle size={17} strokeWidth={1.25} /> Golden Thread Warnings
                                     </div>
                                     <ul className="space-y-1 text-sm font-normal text-amber-800/90">
-                                        {currentPlan.validation_warnings.map((warning, i) => <li key={i}>{warning}</li>)}
+                                        {currentPlan.validation_warnings?.map((warning, i) => <li key={`val-${i}`}>{warning}</li>)}
+                                        {currentPlan.golden_thread_warnings?.map((warning, i) => <li key={`ai-${i}`}>{warning}</li>)}
                                     </ul>
                                 </div>
                             )}
@@ -678,6 +679,171 @@ const IMCPlanner: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
+                            {/* ── KPI Dashboard ── */}
+                            {currentPlan.kpi_dashboard && (
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <TrendingUp size={20} className="text-stone-400" /> KPI Dashboard
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+                                            <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-emerald-700">Primary KPIs</div>
+                                            <ul className="space-y-1.5">
+                                                {currentPlan.kpi_dashboard.primary_kpis.map((kpi, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-sm text-stone-800">
+                                                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                                                        {kpi}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="rounded-2xl border border-stone-200 bg-stone-50/60 p-4">
+                                            <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-stone-500">Secondary KPIs</div>
+                                            <ul className="space-y-1.5">
+                                                {currentPlan.kpi_dashboard.secondary_kpis.map((kpi, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-sm text-stone-700">
+                                                        <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-stone-400" />
+                                                        {kpi}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="rounded-2xl border border-rose-100 bg-rose-50/40 p-4">
+                                            <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-rose-700">Vanity Metrics — Tránh</div>
+                                            <ul className="space-y-1.5">
+                                                {currentPlan.kpi_dashboard.vanity_metrics_to_avoid.map((m, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-sm text-stone-600 line-through decoration-rose-400">
+                                                        <X size={12} className="mt-1 shrink-0 text-rose-400 no-underline" style={{textDecoration: 'none'}} />
+                                                        <span className="no-underline" style={{textDecoration: 'none'}}>{m}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ── Revenue Projection ── */}
+                            {currentPlan.revenue_projection && (
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <DollarSign size={20} className="text-stone-400" /> Revenue Projection
+                                    </h3>
+                                    <div className="rounded-2xl border border-stone-200 bg-stone-50/50 p-6">
+                                        <div className="mb-6 text-center">
+                                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">Công thức dự báo</div>
+                                            <div className="inline-block rounded-xl bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-sm border border-stone-100">
+                                                {currentPlan.revenue_projection.formula}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-8">
+                                            {[
+                                                { label: 'Reach', value: currentPlan.revenue_projection.reach },
+                                                { label: 'CTR (%)', value: currentPlan.revenue_projection.ctr },
+                                                { label: 'Conversion (%)', value: currentPlan.revenue_projection.conversion_rate },
+                                                { label: 'AOV', value: currentPlan.revenue_projection.aov },
+                                            ].map((item) => (
+                                                <div key={item.label} className="text-center">
+                                                    <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">{item.label}</div>
+                                                    <div className="text-lg font-medium text-stone-900">{item.value}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-stone-200/60">
+                                            <div className="rounded-2xl bg-stone-900 p-5 text-white shadow-lg">
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Doanh thu dự kiến dự kiến</div>
+                                                <div className="text-2xl font-light">{currentPlan.revenue_projection.projected_revenue}</div>
+                                            </div>
+                                            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Điểm hòa vốn (Break-even)</div>
+                                                <div className="text-2xl font-light text-stone-900">{currentPlan.revenue_projection.breakeven_orders}</div>
+                                                <p className="mt-1 text-[10px] text-stone-500 italic">Số đơn hàng cần thiết để hòa vốn marketing</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ── 3 Scenarios ── */}
+                            {currentPlan.scenarios && currentPlan.scenarios.length > 0 && (
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <Target size={20} className="text-stone-400" /> Dự báo 3 Kịch bản
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        {currentPlan.scenarios.map((s, i) => {
+                                            const colors = ['border-stone-200 bg-stone-50/60', 'border-blue-100 bg-blue-50/40', 'border-amber-100 bg-amber-50/40'];
+                                            const badgeColors = ['bg-stone-200 text-stone-700', 'bg-blue-100 text-blue-700', 'bg-amber-100 text-amber-700'];
+                                            return (
+                                                <div key={i} className={`rounded-2xl border ${colors[i]} p-5`}>
+                                                    <div className="mb-3 flex items-center justify-between">
+                                                        <span className="font-medium text-stone-900">{s.name}</span>
+                                                        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${badgeColors[i]}`}>{s.probability}</span>
+                                                    </div>
+                                                    {s.condition && <p className="mb-3 text-xs text-stone-500">{s.condition}</p>}
+                                                    <div className="space-y-1.5">
+                                                        {[
+                                                            { label: 'Doanh thu', value: s.revenue },
+                                                            { label: 'ROAS', value: s.roas },
+                                                            { label: 'ROI', value: s.roi },
+                                                            { label: 'Leads', value: s.leads },
+                                                        ].map((row) => (
+                                                            <div key={row.label} className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-1.5 text-sm">
+                                                                <span className="text-stone-500">{row.label}</span>
+                                                                <span className="font-medium text-stone-900">{row.value}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ── CMO Expert Notes ── */}
+                            {currentPlan.expert_notes && (
+                                <div className={`${cardClass} p-6 md:p-8`}>
+                                    <h3 className="mb-6 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                        <Lightbulb size={20} className="text-stone-400" /> CMO Expert Note
+                                    </h3>
+                                    <div className="space-y-5">
+                                        <div className="rounded-2xl border border-amber-100 bg-amber-50/60 p-5">
+                                            <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-700">Yếu tố Sống Còn</div>
+                                            <p className="text-sm text-stone-800">{currentPlan.expert_notes.key_success_factor}</p>
+                                        </div>
+                                        {currentPlan.expert_notes.risks.length > 0 && (
+                                            <div>
+                                                <div className="mb-3 text-[10px] font-bold uppercase tracking-widest text-stone-500">Top Rủi ro & Cách xử lý</div>
+                                                <div className="space-y-3">
+                                                    {currentPlan.expert_notes.risks.map((r, i) => (
+                                                        <div key={i} className="rounded-xl border border-stone-200 bg-white p-4">
+                                                            <div className="mb-1 flex items-center gap-2 text-sm font-medium text-rose-700">
+                                                                <AlertTriangle size={14} strokeWidth={1.5} />
+                                                                {r.issue}
+                                                            </div>
+                                                            <p className="text-xs text-stone-600">→ {r.mitigation}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+                                                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700">Cơ hội Bị Bỏ Ngỏ</div>
+                                                <p className="text-sm text-stone-800">{currentPlan.expert_notes.opportunity}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-stone-200 bg-stone-50/60 p-4">
+                                                <div className="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-500">Lời Khuyên Thẳng Thắn</div>
+                                                <p className="text-sm text-stone-800">{currentPlan.expert_notes.frank_advice}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-around rounded-2xl bg-stone-900 p-6 text-white shadow-xl">
                                 <div className="text-center">
                                     <div className="text-2xl font-light tracking-tight">{calculateAggregation(currentPlan).totalBudget}</div>
