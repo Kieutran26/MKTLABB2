@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X} from 'lucide-react';
+import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X } from 'lucide-react';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 import { IMCService, IMCInput, PlanningMode, CampaignFocus, CalculatedMetrics, AssetChecklist, BudgetDistribution } from '../services/imcService';
@@ -285,7 +285,7 @@ const IMCPlanner: React.FC = () => {
             showToast('Vui lòng mô tả Sản phẩm chủ đạo.', 'error');
             return false;
         }
-        
+
         const priceNum = parseFloat(productPrice);
         if (!productPrice.trim() || isNaN(priceNum) || priceNum <= 0) {
             showToast('Vui lòng nhập Giá bán (AOV) hợp lệ.', 'error');
@@ -361,9 +361,9 @@ const IMCPlanner: React.FC = () => {
         if (success) {
             setSaved(true);
             await loadPlans();
-            showToast('Đã lưu kế hoạch thành công!', 'success');
+            showToast('Đã lưu thành công!', 'success');
         } else {
-            showToast('Lưu thất bại. Vui lòng chạy SQL schema trong Supabase.', 'error');
+            showToast('Không thể lưu. Vui lòng thử lại.', 'error');
         }
         setSaving(false);
     };
@@ -447,7 +447,7 @@ const IMCPlanner: React.FC = () => {
                         Brand Vault
                     </button>
                 </div>
-                
+
                 <button
                     type="button"
                     onClick={() => setViewMode('history')}
@@ -460,7 +460,7 @@ const IMCPlanner: React.FC = () => {
                 >
                     <History size={17} strokeWidth={1.5} />
                 </button>
-                
+
                 <button
                     type="button"
                     onClick={handleResetForm}
@@ -561,7 +561,7 @@ const IMCPlanner: React.FC = () => {
                                         : 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
                                         }`}
                                 >
-                                    {saving ? 'Đang lưu...' : saved ? 'Đã lưu' : 'Lưu vào Database'}
+                                    {saving ? 'Đang lưu...' : saved ? 'Đã lưu' : 'Lưu kế hoạch'}
                                 </button>
                             </div>
                             <header className="mb-10 flex flex-col gap-4 border-b border-stone-200/70 pb-6 lg:flex-row lg:items-start lg:justify-between">
@@ -713,15 +713,15 @@ const IMCPlanner: React.FC = () => {
                                     <button className="flex items-center gap-2 rounded-2xl bg-stone-900 px-8 py-4 font-medium text-white shadow-lg transition-transform hover:scale-105">Mở khóa quy trình Pro Max <ChevronRight size={18} /></button>
                                 </div>
                                 <div className="relative flex items-center justify-center bg-stone-50 p-10 overflow-hidden">
-                                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] scale-150"><Lightbulb size={400} /></div>
-                                     <div className="relative z-10 w-full max-w-sm space-y-4 p-6 blur-[2px] grayscale opacity-40">
-                                         <div className="h-6 w-1/2 rounded bg-stone-300" />
-                                         <div className="h-24 rounded-xl bg-white shadow-sm" />
-                                         <div className="grid grid-cols-3 gap-2"><div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /></div>
-                                     </div>
-                                     <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/95 p-8 shadow-2xl backdrop-blur">
-                                         <Lock size={48} className="text-stone-400" />
-                                     </div>
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] scale-150"><Lightbulb size={400} /></div>
+                                    <div className="relative z-10 w-full max-w-sm space-y-4 p-6 blur-[2px] grayscale opacity-40">
+                                        <div className="h-6 w-1/2 rounded bg-stone-300" />
+                                        <div className="h-24 rounded-xl bg-white shadow-sm" />
+                                        <div className="grid grid-cols-3 gap-2"><div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /></div>
+                                    </div>
+                                    <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/95 p-8 shadow-2xl backdrop-blur">
+                                        <Lock size={48} className="text-stone-400" />
+                                    </div>
                                 </div>
                             </div>
                         </div>

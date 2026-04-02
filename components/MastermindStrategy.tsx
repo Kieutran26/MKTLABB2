@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus,
-    Zap, Crown, BarChart3, Trash2
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
@@ -14,7 +13,6 @@ import { MastermindStrategy, Persona } from '../types';
 import { Toast, ToastType } from './Toast';
 import BrandSelector from './BrandSelector';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
-import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 
@@ -177,37 +175,6 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         setViewMode('dashboard');
         setShowHistory(false);
     };
-    
-    const handleDeleteStrategy = async (e: React.MouseEvent, id: string) => {
-        e.stopPropagation();
-        if (!window.confirm("Bạn có chắc chắn muốn xóa chiến lược này?")) return;
-        
-        try {
-            await MastermindService.deleteMastermindStrategy(id);
-            const updated = availableStrategies.filter(s => s.id !== id);
-            setAvailableStrategies(updated);
-            localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updated));
-            showToast("Đã xóa chiến lược", "success");
-        } catch (error) {
-            showToast("Lỗi khi xóa chiến lược", "error");
-        }
-    };
-
-    const handleClearAllStrategies = async () => {
-        if (!window.confirm("Bạn có chắc chắn muốn xóa TOÀN BỘ lịch sử chiến lược? Hành động này không thể hoàn tác.")) return;
-        
-        try {
-            // Primarily clear local for speed/ux
-            setAvailableStrategies([]);
-            localStorage.removeItem('mktlab_mastermind_history');
-            
-            // Note: Service doesn't have clearAll, so we rely on local/cache management
-            // Realistically for this solopreneur tool, local clear is what's expected.
-            showToast("Đã xóa toàn bộ lịch sử", "success");
-        } catch (error) {
-            showToast("Lỗi khi xóa lịch sử", "error");
-        }
-    };
 
     const handleSave = async () => {
         if (!strategyResult) return;
@@ -277,61 +244,33 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
                     <div className="w-full max-w-none">
                         {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                            <div className="ms-vault-centered" style={{ padding: 0 }}>
+                            <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
                                 <div className="ms-vault-card">
-                                    {/* ── LEFT: Content ─────────────────────────────── */}
                                     <div className="ms-vault-content">
                                         <div className="ms-vault-upper">
-                                            <div className="ms-vault-eyebrow">
-                                                <Crown size={10} strokeWidth={2.5} className="ms-vault-crown-icon" />
-                                                <span>Pro Max Exclusive</span>
-                                            </div>
-                                            <h3 className="ms-vault-title">Unlock Brand DNA<br />with AI Precision</h3>
+                                            <div className="ms-vault-label">Brand Vault Access</div>
+                                            <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
                                             <p className="ms-vault-desc">
-                                                AI kết nối Persona, Thị trường & DNA — chiến lược chuẩn đến từng pixel.
+                                                AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
                                             </p>
-
-                                            {/* ── Benefits Strip ─────────────────────── */}
-                                            <div className="ms-vault-benefits">
-                                                <div className="ms-vault-benefit-item">
-                                                    <div className="ms-vault-benefit-icon"><Brain size={12} strokeWidth={2} /></div>
-                                                    <span>AI Brand-Aware · Persona chính xác · Phân tích sâu</span>
-                                                </div>
-                                            </div>
                                         </div>
-
-                                        {/* ── CTA ───────────────────────────────── */}
-                                        <div className="ms-vault-footer">
-                                            <button className="ms-vault-cta">
-                                                <Zap size={14} strokeWidth={2.5} className="ms-vault-cta-icon" />
-                                                Nâng cấp Pro Max
-                                                <ChevronRight size={16} strokeWidth={2} />
-                                            </button>
-                                        </div>
+                                        <button className="ms-vault-cta">
+                                            Nâng cấp Pro Max <ChevronRight size={18} />
+                                        </button>
                                     </div>
-
-                                    {/* ── RIGHT: Visual ───────────────────────────── */}
                                     <div className="ms-vault-visual">
-                                        <div className="ms-vault-glow" />
                                         <div className="ms-vault-dna">
-                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65, 55, 85].map((h, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="ms-vault-dna-bar"
-                                                    style={{ height: `${h}px`, animationDelay: `${i * 0.12}s` }}
+                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    className="ms-vault-dna-bar" 
+                                                    style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
                                                 />
                                             ))}
                                         </div>
-                                        <div className="ms-vault-lock-wrap">
-                                            <div className="ms-vault-lock-circle">
-                                                <span className="ms-vault-lock-icon" aria-hidden>
-                                                    <Lock size={22} strokeWidth={1.5} />
-                                                </span>
-                                            </div>
-                                            <div className="ms-vault-lock-text">Brand Vault</div>
+                                        <div className="ms-vault-lock-circle">
+                                            <Lock size={32} strokeWidth={1.5} />
                                         </div>
-                                        <div className="ms-vault-corner ms-vault-corner-tl" />
-                                        <div className="ms-vault-corner ms-vault-corner-br" />
                                     </div>
                                 </div>
                             </div>
@@ -344,228 +283,149 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 <div className="flex-1 p-10">
                                     {step === 1 && (
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                        1
-                                                    </div>
-                                                    <h2 className="text-lg font-medium tracking-tight text-stone-900">1. Context: Chi tiết thương hiệu</h2>
-                                                </div>
-                                                <p className="text-xs font-medium text-stone-400 sm:pt-2">Yêu cầu · 2 trường</p>
-                                            </div>
+                                            <div className="flex items-center gap-3"><Users className="text-stone-400" /> <h3 className="text-lg font-medium">Context: Thấu hiểu thực tế</h3></div>
                                             {activeTab === 'manual' ? (
-                                                <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
-                                                    <ImcPlannerEditorialField
-                                                        title="Tên thương hiệu"
-                                                        required
-                                                        hint="Tên thương hiệu hoặc sản phẩm cần lập chiến lược."
-                                                        example="VD: Cà phê Highlands, Spa Thư Giãn Hà Nội, Studio Ảnh Ánh Sáng."
-                                                    >
-                                                        <input
-                                                            className="w-full rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                            placeholder="Tên thương hiệu..."
-                                                            value={manualBrandName}
-                                                            onChange={(e) => setManualBrandName(e.target.value)}
-                                                        />
-                                                    </ImcPlannerEditorialField>
-
-                                                    <ImcPlannerEditorialField
-                                                        title="Tầm nhìn & Giá trị"
-                                                        required
-                                                        hint="Mô tả định hướng dài hạn và lời hứa cốt lõi với khách hàng."
-                                                    >
-                                                        <textarea
-                                                            className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                            placeholder="Vision & Mission..."
-                                                            value={manualBrandVision}
-                                                            onChange={(e) => setManualBrandVision(e.target.value)}
-                                                        />
-                                                    </ImcPlannerEditorialField>
+                                                <div className="grid grid-cols-2 gap-8">
+                                                    <div className="space-y-4">
+                                                        <label className="text-[10px] font-bold uppercase text-stone-400">Thương hiệu</label>
+                                                        <div className="relative">
+                                                            <input className="w-full p-3 pr-10 rounded-xl border border-stone-200 text-sm" placeholder="Tên thương hiệu..." value={manualBrandName} onChange={e => setManualBrandName(e.target.value)} />
+                                                            <EditorialFieldHint title="Gợi ý" anchor="input">
+                                                                <em className="text-stone-600 not-italic">Ví dụ:</em> Cà phê Highlands, Spa Thư Giãn Hà Nội, Studio Ảnh Ánh Sáng.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                        <div className="relative">
+                                                            <textarea className="w-full p-3 pr-10 pt-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Tầm nhìn & Giá trị (Vision & Mission)..." value={manualBrandVision} onChange={e => setManualBrandVision(e.target.value)} />
+                                                            <EditorialFieldHint title="Tầm nhìn & giá trị" anchor="textarea">
+                                                                Mô tả định hướng dài hạn của thương hiệu và lời hứa cốt lõi với khách hàng — điều bạn không đổi dù chiến thuật có thay đổi.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <label className="text-[10px] font-bold uppercase text-stone-400">Đối tượng</label>
+                                                        <div className="relative">
+                                                            <input className="w-full p-3 pr-10 rounded-xl border border-stone-200 text-sm" placeholder="Tên khách hàng mục tiêu..." value={manualAudienceName} onChange={e => setManualAudienceName(e.target.value)} />
+                                                            <EditorialFieldHint title="Persona ngắn" anchor="input">
+                                                                Đặt tên gọi nhớ cho nhóm khách chính; có thể kèm tuổi, nghề, mức thu nhập hoặc bối cảnh sinh hoạt.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                        <div className="relative">
+                                                            <textarea className="w-full p-3 pr-10 pt-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Nỗi đau & Khao khát (Pain & Desire)..." value={manualAudiencePain} onChange={e => setManualAudiencePain(e.target.value)} />
+                                                            <EditorialFieldHint title="Pain & desire" anchor="textarea">
+                                                                Nỗi đau: vấn đề thực tế khiến họ bận tâm. Khao khát: kết quả hoặc cảm xúc họ muốn đạt được khi chọn thương hiệu của bạn.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
-                                                    <ImcPlannerEditorialField
-                                                        title="Chọn Brand"
-                                                        required
-                                                        hint="Chọn thương hiệu từ Brand Vault để AI lấy dữ liệu DNA."
-                                                    >
-                                                        <BrandSelector />
-                                                    </ImcPlannerEditorialField>
-
-                                                    <ImcPlannerEditorialField
-                                                        title="Chọn Persona"
-                                                        required
-                                                        hint="Chọn chân dung khách hàng mục tiêu đã lưu trong Vault."
-                                                    >
-                                                        <div className="space-y-2">
-                                                            {availablePersonas.map((p) => (
-                                                                <button
-                                                                    key={p.id}
-                                                                    onClick={() => setSelectedPersona(p)}
-                                                                    className={`flex w-full items-center gap-3 rounded-xl border p-3 transition-all ${selectedPersona?.id === p.id ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900' : 'border-stone-200 hover:bg-stone-50'}`}
-                                                                >
-                                                                    <img src={p.avatarUrl} className="h-8 w-8 rounded-full" alt={p.fullname} />
-                                                                    <span className="text-sm font-medium">{p.fullname}</span>
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </ImcPlannerEditorialField>
+                                                <div className="grid grid-cols-2 gap-10">
+                                                    <div><label className="text-[10px] font-bold uppercase text-stone-400 mb-3 block">Chọn Brand</label><BrandSelector /></div>
+                                                    <div><label className="text-[10px] font-bold uppercase text-stone-400 mb-3 block">Chọn Persona</label><div className="space-y-2">{availablePersonas.map(p => <button key={p.id} onClick={() => setSelectedPersona(p)} className={`w-full p-3 rounded-xl border flex items-center gap-3 transition-all ${selectedPersona?.id === p.id ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900' : 'border-stone-200 hover:bg-stone-50'}`}><img src={p.avatarUrl} className="w-8 h-8 rounded-full" /> <span className="text-sm font-medium">{p.fullname}</span></button>)}</div></div>
                                                 </div>
                                             )}
                                         </div>
                                     )}
                                     {step === 2 && (
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                        2
+                                            <div className="flex items-center gap-3"><Target className="text-stone-400" /> <h3 className="text-lg font-medium">Goal: Mục tiêu chiến lược</h3></div>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Mục tiêu kinh doanh</label>
+                                                        <EditorialFieldHint anchor="label" title="Mục tiêu kinh doanh">
+                                                            Bạn muốn marketing giúp doanh nghiệp đạt được điều gì trong 3–6 tháng tới?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Tăng 30% doanh thu · Mở rộng sang thị trường Hà Nội · Tăng tỷ lệ khách quay lại.
+                                                        </EditorialFieldHint>
                                                     </div>
-                                                    <h2 className="text-lg font-medium tracking-tight text-stone-900">Mục tiêu & Đối tượng</h2>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Tăng 20% doanh thu..." value={objective} onChange={e => setObjective(e.target.value)} />
                                                 </div>
-                                                <p className="text-xs font-medium text-stone-400 sm:pt-2">Yêu cầu · 5 trường</p>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
-                                                <ImcPlannerEditorialField
-                                                    title="Mục tiêu chiến dịch"
-                                                    required
-                                                    hint="Chiến dịch này nhằm đạt điều gì — chọn 1 mục tiêu chính để AI tập trung"
-                                                    example="Awareness · Lead Generation · Sales · Retention · Launch sản phẩm mới"
-                                                >
-                                                    <textarea
-                                                        className="h-24 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="Chọn mục tiêu chính..."
-                                                        value={objective}
-                                                        onChange={(e) => setObjective(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="KPI kỳ vọng"
-                                                    required
-                                                    hint="Con số cụ thể muốn đạt — AI dùng để tính ngược ngân sách và phân bổ kênh"
-                                                    example="VD: 1,000 leads · 50 đơn hàng · 2,000,000 reach · 50,000 app installs"
-                                                >
-                                                    <textarea
-                                                        className="h-24 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: 1000 leads..."
-                                                        value={perception}
-                                                        onChange={(e) => setPerception(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="Timeline chiến dịch"
-                                                    required
-                                                    hint="Thời gian bắt đầu và kết thúc — ảnh hưởng đến cách phân bổ ngân sách theo giai đoạn"
-                                                    example="VD: 3 tháng (4/2026 - 6/2026) · 6 tuần · Ra mắt ngày 1/5"
-                                                >
-                                                    <textarea
-                                                        className="h-24 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: 3 tháng (T4-T6)..."
-                                                        value={timeline}
-                                                        onChange={(e) => setTimeline(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="Đối tượng mục tiêu"
-                                                    required
-                                                    hint="Ai là người sẽ nhận thông điệp — càng cụ thể càng tốt"
-                                                    example="VD: Nam 25-35 tuổi, đi làm văn phòng, thu nhập 15-25tr, dùng smartphone"
-                                                >
-                                                    <textarea
-                                                        className="h-24 w-full resize-y rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="Mô tả đối tượng mục tiêu..."
-                                                        value={resources}
-                                                        onChange={(e) => setResources(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <div className="col-span-full">
-                                                    <ImcPlannerEditorialField
-                                                        title="Số liệu baseline hiện tại"
-                                                        required
-                                                        hint="Điểm xuất phát thực tế — nếu để trống AI sẽ không thể đặt target có ý nghĩa"
-                                                        example="VD: 5,000 followers · Reach 20,000/tháng · 30 leads/tháng · Conversion rate 1.5% · Doanh thu hiện tại 80tr/tháng"
-                                                    >
-                                                        <input
-                                                            className="w-full rounded-xl border border-red-100 bg-red-50/10 p-4 text-sm text-stone-900 outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400"
-                                                            placeholder="VD: 5k Followers, 10k Reach/tháng..."
-                                                            value={baselineMetrics}
-                                                            onChange={(e) => setBaselineMetrics(e.target.value)}
-                                                        />
-                                                    </ImcPlannerEditorialField>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Kỳ vọng cụ thể</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Kỳ vọng cụ thể">
+                                                            Con số cụ thể bạn muốn đạt được — càng có số liệu thật càng tốt.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 500 leads/tháng · 1.000 followers mới · 50 đơn hàng/tuần · 200 lượt đăng ký.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: 1000 lead mới trong 1 tháng..." value={perception} onChange={e => setPerception(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Nguồn lực hiện có</label>
+                                                        <EditorialFieldHint anchor="label" title="Nguồn lực hiện có">
+                                                            Team hiện tại gồm mấy người làm marketing? Ngân sách tháng/quý là bao nhiêu?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 2 người content + 1 người chạy ads · Ngân sách 30tr/tháng · Có sẵn studio chụp hình.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Đội ngũ 3 người, ngân sách 50tr..." value={resources} onChange={e => setResources(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Timeline thực hiện</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Timeline">
+                                                            Chiến dịch kéo dài bao lâu? Có deadline hay sự kiện cụ thể nào không?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 3 tháng (tháng 4–6) · Ra mắt sản phẩm mới ngày 1/5 · Cần kết quả trước mùa hè.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Chiến dịch 3 tháng, bắt đầu từ..." value={timeline} onChange={e => setTimeline(e.target.value)} />
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-red-600">Số liệu hiện tại (Bắt buộc - Followers, Reach, Leads...)</label>
+                                                        <EditorialFieldHint anchor="label" title="Baseline bắt buộc">
+                                                            Điền số thật bạn đang có — AI cần điểm xuất phát để đặt mục tiêu thực tế, không phải đoán mò.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 3.200 followers · Reach 15.000/tháng · 20 leads/tháng · Conversion rate 2% · 8 đơn/tuần.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-red-100 bg-red-50/10 text-sm focus:border-red-400 focus:ring-red-400" placeholder="VD: 5k Followers, 10k Reach/tháng, 50 Leads... (Nếu để trống AI sẽ cảnh báo)" value={baselineMetrics} onChange={e => setBaselineMetrics(e.target.value)} />
                                                 </div>
                                             </div>
                                         </div>
                                     )}
                                     {step === 3 && (
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                        3
+                                            <div className="flex items-center gap-3"><Compass className="text-stone-400" /> <h3 className="text-lg font-medium">Tactics: Thiết lập giọng điệu & Kênh</h3></div>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Tính cách thương hiệu (Tone)</label>
+                                                        <EditorialFieldHint anchor="label" title="Tone of voice">
+                                                            Nếu thương hiệu là một người, họ nói chuyện như thế nào?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Chuyên gia tự tin · Người bạn thân gần gũi · Người thầy truyền cảm hứng · Sang trọng và lịch thiệp.
+                                                        </EditorialFieldHint>
                                                     </div>
-                                                    <h2 className="text-lg font-medium tracking-tight text-stone-900">Tactics: Thiết lập giọng điệu & Kênh</h2>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Truyền cảm hứng, Chuyên gia..." value={tone} onChange={e => setTone(e.target.value)} />
                                                 </div>
-                                                <p className="text-xs font-medium text-stone-400 sm:pt-2">Yêu cầu · 3 trường</p>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
-                                                <ImcPlannerEditorialField
-                                                    title="Tính cách thương hiệu"
-                                                    required
-                                                    hint="Nếu thương hiệu là một người, họ nói chuyện như thế nào?"
-                                                    example="VD: Chuyên gia tự tin · Người bạn gần gũi · Người thầy truyền cảm hứng."
-                                                >
-                                                    <input
-                                                        className="w-full rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: Truyền cảm hứng, Chuyên gia..."
-                                                        value={tone}
-                                                        onChange={(e) => setTone(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="Cảm xúc muốn tạo ra"
-                                                    required
-                                                    hint="Khi khách hàng xem content, bạn muốn họ cảm thấy gì?"
-                                                    example="VD: An tâm & tin tưởng · Hứng khởi muốn thử ngay · Được thấu hiểu."
-                                                >
-                                                    <input
-                                                        className="w-full rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: Khát khao, Tin tưởng, Tò mò..."
-                                                        value={emotion}
-                                                        onChange={(e) => setEmotion(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="Kênh truyền thông chính"
-                                                    required
-                                                    hint="Liệt kê các kênh bạn đang dùng hoặc sẽ dùng — theo thứ tự ưu tiên."
-                                                    example="VD: Facebook (chính) · TikTok (phụ) · Email · Zalo OA."
-                                                >
-                                                    <input
-                                                        className="w-full rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: Facebook, TikTok, YouTube..."
-                                                        value={channels}
-                                                        onChange={(e) => setChannels(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
-
-                                                <ImcPlannerEditorialField
-                                                    title="Đối thủ cạnh tranh"
-                                                    hint="Những bên đang phục vụ cùng nhóm khách hàng và giải quyết cùng nỗi đau."
-                                                    example="VD: Phúc Long · AHA Coffee · Trung Nguyên."
-                                                >
-                                                    <input
-                                                        className="w-full rounded-xl border border-stone-200 p-4 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                        placeholder="VD: Đối thủ A, Đối thủ B..."
-                                                        value={competitors}
-                                                        onChange={(e) => setCompetitors(e.target.value)}
-                                                    />
-                                                </ImcPlannerEditorialField>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Cảm xúc muốn tạo ra</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Cảm xúc">
+                                                            Khi khách hàng xem content của bạn, bạn muốn họ cảm thấy gì?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> An tâm & tin tưởng · Hứng khởi muốn thử ngay · Tự hào khi dùng thương hiệu này · Được thấu hiểu.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Khát khao, Tin tưởng, Tò mò..." value={emotion} onChange={e => setEmotion(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Kênh truyền thông chính</label>
+                                                        <EditorialFieldHint anchor="label" title="Kênh">
+                                                            Liệt kê các kênh bạn đang dùng hoặc sẽ dùng — theo thứ tự ưu tiên.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Facebook (chính) · TikTok (phụ) · Email · Zalo OA · Website.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Facebook, TikTok, YouTube..." value={channels} onChange={e => setChannels(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Đối thủ cạnh tranh</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Đối thủ">
+                                                            Ai đang cạnh tranh trực tiếp với bạn? Bạn nghĩ họ đang làm tốt điều gì?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Thương hiệu A (mạnh về giá) · Thương hiệu B (content đẹp) · Thương hiệu C (cộng đồng lớn).
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="Liệt kê top 3 đối thủ..." value={competitors} onChange={e => setCompetitors(e.target.value)} />
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -584,56 +444,16 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                 {showHistory && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                        <div className="bg-white rounded-3xl w-full max-w-lg h-[65vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
-                            <header className="px-6 py-5 border-b border-stone-100 flex justify-between items-center bg-stone-50/50">
-                                <div className="flex flex-col">
-                                    <h3 className="font-semibold text-stone-900">Lịch sử chiến lược</h3>
-                                    <span className="text-[10px] text-stone-400 font-medium uppercase tracking-wider">{availableStrategies.length} kế hoạch đã lưu</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    {availableStrategies.length > 0 && (
-                                        <button 
-                                            onClick={handleClearAllStrategies}
-                                            className="text-[11px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-tight"
-                                        >
-                                            Xóa tất cả
-                                        </button>
-                                    )}
-                                    <button onClick={() => setShowHistory(false)} className="rounded-full p-2 hover:bg-white transition-colors">
-                                        <X size={20} className="text-stone-400" />
-                                    </button>
-                                </div>
-                            </header>
+                        <div className="bg-white rounded-3xl w-full max-w-lg h-[60vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
+                            <header className="p-6 border-b border-stone-100 flex justify-between items-center"><h3 className="font-medium">Lịch sử chiến lược</h3><button onClick={() => setShowHistory(false)}><X size={20} className="text-stone-300" /></button></header>
                             <div className="flex-1 overflow-y-auto p-6 space-y-3">
                                 {availableStrategies.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-20 text-stone-400">
-                                        <History size={48} strokeWidth={1} className="mb-4 opacity-20" />
-                                        <div className="text-sm">Chưa có lịch sử chiến lược.</div>
-                                    </div>
+                                    <div className="text-center text-stone-500">Chưa có lịch sử chiến lược.</div>
                                 ) : (
-                                    availableStrategies.map(s => (
-                                        <div 
-                                            key={s.id} 
-                                            onClick={() => loadStrategy(s)} 
-                                            className="group relative w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 hover:bg-white transition-all cursor-pointer"
-                                        >
-                                            <div className="pr-10">
-                                                <div className="font-medium text-stone-900 group-hover:text-black line-clamp-1">{s.name}</div>
-                                                <div className="text-[10px] text-stone-400 mt-1 flex items-center gap-2">
-                                                    <span>{new Date(s.createdAt).toLocaleDateString()}</span>
-                                                    <span>·</span>
-                                                    <span className="uppercase">{s.brandId === 'manual' ? 'Thủ công' : 'Brand Vault'}</span>
-                                                </div>
-                                            </div>
-                                            <button 
-                                                onClick={(e) => handleDeleteStrategy(e, s.id)}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl text-stone-300 hover:text-rose-500 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all"
-                                                title="Xóa kế hoạch"
-                                            >
-                                                <Trash2 size={16} strokeWidth={2} />
-                                            </button>
-                                        </div>
-                                    ))
+                                    availableStrategies.map(s => <button key={s.id} onClick={() => loadStrategy(s)} className="w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 transition-all">
+                                        <div className="font-medium text-stone-900">{s.name}</div>
+                                        <div className="text-[10px] text-stone-400 mt-1">{new Date(s.createdAt).toLocaleDateString()}</div>
+                                    </button>)
                                 )}
                             </div>
                         </div>
