@@ -621,7 +621,7 @@ const IMCPlanner: React.FC = () => {
                                                     >
                                                         <input
                                                             disabled={activeTab === 'vault'}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
                                                             placeholder="Nhập tên thương hiệu…"
                                                             value={brand}
                                                             onChange={(e) => setBrand(e.target.value)}
@@ -635,7 +635,7 @@ const IMCPlanner: React.FC = () => {
                                                     >
                                                         <select
                                                             disabled={activeTab === 'vault'}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
                                                             value={industry}
                                                             onChange={(e) => setIndustry(e.target.value)}
                                                         >
@@ -653,7 +653,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Gói Spa 5 buổi · Nước ngọt vị mới · Tính năng thanh toán"
                                                     >
                                                         <input
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Mô tả sản phẩm / dịch vụ…"
                                                             value={product}
                                                             onChange={(e) => setProduct(e.target.value)}
@@ -668,7 +668,7 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập giá VND…"
                                                             value={productPrice}
                                                             onChange={(e) => setProductPrice(e.target.value)}
@@ -683,7 +683,7 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-400"
                                                             placeholder="Nhập ngân sách (VND)…"
                                                             value={budget}
                                                             onChange={(e) => setBudget(e.target.value)}
@@ -699,7 +699,7 @@ const IMCPlanner: React.FC = () => {
                                                         hint="Tôi có Ngân sách → AI tính mục tiêu · Tôi có Mục tiêu → AI tính ngân sách · Kiểm tra Khả thi → AI đánh giá cả hai."
                                                     >
                                                         <select
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all focus:border-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400"
                                                             value={planningMode}
                                                             onChange={(e) => setPlanningMode(e.target.value as PlanningMode)}
                                                         >
@@ -720,7 +720,7 @@ const IMCPlanner: React.FC = () => {
                                                             type="number"
                                                             min={4}
                                                             max={52}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all focus:border-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400"
                                                             value={timeline}
                                                             onChange={(e) => setTimeline(Number(e.target.value) || 8)}
                                                         />
@@ -930,7 +930,7 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập mục tiêu VND…"
                                                             value={revenueTarget}
                                                             onChange={(e) => setRevenueTarget(e.target.value)}

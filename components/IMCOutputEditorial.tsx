@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Check, AlertTriangle, XCircle, Info, Zap } from 'lucide-react';
+import { ArrowLeft, Check, AlertTriangle, XCircle, Info, Zap, Users, Sparkles, Compass, Flag, Target, RefreshCw, ShieldCheck, AlertOctagon, Lightbulb, MessageSquareQuote } from 'lucide-react';
 import { IMCPlan } from '../types';
 import './imc-planner-editorial.css';
 
@@ -10,6 +10,8 @@ interface IMCOutputEditorialProps {
   saving: boolean;
   saved: boolean;
 }
+
+const cleanText = (text: string) => text.replace(/\*\*/g, '');
 
 const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, onSave, saving, saved }) => {
   const formatVND = (num: number) => {
@@ -122,22 +124,31 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, o
           <div className="imc-comp-block imc-anim" style={{ animationDelay: '0.3s' }}>
             <div className="imc-comp-label">Competitive Angle</div>
             <div className="imc-comp-grid">
-              <div>
-                <div className="imc-comp-item-label">Đối thủ đang nói gì</div>
+              <div className="imc-comp-item">
+                <div className="imc-comp-item-label">
+                  <Users size={12} className="inline mr-1.5 opacity-60" />
+                  Đối thủ đang nói gì
+                </div>
                 <div className="imc-comp-item-text">{plan.strategic_foundation.competitive_angle.competitor_says}</div>
               </div>
-              <div>
-                <div className="imc-comp-item-label">Chúng ta nói gì khác</div>
+              <div className="imc-comp-item">
+                <div className="imc-comp-item-label" style={{ color: '#b45309' }}>
+                  <Sparkles size={12} className="inline mr-1.5" />
+                  Chúng ta nói gì khác
+                </div>
                 <div className="imc-comp-item-text">"{plan.strategic_foundation.competitive_angle.we_say_differently}"</div>
               </div>
-              <div>
-                <div className="imc-comp-item-label">Khoảng trắng chúng ta chiếm</div>
+              <div className="imc-comp-item">
+                <div className="imc-comp-item-label" style={{ color: '#0f172a' }}>
+                  <Compass size={12} className="inline mr-1.5 opacity-80" />
+                  Khoảng trắng chúng ta chiếm
+                </div>
                 <div className="imc-comp-item-text">{plan.strategic_foundation.competitive_angle.gap_we_occupy}</div>
               </div>
             </div>
             <div className="imc-comp-opportunity">
               <div className="imc-comp-opp-label">Chiến lược định vị dự kiến</div>
-              Mỗi chiến dịch đều xoay quanh một USP duy nhất để tối ưu nhận diện trong tâm trí khách hàng.
+              {plan.strategic_foundation.competitive_angle.positioning_strategy || "Mỗi chiến dịch đều xoay quanh một USP duy nhất để tối ưu nhận diện trong tâm trí khách hàng."}
             </div>
           </div>
         )}
@@ -183,9 +194,22 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, o
                   Target: {phase.kpis.target} · {phase.kpis.metric}
                 </div>
                 {phase.weekly_checkpoint && (
-                  <div className="imc-checkpoint">
-                    <div className="imc-checkpoint-label">Checkpoint {phase.weekly_checkpoint.week_indicator}</div>
-                    Nếu không đạt {phase.weekly_checkpoint.target_metric} → {phase.weekly_checkpoint.if_not_reached}
+                  <div className="imc-checkpoint-v2">
+                    <div className="imc-cp-header">
+                      <Flag size={10} className="text-stone-500" />
+                      <span>CHECKPOINT CUỐI TUẦN {phase.weekly_checkpoint.week_indicator}</span>
+                    </div>
+                    <div className="imc-cp-body">
+                      <div className="imc-cp-row">
+                        <Target size={11} className="text-amber-600 shrink-0" />
+                        <div className="imc-cp-text"><span>Nếu không đạt:</span> {phase.weekly_checkpoint.target_metric}</div>
+                      </div>
+                      <div className="imc-cp-divider"></div>
+                      <div className="imc-cp-row">
+                        <RefreshCw size={11} className="text-stone-500 shrink-0" />
+                        <div className="imc-cp-text"><span>Hành động:</span> {phase.weekly_checkpoint.if_not_reached}</div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -204,19 +228,19 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, o
               <div className="imc-rev-formula-text">{plan.revenue_projection.formula}</div>
               <div className="imc-rev-nums">
                 <div className="imc-rev-num-col">
-                  <div className="imc-rev-num">{plan.revenue_projection.reach}</div>
+                  <div className="imc-rev-num" style={{ color: '#0f172a' }}>{plan.revenue_projection.reach}</div>
                   <div className="imc-rev-num-label">Reach ước tính</div>
                 </div>
                 <div className="imc-rev-num-col">
-                  <div className="imc-rev-num">{plan.revenue_projection.ctr}</div>
+                  <div className="imc-rev-num" style={{ color: '#b45309' }}>{plan.revenue_projection.ctr}</div>
                   <div className="imc-rev-num-label">Avg CTR</div>
                 </div>
                 <div className="imc-rev-num-col">
-                  <div className="imc-rev-num">{plan.revenue_projection.conversion_rate}</div>
+                  <div className="imc-rev-num" style={{ color: '#166534' }}>{plan.revenue_projection.conversion_rate}</div>
                   <div className="imc-rev-num-label">CR (Leads to Sales)</div>
                 </div>
                 <div className="imc-rev-num-col">
-                  <div className="imc-rev-num">{plan.revenue_projection.aov}</div>
+                  <div className="imc-rev-num" style={{ color: '#1e293b' }}>{plan.revenue_projection.aov}</div>
                   <div className="imc-rev-num-label">AOV dự kiến</div>
                 </div>
               </div>
@@ -260,43 +284,114 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, o
           </div>
         )}
 
-        {/* CMO NOTE */}
+        {/* CMO NOTE - STRATEGIC WATERFALL */}
         {plan.expert_notes && (
           <div className="imc-cmo-section imc-anim" style={{ animationDelay: '0.7s' }}>
             <div className="imc-cmo-header">
-              <span className="imc-cmo-label">CMO Expert Note</span>
-              <span className="imc-cmo-sig">Lời khuyên chiến lược</span>
+              <span className="imc-cmo-label">Strategic Executive Briefing</span>
+              <span className="imc-cmo-sig">Lời khuyên</span>
             </div>
-            <div className="imc-cmo-grid">
-              <div className="imc-cmo-item">
-                <div className="imc-cmo-num">I.</div>
-                <div className="imc-cmo-item-title">Điều quan trọng nhất phải làm đúng</div>
-                <div className="imc-cmo-text">{plan.expert_notes.key_success_factor}</div>
+
+            <div className="imc-cmo-waterfall">
+              {/* I. HERO INSIGHT */}
+              <div className="imc-cmo-hero">
+                <div className="imc-cmo-hero-icon"><ShieldCheck size={32} /></div>
+                <div className="imc-cmo-hero-content">
+                  <div className="imc-cmo-num">I. THE KEY SUCCESS FACTOR</div>
+                  <div className="imc-cmo-item-title">Điều quan trọng nhất phải làm đúng</div>
+                  
+                  <div className="imc-cmo-hero-two-col">
+                    <div className="imc-cmo-hero-c">
+                      <div className="imc-cmo-c-head">
+                        <Zap size={12} className="text-amber-500" />
+                        <span>QUYẾT ĐỊNH CHIẾN DỊCH</span>
+                      </div>
+                      <div className="imc-cmo-c-text">
+                        {cleanText(plan.expert_notes.key_success_factor.split('. ')[0])}.
+                      </div>
+                    </div>
+                    <div className="imc-cmo-hero-c">
+                      <div className="imc-cmo-c-head">
+                        <Info size={12} className="text-slate-400" />
+                        <span>LÝ DO & HỆ QUẢ</span>
+                      </div>
+                      <div className="imc-cmo-c-text">
+                        {cleanText(plan.expert_notes.key_success_factor.split('. ').slice(1).join('. '))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="imc-cmo-item">
-                <div className="imc-cmo-num">II.</div>
-                <div className="imc-cmo-item-title">Rủi ro lớn nhất cần phòng tránh</div>
-                <div className="imc-cmo-text">
+
+              {/* II. RISK MATRIX */}
+              <div className="imc-cmo-matrix-block">
+                <div className="imc-cmo-num">II. RISK MITIGATION & CONTINGENCY</div>
+                <div className="imc-cmo-item-title">Rủi ro lớn nhất & Phương án phòng tránh</div>
+                <div className="imc-cmo-risk-grid">
                   {plan.expert_notes.risks.map((r, idx) => (
-                    <div key={idx} style={{ marginBottom: '8px' }}>
-                      <strong>{r.issue}</strong>: {r.mitigation}
+                    <div key={idx} className="imc-cmo-risk-card">
+                      <div className="imc-cmo-risk-head">
+                        <AlertOctagon size={16} className="text-rose-600" />
+                        <strong>RISK: {cleanText(r.issue)}</strong>
+                      </div>
+                      <div className="imc-cmo-risk-arrow">↳</div>
+                      <div className="imc-cmo-risk-body">
+                        <span>MITIGATION:</span>
+                        <div className="imc-mitigation-list">
+                          {cleanText(r.mitigation).split('. ').map((point, pIdx) => (
+                            point && (
+                              <div key={pIdx} className="imc-mitigation-item">
+                                {point.trim()}{point.endsWith('.') ? '' : '.'}
+                              </div>
+                            )
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="imc-cmo-item">
-                <div className="imc-cmo-num">III.</div>
-                <div className="imc-cmo-item-title">Cơ hội đang bị bỏ ngỏ</div>
-                <div className="imc-cmo-text">{plan.expert_notes.opportunity}</div>
-              </div>
-              <div className="imc-cmo-item">
-                <div className="imc-cmo-num">IV.</div>
-                <div className="imc-cmo-item-title">Lời khuyên thẳng thắn</div>
-                <div className="imc-cmo-text">{plan.expert_notes.frank_advice}</div>
+
+              {/* III & IV. STRATEGIC LEVERS */}
+              <div className="imc-cmo-levers-row">
+                <div className="imc-cmo-lever-card">
+                  <div className="imc-cmo-num">III. OPPORTUNITY</div>
+                  <div className="imc-cmo-lever-head">
+                    <Lightbulb size={20} className="text-amber-500" />
+                    <span>CƠ HỘI ĐANG BỊ BỎ NGỎ</span>
+                  </div>
+                  <div className="imc-mitigation-list">
+                    {cleanText(plan.expert_notes.opportunity).split('. ').map((point, pIdx) => (
+                      point && (
+                        <div key={pIdx} className="imc-mitigation-item">
+                          {point.trim()}{point.endsWith('.') ? '' : '.'}
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
+
+                <div className="imc-cmo-lever-card imc-lever-soft">
+                  <div className="imc-cmo-num">IV. STRAIGHT TALK</div>
+                  <div className="imc-cmo-lever-head">
+                    <MessageSquareQuote size={20} className="text-slate-600" />
+                    <span>LỜI KHUYÊN THẲNG THẮN</span>
+                  </div>
+                  <div className="imc-mitigation-list">
+                    {cleanText(plan.expert_notes.frank_advice).split('. ').map((point, pIdx) => (
+                      point && (
+                        <div key={pIdx} className="imc-mitigation-item">
+                          {point.trim()}{point.endsWith('.') ? '' : '.'}
+                        </div>
+                      )
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
+
             <div className="imc-cmo-quote">
-              Chiến lược IMC này được tối ưu hóa dựa trên mô hình dữ liệu thực tế. Thành công phụ thuộc vào việc thực thi chỉn chu từng nội dung và theo sát các checkpoint hàng tuần.
+              Chiến lược IMC này mang tính định hướng cao. Thành công thực tế phụ thuộc rất lớn vào sự phối hợp nhịp nhàng giữa team Branding và Performance trong từng tuần thực thi.
             </div>
           </div>
         )}

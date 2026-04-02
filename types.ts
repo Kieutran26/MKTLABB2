@@ -64,6 +64,7 @@ export interface IMCStrategicFoundation {
     competitor_says: string;
     we_say_differently: string;
     gap_we_occupy: string;
+    positioning_strategy?: string;
   };
 }
 
