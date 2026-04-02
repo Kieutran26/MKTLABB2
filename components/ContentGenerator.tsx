@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { PenTool, Facebook, Instagram, Linkedin, AtSign, Video, Search, CheckSquare, Square, Sparkles, Copy, Check, Loader2, History, Trash2, Clock, X, Edit3, ShieldCheck, Save, Diamond, Lock, ChevronRight } from 'lucide-react';
+import {PenTool, Facebook, Instagram, Linkedin, AtSign, Video, Search, CheckSquare, Square, Sparkles, Copy, Check, Loader2, History, Trash2, Clock, X, Edit3, ShieldCheck, Save, Diamond, Lock, ChevronRight, Pencil} from 'lucide-react';
 import { generateMultiPlatformContent } from '../services/geminiService';
 import { ContentGeneratorService } from '../services/contentGeneratorService';
 import { ContentHistoryRecord } from '../types';
 import { Toast, ToastType } from './Toast';
 import { useBrand } from './BrandContext';
+import FeatureHeader from './FeatureHeader';
 import BrandSelector from './BrandSelector';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
@@ -84,21 +85,27 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
-      <header className="flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 justify-between items-center">
-        <div>
-           <div className="flex items-center gap-2 text-stone-400 mb-1"><PenTool size={18} /><span className="text-[10px] font-bold uppercase tracking-widest">Omnichannel Content</span></div>
-           <h1 className="text-xl font-medium text-stone-900 leading-none">Content Multi-Platform</h1>
-        </div>
-        <div className="flex items-center gap-3">
-            <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>✍️ Thủ công</button>
-                <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>
+      <FeatureHeader
+        icon={PenTool}
+        eyebrow="OMNICHANNEL CONTENT"
+        title="Content Multi-Platform"
+        subline="Phóng tác nội dung đa nền tảng dựa trên ý tưởng gốc, tối ưu cho từng kênh phân phối."
+      >
+        <div className="flex shrink-0 items-center justify-end gap-2">
+            <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
+                <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}><Pencil size={14} /> Thủ công</button>
+                <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
                     <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                 </button>
             </div>
-            <button onClick={() => setShowHistory(!showHistory)} className="px-4 py-2 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 transition-colors flex items-center gap-2"><History size={16} /> Lịch sử</button>
+            <button
+                onClick={() => setShowHistory(!showHistory)}
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
+            >
+                <History size={18} strokeWidth={2} />
+            </button>
         </div>
-      </header>
+      </FeatureHeader>
 
       <div className="flex-1 grid overflow-hidden p-6 gap-6" style={{ gridTemplateColumns: showHistory ? '300px 450px 1fr' : '450px 1fr' }}>
           {showHistory && (

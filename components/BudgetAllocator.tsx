@@ -7,6 +7,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Legend, Tooltip, Cell } from 'recharts';
 import { BudgetAllocatorService, SavedAllocation } from '../services/budgetAllocatorService';
 import { Toast, ToastType } from './Toast';
+import FeatureHeader from './FeatureHeader';
 
 // ═══════════════════════════════════════════════════════════════
 // TYPES & INTERFACES
@@ -593,38 +594,33 @@ const BudgetAllocator: React.FC = () => {
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
 
-            {/* Header */}
-            <div className="z-10 flex shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4">
-                <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-500">
-                        <PieChart size={20} strokeWidth={1.5} />
-                    </div>
-                    <div>
-                        <h1 className="text-lg font-normal tracking-tight text-stone-900">Budget Allocator V2</h1>
-                        <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Split-Budget Model • Media vs Production</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
+            <FeatureHeader
+                icon={PieChart}
+                eyebrow="FINANCIAL PLANNING"
+                title="Budget Allocator"
+                subline="Tối ưu hóa ngân sách quảng cáo — Phân bổ ngân sách dựa trên hiệu suất và mục tiêu kinh doanh."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
                     <button
                         onClick={() => setShowHistory(!showHistory)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
                         title={`Lịch sử (${savedAllocations.length})`}
+                        aria-label={`Mở lịch sử phân bổ ngân sách, ${savedAllocations.length} phân bổ đã lưu`}
                     >
-                        <History size={18} strokeWidth={1.25} />
+                        <History size={18} strokeWidth={2} />
                     </button>
                     {result && (
                         <button
                             onClick={handleNew}
-                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
                         >
                             <Plus size={16} /> Tạo mới
                         </button>
                     )}
-                    {/* Save button - always visible */}
                     <button
                         onClick={handleSave}
                         disabled={!result}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${result
+                        className={`inline-flex h-10 items-center gap-2 rounded-2xl px-5 text-sm font-medium shadow-sm transition-all active:scale-95 ${result
                                 ? 'bg-stone-900 text-white hover:bg-stone-800'
                                 : 'cursor-not-allowed bg-stone-100 text-stone-400'
                             }`}
@@ -632,7 +628,7 @@ const BudgetAllocator: React.FC = () => {
                         <Save size={16} /> Lưu
                     </button>
                 </div>
-            </div>
+            </FeatureHeader>
 
             <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: showHistory ? '420px 280px 1fr' : '420px 1fr' }}>
                 {/* LEFT: Form */}

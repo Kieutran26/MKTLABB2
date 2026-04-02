@@ -208,9 +208,11 @@ const FrameVisual: React.FC = () => {
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        title="Lịch sử"
+                        aria-label="Mở lịch sử khung hình"
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử
+                        <History size={17} strokeWidth={1.25} />
                     </button>
                     <button
                         type="button"

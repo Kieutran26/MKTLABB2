@@ -5,6 +5,7 @@ import { JourneyService, SavedJourney } from '../services/journeyService';
 import { JourneyStage } from '../types';
 import { generateCustomerJourney, JourneyMapperInput, validateJourneyInput, JourneyValidationResult } from '../services/geminiService';
 import toast, { Toaster } from 'react-hot-toast';
+import FeatureHeader from './FeatureHeader';
 
 const cardClass =
     'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -472,52 +473,44 @@ const CustomerJourneyMapper: React.FC = () => {
                 />
             )}
 
-            <header className="z-10 flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <Map size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Customer Journey
-                        </span>
-                    </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        Customer Journey Mapper V3
-                    </h1>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                        5-Stage Model • Psychological Drivers • Action Items
-                    </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
+            <FeatureHeader
+                icon={Map}
+                eyebrow="CUSTOMER EXPERIENCE & JOURNEY DESIGN"
+                title="Customer Journey Mapper V3"
+                subline="Phân tích tâm lý & Hành trình khách hàng 5 giai đoạn."
+            >
                     <button
                         type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
-                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
+                        className={`inline-flex size-10 items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-medium transition-all ${
+                            showHistory
+                                ? 'bg-stone-900 text-white shadow-md'
+                                : 'border border-stone-200 bg-white text-stone-600 shadow-sm hover:bg-stone-50'
                             }`}
+                        title={`Lịch sử (${savedJourneys.length})`}
+                        aria-label={`Mở lịch sử hành trình, ${savedJourneys.length} hành trình đã lưu`}
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedJourneys.length})
+                        <History size={17} strokeWidth={1.5} />
                     </button>
-                    {journeyData && (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handleNew}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                            >
-                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleSave}
-                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
-                            >
-                                <Save size={17} strokeWidth={1.25} /> Lưu
-                            </button>
-                        </>
-                    )}
-                </div>
-            </header>
+                {journeyData && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={handleNew}
+                            className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
+                        >
+                            <Plus size={17} strokeWidth={1.5} /> Tạo mới
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSave}
+                            className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                        >
+                            <Save size={17} strokeWidth={2} /> Lưu kết quả
+                        </button>
+                    </>
+                )}
+            </FeatureHeader>
 
             <div
                 className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"

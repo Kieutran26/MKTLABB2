@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
+import FeatureHeader from './FeatureHeader';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
@@ -210,24 +211,35 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     if (viewMode === 'create') {
         return (
             <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
-                <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <div className="mb-1 flex items-center gap-2 text-stone-400">
-                             <Brain size={18} strokeWidth={1.25} />
-                             <span className="text-[10px] font-bold uppercase tracking-widest">Strategy Engine</span>
-                        </div>
-                        <h2 className="text-xl font-medium text-stone-900 leading-none">Mastermind Strategy</h2>
+                <FeatureHeader 
+                    icon={Lightbulb}
+                    eyebrow="AI-POWERED STRATEGIC FRAMEWORK"
+                    title="Mastermind Strategy"
+                    subline="Đối thoại cùng AI → Xây dựng chiến lược đa kênh chuyên nghiệp."
+                >
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
+                         <button onClick={() => setActiveTab('manual')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
+                             <Edit3 size={14} /> Thủ công
+                         </button>
+                         <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
+                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
+                         </button>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                             <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>✍️ Thủ công</button>
-                             <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>
-                                 <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
-                             </button>
-                        </div>
-                        <button onClick={() => setShowHistory(true)} className="px-4 py-2 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 transition-colors flex items-center gap-2"><History size={16} /> Lịch sử</button>
-                    </div>
-                </header>
+
+                    <button
+                        type="button"
+                        onClick={() => setShowHistory(true)}
+                        className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-stone-200 text-stone-600 shadow-sm transition-colors hover:bg-stone-50"
+                        title={`Lịch sử (${availableStrategies.length})`}
+                        aria-label={`Lịch sử, ${availableStrategies.length} chiến lược đã lưu`}
+                    >
+                        <History size={18} strokeWidth={1.5} />
+                    </button>
+
+                    <button onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} className="px-6 py-2.5 rounded-2xl bg-stone-950 text-white text-sm font-medium hover:bg-stone-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95">
+                        <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
+                    </button>
+                </FeatureHeader>
 
                 <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
                     <div className="w-full max-w-none">

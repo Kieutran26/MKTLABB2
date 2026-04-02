@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import type { LucideIcon } from 'lucide-react';
-import {
-    Target, Sparkles, Loader2, Swords, DoorOpen, Users, Truck, Shuffle,
-    History, Save, Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Minus, ArrowUpRight, ArrowDownRight, Factory, Lightbulb, Diamond, Lock, ChevronRight
-} from 'lucide-react';
+import {Target, Sparkles, Loader2, Swords, DoorOpen, Users, Truck, Shuffle, History, Save, Plus, Trash2, TrendingUp, TrendingDown, AlertTriangle, Minus, ArrowUpRight, ArrowDownRight, Factory, Lightbulb, Diamond, Lock, ChevronRight, Pencil} from 'lucide-react';
 import { PorterAnalysisInput, PorterAnalysisResult, UserPosition } from '../types';
 import { generatePorterAnalysis } from '../services/geminiService';
 import { PorterService, SavedPorterAnalysis } from '../services/porterService';
 import toast, { Toaster } from 'react-hot-toast';
+import FeatureHeader from './FeatureHeader';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
@@ -117,21 +115,27 @@ const PorterAnalyzer: React.FC = () => {
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-right" />
-            <header className="flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 justify-between items-center">
-                 <div>
-                    <div className="flex items-center gap-2 text-stone-400 mb-1"><Target size={18} /><span className="text-[10px] font-bold uppercase tracking-widest">Competitive Analysis</span></div>
-                    <h1 className="text-xl font-medium text-stone-900 leading-none">Porter's Precision</h1>
-                 </div>
-                 <div className="flex items-center gap-2">
-                    <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>✍️ Thủ công</button>
-                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>
+            <FeatureHeader
+                icon={Target}
+                eyebrow="COMPETITIVE INTENSITY ANALYSIS"
+                title="Porter's Precision"
+                subline="Phân tích 5 lực lượng cạnh tranh để xác định sức hấp dẫn của ngành."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
+                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}><Pencil size={14} /> Thủ công</button>
+                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                         </button>
                     </div>
-                    <button onClick={() => setShowHistory(!showHistory)} className="px-4 py-2 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 flex items-center gap-2"><History size={16} /> Lịch sử</button>
-                 </div>
-            </header>
+                    <button
+                        onClick={() => setShowHistory(!showHistory)}
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
+                    >
+                        <History size={18} strokeWidth={2} />
+                    </button>
+                </div>
+            </FeatureHeader>
 
             <div className="flex-1 grid overflow-hidden p-6 gap-6" style={{ gridTemplateColumns: showHistory ? '260px 400px 1fr' : '400px 1fr' }}>
                 {showHistory && (

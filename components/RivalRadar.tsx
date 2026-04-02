@@ -4,6 +4,7 @@ import { Competitor, CompetitorAd } from '../types';
 import { StorageService } from '../services/storageService';
 import { scanWebsite } from '../services/crawlerService';
 import { Toast, ToastType } from './Toast';
+import FeatureHeader from './FeatureHeader';
 
 const cardClass =
     'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -182,31 +183,20 @@ const RivalRadar: React.FC = () => {
     if (viewMode === 'list') {
         return (
             <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
-                <header className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:px-8">
-                    <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div className="max-w-2xl">
-                            <div className="mb-2 flex items-center gap-2 text-stone-400">
-                                <Radar size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                                <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                                    Competitive Intel
-                                </span>
-                            </div>
-                            <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                                Rival Radar
-                            </h1>
-                            <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                                Theo dõi và phân tích đối thủ cạnh tranh.
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            onClick={() => setShowAddModal(true)}
-                            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
-                        >
-                            <Plus size={18} strokeWidth={1.25} /> Thêm Đối thủ
-                        </button>
-                    </div>
-                </header>
+                <FeatureHeader
+                    icon={Radar}
+                    eyebrow="COMPETITIVE INTELLIGENCE & MARKET ANALYSIS"
+                    title="Rival Radar"
+                    subline="Theo dõi USP, SWOT và chiến dịch quảng cáo của đối thủ."
+                >
+                    <button
+                        type="button"
+                        onClick={() => setShowAddModal(true)}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    >
+                        <Plus size={18} strokeWidth={2.5} /> Thêm Đối thủ
+                    </button>
+                </FeatureHeader>
 
                 <div className="mx-auto max-w-7xl px-5 pt-8 md:px-8">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

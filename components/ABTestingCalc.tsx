@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, AlertCircle, ArrowUpRight, ArrowDownRight, Minus, BarChart3, HelpCircle, DollarSign, TrendingUp, Info, Wallet, Users, Target, Activity, Save, FolderOpen, Trash2, XCircle } from 'lucide-react';
+import { Calculator, AlertCircle, ArrowUpRight, ArrowDownRight, Minus, BarChart3, HelpCircle, DollarSign, TrendingUp, Info, Wallet, Users, Target, Activity, Save, FolderOpen, Trash2, XCircle, Plus } from 'lucide-react';
 import { ABTestService, SavedABTest, ABTestInput as ABTestInputType, ABTestResult as ABTestResultType } from '../services/abTestService';
+import FeatureHeader from './FeatureHeader';
 
 // --- Statistical Math Helpers ---
 
@@ -631,24 +632,21 @@ const ABTestingCalc: React.FC = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
-            {/* ── Standardized Header ────────────────────────────────────────── */}
-            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <Calculator size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Công cụ tối ưu
-                        </span>
-                    </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        Kiểm định A/B Testing
-                    </h1>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                        Công cụ thống kê giúp bạn quyết định phiên bản quảng cáo/landing page hiệu quả nhất.
-                    </p>
-                </div>
-
-                <div className="flex shrink-0 items-center justify-end gap-3 pt-2">
+            <FeatureHeader
+                icon={Calculator}
+                eyebrow="CONVERSION OPTIMIZATION"
+                title="A/B Testing Calculator"
+                subline="Công cụ thống kê giúp bạn quyết định phiên bản quảng cáo/landing page hiệu quả nhất."
+            >
+                 <div className="flex shrink-0 items-center justify-end gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowHistoryModal(true)}
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistoryModal ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
+                    >
+                        <FolderOpen size={18} strokeWidth={2} />
+                    </button>
+                    
                     <button
                         onClick={() => {
                             setVisitorsA(1000);
@@ -660,29 +658,21 @@ const ABTestingCalc: React.FC = () => {
                             setSelectedTestId('');
                             setError(null);
                         }}
-                        className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-stone-700 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                        className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
                     >
-                        <Calculator size={16} />
-                        Tạo mới
+                        <Plus size={16} /> Tạo mới
                     </button>
+
                     {result && (
                         <button
                             onClick={() => setShowSaveModal(true)}
-                            className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                            className="inline-flex h-10 items-center gap-2 rounded-2xl bg-stone-900 px-5 text-sm font-medium text-white transition-all hover:bg-stone-800 active:scale-95 shadow-sm"
                         >
-                            <Save size={16} />
-                            Lưu Test
+                            <Save size={16} /> Lưu Test
                         </button>
                     )}
-                    <button
-                        onClick={() => setShowHistoryModal(true)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50"
-                        title={`Lịch sử (${savedTests.length})`}
-                    >
-                        <FolderOpen size={18} strokeWidth={1.25} />
-                    </button>
                 </div>
-            </header>
+            </FeatureHeader>
 
             {/* ── Scrollable Content Area ───────────────────────────────────── */}
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">

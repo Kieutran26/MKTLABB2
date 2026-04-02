@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import {
-    Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target,
-    Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Briefcase,
-    Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save,
-    Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap
-} from 'lucide-react';
+import {Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Briefcase, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X} from 'lucide-react';
 import { IMCService, IMCInput, PlanningMode, CampaignFocus, CalculatedMetrics, AssetChecklist, BudgetDistribution } from '../services/imcService';
 import { IMCPlan, IMCExecutionPhase } from '../types';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import FeatureHeader from './FeatureHeader';
 import { saasService } from '../services/saasService';
 
 type ViewMode = 'create' | 'history' | 'detail';
@@ -315,75 +311,64 @@ const IMCPlanner: React.FC = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
-            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <Lightbulb size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Lập kế hoạch IMC (Integrated Marketing Communications)
-                        </span>
+            <FeatureHeader
+                icon={Target}
+                eyebrow="INTEGRATED MARKETING COMMUNICATIONS (IMC)"
+                title="IMC Planner V2"
+                subline="3 lớp mục tiêu → 3 giai đoạn thực thi."
+            >
+                {quota && (
+                    <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[10px] font-medium text-stone-600 mr-2">
+                        <Zap size={10} className="text-amber-500 fill-amber-500" />
+                        {quota.plan_limit - quota.plan_creation_count} lượt kế hoạch
                     </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        IMC Planner V2
-                    </h1>
-                    <div className="mt-1 flex items-center gap-3">
-                        <p className="text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                            3 lớp mục tiêu → 3 giai đoạn thực thi.
-                        </p>
-                        {quota && (
-                            <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium text-stone-600">
-                                <Zap size={10} className="text-amber-500 fill-amber-500" />
-                                {quota.plan_limit - quota.plan_creation_count} lượt kế hoạch
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2 pt-2">
-                    <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('manual')}
-                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
-                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
-                                : 'text-stone-500 hover:text-stone-700'
-                                }`}
-                        >
-                            ✍️ Thủ công
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('vault')}
-                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
-                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
-                                : 'text-stone-500 hover:text-stone-700'
-                                }`}
-                        >
-                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
-                            Brand Vault
-                        </button>
-                    </div>
+                )}
+
+                <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
                     <button
                         type="button"
-                        onClick={() => setViewMode('history')}
-                        className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-medium transition-all ${viewMode === 'history'
-                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                            : 'border border-stone-200 bg-white text-stone-700 shadow-sm hover:bg-stone-50'
+                        onClick={() => setActiveTab('manual')}
+                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
+                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
+                            : 'text-stone-400 hover:text-stone-600'
                             }`}
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedPlans.length})
+                        <Pencil size={14} /> Thủ công
                     </button>
                     <button
                         type="button"
-                        onClick={handleResetForm}
-                        className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-medium transition-all ${viewMode === 'create'
-                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                            : 'border border-stone-200 bg-white text-stone-700 shadow-sm hover:bg-stone-50'
+                        onClick={() => setActiveTab('vault')}
+                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
+                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
+                            : 'text-stone-400 hover:text-stone-600'
                             }`}
                     >
-                        <Plus size={17} strokeWidth={1.25} /> Tạo kế hoạch
+                        <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
+                        Brand Vault
                     </button>
                 </div>
-            </header>
+                
+                <button
+                    type="button"
+                    onClick={() => setViewMode('history')}
+                    className={`inline-flex size-10 shrink-0 items-center justify-center rounded-2xl transition-all ${viewMode === 'history'
+                        ? 'bg-stone-900 text-white shadow-md'
+                        : 'border border-stone-200 bg-white text-stone-600 shadow-sm hover:bg-stone-50'
+                        }`}
+                    title={`Lịch sử (${savedPlans.length})`}
+                    aria-label={`Mở lịch sử kế hoạch IMC, ${savedPlans.length} kế hoạch đã lưu`}
+                >
+                    <History size={17} strokeWidth={1.5} />
+                </button>
+                
+                <button
+                    type="button"
+                    onClick={handleResetForm}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                >
+                    <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
+                </button>
+            </FeatureHeader>
 
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
                 <div className="mx-auto max-w-7xl">

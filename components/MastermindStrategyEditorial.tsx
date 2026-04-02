@@ -1,6 +1,7 @@
 import React from 'react';
 import './MastermindStrategyEditorial.css';
 import { MastermindStrategy } from '../types';
+import { Check, X, Zap } from 'lucide-react';
 
 interface MastermindStrategyEditorialProps {
   strategy: MastermindStrategy;
@@ -265,15 +266,21 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         <SectionLabel num="07" label="Lời khuyên" dotStyle={{ background: 'var(--ms-rose)', width: 8, height: 8, borderRadius: '50%' }} />
         <div className="ms-cmo-grid">
           <div className="ms-cmo-card must">
-            <div className="ms-cmo-card-label">✓ Việc phải làm</div>
+            <div className="ms-cmo-card-label">
+              <Check size={14} strokeWidth={2.5} /> Việc phải làm
+            </div>
             <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.the_must_do}</div>
           </div>
           <div className="ms-cmo-card avoid">
-            <div className="ms-cmo-card-label">✕ Cần tránh</div>
+            <div className="ms-cmo-card-label">
+              <X size={14} strokeWidth={2.5} /> Cần tránh
+            </div>
             <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.common_pitfall}</div>
           </div>
           <div className="ms-cmo-card oppt">
-            <div className="ms-cmo-card-label">↗ Cơ hội ẩn</div>
+            <div className="ms-cmo-card-label">
+              <Zap size={14} strokeWidth={2.5} /> Cơ hội ẩn
+            </div>
             <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.hidden_opportunity}</div>
           </div>
         </div>

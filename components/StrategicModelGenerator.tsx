@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Target, Download, Loader2, Sparkles, Grid, Filter, LayoutTemplate, HelpCircle, CheckCircle2, Edit3, X, Check, Layers, Package, DollarSign, MapPin, Megaphone, Save, History, Trash2, Lock, Diamond, ChevronRight, Zap } from 'lucide-react';
+import {Target, Download, Loader2, Sparkles, Grid, Filter, LayoutTemplate, HelpCircle, CheckCircle2, Edit3, X, Check, Layers, Package, DollarSign, MapPin, Megaphone, Save, History, Trash2, Lock, Diamond, ChevronRight, Zap, Pencil} from 'lucide-react';
 import { generateStrategicModel, generateAllStrategicModels, StrategicModelData } from '../services/geminiService';
 import { StrategicModelService, SavedStrategicModel } from '../services/strategicModelService';
 import { toPng } from 'html-to-image';
 import { Toast, ToastType } from './Toast';
+import FeatureHeader from './FeatureHeader';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import { saasService } from '../services/saasService';
@@ -390,46 +391,28 @@ const StrategicModelGenerator: React.FC = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
-            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <Target size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Marketing Strategy Engine
-                        </span>
-                    </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        Strategic Model Generator
-                    </h1>
-                    <div className="mt-1 flex items-center gap-3">
-                        <p className="text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                            Phân tích SWOT, AIDA, 4P bằng AI thông minh.
-                        </p>
-                        {quota && (
-                            <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-2.5 py-0.5 text-[10px] font-medium text-stone-600">
-                                <Zap size={10} className="text-amber-500 fill-amber-500" />
-                                {quota.plan_limit - quota.plan_creation_count} lượt còn lại
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex shrink-0 flex-wrap gap-2 pt-2">
-                    <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm">
+            <FeatureHeader
+                icon={Target}
+                eyebrow="AI-POWERED STRATEGIC FRAMEWORK"
+                title="Strategic Model Generator"
+                subline="Phân tích SWOT, AIDA, 4P bằng AI thông minh."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
                         <button
                             type="button"
                             onClick={() => setActiveTab('manual')}
-                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
+                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
                                 ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
                                 : 'text-stone-500 hover:text-stone-700'
                                 }`}
                         >
-                            ✍️ Thủ công
+                            <Pencil size={14} /> Thủ công
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('vault')}
-                            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
+                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
                                 ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
                                 : 'text-stone-500 hover:text-stone-700'
                                 }`}
@@ -441,19 +424,19 @@ const StrategicModelGenerator: React.FC = () => {
                     <button
                         type="button"
                         onClick={handleSave}
-                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
                     >
-                        <Save size={17} strokeWidth={1.25} /> Lưu
+                        <Save size={16} strokeWidth={1.5} /> Lưu
                     </button>
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-2 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:bg-stone-50"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử
+                        <History size={18} strokeWidth={2} />
                     </button>
                 </div>
-            </header>
+            </FeatureHeader>
 
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-10">
                 <div className="mx-auto max-w-7xl">

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { AdsHealthInput, AdsHealthResult } from '../types';
 import { checkAdsHealth } from '../services/geminiService';
 import { AdsHealthService, SavedAdsHealthAnalysis } from '../services/adsHealthService';
-import { Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, Scissors, RefreshCw, Layout, Monitor, Globe, Save, Trash2, FolderOpen, Stethoscope, Diamond, Lock, ChevronRight, Check } from 'lucide-react';
+import {Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, Scissors, RefreshCw, Layout, Monitor, Globe, Save, Trash2, FolderOpen, Stethoscope, Diamond, Lock, ChevronRight, Check, Pencil} from 'lucide-react';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import FeatureHeader from './FeatureHeader';
 
 interface Props {
     isActive: boolean;
@@ -141,24 +142,32 @@ const AdsHealthChecker: React.FC<Props> = ({ isActive }) => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
-            <header className="z-10 flex shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4">
-                <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-500"><Activity size={20} /></div>
-                    <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Marketing Analytics</p>
-                        <h1 className="text-lg font-medium text-stone-900">Ads Health Checker</h1>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>✍️ Thủ công</button>
-                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500'}`}>
+            <FeatureHeader
+                icon={Activity}
+                eyebrow="MARKETING ANALYTICS"
+                title="Ads Health Checker"
+                subline="Phân tích sức khỏe quảng cáo — Chẩn đoán và tối ưu hiệu suất chiến dịch của bạn."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
+                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200/50' : 'text-stone-500 hover:text-stone-700'}`}>
+                            <Pencil size={14} className="inline mr-1" /> Thủ công
+                        </button>
+                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200/50' : 'text-stone-500 hover:text-stone-700'}`}>
                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                         </button>
                     </div>
-                    <button onClick={() => setShowHistoryModal(true)} className="px-4 py-2 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 transition-colors flex items-center gap-2"><FolderOpen size={16} /> Lịch sử</button>
+                    <button
+                        type="button"
+                        onClick={() => setShowHistoryModal(true)}
+                        className="inline-flex size-10 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50"
+                        title="Lịch sử"
+                        aria-label="Mở lịch sử chẩn đoán"
+                    >
+                        <History size={18} strokeWidth={1.5} />
+                    </button>
                 </div>
-            </header>
+            </FeatureHeader>
 
             <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: '440px 1fr' }}>
                 <div className="h-full overflow-y-auto border-r border-stone-200/80 bg-white p-6">

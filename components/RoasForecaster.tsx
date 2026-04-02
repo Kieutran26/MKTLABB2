@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Toast, ToastType } from './Toast';
 import { RoasService } from '../services/roasService';
 import { RoasScenario } from '../types';
+import FeatureHeader from './FeatureHeader';
 
 // ═══════════════════════════════════════════════════════════════
 // INDUSTRY BENCHMARKS (Performance Marketing Auditor Data)
@@ -432,37 +433,35 @@ ${riskAssessment.message}
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             {/* Header */}
-            <div className="z-10 flex shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4">
-                <div className="flex items-center gap-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-500">
-                        <Calculator size={20} strokeWidth={1.5} />
-                    </div>
-                    <div>
-                        <p className="text-xs font-medium uppercase tracking-wide text-stone-400">Marketing Analytics</p>
-                        <h1 className="text-lg font-normal tracking-tight text-stone-900">Dự tính Ngân sách & ROAS</h1>
-                    </div>
-                </div>
+            <FeatureHeader
+                icon={TrendingUp}
+                eyebrow="PROFITABILITY & UNIT ECONOMICS"
+                title="ROAS Forecaster"
+                subline="Dự báo doanh thu, chi phí & điểm hòa vốn quảng cáo."
+            >
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setShowHistoryModal(true)}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        className="inline-flex size-10 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
+                        title={`Lịch sử (${history.length})`}
+                        aria-label={`Mở lịch sử dự báo, ${history.length} mục đã lưu`}
                     >
-                        <History size={16} /> Lịch sử ({history.length})
+                        <History size={16} strokeWidth={1.5} />
                     </button>
                     <button
                         onClick={() => setShowSaveModal(true)}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
                     >
-                        <Save size={16} /> Lưu
+                        <Save size={16} strokeWidth={1.5} /> Lưu
                     </button>
                     <button
                         onClick={handleCopyScenario}
-                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                        className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
                     >
-                        <Copy size={16} /> Copy
+                        <Copy size={16} strokeWidth={2} /> Copy báo cáo
                     </button>
                 </div>
-            </div>
+            </FeatureHeader>
 
             <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: '420px 1fr' }}>
                 {/* LEFT: Input Parameters */}

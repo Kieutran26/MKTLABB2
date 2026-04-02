@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Trash2, Save, ChevronLeft, Sliders, Target, Frown, Heart, MessageSquare, Users, Eye, Diamond, Lock, Check, ChevronRight } from 'lucide-react';
+import {Plus, Trash2, Save, ChevronLeft, Sliders, Target, Frown, Heart, MessageSquare, Users, Eye, Diamond, Lock, Check, ChevronRight, Pencil} from 'lucide-react';
 import { Persona, PersonalityTrait } from '../types';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
@@ -7,6 +7,7 @@ import { Toast, ToastType } from './Toast';
 import BrandSelector from './BrandSelector';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
+import FeatureHeader from './FeatureHeader';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
@@ -124,6 +125,11 @@ const PersonaBuilder: React.FC = () => {
         setViewMode('edit');
     };
 
+    const handleView = (persona: Persona) => {
+        setViewingPersona(persona);
+        setViewMode('detail');
+    };
+
     const handleEdit = (persona: Persona) => {
         setEditingPersona({ ...persona });
         setViewingPersona(null);
@@ -195,26 +201,34 @@ const PersonaBuilder: React.FC = () => {
     if (viewMode === 'list') {
         return (
             <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
-                <header className="border-b border-stone-200 bg-[#FCFDFC] px-5 py-5 md:px-8">
-                    <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                        <div>
-                            <div className="mb-2 flex items-center gap-2 text-stone-400">
-                                <Users size={20} strokeWidth={1.25} />
-                                <span className="text-[11px] font-medium uppercase tracking-[0.2em]">Customer Profile</span>
-                            </div>
-                            <h1 className="text-2xl font-normal tracking-tight md:text-3xl">Persona Builder</h1>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <div className="inline-flex gap-1 rounded-xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                                <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>✍️ Thủ công</button>
-                                <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
-                                    <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
-                                </button>
-                            </div>
-                            <button onClick={handleCreateNew} className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800 transition-colors"><Plus size={18} /> Thêm Persona</button>
-                        </div>
+                <FeatureHeader
+                    icon={Users}
+                    eyebrow="AUDIENCE INSIGHTS & PERSONA DESIGN"
+                    title="Persona Builder"
+                    subline="Vẽ chân dung khách hàng mục tiêu bằng AI Insight."
+                >
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
+                        <button 
+                            onClick={() => setActiveTab('manual')} 
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}
+                        >
+                            <Pencil size={14} /> Thủ công
+                        </button>
+                        <button 
+                            onClick={() => setActiveTab('vault')} 
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}
+                        >
+                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> 
+                            Brand Vault
+                        </button>
                     </div>
-                </header>
+                    <button 
+                        onClick={handleCreateNew} 
+                        className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    >
+                        <Plus size={18} strokeWidth={2.5} /> Thêm Persona
+                    </button>
+                </FeatureHeader>
 
                 <div className="mx-auto max-w-7xl px-5 pt-8 md:px-8">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (

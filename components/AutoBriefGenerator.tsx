@@ -5,6 +5,7 @@ import { BriefData } from '../types';
 import { generateAutoBrief, AutoBriefInput } from '../services/geminiService';
 import { BriefService, SavedBrief } from '../services/briefService';
 import { Toast, ToastType } from './Toast';
+import FeatureHeader from './FeatureHeader';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
 
@@ -242,59 +243,47 @@ const AutoBriefGenerator: React.FC = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
-            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <FileText size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Campaign Planning
-                        </span>
-                    </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        Auto Brief Generator
-                    </h1>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                        Lập kế hoạch Marketing tự động
-                    </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
+            <FeatureHeader
+                icon={FileText}
+                eyebrow="CAMPAIGN PLANNING"
+                title="Auto Brief Generator"
+                subline="Lập kế hoạch Marketing tự động — Xây dựng campaign brief chuyên nghiệp chỉ trong vài giây."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
                     <button
                         type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${showHistory
-                            ? 'bg-stone-900 text-white shadow-sm hover:bg-stone-800'
-                            : 'border border-stone-200 bg-white text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-stone-300 hover:bg-stone-50/80'
-                            }`}
+                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
                     >
-                        <History size={17} strokeWidth={1.25} /> Lịch sử ({savedBriefs.length})
+                        <History size={18} strokeWidth={2} />
                     </button>
                     {briefData && (
-                        <>
+                        <div className="flex gap-2">
                             <button
                                 type="button"
                                 onClick={handleNew}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                                className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
                             >
-                                <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                                <Plus size={16} /> Tạo mới
                             </button>
                             <button
                                 type="button"
                                 onClick={handleSaveBrief}
-                                className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
+                                className="inline-flex h-10 items-center gap-2 rounded-2xl bg-stone-900 px-5 text-sm font-medium text-white transition-all hover:bg-stone-800 active:scale-95 shadow-sm"
                             >
-                                <Save size={17} strokeWidth={1.25} /> Lưu Brief
+                                <Save size={16} /> Lưu Brief
                             </button>
                             <button
                                 type="button"
                                 onClick={handleExportPDF}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                                className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
                             >
-                                <Download size={17} strokeWidth={1.25} /> Xuất PDF
+                                <Download size={16} /> Xuất PDF
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
-            </header>
+            </FeatureHeader>
 
             <div
                 className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"

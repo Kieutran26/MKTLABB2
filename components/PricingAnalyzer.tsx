@@ -3,6 +3,7 @@ import { PricingAnalyzerInput, PricingAnalyzerResult } from '../types';
 import { analyzePricingStrategy } from '../services/geminiService';
 import { PricingAnalyzerService, SavedPricingAnalysis } from '../services/pricingAnalyzerService';
 import toast, { Toaster } from 'react-hot-toast';
+import FeatureHeader from './FeatureHeader';
 import {
     DollarSign, TrendingUp, TrendingDown, AlertTriangle,
     CheckCircle2, Lightbulb, BarChart3, Loader2,
@@ -185,48 +186,39 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
             <Toaster position="top-center" />
 
             {/* ── Standardized Header ────────────────────────────────────────── */}
-            <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 lg:flex-row lg:items-start lg:justify-between md:px-8">
-                <div className="max-w-2xl">
-                    <div className="mb-2 flex items-center gap-2 text-stone-400">
-                        <BarChart3 size={20} strokeWidth={1.25} className="shrink-0" aria-hidden />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.2em] text-stone-400">
-                            Phân tích chiến lược
-                        </span>
-                    </div>
-                    <h1 className="font-sans text-2xl font-normal tracking-tight text-stone-900 md:text-3xl">
-                        Pricing Analyzer
-                    </h1>
-                    <p className="mt-1 text-sm font-normal leading-relaxed text-stone-500 md:text-[15px]">
-                        Xác định mức giá tối ưu dựa trên COGS, đối thủ và định vị thương hiệu.
-                    </p>
-                </div>
-
-                <div className="flex shrink-0 items-center justify-end gap-2 pt-2">
+            <FeatureHeader
+                icon={DollarSign}
+                eyebrow="PRICING STRATEGY & PROFIT OPTIMIZATION"
+                title="Pricing Analyzer"
+                subline="Xác định điểm ngọt về giá dựa trên COGS & vị thế đối thủ."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
                     <button
                         type="button"
                         onClick={handleNew}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
                     >
-                        <RotateCcw size={16} strokeWidth={1.25} /> Tạo mới
+                        <RotateCcw size={16} strokeWidth={1.5} /> Tạo mới
                     </button>
                     <button
                         type="button"
                         onClick={handleSave}
                         disabled={!result}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-600 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:bg-stone-50 hover:text-stone-900 disabled:opacity-40"
+                        className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50 disabled:opacity-40"
                     >
-                        <Save size={16} strokeWidth={1.25} /> Lưu
+                        <Save size={16} strokeWidth={1.5} /> Lưu
                     </button>
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-stone-900 text-white shadow-sm transition-colors hover:bg-stone-800"
+                        className="inline-flex size-10 items-center justify-center rounded-2xl bg-stone-950 text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
                         title="Lịch sử"
+                        aria-label="Mở lịch sử phân tích"
                     >
-                        <History size={18} strokeWidth={1.25} />
+                        <History size={18} strokeWidth={2} />
                     </button>
                 </div>
-            </header>
+            </FeatureHeader>
 
             {/* ── Scrollable Content Area ───────────────────────────────────── */}
             <div className="flex-1 overflow-y-auto px-5 py-8 md:px-8">

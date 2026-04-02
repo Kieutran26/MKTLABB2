@@ -10,6 +10,7 @@ import { MastermindStrategy, ContentPillar, ContentPlanItem, Persona, CalendarPr
 import { StorageService } from '../services/storageService';
 import { Toast, ToastType } from './Toast';
 import BrandSelector from './BrandSelector';
+import FeatureHeader from './FeatureHeader';
 
 const DEFAULT_PILLARS: ContentPillar[] = [
     { name: 'Giáo dục (Educate)', weight: 40, color: '#3b82f6' }, // Blue
@@ -364,51 +365,50 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
 
     return (
         <div className="h-screen flex flex-col bg-[#FCFDFC] overflow-hidden font-sans">
-            <div className="h-16 bg-[#FCFDFC] border-b border-stone-200/70 px-6 flex items-center justify-between shrink-0 z-20">
-                <div className="flex items-center gap-3">
-                    <div className="border border-stone-200 bg-stone-50/80 p-2 rounded-xl text-stone-500">
-                        <CalendarDays size={20} strokeWidth={1.25} />
-                    </div>
-                    <h2 className="text-2xl font-normal tracking-tight text-stone-900 hidden md:block">Smart Content Calendar</h2>
-                </div>
+            <FeatureHeader
+                icon={CalendarDays}
+                eyebrow="AI CONTENT STRATEGY & SCHEDULING"
+                title="Smart Content Calendar"
+                subline="Đối thoại cùng AI → Tự động hóa lịch nội dung đa kênh chuyên nghiệp."
+            >
+                {events.length > 0 && (
+                    <>
+                        <button
+                            onClick={handleShuffle}
+                            disabled={isShuffling}
+                            className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:opacity-70"
+                            title="Xào lại ý tưởng"
+                        >
+                            {isShuffling ? <Loader2 size={18} className="animate-spin text-stone-400" /> : <Shuffle size={18} strokeWidth={1.5} className="text-stone-500" />}
+                            <span className="hidden xl:inline">Xào lại</span>
+                        </button>
+                        <button
+                            onClick={() => setShowSaveModal(true)}
+                            className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                            title="Lưu kế hoạch"
+                        >
+                            <Save size={18} strokeWidth={1.5} className="text-stone-500" />
+                            <span className="hidden xl:inline">Lưu</span>
+                        </button>
+                    </>
+                )}
 
-                <div className="flex gap-2">
-                    {events.length > 0 && (
-                        <>
-                            <button
-                                onClick={handleShuffle}
-                                disabled={isShuffling}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:opacity-70"
-                                title="Xào lại ý tưởng"
-                            >
-                                {isShuffling ? <Loader2 size={18} className="animate-spin" /> : <Shuffle size={18} strokeWidth={1.25} />}
-                            </button>
-                            <button
-                                onClick={() => setShowSaveModal(true)}
-                                className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                                title="Lưu kế hoạch"
-                            >
-                                <Save size={18} strokeWidth={1.25} />
-                            </button>
-                        </>
-                    )}
+                <button
+                    onClick={() => setShowLoadModal(true)}
+                    className="inline-flex size-10 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-700 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50/80"
+                    title={`Lịch sử (${savedProjects.length})`}
+                    aria-label={`Mở lịch sử lịch nội dung, ${savedProjects.length} dự án đã lưu`}
+                >
+                    <History size={18} strokeWidth={1.5} className="text-stone-500" />
+                </button>
 
-                    <button
-                        onClick={() => setShowLoadModal(true)}
-                        className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                        title="Mở kế hoạch cũ"
-                    >
-                        <FolderOpen size={18} strokeWidth={1.25} />
-                    </button>
-
-                    <button
-                        onClick={() => { setStep(0); setShowConfigModal(true); }}
-                        className="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-stone-800"
-                    >
-                        <Plus size={18} strokeWidth={1.25} /> <span className="hidden md:inline">Lập Kế Hoạch</span>
-                    </button>
-                </div>
-            </div>
+                <button
+                    onClick={() => { setStep(0); setShowConfigModal(true); }}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                >
+                    <Plus size={18} strokeWidth={2.5} /> <span className="hidden md:inline">Lập kế hoạch</span>
+                </button>
+            </FeatureHeader>
 
             <div className="flex-1 p-6 overflow-y-auto relative">
                 {isShuffling && (

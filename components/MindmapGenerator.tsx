@@ -21,6 +21,7 @@ import { generateMindmapData, brainstormNodeDetails, DeepDiveResult, MindmapInpu
 import { toPng } from 'html-to-image';
 import { Toast, ToastType } from './Toast';
 import { MindmapService } from '../services/mindmapService';
+import FeatureHeader from './FeatureHeader';
 import { MindmapProject } from '../types';
 
 const cardClass =
@@ -364,42 +365,47 @@ const MindmapGeneratorContent: React.FC = () => {
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             {/* Header */}
+            <FeatureHeader
+                icon={BrainCircuit}
+                eyebrow="VISUAL BRAINSTORMING"
+                title="Mindmap Generator"
+                subline="Vẽ bản đồ tư duy AI để trực quan hóa ý tưởng và mở rộng góc nhìn chiến lược."
+            >
+                <div className="flex shrink-0 items-center justify-end gap-2">
+                    <button
+                        type="button"
+                        onClick={() => setShowLoadModal(true)}
+                        className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
+                    >
+                        <FolderOpen size={16} /> Mở
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleSaveProject}
+                        className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95"
+                    >
+                        <Save size={16} /> Lưu
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDownload}
+                        disabled={nodes.length === 0}
+                        className="inline-flex h-10 items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-600 transition-all hover:border-stone-400 hover:bg-stone-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Download size={16} /> Export
+                    </button>
+                </div>
+            </FeatureHeader>
+
             <div className="flex shrink-0 flex-col gap-3 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-4 z-30">
                 <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50/80">
-                            <BrainCircuit size={18} strokeWidth={1.25} className="text-stone-600" />
-                        </div>
+                    <div className="flex-1 max-w-md">
                         <input
-                            className="flex-1 bg-transparent text-base font-medium text-stone-900 outline-none placeholder:text-stone-300 md:max-w-xs"
+                            className="w-full bg-transparent text-lg font-medium text-stone-900 outline-none placeholder:text-stone-300"
                             value={projectName}
                             onChange={(e) => setProjectName(e.target.value)}
                             placeholder="Tên sơ đồ..."
                         />
-                    </div>
-                    <div className="flex shrink-0 flex-wrap gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setShowLoadModal(true)}
-                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                        >
-                            <FolderOpen size={17} strokeWidth={1.25} /> Mở
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSaveProject}
-                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-700 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80"
-                        >
-                            <Save size={17} strokeWidth={1.25} /> Lưu
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleDownload}
-                            disabled={nodes.length === 0}
-                            className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-500 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors hover:border-stone-300 hover:bg-stone-50/80 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            <Download size={17} strokeWidth={1.25} /> Export
-                        </button>
                     </div>
                 </div>
 
