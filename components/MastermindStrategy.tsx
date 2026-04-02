@@ -4,12 +4,14 @@ import {
     CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
+import MastermindStrategyEditorial from './MastermindStrategyEditorial';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
 import { MastermindStrategy, Persona } from '../types';
 import { Toast, ToastType } from './Toast';
 import BrandSelector from './BrandSelector';
+import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 
@@ -227,8 +229,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto px-10 py-8">
-                    <div className="mx-auto max-w-5xl">
+                <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
+                    <div className="w-full max-w-none">
                         {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                             <div className="rounded-3xl border border-stone-200 bg-white shadow-xl overflow-hidden grid grid-cols-2">
                                 <div className="p-12 space-y-6">
@@ -261,13 +263,33 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                 <div className="grid grid-cols-2 gap-8">
                                                     <div className="space-y-4">
                                                         <label className="text-[10px] font-bold uppercase text-stone-400">Thương hiệu</label>
-                                                        <input className="w-full p-3 rounded-xl border border-stone-200 text-sm" placeholder="Tên thương hiệu..." value={manualBrandName} onChange={e => setManualBrandName(e.target.value)} />
-                                                        <textarea className="w-full p-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Tầm nhìn & Giá trị (Vision & Mission)..." value={manualBrandVision} onChange={e => setManualBrandVision(e.target.value)} />
+                                                        <div className="relative">
+                                                            <input className="w-full p-3 pr-10 rounded-xl border border-stone-200 text-sm" placeholder="Tên thương hiệu..." value={manualBrandName} onChange={e => setManualBrandName(e.target.value)} />
+                                                            <EditorialFieldHint title="Gợi ý" anchor="input">
+                                                                <em className="text-stone-600 not-italic">Ví dụ:</em> Cà phê Highlands, Spa Thư Giãn Hà Nội, Studio Ảnh Ánh Sáng.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                        <div className="relative">
+                                                            <textarea className="w-full p-3 pr-10 pt-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Tầm nhìn & Giá trị (Vision & Mission)..." value={manualBrandVision} onChange={e => setManualBrandVision(e.target.value)} />
+                                                            <EditorialFieldHint title="Tầm nhìn & giá trị" anchor="textarea">
+                                                                Mô tả định hướng dài hạn của thương hiệu và lời hứa cốt lõi với khách hàng — điều bạn không đổi dù chiến thuật có thay đổi.
+                                                            </EditorialFieldHint>
+                                                        </div>
                                                     </div>
                                                     <div className="space-y-4">
                                                         <label className="text-[10px] font-bold uppercase text-stone-400">Đối tượng</label>
-                                                        <input className="w-full p-3 rounded-xl border border-stone-200 text-sm" placeholder="Tên khách hàng mục tiêu..." value={manualAudienceName} onChange={e => setManualAudienceName(e.target.value)} />
-                                                        <textarea className="w-full p-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Nỗi đau & Khao khát (Pain & Desire)..." value={manualAudiencePain} onChange={e => setManualAudiencePain(e.target.value)} />
+                                                        <div className="relative">
+                                                            <input className="w-full p-3 pr-10 rounded-xl border border-stone-200 text-sm" placeholder="Tên khách hàng mục tiêu..." value={manualAudienceName} onChange={e => setManualAudienceName(e.target.value)} />
+                                                            <EditorialFieldHint title="Persona ngắn" anchor="input">
+                                                                Đặt tên gọi nhớ cho nhóm khách chính; có thể kèm tuổi, nghề, mức thu nhập hoặc bối cảnh sinh hoạt.
+                                                            </EditorialFieldHint>
+                                                        </div>
+                                                        <div className="relative">
+                                                            <textarea className="w-full p-3 pr-10 pt-3 h-32 rounded-xl border border-stone-200 text-sm" placeholder="Nỗi đau & Khao khát (Pain & Desire)..." value={manualAudiencePain} onChange={e => setManualAudiencePain(e.target.value)} />
+                                                            <EditorialFieldHint title="Pain & desire" anchor="textarea">
+                                                                Nỗi đau: vấn đề thực tế khiến họ bận tâm. Khao khát: kết quả hoặc cảm xúc họ muốn đạt được khi chọn thương hiệu của bạn.
+                                                            </EditorialFieldHint>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ) : (
@@ -282,11 +304,56 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                             <div className="flex items-center gap-3"><Target className="text-stone-400" /> <h3 className="text-lg font-medium">Goal: Mục tiêu chiến lược</h3></div>
                                             <div className="grid grid-cols-2 gap-6">
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Mục tiêu kinh doanh</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Tăng 20% doanh thu..." value={objective} onChange={e => setObjective(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Kỳ vọng cụ thể</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: 1000 lead mới trong 1 tháng..." value={perception} onChange={e => setPerception(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Nguồn lực hiện có</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Đội ngũ 3 người, ngân sách 50tr..." value={resources} onChange={e => setResources(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Timeline thực hiện</label><textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Chiến dịch 3 tháng, bắt đầu từ..." value={timeline} onChange={e => setTimeline(e.target.value)} /></div>
-                                                <div className="col-span-2"><label className="text-xs font-semibold text-red-600 mb-2 block">Số liệu hiện tại (Bắt buộc - Followers, Reach, Leads...)</label><input className="w-full p-4 rounded-xl border border-red-100 bg-red-50/10 text-sm focus:border-red-400 focus:ring-red-400" placeholder="VD: 5k Followers, 10k Reach/tháng, 50 Leads... (Nếu để trống AI sẽ cảnh báo)" value={baselineMetrics} onChange={e => setBaselineMetrics(e.target.value)} /></div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Mục tiêu kinh doanh</label>
+                                                        <EditorialFieldHint anchor="label" title="Mục tiêu kinh doanh">
+                                                            Bạn muốn marketing giúp doanh nghiệp đạt được điều gì trong 3–6 tháng tới?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Tăng 30% doanh thu · Mở rộng sang thị trường Hà Nội · Tăng tỷ lệ khách quay lại.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Tăng 20% doanh thu..." value={objective} onChange={e => setObjective(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Kỳ vọng cụ thể</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Kỳ vọng cụ thể">
+                                                            Con số cụ thể bạn muốn đạt được — càng có số liệu thật càng tốt.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 500 leads/tháng · 1.000 followers mới · 50 đơn hàng/tuần · 200 lượt đăng ký.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: 1000 lead mới trong 1 tháng..." value={perception} onChange={e => setPerception(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Nguồn lực hiện có</label>
+                                                        <EditorialFieldHint anchor="label" title="Nguồn lực hiện có">
+                                                            Team hiện tại gồm mấy người làm marketing? Ngân sách tháng/quý là bao nhiêu?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 2 người content + 1 người chạy ads · Ngân sách 30tr/tháng · Có sẵn studio chụp hình.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Đội ngũ 3 người, ngân sách 50tr..." value={resources} onChange={e => setResources(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Timeline thực hiện</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Timeline">
+                                                            Chiến dịch kéo dài bao lâu? Có deadline hay sự kiện cụ thể nào không?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 3 tháng (tháng 4–6) · Ra mắt sản phẩm mới ngày 1/5 · Cần kết quả trước mùa hè.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <textarea className="w-full p-4 h-24 rounded-xl border border-stone-200 text-sm" placeholder="VD: Chiến dịch 3 tháng, bắt đầu từ..." value={timeline} onChange={e => setTimeline(e.target.value)} />
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-red-600">Số liệu hiện tại (Bắt buộc - Followers, Reach, Leads...)</label>
+                                                        <EditorialFieldHint anchor="label" title="Baseline bắt buộc">
+                                                            Điền số thật bạn đang có — AI cần điểm xuất phát để đặt mục tiêu thực tế, không phải đoán mò.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> 3.200 followers · Reach 15.000/tháng · 20 leads/tháng · Conversion rate 2% · 8 đơn/tuần.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-red-100 bg-red-50/10 text-sm focus:border-red-400 focus:ring-red-400" placeholder="VD: 5k Followers, 10k Reach/tháng, 50 Leads... (Nếu để trống AI sẽ cảnh báo)" value={baselineMetrics} onChange={e => setBaselineMetrics(e.target.value)} />
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -294,10 +361,46 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
                                             <div className="flex items-center gap-3"><Compass className="text-stone-400" /> <h3 className="text-lg font-medium">Tactics: Thiết lập giọng điệu & Kênh</h3></div>
                                             <div className="grid grid-cols-2 gap-6">
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Tính cách thương hiệu (Tone)</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Truyền cảm hứng, Chuyên gia..." value={tone} onChange={e => setTone(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Cảm xúc muốn tạo ra</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Khát khao, Tin tưởng, Tò mò..." value={emotion} onChange={e => setEmotion(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Kênh truyền thông chính</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Facebook, TikTok, YouTube..." value={channels} onChange={e => setChannels(e.target.value)} /></div>
-                                                <div><label className="text-xs font-semibold text-stone-700 mb-2 block">Đối thủ cạnh tranh</label><input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="Liệt kê top 3 đối thủ..." value={competitors} onChange={e => setCompetitors(e.target.value)} /></div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Tính cách thương hiệu (Tone)</label>
+                                                        <EditorialFieldHint anchor="label" title="Tone of voice">
+                                                            Nếu thương hiệu là một người, họ nói chuyện như thế nào?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Chuyên gia tự tin · Người bạn thân gần gũi · Người thầy truyền cảm hứng · Sang trọng và lịch thiệp.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Truyền cảm hứng, Chuyên gia..." value={tone} onChange={e => setTone(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Cảm xúc muốn tạo ra</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Cảm xúc">
+                                                            Khi khách hàng xem content của bạn, bạn muốn họ cảm thấy gì?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> An tâm & tin tưởng · Hứng khởi muốn thử ngay · Tự hào khi dùng thương hiệu này · Được thấu hiểu.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Khát khao, Tin tưởng, Tò mò..." value={emotion} onChange={e => setEmotion(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Kênh truyền thông chính</label>
+                                                        <EditorialFieldHint anchor="label" title="Kênh">
+                                                            Liệt kê các kênh bạn đang dùng hoặc sẽ dùng — theo thứ tự ưu tiên.{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Facebook (chính) · TikTok (phụ) · Email · Zalo OA · Website.
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="VD: Facebook, TikTok, YouTube..." value={channels} onChange={e => setChannels(e.target.value)} />
+                                                </div>
+                                                <div>
+                                                    <div className="mb-2 flex items-center gap-1.5">
+                                                        <label className="text-xs font-semibold text-stone-700">Đối thủ cạnh tranh</label>
+                                                        <EditorialFieldHint anchor="label" popoverAlign="right" title="Đối thủ">
+                                                            Ai đang cạnh tranh trực tiếp với bạn? Bạn nghĩ họ đang làm tốt điều gì?{' '}
+                                                            <em className="text-stone-600 not-italic">Ví dụ:</em> Thương hiệu A (mạnh về giá) · Thương hiệu B (content đẹp) · Thương hiệu C (cộng đồng lớn).
+                                                        </EditorialFieldHint>
+                                                    </div>
+                                                    <input className="w-full p-4 rounded-xl border border-stone-200 text-sm" placeholder="Liệt kê top 3 đối thủ..." value={competitors} onChange={e => setCompetitors(e.target.value)} />
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -350,283 +453,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto p-10">
-                    <div className="mx-auto max-w-6xl space-y-8 pb-10">
-                    <div className="mx-auto max-w-5xl space-y-24 pb-32">
-                        {result.htmlOutput ? (
-                            <div dangerouslySetInnerHTML={{ __html: result.htmlOutput }} className="w-full bg-white text-stone-900 rounded-sm shadow-sm" />
-                        ) : (
-                            <>
-                        {/* Section 1: Executive Summary & Core Concept */}
-                        <div className="space-y-12">
-                             <div className="border-b-2 border-stone-200 pb-4 flex justify-between items-end">
-                                 <div>
-                                     <div className="text-[10px] font-bold tracking-[0.2em] text-blue-400 mb-2">01 / BRAND FOUNDATION</div>
-                                     <h3 className="text-3xl font-serif text-stone-800 tracking-tight">Core Strategy</h3>
-                                 </div>
-                                 <div className="text-right max-w-md hidden md:block">
-                                     <p className="text-xs text-stone-400 italic">"The essence of the brand distilled into actionable insights and core messaging."</p>
-                                 </div>
-                             </div>
-                             
-                             <div className="grid grid-cols-12 gap-8 md:gap-16 items-start">
-                                 <div className="col-span-12 md:col-span-8 space-y-8">
-                                     <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Core Message</div>
-                                     <h2 className="text-4xl md:text-5xl font-serif text-stone-900 leading-[1.1] tracking-tighter">
-                                         "{result.coreMessage}"
-                                     </h2>
-                                     <p className="text-stone-600 leading-relaxed text-lg font-serif">{result.conclusion?.summary}</p>
-                                 </div>
-                                 <div className="col-span-12 md:col-span-4 border-l border-stone-200 pl-8 space-y-6">
-                                     <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Expert Insight</div>
-                                     <p className="text-stone-900 leading-relaxed font-medium italic text-sm">
-                                         {result.insight}
-                                     </p>
-                                     <div className="space-y-4 pt-6 border-t border-stone-200">
-                                         <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Key Messages</div>
-                                         <ul className="space-y-3">
-                                             {result.keyMessages.map((m, i) => (
-                                                 <li key={i} className="text-xs font-medium text-stone-800 flex gap-3"><span className="text-stone-300 font-serif italic">{String(i+1).padStart(2, '0')}</span> {m}</li>
-                                             ))}
-                                         </ul>
-                                     </div>
-                                 </div>
-                             </div>
-                        </div>
-
-                        {/* Section 2: Consumer Insight & Competitive Edge */}
-                        <div className="space-y-12">
-                             <div className="border-b border-rose-100 pb-4">
-                                 <div className="text-[10px] font-bold tracking-[0.2em] text-rose-400 mb-2">02 / MARKET & AUDIENCE</div>
-                                 <h3 className="text-2xl font-serif text-stone-800 tracking-tight">Competitive Landscape</h3>
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 divide-y md:divide-y-0 md:divide-x divide-rose-50">
-                                 {/* Persona Column */}
-                                 <div className="space-y-10 md:pr-12">
-                                     <div>
-                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Target Persona</div>
-                                         <div className="text-sm text-stone-600 leading-relaxed font-serif italic border-l-2 border-stone-200 pl-4">{result.brand_context?.persona.psychographics}</div>
-                                     </div>
-                                     <div>
-                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Buying Behavior</div>
-                                         <div className="text-sm text-stone-700 font-medium">{result.brand_context?.persona.behaviors}</div>
-                                     </div>
-                                     <div className="pt-4 space-y-4">
-                                         <div className="text-[10px] font-bold text-stone-400 tracking-widest uppercase mb-4">Pain Points & Triggers</div>
-                                         <div className="space-y-3">
-                                             {result.brand_context?.pain_gain.ranked_pains.map((p, i) => (
-                                                 <div key={i} className="group relative pl-4 border-l border-stone-100 hover:border-rose-200 transition-colors">
-                                                     <div className="flex items-center gap-2 mb-1">
-                                                         <span className={`text-[9px] font-bold uppercase tracking-wider ${p.impact === 'High' ? 'text-rose-500' : p.impact === 'Med' ? 'text-amber-500' : 'text-blue-400'}`}>[{p.impact} Impact]</span>
-                                                     </div>
-                                                     <p className="text-xs font-semibold text-stone-700 mb-1 leading-snug">{p.content}</p>
-                                                     <p className="text-[10px] text-stone-400 italic font-serif">→ {p.message_link}</p>
-                                                 </div>
-                                             ))}
-                                         </div>
-                                     </div>
-                                 </div>
-
-                                 {/* Competitive Space Column */}
-                                 {result.brand_context?.positioning && (
-                                     <div className="md:pl-12 space-y-10">
-                                         <div>
-                                             <div className="text-[10px] font-bold text-rose-400 tracking-widest uppercase mb-4">Brand Differentiator</div>
-                                             <p className="text-lg font-serif text-stone-800 leading-snug">"{result.brand_context.positioning.differentiator}"</p>
-                                         </div>
-                                         <div className="bg-rose-50/50 p-6 border border-rose-100/50 space-y-4 relative">
-                                             <div className="absolute top-0 right-0 p-4 opacity-[0.02]"><Map size={80} className="text-rose-900" /></div>
-                                             <div className="text-[10px] font-bold text-rose-400 tracking-widest uppercase">2x2 Matrix Definition</div>
-                                             <p className="text-xs text-stone-600 leading-relaxed font-medium relative z-10">{result.brand_context.positioning.competitive_map.description}</p>
-                                         </div>
-                                     </div>
-                                 )}
-                             </div>
-                        </div>
-
-                        {/* Section 3: Strategic Goals & Roadmap */}
-                        <div className="space-y-12">
-                             <div className="border-b border-emerald-100 pb-4">
-                                 <div className="text-[10px] font-bold tracking-[0.2em] text-emerald-500 mb-2">03 / EXECUTION & METRICS</div>
-                                 <h3 className="text-2xl font-serif text-stone-800 tracking-tight">90-Day Tactical Roadmap</h3>
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l border-stone-100">
-                                 {result.strategic_goals?.roadmap_90day.months.map((m, i) => (
-                                     <div key={i} className="p-8 border-r border-b border-stone-100 space-y-8 bg-white/50 hover:bg-stone-50/50 transition-colors">
-                                         <div className="flex justify-between items-baseline border-b border-stone-50 pb-4">
-                                             <div className="text-sm font-serif font-bold text-stone-700 tracking-widest uppercase">{m.month_name}</div>
-                                             <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest border border-stone-100 px-2 py-0.5 rounded-sm">{m.owner}</span>
-                                         </div>
-                                         <div className="space-y-5">
-                                             <div className="text-sm font-bold text-stone-800 leading-snug">{m.priority}</div>
-                                             <ul className="space-y-3">
-                                                 {m.actions.map((a, j) => <li key={j} className="text-xs text-stone-600 flex gap-3 leading-relaxed"><span className="text-stone-300 font-serif italic">{j+1}.</span> {a}</li>)}
-                                             </ul>
-                                         </div>
-                                         <div className="pt-6 border-t border-stone-100">
-                                             <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest mb-1">Target KPI</div>
-                                             <div className="text-sm font-bold text-emerald-600">{m.kpi}</div>
-                                         </div>
-                                     </div>
-                                 ))}
-                             </div>
-
-                             <div className="bg-emerald-50/50 border border-emerald-100/50 p-8 md:p-12">
-                                 <div className="text-[10px] font-bold text-emerald-600 uppercase tracking-[0.2em] mb-8">SMART Metrics Breakdown</div>
-                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                                     {result.strategic_goals?.smart_goals.slice(0, 4).map((g, i) => (
-                                         <div key={i} className="space-y-3 border-l border-emerald-200/50 pl-4">
-                                             <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">{g.goal}</div>
-                                             <div className="text-sm text-stone-500 font-serif">{g.baseline} <span className="text-emerald-300 mx-1 font-sans">→</span> <span className="text-emerald-700 font-bold font-sans">{g.target}</span></div>
-                                         </div>
-                                     ))}
-                                 </div>
-                             </div>
-                        </div>
-
-                        {/* Section 4: Media Tactics & Content Distribution */}
-                        <div className="space-y-12">
-                             <div className="border-b border-amber-100 pb-4">
-                                 <div className="text-[10px] font-bold tracking-[0.2em] text-amber-500 mb-2">04 / DISTRIBUTION & ANGLES</div>
-                                 <h3 className="text-2xl font-serif text-stone-800 tracking-tight">Content Strategy</h3>
-                             </div>
-
-                             <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-                                 {/* Left: Channel Allocation */}
-                                 <div className="md:col-span-4 space-y-8">
-                                     <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em] border-b border-stone-100 pb-3">Channel Allocation</div>
-                                     <div className="space-y-6">
-                                         {Object.entries(result.strategic_goals?.resource_allocation.budget_split || {}).map(([name, data]: [string, any]) => (
-                                             <div key={name} className="space-y-3 group">
-                                                 <div className="flex justify-between items-baseline text-sm font-bold border-b border-stone-100 pb-2 group-hover:border-amber-200 transition-colors">
-                                                     <span className="uppercase tracking-widest text-stone-700">{name}</span>
-                                                     <span className="text-stone-400 font-serif">{data.percent}</span>
-                                                 </div>
-                                                 <p className="text-[11px] text-stone-500 leading-relaxed font-serif italic">"{data.rationale}"</p>
-                                                 <div className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">{data.kpi}</div>
-                                             </div>
-                                         ))}
-                                     </div>
-                                 </div>
-
-                                 {/* Right: Content Angles & Examples */}
-                                 <div className="md:col-span-8 space-y-12 md:pl-8 md:border-l border-stone-100">
-                                     <div className="space-y-8">
-                                         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-stone-100 pb-3 gap-2">
-                                             <div className="text-[10px] font-bold uppercase text-stone-400 tracking-[0.15em]">Content Angles</div>
-                                             <div className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">{result.contentAngles.weekly_distribution}</div>
-                                         </div>
-                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                                             {['visual', 'story', 'action'].map(key => (
-                                                 <div key={key} className="space-y-4">
-                                                     <div className="text-[10px] font-bold uppercase text-stone-600 tracking-widest">{key}</div>
-                                                     <ul className="space-y-2">
-                                                         {result.contentAngles[key as keyof typeof result.contentAngles] && Array.isArray(result.contentAngles[key as keyof typeof result.contentAngles]) ? (result.contentAngles[key as keyof typeof result.contentAngles] as string[]).map((item, i) => <li key={i} className="text-xs text-stone-500 leading-relaxed pl-2 border-l border-stone-100"> {item}</li>) : null}
-                                                     </ul>
-                                                 </div>
-                                             ))}
-                                         </div>
-                                     </div>
-
-                                     {/* Editorial Treatment for Real Examples */}
-                                     {result.contentAngles.real_examples && (
-                                         <div className="border border-stone-100 p-8 space-y-8 bg-stone-50/50 relative">
-                                             <div className="absolute top-0 left-8 -translate-y-1/2 bg-stone-50 px-2">
-                                                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full"></span> Real Execution
-                                                </div>
-                                             </div>
-                                             <div className="grid grid-cols-1 gap-8">
-                                                 <div className="space-y-3">
-                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Facebook Extended Copy</div>
-                                                     <p className="text-sm font-serif text-stone-700 leading-loose border-l-2 border-amber-300 pl-6 whitespace-pre-wrap">{result.contentAngles.real_examples.facebook_caption}</p>
-                                                 </div>
-                                                 <div className="space-y-3">
-                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">TikTok Hook Sequence</div>
-                                                     <p className="text-sm font-serif text-stone-700 leading-loose border-l-2 border-amber-300 pl-6 whitespace-pre-wrap">{result.contentAngles.real_examples.tiktok_hook}</p>
-                                                 </div>
-                                                 <div className="space-y-3">
-                                                     <div className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Call-To-Action (CTA)</div>
-                                                     <p className="text-sm text-stone-800 leading-loose font-bold pl-6 uppercase tracking-wider">{result.contentAngles.real_examples.specific_cta}</p>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     )}
-
-                                     <div className="bg-white p-6 border-l-4 border-stone-200 border-y border-r border-stone-100 shadow-sm">
-                                         <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Sample 1-Week Schedule</div>
-                                         <p className="text-xs text-stone-600 leading-relaxed font-serif whitespace-pre-wrap">{result.contentAngles.sample_week_schedule}</p>
-                                     </div>
-                                 </div>
-                             </div>
-                        </div>
-
-                        {/* Section 5: Tone of Voice & Expert Advice */}
-                        <div className="space-y-12 pt-12 mt-12 border-t-[3px] border-stone-100">
-                             <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-                                 {/* Left: Tone of Voice */}
-                                 {result.tone_of_voice && (
-                                     <div className="md:col-span-4 space-y-8">
-                                         <div className="text-[10px] font-bold tracking-[0.2em] text-indigo-400 pb-4 border-b border-stone-100">05 / TONE OF VOICE</div>
-                                         <div className="text-xl font-serif text-stone-800 tracking-tight leading-snug">
-                                             "{result.tone_of_voice.personality.human_persona}"
-                                         </div>
-                                         <div className="space-y-6 pt-6">
-                                             {[
-                                                 { label: 'Formal / Casual', val: parseInt(result.tone_of_voice.spectrum.formal_casual) },
-                                                 { label: 'Serious / Playful', val: parseInt(result.tone_of_voice.spectrum.serious_playful) },
-                                                 { label: 'Authority / Friendly', val: parseInt(result.tone_of_voice.spectrum.authority_friendly) },
-                                             ].map(s => (
-                                                 <div key={s.label} className="space-y-2">
-                                                     <div className="flex justify-between text-[9px] uppercase tracking-widest text-stone-400 font-bold"><span>■ {s.label.split('/')[0]}</span><span>{s.label.split('/')[1]} ■</span></div>
-                                                     <div className="h-[2px] bg-stone-100 relative shadow-inner">
-                                                         <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-3 bg-indigo-300" style={{ left: `calc(${s.val}% - 3px)` }}></div>
-                                                     </div>
-                                                 </div>
-                                             ))}
-                                         </div>
-                                     </div>
-                                 )}
-
-                                 {/* Right: CMO Advice */}
-                                 <div className="md:col-span-8 space-y-8 md:pl-12 md:border-l border-stone-100">
-                                     <div className="text-[10px] font-bold tracking-[0.2em] text-indigo-400 pb-4 border-b border-stone-100 flex justify-between">
-                                         <span>06 / EXPERT DIRECTIVES</span>
-                                         <span className="text-stone-500">FROM THE CMO'S DESK</span>
-                                     </div>
-                                     
-                                     {result.action_plan?.expert_advice && (
-                                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                                             <div className="space-y-4">
-                                                 <div className="text-[10px] font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">The Must-Do</div>
-                                                 <p className="text-xs font-medium text-stone-800 leading-relaxed font-serif">{result.action_plan.expert_advice.the_must_do}</p>
-                                             </div>
-                                             <div className="space-y-4">
-                                                 <div className="text-[10px] font-bold text-rose-300 uppercase tracking-widest border-b border-stone-100 pb-2">Common Pitfall</div>
-                                                 <p className="text-xs font-medium text-stone-400 line-through leading-relaxed font-serif">{result.action_plan.expert_advice.common_pitfall}</p>
-                                             </div>
-                                             <div className="space-y-4">
-                                                 <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest border-b border-stone-100 pb-2">Hidden Opportunity</div>
-                                                 <p className="text-xs font-bold text-stone-800 leading-relaxed font-serif">{result.action_plan.expert_advice.hidden_opportunity}</p>
-                                             </div>
-                                         </div>
-                                     )}
-                                     
-                                     <div className="p-10 mt-12 bg-stone-50/50 border border-stone-100 relative overflow-hidden">
-                                         <div className="absolute -top-4 -right-4 text-[120px] font-serif text-indigo-100 opacity-50">"</div>
-                                         <div className="text-[10px] font-bold text-stone-400 uppercase mb-6 tracking-[0.2em] relative z-10">Final Positioning Statement</div>
-                                         <p className="text-2xl md:text-3xl font-serif text-stone-800 leading-snug tracking-tight relative z-10">"{result.conclusion?.positioning_statement}"</p>
-                                     </div>
-                                 </div>
-                             </div>
-                        </div>
-                        </>
-                        )}
-                    </div>
-                    </div>
+                <div className="flex-1 overflow-y-auto">
+                    <MastermindStrategyEditorial strategy={strategyResult} />
                 </div>
+
                 
                 {showDeploySuccessModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
