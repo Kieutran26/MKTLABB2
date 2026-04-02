@@ -232,21 +232,34 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
                     <div className="w-full max-w-none">
                         {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                            <div className="rounded-3xl border border-stone-200 bg-white shadow-xl overflow-hidden grid grid-cols-2">
-                                <div className="p-12 space-y-6">
-                                    <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                                    <h3 className="text-2xl font-medium">Strategic Mastermind Pro</h3>
-                                    <p className="text-stone-500 leading-relaxed">AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".</p>
-                                    <button className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium hover:scale-105 transition-transform flex items-center justify-center gap-2">Nâng cấp Pro Max <ChevronRight size={18} /></button>
-                                </div>
-                                <div className="bg-stone-50 flex items-center justify-center relative overflow-hidden">
-                                    <div className="absolute inset-0 opacity-5 flex items-center justify-center"><Brain size={300} /></div>
-                                    <div className="p-8 bg-white/80 rounded-3xl shadow-2xl backdrop-blur-md opacity-40 grayscale blur-[2px] scale-90">
-                                         <div className="h-4 w-32 bg-stone-200 mb-4" />
-                                         <div className="h-2 w-full bg-stone-100 mb-2" />
-                                         <div className="h-2 w-2/3 bg-stone-100" />
+                            <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                                <div className="ms-vault-card">
+                                    <div className="ms-vault-content">
+                                        <div className="ms-vault-upper">
+                                            <div className="ms-vault-label">Brand Vault Access</div>
+                                            <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
+                                            <p className="ms-vault-desc">
+                                                AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
+                                            </p>
+                                        </div>
+                                        <button className="ms-vault-cta">
+                                            Nâng cấp Pro Max <ChevronRight size={18} />
+                                        </button>
                                     </div>
-                                    <Lock size={48} className="absolute text-stone-300" />
+                                    <div className="ms-vault-visual">
+                                        <div className="ms-vault-dna">
+                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    className="ms-vault-dna-bar" 
+                                                    style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="ms-vault-lock-circle">
+                                            <Lock size={32} strokeWidth={1.5} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
