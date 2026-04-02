@@ -7,7 +7,7 @@ import FeatureHeader from './FeatureHeader';
 import {
     DollarSign, TrendingUp, TrendingDown, AlertTriangle,
     CheckCircle2, Lightbulb, BarChart3, Loader2,
-    AlertCircle, Save, History, Trash2, Plus,
+    AlertCircle, Save, History as HistoryIcon, Trash2, Plus,
     X, ChevronDown, ChevronUp, RotateCcw, ArrowLeft,
 } from 'lucide-react';
 import {
@@ -16,7 +16,6 @@ import {
 } from 'recharts';
 
 interface Props {
-    isActive: boolean;
 }
 
 
@@ -70,7 +69,7 @@ const verdictLabel = (s: string) =>
 const verdictBg = (s: string) =>
     s === 'Optimal' ? 'bg-green-50 text-green-700' : s === 'Warning' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700';
 
-const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
+const PricingAnalyzer: React.FC<Props> = () => {
     const [input, setInput] = useState<PricingAnalyzerInput>({
         productName: '', industry: '', cogs: 0, targetPrice: 0,
         competitorMin: 0, competitorMax: 0, positioning: 'mainstream',
@@ -179,8 +178,6 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
         'Critical': 'Vấn đề',
     };
 
-    if (!isActive) return null;
-
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
@@ -215,7 +212,7 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                         title="Lịch sử"
                         aria-label="Mở lịch sử phân tích"
                     >
-                        <History size={18} strokeWidth={2} />
+                        <HistoryIcon size={18} strokeWidth={2} />
                     </button>
                 </div>
             </FeatureHeader>
@@ -582,7 +579,7 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                     <aside className="fixed inset-y-0 right-0 z-40 flex w-80 flex-col bg-white shadow-[0_0_0_1px_rgba(15,23,42,0.06),-8px_0_40px_rgba(15,23,42,0.06)]">
                         <div className="flex items-center justify-between border-b border-stone-200/90 px-5 py-4">
                             <div className="flex items-center gap-2.5">
-                                <History size={16} className="text-stone-500" strokeWidth={1.5} />
+                                <HistoryIcon size={16} className="text-stone-500" strokeWidth={1.5} />
                                 <h2 className="text-sm font-semibold text-stone-900">Lịch sử Phân tích</h2>
                             </div>
                             <button type="button" onClick={() => setShowHistory(false)}
@@ -594,7 +591,7 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                         <div className="flex-1 overflow-y-auto px-4 py-4">
                             {savedAnalyses.length === 0 ? (
                                 <div className="flex h-40 flex-col items-center justify-center text-center">
-                                    <History size={24} className="mb-2 text-stone-300" strokeWidth={1.5} />
+                                    <HistoryIcon size={24} className="mb-2 text-stone-300" strokeWidth={1.5} />
                                     <p className="text-sm text-stone-400">Chưa có phân tích nào được lưu.</p>
                                 </div>
                             ) : (
@@ -615,7 +612,7 @@ const PricingAnalyzer: React.FC<Props> = ({ isActive }) => {
                                                 {verdicts[a.result?.verdict?.status] || a.result?.verdict?.status || '—'}
                                             </p>
                                             <p className="flex items-center gap-1 text-[11px] text-stone-400">
-                                                <History size={10} strokeWidth={1.5} />
+                                                <HistoryIcon size={10} strokeWidth={1.5} />
                                                 {new Date(a.createdAt).toLocaleString('vi-VN')}
                                             </p>
                                         </div>

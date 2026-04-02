@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User } from 'firebase/auth';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import TranslationView from './components/TranslationView';
 import VocabManager from './components/VocabManager';
@@ -57,10 +58,52 @@ import { BrandProvider } from './components/BrandContext';
 import { TaskProvider } from './components/TaskContext';
 import { ToastProvider } from './components/Toast';
 import { ConfirmProvider } from './components/ConfirmModal';
+import { VIEW_TO_SLUG, getViewForSlug } from './lib/route-mapping';
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [currentView, setCurrentView] = useState<ViewState>('LANDING_INTRO');
+  
+  // 1. Sync internal state with URL on mount and location change + Auth Redirects
+  React.useEffect(() => {
+    if (loading) return;
+
+    const path = location.pathname;
+    
+    // Auth Guard & Redirects
+    if (user) {
+      // If logged in and at root or welcome/login, go to dashboard
+      if (path === '/' || path === '/welcome' || path === '/login') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
+    } else {
+      // If NOT logged in and trying to access protected routes, go to welcome
+      const isPublicPath = path === '/welcome' || path === '/login';
+      if (!isPublicPath && path !== '/') {
+        navigate('/welcome', { replace: true });
+        return;
+      }
+    }
+
+    const viewFromSlug = getViewForSlug(path);
+    if (viewFromSlug && viewFromSlug !== currentView) {
+      setCurrentView(viewFromSlug);
+    }
+  }, [location.pathname, user, loading]);
+
+  // 2. Custom setView that also updates the URL
+  const setViewWithSlug = (view: ViewState) => {
+    const slug = VIEW_TO_SLUG[view];
+    if (slug && location.pathname !== slug) {
+      navigate(slug);
+    }
+    setCurrentView(view);
+  };
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // Flexible config: can study by Set IDs OR by a specific list of Words
   const [studyConfig, setStudyConfig] = useState<{
@@ -126,11 +169,11 @@ function AppContent() {
 
     switch (currentView) {
       case 'HOME_DASHBOARD':
-        return <HomePage setView={setCurrentView} />;
+        return <HomePage setView={setViewWithSlug} />;
       case 'LANDING_INTRO':
-        return <LandingPage setView={setCurrentView} />;
+        return <LandingPage setView={setViewWithSlug} />;
       case 'FEATURES_GUIDE':
-        return <FeaturesGuide onBack={() => setCurrentView('HOME_DASHBOARD')} />;
+        return <FeaturesGuide onBack={() => setViewWithSlug('HOME_DASHBOARD')} />;
       case 'HOME':
         return <TranslationView />;
       case 'LEARN_SELECT':
@@ -219,13 +262,13 @@ function AppContent() {
       case 'MASTERMIND_STRATEGY':
         return <MastermindStrategyComponent onDeployToCalendar={handleDeployToCalendar} />;
       case 'ADS_HEALTH_CHECKER':
-        return <AdsHealthChecker isActive={true} />;
+        return <AdsHealthChecker />;
       case 'BRAND_POSITIONING_BUILDER':
-        return <BrandPositioningBuilder isActive={true} />;
+        return <BrandPositioningBuilder />;
       case 'PRICING_ANALYZER':
-        return <PricingAnalyzer isActive={true} />;
+        return <PricingAnalyzer />;
       case 'AUDIENCE_EMOTION_MAP':
-        return <AudienceEmotionMap isActive={true} />;
+        return <AudienceEmotionMap />;
       case 'IMC_PLANNER':
         return <IMCPlanner />;
       case 'NEWS_AGGREGATOR':
@@ -254,7 +297,7 @@ function AppContent() {
       {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && currentView !== 'LOGIN' && (
         <Sidebar
           currentView={currentView}
-          setView={setCurrentView}
+          setView={setViewWithSlug}
           collapsed={sidebarCollapsed}
           onCollapsedChange={setSidebarCollapsed}
           user={user}
@@ -286,15 +329,17 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <BrandProvider>
-        <TaskProvider>
-          <ToastProvider>
-            <ConfirmProvider>
-              <AppContent />
-            </ConfirmProvider>
-          </ToastProvider>
-        </TaskProvider>
-      </BrandProvider>
+      <BrowserRouter>
+        <BrandProvider>
+          <TaskProvider>
+            <ToastProvider>
+              <ConfirmProvider>
+                <AppContent />
+              </ConfirmProvider>
+            </ToastProvider>
+          </TaskProvider>
+        </BrandProvider>
+      </BrowserRouter>
     </AuthProvider>
   );
 }

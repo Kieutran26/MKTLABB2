@@ -4,7 +4,7 @@ import { analyzeEmotionalJourney } from '../services/geminiService';
 import { EmotionMapService, SavedEmotionMap } from '../services/emotionMapService';
 import { Toast, ToastType } from './Toast';
 import FeatureHeader from './FeatureHeader';
-import {Heart, Map, Lightbulb, Loader2, AlertCircle, ChevronDown, ChevronUp, CheckCircle2, XCircle, Save, History, Trash2, Plus, BarChart3, Diamond, Lock, ChevronRight, Check, Pencil, Sparkles} from 'lucide-react';
+import {Heart, Map, Lightbulb, Loader2, AlertCircle, ChevronDown, ChevronUp, CheckCircle2, XCircle, Save, History as HistoryIcon, Trash2, Plus, BarChart3, Diamond, Lock, ChevronRight, Check, Pencil, Sparkles} from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
@@ -12,13 +12,12 @@ import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 
 interface Props {
-    isActive: boolean;
 }
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
 
-const AudienceEmotionMap: React.FC<Props> = ({ isActive }) => {
+const AudienceEmotionMap: React.FC<Props> = () => {
     const { user } = useAuth();
     const { currentBrand } = useBrand();
     const [profile, setProfile] = useState<any>(null);
@@ -57,7 +56,7 @@ const AudienceEmotionMap: React.FC<Props> = ({ isActive }) => {
         if (activeTab === 'vault' && currentBrand) {
             setInput(prev => ({
                 ...prev,
-                industry: currentBrand.industry || prev.industry,
+                industry: prev.industry, // Industry not in Brand interface
                 productCategory: currentBrand.identity.name || prev.productCategory,
                 targetAudience: currentBrand.audience.demographics.join(', ') || prev.targetAudience
             }));
@@ -108,7 +107,6 @@ const AudienceEmotionMap: React.FC<Props> = ({ isActive }) => {
         return null;
     };
 
-    if (!isActive) return null;
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
@@ -129,7 +127,7 @@ const AudienceEmotionMap: React.FC<Props> = ({ isActive }) => {
                         onClick={() => setShowHistory(!showHistory)}
                         className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
                     >
-                        <History size={18} strokeWidth={2} />
+                        <HistoryIcon size={18} strokeWidth={2} />
                     </button>
                 </div>
             </FeatureHeader>

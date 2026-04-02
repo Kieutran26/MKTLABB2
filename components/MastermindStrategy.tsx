@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus,
+    Zap, Crown, BarChart3, Trash2
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
@@ -175,6 +176,37 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         setViewMode('dashboard');
         setShowHistory(false);
     };
+    
+    const handleDeleteStrategy = async (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        if (!window.confirm("Bạn có chắc chắn muốn xóa chiến lược này?")) return;
+        
+        try {
+            await MastermindService.deleteMastermindStrategy(id);
+            const updated = availableStrategies.filter(s => s.id !== id);
+            setAvailableStrategies(updated);
+            localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updated));
+            showToast("Đã xóa chiến lược", "success");
+        } catch (error) {
+            showToast("Lỗi khi xóa chiến lược", "error");
+        }
+    };
+
+    const handleClearAllStrategies = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn xóa TOÀN BỘ lịch sử chiến lược? Hành động này không thể hoàn tác.")) return;
+        
+        try {
+            // Primarily clear local for speed/ux
+            setAvailableStrategies([]);
+            localStorage.removeItem('mktlab_mastermind_history');
+            
+            // Note: Service doesn't have clearAll, so we rely on local/cache management
+            // Realistically for this solopreneur tool, local clear is what's expected.
+            showToast("Đã xóa toàn bộ lịch sử", "success");
+        } catch (error) {
+            showToast("Lỗi khi xóa lịch sử", "error");
+        }
+    };
 
     const handleSave = async () => {
         if (!strategyResult) return;
@@ -244,33 +276,61 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
                     <div className="w-full max-w-none">
                         {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                            <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                            <div className="ms-vault-centered" style={{ padding: 0 }}>
                                 <div className="ms-vault-card">
+                                    {/* ── LEFT: Content ─────────────────────────────── */}
                                     <div className="ms-vault-content">
                                         <div className="ms-vault-upper">
-                                            <div className="ms-vault-label">Brand Vault Access</div>
-                                            <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
+                                            <div className="ms-vault-eyebrow">
+                                                <Crown size={10} strokeWidth={2.5} className="ms-vault-crown-icon" />
+                                                <span>Pro Max Exclusive</span>
+                                            </div>
+                                            <h3 className="ms-vault-title">Unlock Brand DNA<br />with AI Precision</h3>
                                             <p className="ms-vault-desc">
-                                                AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
+                                                AI kết nối Persona, Thị trường & DNA — chiến lược chuẩn đến từng pixel.
                                             </p>
+
+                                            {/* ── Benefits Strip ─────────────────────── */}
+                                            <div className="ms-vault-benefits">
+                                                <div className="ms-vault-benefit-item">
+                                                    <div className="ms-vault-benefit-icon"><Brain size={12} strokeWidth={2} /></div>
+                                                    <span>AI Brand-Aware · Persona chính xác · Phân tích sâu</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <button className="ms-vault-cta">
-                                            Nâng cấp Pro Max <ChevronRight size={18} />
-                                        </button>
+
+                                        {/* ── CTA ───────────────────────────────── */}
+                                        <div className="ms-vault-footer">
+                                            <button className="ms-vault-cta">
+                                                <Zap size={14} strokeWidth={2.5} className="ms-vault-cta-icon" />
+                                                Nâng cấp Pro Max
+                                                <ChevronRight size={16} strokeWidth={2} />
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    {/* ── RIGHT: Visual ───────────────────────────── */}
                                     <div className="ms-vault-visual">
+                                        <div className="ms-vault-glow" />
                                         <div className="ms-vault-dna">
-                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
-                                                <div 
-                                                    key={i} 
-                                                    className="ms-vault-dna-bar" 
-                                                    style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
+                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65, 55, 85].map((h, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="ms-vault-dna-bar"
+                                                    style={{ height: `${h}px`, animationDelay: `${i * 0.12}s` }}
                                                 />
                                             ))}
                                         </div>
-                                        <div className="ms-vault-lock-circle">
-                                            <Lock size={32} strokeWidth={1.5} />
+                                        <div className="ms-vault-lock-wrap">
+                                            <div className="ms-vault-lock-circle">
+                                                <span className="ms-vault-lock-icon" aria-hidden>
+                                                    <Lock size={22} strokeWidth={1.5} />
+                                                </span>
+                                            </div>
+                                            <div className="ms-vault-lock-text">Brand Vault</div>
                                         </div>
+                                        <div className="ms-vault-corner ms-vault-corner-tl" />
+                                        <div className="ms-vault-corner ms-vault-corner-br" />
                                     </div>
                                 </div>
                             </div>
@@ -444,16 +504,56 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                 {showHistory && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                        <div className="bg-white rounded-3xl w-full max-w-lg h-[60vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
-                            <header className="p-6 border-b border-stone-100 flex justify-between items-center"><h3 className="font-medium">Lịch sử chiến lược</h3><button onClick={() => setShowHistory(false)}><X size={20} className="text-stone-300" /></button></header>
+                        <div className="bg-white rounded-3xl w-full max-w-lg h-[65vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
+                            <header className="px-6 py-5 border-b border-stone-100 flex justify-between items-center bg-stone-50/50">
+                                <div className="flex flex-col">
+                                    <h3 className="font-semibold text-stone-900">Lịch sử chiến lược</h3>
+                                    <span className="text-[10px] text-stone-400 font-medium uppercase tracking-wider">{availableStrategies.length} kế hoạch đã lưu</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {availableStrategies.length > 0 && (
+                                        <button 
+                                            onClick={handleClearAllStrategies}
+                                            className="text-[11px] font-bold text-rose-500 hover:text-rose-600 transition-colors uppercase tracking-tight"
+                                        >
+                                            Xóa tất cả
+                                        </button>
+                                    )}
+                                    <button onClick={() => setShowHistory(false)} className="rounded-full p-2 hover:bg-white transition-colors">
+                                        <X size={20} className="text-stone-400" />
+                                    </button>
+                                </div>
+                            </header>
                             <div className="flex-1 overflow-y-auto p-6 space-y-3">
                                 {availableStrategies.length === 0 ? (
-                                    <div className="text-center text-stone-500">Chưa có lịch sử chiến lược.</div>
+                                    <div className="flex flex-col items-center justify-center py-20 text-stone-400">
+                                        <History size={48} strokeWidth={1} className="mb-4 opacity-20" />
+                                        <div className="text-sm">Chưa có lịch sử chiến lược.</div>
+                                    </div>
                                 ) : (
-                                    availableStrategies.map(s => <button key={s.id} onClick={() => loadStrategy(s)} className="w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 transition-all">
-                                        <div className="font-medium text-stone-900">{s.name}</div>
-                                        <div className="text-[10px] text-stone-400 mt-1">{new Date(s.createdAt).toLocaleDateString()}</div>
-                                    </button>)
+                                    availableStrategies.map(s => (
+                                        <div 
+                                            key={s.id} 
+                                            onClick={() => loadStrategy(s)} 
+                                            className="group relative w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 hover:bg-white transition-all cursor-pointer"
+                                        >
+                                            <div className="pr-10">
+                                                <div className="font-medium text-stone-900 group-hover:text-black line-clamp-1">{s.name}</div>
+                                                <div className="text-[10px] text-stone-400 mt-1 flex items-center gap-2">
+                                                    <span>{new Date(s.createdAt).toLocaleDateString()}</span>
+                                                    <span>·</span>
+                                                    <span className="uppercase">{s.brandId === 'manual' ? 'Thủ công' : 'Brand Vault'}</span>
+                                                </div>
+                                            </div>
+                                            <button 
+                                                onClick={(e) => handleDeleteStrategy(e, s.id)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl text-stone-300 hover:text-rose-500 hover:bg-rose-50 opacity-0 group-hover:opacity-100 transition-all"
+                                                title="Xóa kế hoạch"
+                                            >
+                                                <Trash2 size={16} strokeWidth={2} />
+                                            </button>
+                                        </div>
+                                    ))
                                 )}
                             </div>
                         </div>

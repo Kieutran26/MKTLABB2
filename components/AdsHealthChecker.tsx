@@ -2,22 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { AdsHealthInput, AdsHealthResult } from '../types';
 import { checkAdsHealth } from '../services/geminiService';
 import { AdsHealthService, SavedAdsHealthAnalysis } from '../services/adsHealthService';
-import {Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, Scissors, RefreshCw, Layout, Monitor, Globe, Save, Trash2, FolderOpen, Stethoscope, Diamond, Lock, ChevronRight, Check, Pencil} from 'lucide-react';
+import {Activity, AlertTriangle, CheckCircle, XCircle, TrendingUp, Scissors, RefreshCw, Layout, Monitor, Globe, Save, Trash2, FolderOpen, Stethoscope, Diamond, Lock, ChevronRight, Check, Pencil, History as HistoryIcon} from 'lucide-react';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
 
-interface Props {
-    isActive: boolean;
-}
+interface Props {}
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
 const smallInputClass = 'w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm font-medium text-stone-700 focus:border-stone-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-200/80 transition-all';
 
-const AdsHealthChecker: React.FC<Props> = ({ isActive }) => {
+const AdsHealthChecker: React.FC<Props> = () => {
     const { user } = useAuth();
     const { currentBrand } = useBrand();
     const [profile, setProfile] = useState<any>(null);
@@ -51,12 +49,8 @@ const AdsHealthChecker: React.FC<Props> = ({ isActive }) => {
     }, [user]);
 
     useEffect(() => {
-        if (activeTab === 'vault' && currentBrand) {
-            setInput(prev => ({ ...prev, industry: currentBrand.industry || prev.industry }));
-        }
+        // currentBrand.industry is not defined in the interface, skipping auto-fill for now
     }, [activeTab, currentBrand]);
-
-    if (!isActive) return null;
 
     const loadSavedAnalyses = async () => {
         const analyses = await AdsHealthService.getAdsHealthAnalyses();
@@ -164,7 +158,7 @@ const AdsHealthChecker: React.FC<Props> = ({ isActive }) => {
                         title="Lịch sử"
                         aria-label="Mở lịch sử chẩn đoán"
                     >
-                        <History size={18} strokeWidth={1.5} />
+                        <HistoryIcon size={18} strokeWidth={1.5} />
                     </button>
                 </div>
             </FeatureHeader>
