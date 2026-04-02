@@ -1,0 +1,446 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --accent:#1a5c3a;--accent-warm:#c17f2a;--accent-blue:#1a3a5c;
+  --danger:#8a1a1a;--danger-light:#f5ebe8;
+  --rule:rgba(15,15,13,0.1);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:13px}
+.page{max-width:960px;margin:0 auto;padding:2rem 2rem 4rem}
+
+/* HEADER */
+.doc-header{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:1.75rem;border-bottom:1px solid var(--rule);margin-bottom:2rem;animation:fadeUp .5s ease both}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.doc-title{font-family:var(--serif);font-size:30px;line-height:1.15;font-weight:400;max-width:520px}
+.doc-title em{font-style:italic;color:var(--accent)}
+.doc-meta{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.meta-tag{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em}
+.tag-green{background:var(--accent);color:#fff}
+.tag-warm{background:var(--accent-warm);color:#fff}
+.tag-blue{background:var(--accent-blue);color:#fff}
+
+/* WARNING */
+.warning-block{border:1px solid var(--danger);border-radius:3px;padding:1.1rem 1.25rem;margin-bottom:2rem;background:var(--danger-light);animation:fadeUp .5s .05s ease both;opacity:0;animation-fill-mode:both}
+.warn-head{display:flex;align-items:center;gap:8px;margin-bottom:.625rem}
+.warn-icon{width:16px;height:16px;border-radius:50%;background:var(--danger);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.warn-icon::after{content:'';width:2px;height:8px;background:#fff;border-radius:1px}
+.warn-title{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--danger)}
+.warn-item{font-size:12px;color:var(--danger);line-height:1.7;padding-left:1.5rem;margin-bottom:3px;opacity:.9}
+
+/* SECTION HEAD */
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sec-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.sec-dot-g{background:var(--accent)}
+.sec-dot-w{background:var(--accent-warm)}
+.sec-dot-b{background:var(--accent-blue)}
+.sec-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
+
+/* STRATEGIC FOUNDATION */
+.sf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1rem}
+.sf-col{padding:1.1rem 1.1rem;border-right:1px solid var(--rule)}
+.sf-col:last-child{border-right:none}
+.sf-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.sf-body{font-size:12px;color:var(--ink-2);line-height:1.75}
+
+/* COMPETITIVE ANGLE */
+.comp-block{background:var(--ink);border-radius:3px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+.comp-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:500;margin-bottom:1rem}
+.comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:1rem}
+.comp-item-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.375rem}
+.comp-item-text{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.7}
+.comp-opportunity{border-top:1px solid rgba(255,255,255,.1);padding-top:1rem;font-size:12px;color:rgba(255,255,255,.6);line-height:1.7}
+.comp-opp-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:.25rem}
+
+/* EXECUTION MODEL */
+.exec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.exec-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.exec-col:last-child{border-right:none}
+.phase-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;letter-spacing:.06em;padding:3px 8px;border-radius:2px;margin-bottom:.75rem}
+.badge-aware{background:var(--accent);color:#fff}
+.badge-trigger{background:var(--accent-warm);color:#fff}
+.badge-convert{background:var(--accent-blue);color:#fff}
+.exec-hook{font-family:var(--serif);font-size:13.5px;line-height:1.45;color:var(--ink);margin-bottom:.875rem;font-style:italic}
+.exec-channels{margin-bottom:.875rem}
+.exec-ch-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:.375rem;font-weight:500}
+.exec-ch-item{font-size:11.5px;color:var(--ink-2);line-height:1.6;display:flex;gap:6px;align-items:baseline;margin-bottom:2px}
+.exec-bullet{width:3px;height:3px;border-radius:50%;background:var(--ink-3);flex-shrink:0;position:relative;top:5px}
+.exec-kpi{font-size:11px;color:var(--accent);font-weight:500;padding-top:.625rem;border-top:1px solid var(--rule);line-height:1.6}
+.exec-kpi-warn{color:var(--accent-warm)}
+.exec-week{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem}
+.week-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.week-val{font-family:var(--serif);font-size:14px;color:var(--ink)}
+.budget-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:.625rem}
+.bud-card{background:var(--paper-2);border-radius:2px;padding:.5rem .625rem}
+.bud-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:2px}
+.bud-val{font-family:var(--serif);font-size:16px;color:var(--ink)}
+.checkpoint{background:var(--paper-2);border-radius:2px;padding:.625rem .75rem;margin-top:.625rem;font-size:11px;color:var(--ink-2);line-height:1.6;border-left:2px solid var(--accent-warm)}
+.checkpoint-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-warm);font-weight:500;margin-bottom:2px}
+
+/* MEDIA MIX */
+.media-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.media-col{padding:1rem;border-right:1px solid var(--rule)}
+.media-col:last-child{border-right:none}
+.media-name{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.25rem}
+.media-pct{font-family:var(--serif);font-size:26px;color:var(--ink);margin-bottom:.5rem}
+.media-bar{height:2px;background:var(--paper-3);border-radius:99px;margin-bottom:.625rem}
+.media-fill{height:100%;background:var(--accent);border-radius:99px}
+.media-detail{font-size:11px;color:var(--ink-3);line-height:1.6}
+.media-kpi{font-size:11px;color:var(--accent);font-weight:500;margin-top:.375rem}
+
+/* REVENUE */
+.rev-formula{text-align:center;padding:1.25rem 0;border:1px solid var(--rule);border-radius:3px;margin-bottom:1rem}
+.rev-formula-text{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic;margin-bottom:1rem}
+.rev-nums{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.rev-num-col{padding:.75rem 1rem;border-right:1px solid var(--rule);text-align:center}
+.rev-num-col:last-child{border-right:none}
+.rev-num{font-family:var(--serif);font-size:20px;color:var(--ink)}
+.rev-num-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.rev-highlight{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2rem}
+.rev-h-card{border-radius:3px;padding:1rem 1.25rem}
+.rev-h-big{background:var(--ink);color:#fff}
+.rev-h-sm{background:var(--paper-2);border:1px solid var(--rule)}
+.rev-h-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.5;margin-bottom:.375rem}
+.rev-h-big .rev-h-label{color:#fff}
+.rev-h-sm .rev-h-label{color:var(--ink-3)}
+.rev-h-val{font-family:var(--serif);font-size:22px}
+.rev-h-big .rev-h-val{color:#fff}
+.rev-h-sm .rev-h-val{color:var(--ink)}
+.rev-h-sub{font-size:11px;opacity:.6;margin-top:4px;line-height:1.5}
+.rev-h-big .rev-h-sub{color:#fff}
+.rev-h-sm .rev-h-sub{color:var(--ink-3)}
+
+/* SCENARIOS */
+.scen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.scen-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.scen-col:last-child{border-right:none}
+.scen-badge{font-size:10px;letter-spacing:.06em;font-weight:500;padding:2px 8px;border-radius:2px;display:inline-block;margin-bottom:.75rem}
+.badge-cons{background:var(--paper-3);color:var(--ink-3)}
+.badge-real{background:var(--accent-warm);color:#fff}
+.badge-ambi{background:var(--accent);color:#fff}
+.scen-num{font-family:var(--serif);font-size:24px;color:var(--ink);margin-bottom:.5rem}
+.scen-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-2);padding:3px 0;border-bottom:1px solid var(--rule)}
+.scen-row:last-child{border-bottom:none}
+.scen-key{color:var(--ink-3)}
+
+/* CMO */
+.cmo-section{border-top:2px solid var(--ink);padding-top:1.75rem;margin-bottom:2rem}
+.cmo-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
+.cmo-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cmo-sig{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic}
+.cmo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-bottom:1.25rem}
+.cmo-item{}
+.cmo-num{font-family:var(--serif);font-size:13px;color:var(--ink-4);margin-bottom:.375rem}
+.cmo-item-title{font-size:11px;font-weight:500;color:var(--ink-2);margin-bottom:.375rem;letter-spacing:.03em}
+.cmo-text{font-size:12px;color:var(--ink-2);line-height:1.75}
+.cmo-quote{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.5;font-style:italic;padding:1.1rem 1.5rem;background:var(--paper-2);border-radius:3px;border-left:2px solid var(--ink)}
+
+/* FOOTER BAR */
+.footer-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-col{padding:1rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-col:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:22px;color:var(--ink);display:block}
+.fb-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeUp .5s ease both;opacity:0;animation-fill-mode:both}
+</style>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div>
+      <div class="eyebrow">IMC Planner · Chiến lược tích hợp</div>
+      <div class="doc-title">Blue Vigor Travel: <em>An Yên Khám Phá,</em> Vẹn Tròn Sức Khỏe</div>
+    </div>
+    <div class="doc-meta">
+      <span class="meta-tag tag-green">Du lịch cao cấp</span>
+      <span class="meta-tag tag-warm">Tour nước ngoài</span>
+      <span class="meta-tag tag-blue">B2B</span>
+    </div>
+  </div>
+
+  <!-- WARNING -->
+  <div class="warning-block">
+    <div class="warn-head">
+      <div class="warn-icon"></div>
+      <span class="warn-title">Golden Thread Warnings</span>
+    </div>
+    <div class="warn-item">CẢNH BÁO: ROAS 102× là KHÔNG KHẢ THI với sản phẩm mới. Không chiến dịch nào đạt mức này trong 8 tuần đầu.</div>
+    <div class="warn-item">Mục tiêu doanh thu 3.5 tỷ trong ngắn hạn cần xem xét lại — đề xuất điều chỉnh về 247–330 triệu cho chiến dịch 8 tuần này.</div>
+    <div class="warn-item">Ngân sách 35M cần phân bổ thận trọng — ưu tiên Lead Generation thay vì Brand Awareness để tối ưu ROI trong giai đoạn đầu.</div>
+  </div>
+
+  <!-- STRATEGIC FOUNDATION -->
+  <div class="anim" style="animation-delay:.1s;margin-bottom:1rem">
+    <div class="sec-head">
+      <div class="sec-dot sec-dot-g"></div>
+      <span class="sec-title">Strategic Foundation</span>
+    </div>
+    <div class="sf-grid">
+      <div class="sf-col">
+        <div class="sf-label">Business Objective</div>
+        <div class="sf-body">Xây dựng nền tảng vững chắc để đạt mục tiêu doanh thu 3.6 tỷ trong dài hạn, thông qua việc thiết lập Blue Vigor Travel là thương hiệu du lịch hàng đầu cho khách hàng trung niên tìm kiếm an tâm và trải nghiệm chất lượng.</div>
+      </div>
+      <div class="sf-col">
+        <div class="sf-label">Marketing Objective</div>
+        <div class="sf-body">Thúc đẩy sự quan tâm và tạo ra 65 lượt đăng ký tư vấn/yêu cầu thông tin tour tiềm năng, làm tiền đề để chuyển đổi thành đơn hàng trong giai đoạn tiếp theo của hành trình khách hàng.</div>
+      </div>
+      <div class="sf-col">
+        <div class="sf-label">Communication Objective</div>
+        <div class="sf-body">Tăng cường nhận biết về thương hiệu Blue Vigor Travel và USP độc đáo "tour có điều dưỡng đồng hành" tới 50% đối tượng khách hàng trung niên mục tiêu trong 8 tuần chiến dịch.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPETITIVE ANGLE -->
+  <div class="comp-block anim" style="animation-delay:.15s;margin-bottom:2rem">
+    <div class="comp-label">Competitive Angle</div>
+    <div class="comp-grid">
+      <div>
+        <div class="comp-item-label">Đối thủ đang nói gì</div>
+        <div class="comp-item-text">Saigontimes Travel và các tour truyền thống đang nói "giá tốt, nhiều điểm đến" — cạnh tranh trên trục giá và số lượng điểm tham quan.</div>
+      </div>
+      <div>
+        <div class="comp-item-label">Chúng ta nói gì khác</div>
+        <div class="comp-item-text">"Blue Vigor Travel không bán chuyến đi — chúng ta bán sự an tâm tuyệt đối cho người trung niên: có điều dưỡng, có chăm sóc sức khỏe, có người đồng hành thấu hiểu."</div>
+      </div>
+      <div>
+        <div class="comp-item-label">Khoảng trắng chúng ta chiếm</div>
+        <div class="comp-item-text">Chưa có thương hiệu nào tại Việt Nam kết hợp "du lịch cao cấp + điều dưỡng + chăm sóc sức khỏe" cho khách trung niên. Đây là định vị khó bị copy trong 2–3 năm tới.</div>
+      </div>
+    </div>
+    <div class="comp-opportunity">
+      <div class="comp-opp-label">Big Idea xuyên suốt</div>
+      "An Yên Khám Phá — Vẹn Tròn Sức Khỏe": Mỗi chuyến đi với Blue Vigor Travel không chỉ là hành trình khám phá thế giới mà còn là hành trình tái tạo năng lượng, chăm sóc bản thân một cách toàn diện.
+    </div>
+  </div>
+
+  <!-- EXECUTION MODEL -->
+  <div class="anim" style="animation-delay:.2s;margin-bottom:2rem">
+    <div class="sec-head">
+      <div class="sec-dot sec-dot-w"></div>
+      <span class="sec-title">Execution Model</span>
+    </div>
+    <div class="exec-grid">
+      <div class="exec-col">
+        <span class="phase-badge badge-aware">Aware</span>
+        <div class="exec-hook">"Lắng đặt tất cả lo toan — và để Blue Vigor Travel mang bạn đến những trải nghiệm xứng đáng nhất cuộc đời."</div>
+        <div class="exec-channels">
+          <div class="exec-ch-label">Kênh chính</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Facebook/Zalo Ads — Target 45–65, sức khỏe, du lịch</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>PR & Content Marketing — Bài viết chuyên sâu VnExpress, VietnamNet</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Sponsored Content KOL lifestyle du lịch cao cấp</div>
+        </div>
+        <div class="exec-week">
+          <span class="week-label">Week Range</span>
+          <span class="week-val">Tuần 1–3</span>
+        </div>
+        <div class="budget-row">
+          <div class="bud-card"><div class="bud-label">Production</div><div class="bud-val">4M</div></div>
+          <div class="bud-card"><div class="bud-label">Media</div><div class="bud-val">9M</div></div>
+        </div>
+        <div class="exec-kpi">Target: 500,000 Unique Reach · 1,500,000 Impressions · CPM ≤ 70–90đ/Reach</div>
+        <div class="checkpoint">
+          <div class="checkpoint-label">Checkpoint cuối tuần 3</div>
+          Nếu chưa đạt 400K reach → cắt KOL không hiệu quả, tăng 30% budget Facebook Ads, đổi creative sang video testimonial thật.
+        </div>
+      </div>
+      <div class="exec-col">
+        <span class="phase-badge badge-trigger">Trigger</span>
+        <div class="exec-hook">"Du lịch là để tạo ra năng lượng, không phải đánh đổi sức khỏe — Blue Vigor Travel hiểu điều đó."</div>
+        <div class="exec-channels">
+          <div class="exec-ch-label">Kênh chính</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Email Nurturing chuỗi giới thiệu chi tiết tour</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Landing Page chuyên biệt cho Ebook/Cẩm nang</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Remarketing Ads — target người đã tương tác giai đoạn 1</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Blog Posts/Articles website chuyên sâu về sức khỏe du lịch</div>
+        </div>
+        <div class="exec-week">
+          <span class="week-label">Week Range</span>
+          <span class="week-val">Tuần 4–6</span>
+        </div>
+        <div class="budget-row">
+          <div class="bud-card"><div class="bud-label">Production</div><div class="bud-val">3M</div></div>
+          <div class="bud-card"><div class="bud-label">Media</div><div class="bud-val">8M</div></div>
+        </div>
+        <div class="exec-kpi exec-kpi-warn">Target: 150 leads · CPL ≤ 100,000 VND · Email Open Rate ≥ 25%</div>
+        <div class="checkpoint">
+          <div class="checkpoint-label">Checkpoint cuối tuần 6</div>
+          Nếu CPL > 150K → tạm dừng Google Display, tập trung Remarketing Facebook. Nếu Open Rate &lt; 20% → A/B test subject line mới.
+        </div>
+      </div>
+      <div class="exec-col">
+        <span class="phase-badge badge-convert">Convert</span>
+        <div class="exec-hook">"Đừng chờ đợi thêm nữa — Lên kế hoạch chuyến đi trong mơ của bạn với Blue Vigor Travel ngay hôm nay."</div>
+        <div class="exec-channels">
+          <div class="exec-ch-label">Kênh chính</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Sales Outreach cá nhân hóa dựa trên danh sách leads</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Landing Page Form đăng ký tư vấn/yêu cầu báo giá</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Google Search Ads — từ khóa "tour du lịch điều dưỡng"</div>
+          <div class="exec-ch-item"><div class="exec-bullet"></div>Webinar/Workshop trực tuyến gặp gỡ chuyên gia</div>
+        </div>
+        <div class="exec-week">
+          <span class="week-label">Week Range</span>
+          <span class="week-val">Tuần 7–8</span>
+        </div>
+        <div class="budget-row">
+          <div class="bud-card"><div class="bud-label">Production</div><div class="bud-val">3M</div></div>
+          <div class="bud-card"><div class="bud-label">Media</div><div class="bud-val">9M</div></div>
+        </div>
+        <div class="exec-kpi">Target: 50 lượt tư vấn · 65 đơn đặt tour · ROAS ≥ 3.5× · 12,000,000 VND từ Booking đầu tiên</div>
+        <div class="checkpoint">
+          <div class="checkpoint-label">Checkpoint cuối tuần 8</div>
+          Nếu &lt; 40 đơn → kéo dài chiến dịch thêm 2 tuần, tăng Sales Outreach, thêm Early Bird offer giảm 10%.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDIA MIX -->
+  <div class="anim" style="animation-delay:.25s;margin-bottom:2rem">
+    <div class="sec-head">
+      <div class="sec-dot sec-dot-b"></div>
+      <span class="sec-title">Media Mix & Phân bổ ngân sách</span>
+    </div>
+    <div class="media-grid">
+      <div class="media-col">
+        <div class="media-name">Facebook / Zalo Ads</div>
+        <div class="media-pct">40%</div>
+        <div class="media-bar"><div class="media-fill" style="width:40%"></div></div>
+        <div class="media-detail">14,000,000 VND · Đối tượng 45–65 tuổi tập trung trên Facebook · Khả năng target theo sở thích sức khỏe, du lịch cao nhất</div>
+        <div class="media-kpi">CPL &lt; 100K · CTR &gt; 1.5% · Reach 500K+</div>
+      </div>
+      <div class="media-col">
+        <div class="media-name">Content & PR</div>
+        <div class="media-pct">25%</div>
+        <div class="media-bar"><div class="media-fill" style="width:25%"></div></div>
+        <div class="media-detail">8,750,000 VND · Xây trust dài hạn · Bài viết VnExpress, VietnamNet · Blog SEO về sức khỏe du lịch trung niên</div>
+        <div class="media-kpi">5 bài Top 10 Google · Brand Search tăng 30%</div>
+      </div>
+      <div class="media-col">
+        <div class="media-name">Email & Nurture</div>
+        <div class="media-pct">20%</div>
+        <div class="media-bar"><div class="media-fill" style="width:20%"></div></div>
+        <div class="media-detail">7,000,000 VND · Chi phí thấp nhất · ROI cao nhất · Chuyển đổi leads thành khách hàng thật sự</div>
+        <div class="media-kpi">Open Rate &gt; 25% · Click Rate &gt; 4%</div>
+      </div>
+      <div class="media-col">
+        <div class="media-name">KOL / Webinar</div>
+        <div class="media-pct">15%</div>
+        <div class="media-bar"><div class="media-fill" style="width:15%"></div></div>
+        <div class="media-detail">5,250,000 VND · Social proof mạnh với khách trung niên · Workshop trực tuyến tạo cơ hội tư vấn 1-1</div>
+        <div class="media-kpi">50K reach/KOL · 200 người tham dự Webinar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVENUE PROJECTION -->
+  <div class="anim" style="animation-delay:.3s;margin-bottom:2rem">
+    <div class="sec-head">
+      <div class="sec-dot sec-dot-g"></div>
+      <span class="sec-title">Revenue Projection</span>
+    </div>
+    <div class="rev-formula">
+      <div class="rev-formula-text">[Reach] × [CTR] × [Conversion Rate] × [AOV] = Doanh thu dự kiến</div>
+      <div class="rev-nums">
+        <div class="rev-num-col"><div class="rev-num">80,000</div><div class="rev-num-label">Người ước tính thấy</div></div>
+        <div class="rev-num-col"><div class="rev-num">1.5%</div><div class="rev-num-label">CTR trung bình Load Ads</div></div>
+        <div class="rev-num-col"><div class="rev-num">10%</div><div class="rev-num-label">Leads thành đơn hàng</div></div>
+        <div class="rev-num-col"><div class="rev-num">5,000,000đ</div><div class="rev-num-label">AOV / đơn hàng</div></div>
+      </div>
+    </div>
+    <div class="rev-highlight">
+      <div class="rev-h-card rev-h-big">
+        <div class="rev-h-label">Doanh thu kỳ vọng (Realistic)</div>
+        <div class="rev-h-val">135,000,000đ</div>
+        <div class="rev-h-sub">Dựa trên conversion rate 1.5% từ baseline thực tế</div>
+      </div>
+      <div class="rev-h-card rev-h-sm">
+        <div class="rev-h-label">Break-even Point</div>
+        <div class="rev-h-val">45 đơn hàng</div>
+        <div class="rev-h-sub">45 đơn × 5,000,000 VND/đơn để hoà vốn ngân sách marketing 35M</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 SCENARIOS -->
+  <div class="anim" style="animation-delay:.35s;margin-bottom:2rem">
+    <div class="sec-head">
+      <div class="sec-dot sec-dot-w"></div>
+      <span class="sec-title">Dự báo 3 kịch bản</span>
+    </div>
+    <div class="scen-grid">
+      <div class="scen-col">
+        <span class="scen-badge badge-cons">Conservative · 70%</span>
+        <div class="scen-num">75,000,000đ</div>
+        <div class="scen-row"><span class="scen-key">Doanh thu</span><span>75M VND</span></div>
+        <div class="scen-row"><span class="scen-key">ROAS</span><span>2.1×</span></div>
+        <div class="scen-row"><span class="scen-key">ROI</span><span>114%</span></div>
+        <div class="scen-row"><span class="scen-key">Leads</span><span>150 leads</span></div>
+      </div>
+      <div class="scen-col">
+        <span class="scen-badge badge-real">Realistic · 50%</span>
+        <div class="scen-num">135,000,000đ</div>
+        <div class="scen-row"><span class="scen-key">Doanh thu</span><span>135M VND</span></div>
+        <div class="scen-row"><span class="scen-key">ROAS</span><span>3.86×</span></div>
+        <div class="scen-row"><span class="scen-key">ROI</span><span>286%</span></div>
+        <div class="scen-row"><span class="scen-key">Leads</span><span>90 leads</span></div>
+      </div>
+      <div class="scen-col">
+        <span class="scen-badge badge-ambi">Ambitious · 20%</span>
+        <div class="scen-num">220,000,000đ</div>
+        <div class="scen-row"><span class="scen-key">Doanh thu</span><span>220M VND</span></div>
+        <div class="scen-row"><span class="scen-key">ROAS</span><span>6.3×</span></div>
+        <div class="scen-row"><span class="scen-key">ROI</span><span>529%</span></div>
+        <div class="scen-row"><span class="scen-key">Leads</span><span>200 leads</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CMO NOTE -->
+  <div class="cmo-section anim" style="animation-delay:.4s">
+    <div class="cmo-header">
+      <span class="cmo-label">CMO Expert Note</span>
+      <span class="cmo-sig">Lời khuyên chiến lược</span>
+    </div>
+    <div class="cmo-grid">
+      <div class="cmo-item">
+        <div class="cmo-num">I.</div>
+        <div class="cmo-item-title">Điều quan trọng nhất phải làm đúng</div>
+        <div class="cmo-text">Đừng cố gắng bán tour ngay từ đầu — hãy bán sự an tâm và tin tưởng trước. Khách hàng trung niên ra quyết định chậm nhưng trung thành rất cao. Mỗi điểm chạm phải toát lên sự chuyên nghiệp và chăm sóc tận tâm.</div>
+      </div>
+      <div class="cmo-item">
+        <div class="cmo-num">II.</div>
+        <div class="cmo-item-title">Rủi ro lớn nhất cần phòng tránh</div>
+        <div class="cmo-text">Chạy quảng cáo giá rẻ hoặc discount mạnh sẽ phá vỡ positioning cao cấp vừa xây. Rủi ro thứ 2: không có đủ content chất lượng cao để nurture leads trong 8 tuần — cần sản xuất trước ít nhất 80% content trước khi launch.</div>
+      </div>
+      <div class="cmo-item">
+        <div class="cmo-num">III.</div>
+        <div class="cmo-item-title">Cơ hội đang bị bỏ ngỏ</div>
+        <div class="cmo-text">Chưa có ai làm "After-Tour Health Report" — báo cáo sức khỏe sau chuyến đi như một dịch vụ độc quyền. Đây là moat cạnh tranh mạnh nhất và có thể triển khai ngay trong chiến dịch này như một USP bổ sung.</div>
+      </div>
+      <div class="cmo-item">
+        <div class="cmo-num">IV.</div>
+        <div class="cmo-item-title">Nếu chỉ được làm 1 điều</div>
+        <div class="cmo-text">Đầu tư vào 3–5 video testimonial thật của khách hàng đã đi tour — người trung niên 50–60 tuổi chia sẻ cảm xúc thật. Chi phí thấp nhưng đây là content có conversion rate cao nhất, có thể dùng trong cả 3 giai đoạn.</div>
+      </div>
+    </div>
+    <div class="cmo-quote">"Blue Vigor Travel sẵn sàng dẫn đầu phân khúc cao cấp dành cho khách hàng trung niên tại Việt Nam — mang đến những hành trình khám phá thế giới thanh thịnh, an toàn và đẳng cấp, nơi mỗi chuyến đi là một trải nghiệm trao năng lượng và niềm tin vào cuộc sống."</div>
+  </div>
+
+  <!-- FOOTER BAR -->
+  <div class="footer-bar anim" style="animation-delay:.45s">
+    <div class="fb-col"><span class="fb-val">35M VND</span><div class="fb-label">Ngân sách</div></div>
+    <div class="fb-col"><span class="fb-val">3</span><div class="fb-label">Giai đoạn</div></div>
+    <div class="fb-col"><span class="fb-val">8 tuần</span><div class="fb-label">Thời gian</div></div>
+    <div class="fb-col"><span class="fb-val">135M VND</span><div class="fb-label">Doanh thu kỳ vọng</div></div>
+  </div>
+
+</div>
