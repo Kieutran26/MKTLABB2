@@ -1,0 +1,67 @@
+{
+  "designs": [
+    {
+      "id": "design_1766734516508",
+      "name": "Email mới",
+      "updated_at": "2025-12-26T07:35:16.511+00:00",
+      "first_block": "Heading 2",
+      "block_count": 4,
+      "doc_sample": "{\"blocks\":[{\"id\":\"6ec7b4e6-52a3-41ae-bf49-6fbd08fbe7cd\",\"type\":\"heading\",\"color\":\"#1f2937\",\"level\":\""
+    },
+    {
+      "id": "design_1766739118281",
+      "name": "tr oi",
+      "updated_at": "2025-12-26T08:51:11.081436+00:00",
+      "first_block": "Chào mừng!",
+      "block_count": 4,
+      "doc_sample": "{\"blocks\":[{\"id\":\"d1\",\"type\":\"heading\",\"color\":\"#1f2937\",\"level\":\"h1\",\"content\":\"Chào mừng!\",\"alignm"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "7a1c560f-87aa-4c72-b829-6702be5cf1f8",
+      "name": "c",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "623a51e7-b97e-4000-9b47-2ef7e395411a",
+      "name": "test",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "f8927ae6-6edd-4018-aaec-9c84d5348028",
+      "name": "test",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "6481b8f9-bbc4-49c2-a606-e94bff53c2fb",
+      "name": "test 1",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "fec82323-108f-4cc5-9bee-13ee86b0ed1f",
+      "name": "te",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "b81c6922-87c2-4399-8030-4ad647ea1a01",
+      "name": "e",
+      "template_id": "design_1766734516508"
+    },
+    {
+      "id": "74878c6b-789e-41fa-94d3-41742ebf9edc",
+      "name": "đ",
+      "template_id": "design_1766739118281"
+    },
+    {
+      "id": "bc515237-ba2d-409e-bec1-1cb8603bf05f",
+      "name": "e",
+      "template_id": "design_1766739118281"
+    },
+    {
+      "id": "09be7582-5ee8-4428-b176-0981389f34ae",
+      "name": "fff",
+      "template_id": "design_1766739118281"
+    }
+  ]
+}

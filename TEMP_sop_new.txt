@@ -1,0 +1,145 @@
+export const generateSOP = async (
+    input: SOPInput,
+    onProgress?: (step: string) => void
+): Promise<SOPData | null> => {
+    const systemPrompt = `### ROLE & OBJECTIVE
+Bạn là một Giám đốc Vận hành (Operations Director) và Chuyên gia Tối ưu hóa Quy trình (Process Optimization Expert) với 15 năm kinh nghiệm xây dựng SOP cho các tập đoàn đa quốc gia. Nhiệm vụ của bạn là chuyển đổi yêu cầu công việc thành một Quy trình Vận hành Tiêu chuẩn (SOP) chi tiết, logic, dễ hiểu và có tính ứng dụng cao.
+
+### INPUT DATA
+- Process Name: ${input.processName}
+- Main Role: ${input.primaryRole}
+- Frequency: ${input.frequency}
+${input.goalOutput ? `- Goal/Output: ${input.goalOutput}` : ''}
+${input.scope ? `- Scope: ${input.scope}` : ''}
+
+### LOGIC & REASONING (CHAIN OF THOUGHT)
+Trước khi tạo nội dung, hãy phân tích logic sau:
+
+**1. Xử lý mâu thuẫn tần suất:**
+- Nếu "${input.processName}" mang tính dự án dài hạn (VD: Campaign, Product Launch) nhưng "${input.frequency}" là "Hàng ngày", hãy ưu tiên cấu trúc theo Giai đoạn dự án (Phase) nhưng chia nhỏ task thành các việc cần check mỗi ngày.
+- Nếu "${input.frequency}" là "Hàng ngày", SOP phải ngắn gọn, dạng Checklist nhanh.
+- Nếu "${input.frequency}" là "Dự án/Một lần", SOP phải chi tiết, chia giai đoạn rõ ràng.
+
+**2. Phân bổ vai trò:**
+- Dựa vào "${input.primaryRole}", hãy đặt role này làm trọng tâm.
+- Nếu quy trình cần phối hợp, hãy chỉ định thêm các role hỗ trợ (Support Roles) hợp lý.
+- "${input.primaryRole}" vẫn phải chịu trách nhiệm chính ở các khâu quan trọng nhất.
+
+**3. Lựa chọn công cụ:**
+- Đề xuất bộ công cụ (Tools) phù hợp với tính chất công việc hiện đại:
+  - Design: Figma, Canva, Adobe Creative Suite
+  - Project Management: Jira, Trello, Asana, Monday.com
+  - Communication: Slack, Teams, Email
+  - Analytics: Google Analytics, Mixpanel, Tableau
+  - Marketing: Meta Business Suite, Google Ads, Mailchimp
+
+### STRUCTURE FRAMEWORK
+**3 Giai đoạn bắt buộc:**
+1. **Preparation (Chuẩn bị)**: Setup, Planning, Resource gathering
+2. **Execution (Thực hiện)**: Main activities, Core tasks
+3. **Review (Đánh giá)**: Quality check, Reporting, Optimization
+
+### OUTPUT FORMAT (STRICT JSON)
+{
+  "sop_title": "Quy trình Chuẩn hóa: ${input.processName}",
+  "estimated_time": "Thời gian ước tính dựa trên tính chất công việc (VD: 2 giờ, 1 tuần, 3 tháng)",
+  "phases": [
+    {
+      "phase_name": "Phase 1: Preparation (Chuẩn bị)",
+      "steps": [
+        {
+          "id": 1,
+          "action": "Tên đầu việc cụ thể, bắt đầu bằng động từ hành động",
+          "role": "${input.primaryRole} hoặc role phù hợp",
+          "tools": ["Tool 1", "Tool 2"],
+          "critical_note": "Hướng dẫn chi tiết CỤ THỂ (VD: 'File xuất ra phải ở định dạng .PNG và nén dưới 1MB', 'Kiểm tra kỹ chính tả, màu sắc theo brand guideline')",
+          "completed": false
+        }
+      ],
+      "collapsed": false
+    },
+    {
+      "phase_name": "Phase 2: Execution (Thực hiện)",
+      "steps": [
+        {
+          "id": 2,
+          "action": "Tên đầu việc cụ thể",
+          "role": "${input.primaryRole}",
+          "tools": ["Tool"],
+          "critical_note": "Hướng dẫn chi tiết CỤ THỂ",
+          "completed": false
+        }
+      ],
+      "collapsed": false
+    },
+    {
+      "phase_name": "Phase 3: Review (Đánh giá)",
+      "steps": [
+        {
+          "id": 3,
+          "action": "Tên đầu việc cụ thể",
+          "role": "${input.primaryRole}",
+          "tools": ["Tool"],
+          "critical_note": "Hướng dẫn chi tiết CỤ THỂ",
+          "completed": false
+        }
+      ],
+      "collapsed": false
+    }
+  ]
+}
+
+### QUALITY CONTROL RULES
+- **Critical Note là quan trọng nhất**: Đừng viết chung chung như "Làm tốt nhé". Hãy viết như một chỉ dẫn kỹ thuật cụ thể.
+- Mỗi phase phải có ít nhất 2-3 steps.
+- Action phải bắt đầu bằng động từ hành động (Tạo, Kiểm tra, Phê duyệt, Xuất bản...).
+- Tools phải là tên công cụ cụ thể, không viết "Công cụ thiết kế" mà phải "Figma" hoặc "Canva".
+- Ngôn ngữ: Tiếng Việt chuyên nghiệp, gãy gọn, dùng thuật ngữ chuyên ngành đúng chỗ.
+- Output PHẢI là JSON valid, không có markdown.`;
+
+    try {
+        if (onProgress) {
+            onProgress('🔍 Đang phân tích tính chất quy trình...');
+            await new Promise(r => setTimeout(r, 800));
+            onProgress('🎯 Đang xác định giai đoạn chính...');
+            await new Promise(r => setTimeout(r, 800));
+            onProgress('👥 Đang phân bổ vai trò...');
+            await new Promise(r => setTimeout(r, 800));
+            onProgress('🛠️ Đang chọn công cụ phù hợp...');
+            await new Promise(r => setTimeout(r, 800));
+            onProgress('📋 Đang tạo checklist chi tiết...');
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: `Generate comprehensive SOP with operations framework`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.7
+            },
+        });
+
+        const text = response.text || "{}";
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        const data = JSON.parse(jsonStr) as SOPData;
+
+        // Ensure all steps have completed: false
+        if (data.phases) {
+            data.phases = data.phases.map(phase => ({
+                ...phase,
+                collapsed: false,
+                steps: phase.steps.map(step => ({
+                    ...step,
+                    completed: false
+                }))
+            }));
+        }
+
+        return data;
+    } catch (error) {
+        console.error("SOP Gen Error:", error);
+        return null;
+    }
+};

@@ -1,0 +1,114 @@
+export const analyzePricingStrategy = async (
+    input: PricingAnalyzerInput
+): Promise<PricingAnalyzerResult | null> => {
+    // Calculate metrics first
+    const avgCompetitorPrice = (input.competitorMin + input.competitorMax) / 2;
+    const grossMarginPercent = ((input.targetPrice - input.cogs) / input.targetPrice) * 100;
+    const priceIndex = (input.targetPrice / avgCompetitorPrice) * 100;
+    const breakEvenVolume = input.fixedCosts ? Math.ceil(input.fixedCosts / (input.targetPrice - input.cogs)) : null;
+
+    const systemPrompt = `### ROLE & OBJECTIVE
+Bạn là một Chuyên gia Chiến lược Định giá (Pricing Strategist) và Chuyên gia Tài chính (Financial Analyst) với kinh nghiệm dày dạn trong việc tối ưu hóa lợi nhuận và thị phần. Nhiệm vụ của bạn là phân tích cấu trúc giá, so sánh với thị trường và đề xuất chiến lược giá thông minh.
+
+### INPUT DATA & PRE-CALCULATED METRICS
+- Product Name: ${input.productName}
+- Industry: ${input.industry}
+- COGS (Giá vốn): ${input.cogs.toLocaleString('vi-VN')} VNĐ
+- Target Price (Giá bán mục tiêu): ${input.targetPrice.toLocaleString('vi-VN')} VNĐ
+- Competitor Range: ${input.competitorMin.toLocaleString('vi-VN')} - ${input.competitorMax.toLocaleString('vi-VN')} VNĐ
+- Positioning: ${input.positioning}
+${input.fixedCosts ? `- Fixed Costs: ${input.fixedCosts.toLocaleString('vi-VN')} VNĐ` : ''}
+${input.pricingGoal ? `- Pricing Goal: ${input.pricingGoal}` : ''}
+
+**PRE-CALCULATED (Đã tính sẵn):**
+- Gross Margin: ${grossMarginPercent.toFixed(2)}%
+- Average Competitor Price: ${avgCompetitorPrice.toLocaleString('vi-VN')} VNĐ
+- Price Index: ${priceIndex.toFixed(2)} (100 = ngang bằng thị trường)
+${breakEvenVolume ? `- Break-even Volume: ${breakEvenVolume} đơn vị` : ''}
+
+### LOGIC & CONSISTENCY CHECK
+**1. Margin Health Check:**
+- Ngành ${input.industry}: Biên lợi nhuận khỏe mạnh thường > 30% (có thể khác tùy ngành)
+- Hiện tại: ${grossMarginPercent.toFixed(2)}% → Đánh giá là "Healthy" hay "Risky"?
+
+**2. Positioning Consistency:**
+- Positioning: ${input.positioning}
+- Price Index: ${priceIndex.toFixed(2)}
+- Kiểm tra mâu thuẫn:
+  - Budget positioning nhưng Price Index > 90 → Mâu thuẫn
+  - Premium positioning nhưng Price Index < 110 → Mâu thuẫn
+  - Mainstream positioning: Price Index nên trong khoảng 90-110
+
+**3. Competitive Analysis:**
+- Bạn đang ${priceIndex > 100 ? 'đắt hơn' : 'rẻ hơn'} thị trường ${Math.abs(priceIndex - 100).toFixed(1)}%
+- Đánh giá: Có phù hợp với positioning không?
+
+### OUTPUT FORMAT (STRICT JSON)
+{
+  "verdict": {
+    "status": "Optimal" | "Warning" | "Critical",
+    "score": 0-100 (Chấm điểm dựa trên cân bằng Lợi nhuận, Cạnh tranh, Định vị),
+    "summary": "Nhận xét tổng quan ngắn gọn (1 câu)"
+  },
+  "financial_analysis": {
+    "gross_margin_percent": ${grossMarginPercent.toFixed(2)},
+    "break_even_point": "${breakEvenVolume ? `Bạn cần bán ít nhất ${breakEvenVolume} đơn vị/tháng để hòa vốn cố định` : 'Không có dữ liệu chi phí cố định'}",
+    "assessment": "Đánh giá biên lợi nhuận là Healthy hay Risky dựa trên ngành ${input.industry}"
+  },
+  "market_position_analysis": {
+    "your_price": ${input.targetPrice},
+    "market_avg": ${avgCompetitorPrice.toFixed(0)},
+    "price_index": ${priceIndex.toFixed(2)},
+    "comment": "Nhận xét về vị trí giá so với thị trường và positioning"
+  },
+  "strategic_solutions": [
+    {
+      "type": "Psychological Pricing",
+      "advice": "Đề xuất mức giá cụ thể tận dụng tâm lý (VD: ${input.positioning === 'premium' ? 'Số tròn để tạo cảm giác cao cấp' : 'Số đuôi .99 để tạo cảm giác rẻ hơn'})"
+    },
+    {
+      "type": "Value Addition",
+      "advice": "Gợi ý CỤ THỂ các dịch vụ/quà tặng đi kèm dựa trên ${input.productName} để tăng giá trị cảm nhận (VD: Nếu là cà phê → topping/không gian; nếu là phần mềm → tính năng/support)"
+    },
+    {
+      "type": "Competitive Response",
+      "advice": "Cách đối phó với khoảng giá đối thủ (${priceIndex > 100 ? 'Giá cao hơn → Tập trung vào branding/USP' : 'Giá thấp hơn → Tập trung vào volume/market share'})"
+    },
+    {
+      "type": "Cost Optimization",
+      "advice": "Gợi ý CỤ THỂ cách giảm COGS nếu biên lợi nhuận mỏng (VD: Tối ưu nguồn nguyên liệu, quy trình sản xuất, đàm phán nhà cung cấp)"
+    },
+    {
+      "type": "Positioning Adjustment",
+      "advice": "Lời khuyên CỤ THỂ về điều chỉnh bao bì/thông điệp để xứng đáng với mức giá ${input.targetPrice.toLocaleString('vi-VN')} VNĐ"
+    }
+  ]
+}
+
+### QUALITY CONTROL
+- Tuyệt đối chính xác về mặt toán học (đã có số liệu tính sẵn)
+- Strategic Solutions phải CỤ THỂ gắn liền với ${input.productName} và ${input.industry}
+- Tránh nói chung chung như "Cải thiện chất lượng" → Phải nói "Nâng cấp bao bì từ nhựa lên giấy kraft để phù hợp với định vị premium"
+- Giọng văn khách quan, phân tích, định hướng giải pháp
+- Output PHẢI là JSON valid, không có markdown`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: `Analyze pricing strategy with financial calculations`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.75
+            },
+        });
+
+        const text = response.text || "{}";
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        return JSON.parse(jsonStr) as PricingAnalyzerResult;
+    } catch (error) {
+        console.error("Pricing Analysis Error:", error);
+        return null;
+    }
+};

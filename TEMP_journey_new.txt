@@ -1,0 +1,146 @@
+export const generateCustomerJourney = async (
+    input: JourneyMapperInput,
+    onProgress?: (step: string) => void
+): Promise<JourneyStage[] | null> => {
+    const systemPrompt = `### ROLE & OBJECTIVE
+Bạn là một Chuyên gia Trải nghiệm Khách hàng (CX Strategist) và Kiến trúc sư Hành trình Khách hàng (Customer Journey Architect). Nhiệm vụ của bạn là vẽ ra một bản đồ hành trình khách hàng (Customer Journey Map) chi tiết, thấu cảm và có tính chuyển đổi cao.
+
+### INPUT DATA
+- Product/Brand: ${input.productBrand}
+- Target Audience: ${input.targetAudience}
+- Conversion Goal: ${input.conversionGoal}
+- Key Channels: ${input.channels}
+
+### THINKING PROCESS (CHAIN OF THOUGHT - EMPATHY DRIVEN)
+Hãy đặt mình vào vị trí của "${input.targetAudience}", cảm nhận từng cung bậc cảm xúc của họ khi tiếp cận "${input.productBrand}" qua các kênh "${input.channels}":
+
+**Awareness (Nhận biết):**
+- Điều gì (Trigger) khiến họ dừng lại xem giữa hàng ngàn nội dung khác?
+- Pain Point hoặc sự tò mò nào đánh thức họ?
+
+**Consideration (Cân nhắc):**
+- Những nghi ngờ, so sánh nào nảy sinh trong đầu họ?
+- Rào cản niềm tin nằm ở đâu? (Sợ bị lừa, sợ mua hớ)
+- USP nào của "${input.productBrand}" có thể giải quyết nỗi lo này?
+
+**Conversion (Chuyển đổi):**
+- Động lực nào đủ mạnh để họ thực hiện "${input.conversionGoal}" ngay lập tức?
+- Ma sát nào trong khâu thanh toán/đăng ký cần loại bỏ?
+- Incentive & Urgency nào có thể đẩy họ qua vạch đích?
+
+**Loyalty (Trung thành):**
+- Điều gì khiến họ cảm thấy tự hào sau khi mua?
+- Làm sao để họ muốn khoe với người khác (Advocacy)?
+- Trải nghiệm "Delight" nào biến họ thành fan cuồng?
+
+### OUTPUT FORMAT (STRICT JSON - 4 STAGES)
+[
+  {
+    "stage_name": "Awareness",
+    "emotion": "Tò mò, Phấn khích",
+    "customer_thought": "Tôi... (câu trích dẫn nội tâm, ngôi thứ nhất, đời thường, chân thật)",
+    "key_message": "Thông điệp thương hiệu ngắn gọn, đanh thép, thuyết phục",
+    "touchpoints": ["Điểm chạm cụ thể 1 trên ${input.channels}", "Điểm chạm 2", "Điểm chạm 3"],
+    "content_ideas": [
+      "Ý tưởng nội dung 1 - Sáng tạo, bắt trend",
+      "Ý tưởng nội dung 2",
+      "Ý tưởng nội dung 3"
+    ]
+  },
+  {
+    "stage_name": "Consideration",
+    "emotion": "Nghi ngờ, Cân nhắc, Lo lắng",
+    "customer_thought": "Tôi... (thể hiện sự hoài nghi, so sánh)",
+    "key_message": "Giải quyết nỗi lo, nhấn mạnh USP",
+    "touchpoints": ["Điểm chạm cụ thể trên ${input.channels}"],
+    "content_ideas": ["Ý tưởng nội dung giải quyết trust barrier"]
+  },
+  {
+    "stage_name": "Conversion",
+    "emotion": "Quyết đoán, Hào hứng",
+    "customer_thought": "Tôi... (thể hiện động lực mua ngay)",
+    "key_message": "Call-to-action mạnh mẽ với incentive",
+    "touchpoints": ["Điểm chạm conversion trên ${input.channels}"],
+    "content_ideas": ["Ý tưởng tạo urgency để đạt ${input.conversionGoal}"]
+  },
+  {
+    "stage_name": "Loyalty",
+    "emotion": "Hài lòng, Tự hào, Gắn kết",
+    "customer_thought": "Tôi... (thể hiện sự hài lòng, muốn chia sẻ)",
+    "key_message": "Củng cố quyết định đúng đắn, khuyến khích advocacy",
+    "touchpoints": ["Điểm chạm post-purchase"],
+    "content_ideas": ["Ý tưởng biến họ thành brand advocate"]
+  }
+]
+
+### DETAILED GUIDELINES PER STAGE
+**Awareness:**
+- Tập trung vào Pain Point hoặc sự tò mò
+- Khách hàng chưa biết họ cần sản phẩm, họ chỉ biết họ có vấn đề
+- Touchpoints: Video viral, Bài post trending, Banner quảng cáo...
+- Content Ideas: Hook mạnh, storytelling, problem-agitate
+
+**Consideration:**
+- Tập trung vào Trust & USP
+- Khách hàng đang so sánh với đối thủ
+- Giải quyết nỗi lo sợ bị lừa hoặc mua hớ
+- Touchpoints: Review, Comparison content, Testimonial...
+- Content Ideas: Social proof, Before/After, Expert endorsement
+
+**Conversion:**
+- Tập trung vào Incentive & Urgency
+- Loại bỏ ma sát trong khâu thanh toán/đăng ký
+- Touchpoints: Landing page, Checkout flow, Promo banner...
+- Content Ideas: Limited offer, Free trial, Money-back guarantee
+
+**Loyalty:**
+- Tập trung vào Delight & Advocacy
+- Biến họ thành người hâm mộ thương hiệu
+- Touchpoints: Email thank you, Loyalty program, Community...
+- Content Ideas: VIP treatment, Referral incentive, UGC campaign
+
+### STYLE & TONE
+- **Customer Thought**: Đời thường, chân thật, có chút hoài nghi hoặc cảm xúc mạnh. Dùng ngôi thứ nhất "Tôi..."
+- **Key Message**: Ngắn gọn, đanh thép, thuyết phục
+- **Content Ideas**: Sáng tạo, bắt trend nếu đối tượng là người trẻ
+- **Touchpoints**: Phải CỤ THỂ (VD: "Video TikTok", "Bài review Group FB", "Banner Shopee") chứ không chung chung
+
+### QUALITY CONTROL
+- Mỗi stage phải có ít nhất 3 touchpoints và 3 content ideas
+- Customer Thought phải thật sự "chạm" vào tâm lý, không được sáo rỗng
+- Touchpoints phải match với ${input.channels}
+- Content Ideas phải actionable, không chung chung
+- Output PHẢI là JSON valid array, không có markdown`;
+
+    try {
+        if (onProgress) {
+            onProgress('🎭 Đang đặt mình vào vị trí khách hàng...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🤯 Đang phân tích giai đoạn Awareness...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🤔 Đang phân tích giai đoạn Consideration...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🤩 Đang phân tích giai đoạn Conversion...');
+            await new Promise(r => setTimeout(r, 1000));
+            onProgress('🥰 Đang phân tích giai đoạn Loyalty...');
+        }
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: `Generate empathy-driven customer journey map`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.85
+            },
+        });
+
+        const text = response.text || "[]";
+        const jsonStr = text.replace(/```json|```/g, '').trim();
+        return JSON.parse(jsonStr) as JourneyStage[];
+    } catch (error) {
+        console.error("Customer Journey Error:", error);
+        return null;
+    }
+};

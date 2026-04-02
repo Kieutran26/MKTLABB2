@@ -1,0 +1,175 @@
+
+// Pricing Analyzer - Pricing Strategy Analysis
+export const analyzePricingStrategy = async (
+    input: PricingAnalyzerInput,
+    onProgress?: (message: string) => void
+): Promise<PricingAnalyzerResult | null> => {
+    try {
+        onProgress?.('Đang phân tích chiến lược giá...');
+
+        // PILLAR 1: Financial Analysis (Local Calculation)
+        const grossMargin = ((input.targetPrice - input.cogs) / input.targetPrice) * 100;
+        
+        let financialAssessment = '';
+        if (grossMargin < 20) {
+            financialAssessment = 'Biên lợi nhuận Rất thấp (Critical). Nguy cơ thua lỗ cao.';
+        } else if (grossMargin < 30) {
+            financialAssessment = 'Biên lợi nhuận Mỏng (Thin Margin). Rất rủi ro nếu chạy Ads.';
+        } else if (grossMargin < 50) {
+            financialAssessment = 'Biên lợi nhuận Trung bình (Moderate). Đủ để vận hành nhưng cần tối ưu.';
+        } else {
+            financialAssessment = 'Biên lợi nhuận Tốt (Healthy). Đủ không gian để tái đầu tư.';
+        }
+
+        const estimatedFixedCosts = 10000000; // 10M VND assumption
+        const breakEvenUnits = Math.ceil(estimatedFixedCosts / (input.targetPrice - input.cogs));
+
+        // PILLAR 2: Competitive Indexing (Local Calculation)
+        const marketAvg = (input.competitorMin + input.competitorMax) / 2;
+        const priceIndex = input.targetPrice / marketAvg;
+        
+        let marketComment = '';
+        const priceDiff = ((input.targetPrice - marketAvg) / marketAvg) * 100;
+        
+        if (priceIndex < 0.85) {
+            marketComment = `Bạn đang rẻ hơn thị trường ${Math.abs(priceDiff).toFixed(0)}%. Điều này tốt cho việc chiếm thị phần nhưng có thể làm giảm giá trị thương hiệu.`;
+        } else if (priceIndex > 1.15) {
+            marketComment = `Bạn đang đắt hơn thị trường ${priceDiff.toFixed(0)}%. Để bán được giá này, Brand của bạn phải thuộc Top 10% thị trường về niềm tin.`;
+        } else {
+            marketComment = `Giá của bạn nằm trong khoảng trung bình thị trường (±15%). Đây là vùng an toàn.`;
+        }
+
+        // PILLAR 3: Positioning Match Logic
+        let positioningWarning = '';
+        if (input.positioning === 'premium' && priceIndex < 1.0) {
+            positioningWarning = 'CẢNH BÁO: Bạn định vị Premium nhưng giá thấp hơn thị trường. Điều này gây ra Brand Dilution (làm loãng thương hiệu).';
+        } else if (input.positioning === 'budget' && priceIndex > 1.0) {
+            positioningWarning = 'CẢNH BÁO: Bạn định vị Budget nhưng giá cao hơn thị trường. Điều này không thể cạnh tranh được.';
+        }
+
+        // Calculate Verdict Score (0-100)
+        let score = 50; // Base score
+        
+        // Financial health impact (max ±20)
+        if (grossMargin >= 50) score += 20;
+        else if (grossMargin >= 30) score += 10;
+        else if (grossMargin < 20) score -= 20;
+        else score -= 10;
+        
+        // Market positioning impact (max ±20)
+        if (priceIndex >= 0.85 && priceIndex <= 1.15) score += 20;
+        else if (priceIndex < 0.7 || priceIndex > 1.5) score -= 20;
+        else score -= 10;
+        
+        // Positioning match impact (max ±10)
+        if (positioningWarning) score -= 10;
+        else score += 10;
+        
+        score = Math.max(0, Math.min(100, score)); // Clamp to 0-100
+
+        let verdictStatus: 'Optimal' | 'Warning' | 'Critical';
+        if (score >= 70) verdictStatus = 'Optimal';
+        else if (score >= 40) verdictStatus = 'Warning';
+        else verdictStatus = 'Critical';
+
+        let verdictSummary = '';
+        if (verdictStatus === 'Optimal') {
+            verdictSummary = 'Mức giá này hợp lý và cân bằng tốt giữa lợi nhuận và khả năng cạnh tranh.';
+        } else if (verdictStatus === 'Warning') {
+            verdictSummary = 'Mức giá này cần điều chỉnh. ';
+            if (grossMargin < 30) verdictSummary += 'Biên lợi nhuận thấp. ';
+            if (positioningWarning) verdictSummary += 'Không khớp với định vị thương hiệu. ';
+            if (priceIndex > 1.2) verdictSummary += 'Giá cao hơn đối thủ đáng kể.';
+        } else {
+            verdictSummary = 'Mức giá này có vấn đề nghiêm trọng và cần xem xét lại toàn bộ chiến lược.';
+        }
+
+        // Use Gemini for Strategic Solutions
+        onProgress?.('Đang tạo giải pháp chiến lược...');
+
+        const industryContext = input.industry ? `Ngành: ${input.industry}` : 'Ngành: Chưa xác định';
+        
+        const systemPrompt = `Bạn là Senior Pricing Strategist và Financial Analyst.
+
+NHIỆM VỤ: Đưa ra 3-5 lời khuyên chiến lược để tối ưu giá bán.
+
+DỮ LIỆU PHÂN TÍCH:
+${industryContext}
+- Giá vốn (COGS): ${input.cogs.toLocaleString('vi-VN')}đ
+- Giá bán mục tiêu: ${input.targetPrice.toLocaleString('vi-VN')}đ
+- Biên lợi nhuận: ${grossMargin.toFixed(1)}%
+- Giá đối thủ: ${input.competitorMin.toLocaleString('vi-VN')}đ - ${input.competitorMax.toLocaleString('vi-VN')}đ
+- Giá trung bình thị trường: ${marketAvg.toLocaleString('vi-VN')}đ
+- Price Index: ${priceIndex.toFixed(2)} (${priceIndex > 1 ? 'Cao hơn' : 'Thấp hơn'} thị trường ${Math.abs(priceDiff).toFixed(0)}%)
+- Định vị: ${input.positioning === 'budget' ? 'Budget (Giá rẻ)' : input.positioning === 'premium' ? 'Premium (Cao cấp)' : 'Mainstream (Phổ thông)'}
+
+VẤN ĐỀ CHÍNH:
+${positioningWarning || 'Không có vấn đề định vị'}
+${grossMargin < 30 ? '- Biên lợi nhuận quá thấp' : ''}
+${priceIndex > 1.2 ? '- Giá cao hơn đối thủ đáng kể' : ''}
+
+YÊU CẦU:
+Đưa ra 3-5 strategic solutions (giải pháp chiến lược) cụ thể, khả thi. Mỗi solution phải có:
+- type: Loại giải pháp (Psychological Pricing, Value Addition, Cost Optimization, Positioning Strategy, Competitive Response)
+- advice: Lời khuyên chi tiết, cụ thể cho ngành hàng này
+
+Ví dụ về các loại advice:
+- Psychological Pricing: "Giảm giá từ 500k xuống 499k để tạo Left-digit effect"
+- Value Addition: "Thêm bảo hành 12 tháng để justify giá cao hơn"
+- Cost Optimization: "Đàm phán với nhà cung cấp để giảm COGS 10%"
+- Positioning Strategy: "Nâng cấp packaging để match với định vị Premium"
+- Competitive Response: "Bundle với sản phẩm bổ sung để tạo differentiation"
+
+TRẢ VỀ JSON (chỉ JSON, không markdown):
+{
+  "strategic_solutions": [
+    {
+      "type": "string",
+      "advice": "string"
+    }
+  ]
+}`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-exp',
+            contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
+            config: {
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.8,
+                responseMimeType: 'application/json'
+            }
+        });
+
+        const text = response.text?.trim();
+        let strategicSolutions: StrategicSolution[] = [];
+        
+        if (text) {
+            const jsonStr = text.replace(/```json|```/g, '').trim();
+            const parsed = JSON.parse(jsonStr);
+            strategicSolutions = parsed.strategic_solutions || [];
+        }
+
+        return {
+            verdict: {
+                status: verdictStatus,
+                score: Math.round(score),
+                summary: verdictSummary
+            },
+            financial_analysis: {
+                gross_margin_percent: Math.round(grossMargin * 10) / 10,
+                break_even_point: `Bạn cần bán ít nhất ${breakEvenUnits} đơn/tháng để hòa vốn cố định (ước tính).`,
+                assessment: financialAssessment
+            },
+            market_position_analysis: {
+                your_price: input.targetPrice,
+                market_avg: Math.round(marketAvg),
+                price_index: Math.round(priceIndex * 100) / 100,
+                comment: marketComment + (positioningWarning ? ` ${positioningWarning}` : '')
+            },
+            strategic_solutions: strategicSolutions
+        };
+    } catch (error) {
+        console.error('Pricing Analyzer Error:', error);
+        return null;
+    }
+};

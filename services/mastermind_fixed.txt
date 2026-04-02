@@ -1,0 +1,129 @@
+export const generateMastermindStrategy = async (
+    brandInfo: string,
+    audienceInfo: string,
+    objective: string,
+    perception: string,
+    tone: string
+): Promise<any> => {
+    const systemPrompt = `Bạn là một Giám đốc Marketing cấp cao (CMO) với hơn 15 năm kinh nghiệm xây dựng thương hiệu và chiến lược marketing tại thị trường Việt Nam và Đông Nam Á.
+
+Nhiệm vụ của bạn là tổng hợp toàn bộ thông tin đầu vào và tạo ra một chiến lược marketing hoàn chỉnh, chuyên nghiệp và có chiều sâu.
+
+**INPUT DATA:**
+- Brand Context: ${brandInfo}
+- Audience Context: ${audienceInfo}
+- Objective: ${objective}
+- Desired Perception: ${perception}
+- Tone / Style: ${tone}
+
+**REQUIRED OUTPUT STRUCTURE (STRICT JSON ONLY):**
+{
+    "insight": "1 câu insight đắt giá theo công thức: '[Đối tượng] muốn [X] nhưng thực ra cần [Y] vì [lý do tâm lý sâu xa]'",
+    "coreMessage": "1 concept trung tâm kết nối Context + Goal + TOV (Big Idea)",
+    "keyMessages": ["3-5 thông điệp chính lan tỏa từ Big Idea"],
+    
+    "brand_context": {
+        "persona": {
+            "demographics": "Nhân khẩu học (độ tuổi, giới tính, thu nhập...)",
+            "psychographics": "Tâm lý học (quan điểm sống, giá trị cốt lõi...)",
+            "behaviors": "Hành vi tiêu dùng (thói quen mua sắm, các kênh hay dùng...)",
+            "journey": "Mô tả ngắn gọn hành trình ra quyết định mua hàng"
+        },
+        "pain_gain": {
+            "top_pains": ["3 nỗi đau sâu nhất (functional + emotional)"],
+            "top_gains": ["3 khao khát thật sự (không phải bề mặt)"]
+        },
+        "positioning": {
+            "current_state": "Vị thế hiện tại trong tâm trí khách hàng",
+            "differentiator": "Điểm khác biệt cốt lõi so với đối thủ"
+        }
+    },
+    
+    "strategic_goals": {
+        "smart_goals": [
+            { "goal": "Tên mục tiêu", "metric": "Chỉ số đo lường", "deadline": "Thời hạn", "owner": "Vai trò chịu trách nhiệm" }
+        ],
+        "kpi_dashboard": ["5-7 chỉ số quan trọng nhất cần theo dõi hàng tuần"],
+        "resource_allocation": {
+            "budget_split": { "ChannelName": "Percentage%" },
+            "workforce": "Nhân lực cần thiết đề xuất"
+        },
+        "roadmap_90day": {
+            "month_1": "Ưu tiên và action cụ thể (Phase: Foundation)",
+            "month_2": "Tối ưu và scale (Phase: Momentum)",
+            "month_3": "Đánh giá và điều chỉnh (Phase: Conversion)"
+        }
+    },
+    
+    "tone_of_voice": {
+        "personality": {
+            "adjectives": ["4 tính từ cốt lõi"],
+            "human_persona": "Nếu thương hiệu là một người, họ là ai? (Mô tả chi tiết)"
+        },
+        "spectrum": {
+            "formal_casual": "0-100 (0: Formal, 100: Casual)",
+            "serious_playful": "0-100",
+            "authority_friendly": "0-100",
+            "traditional_modern": "0-100"
+        },
+        "writing_rules": {
+            "always": ["5 điều LUÔN làm"],
+            "never": ["5 điều KHÔNG BAO GIỜ làm"],
+            "word_pairs": [{ "do": "Dùng từ này", "dont": "Không dùng từ này" }]
+        },
+        "channel_examples": {
+            "social": "Ví dụ caption mẫu (FB/IG)",
+            "tiktok": "Hook 3 giây mẫu",
+            "email": "Subject line mẫu"
+        }
+    },
+    
+    "action_plan": {
+        "quick_wins": ["3 việc làm ngay trong 30 ngày đầu"],
+        "risks": ["Top 3 rủi ro cần tránh"],
+        "expert_advice": {
+            "the_must_do": "1 điều quan trọng nhất bạn phải làm đúng",
+            "competitor_gap": "1 điều mà hầu hết đối thủ đang bỏ sót"
+        }
+    },
+    
+    "conclusion": {
+        "summary": "Tóm tắt chiến lược trong 3 câu",
+        "positioning_statement": "Câu định vị thương hiệu đề xuất (Proposal)",
+        "final_notes": "Lời nhắn nhủ cuối từ góc nhìn chuyên gia"
+    },
+
+    "contentAngles": {
+        "text": ["Slogan ideas", "Headline ideas"],
+        "visual": ["Moodboard description"],
+        "story": ["Brand story angle"],
+        "data": ["Key statistic"],
+        "action": ["Activation idea"]
+    },
+    "channelStrategy": { "Facebook": 40, "TikTok": 30, "Website": 20, "Email": 10 }
+}
+
+**CRITICAL:** 
+- Ngôn ngữ: TIẾNG VIỆT, chuyên nghiệp, có chiều sâu.
+- Độ dài: Report chi tiết, sâu sắc.
+- Return ONLY valid JSON.`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: \`Generate Mastermind Strategy Report\`,
+            config: {
+                systemInstruction: systemPrompt,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.7
+            },
+        });
+
+        const text = response.text || "{}";
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Mastermind Gen Error:", error);
+        return null;
+    }
+};
