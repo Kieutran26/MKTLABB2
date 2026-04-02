@@ -250,8 +250,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-2xl border border-stone-100 bg-white shadow-sm overflow-hidden min-h-[500px] flex flex-col">
-                                <div className="flex bg-stone-50/50 border-b border-stone-100">
+                            <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+                                <div className="flex bg-stone-50/50 border-b border-stone-200">
                                     {[1, 2, 3].map(i => <div key={i} className={`flex-1 py-4 text-center text-xs font-bold uppercase tracking-widest transition-all ${step === i ? 'text-stone-900 border-b-2 border-stone-900' : 'text-stone-400'}`}>Giai đoạn {i}</div>)}
                                 </div>
                                 
