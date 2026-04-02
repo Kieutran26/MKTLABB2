@@ -72,6 +72,15 @@ export interface IMCInput {
     product_price: number;
     // Asset Checklist
     assets?: AssetChecklist;
+    /** Bối cảnh thương hiệu / đối tượng (wizard bước 2 & 3) — đưa vào prompt AI */
+    brand_vision_mission?: string;
+    audience_name?: string;
+    audience_pain_desire?: string;
+    // Bước 3 Strategic Context
+    usp?: string;
+    competitors?: string;
+    tone?: string;
+    past_campaigns?: string;
 }
 
 export interface FeasibilityResult {
@@ -600,6 +609,18 @@ DỮ LIỆU ĐẦU VÀO (ĐÃ ĐƯỢC TÍNH TOÁN)
 - Campaign Focus: ${focusLabel}
 
 ═══════════════════════════════════════════════════════════════
+BỐI CẢNH CHIẾN LƯỢC (STRATEGIC CONTEXT)
+═══════════════════════════════════════════════════════════════
+
+- Tầm nhìn: ${input.brand_vision_mission || 'Chưa cung cấp'}
+- Đối tượng: ${input.audience_name || 'Chưa cung cấp'}
+- Pain point: ${input.audience_pain_desire || 'Chưa cung cấp'}
+- USP: ${input.usp || 'Chưa cung cấp'}
+- Đối thủ: ${input.competitors || 'Chưa cung cấp'}
+- Tone: ${input.tone || 'Chưa cung cấp'}
+- Lịch sử: ${input.past_campaigns || 'Chưa cung cấp'}
+
+═══════════════════════════════════════════════════════════════
 TẦNG 1: STRATEGIC FOUNDATION (3 Lớp Mục tiêu)
 ═══════════════════════════════════════════════════════════════
 
@@ -666,6 +687,19 @@ OUTPUT FORMAT (STRICT JSON)
   ]
 }`;
 
+            const ctxVision = (input.brand_vision_mission || '').trim();
+            const ctxAudience = (input.audience_name || '').trim();
+            const ctxPain = (input.audience_pain_desire || '').trim();
+            const contextBlock =
+                ctxVision || ctxAudience || ctxPain
+                    ? `
+BỐI CẢNH BỔ SUNG (từ người dùng):
+- Tầm nhìn & giá trị thương hiệu: ${ctxVision || 'Không cung cấp'}
+- Tên / mô tả khách hàng mục tiêu: ${ctxAudience || 'Không cung cấp'}
+- Nỗi đau & khao khát: ${ctxPain || 'Không cung cấp'}
+`
+                    : '';
+
             const prompt = `Tạo kế hoạch IMC cho:
 - Thương hiệu: ${input.brand}
 - Sản phẩm: ${input.product}
@@ -673,7 +707,7 @@ OUTPUT FORMAT (STRICT JSON)
 - Ngành: ${input.industry}
 - Timeline: ${input.timeline_weeks} tuần
 - Campaign Focus: ${focusLabel}
-
+${contextBlock}
 Các con số đã được tính toán sẵn ở trên. Hãy tạo chiến lược phù hợp với các metrics này.`;
 
             const response = await ai.models.generateContent({
