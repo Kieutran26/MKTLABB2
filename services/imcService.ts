@@ -591,10 +591,11 @@ PHẦN 1 — STRATEGIC FOUNDATION
     • Marketing Objective: Marketing cần làm gì để đạt BO?
     • Communication Objective: Thông điệp cần tạo ra nhận thức gì?
 
-1.3 Competitive Angle (BẮT BUỘC)
-    • Đối thủ đang nói gì trên thị trường?
-    • Khoảng trắng truyền thông chưa ai chiếm
-    • Lý do Big Idea này khác biệt và khó bị copy
+1.3 Competitive Angle (BẮT BUỘC — Phải có 3 dòng này)
+    • Đối thủ nói gì: Thông điệp chính mà các đối thủ đang tập trung.
+    • Chúng ta nói gì khác biệt: Điểm độc bản (USP) hoặc góc tiếp cận mới của chúng ta.
+    • Khoảng trắng chúng ta chiếm: Phân khúc hoặc nhu cầu khách hàng mà đối thủ đang bỏ ngỏ chúng ta sẽ thống lĩnh.
+    • Lý do Big Idea này khác biệt và khó bị copy.
 
 1.4 Message Architecture
     • Brand Message (bất biến)

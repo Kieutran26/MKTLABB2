@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X } from 'lucide-react';
+import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X, ShieldCheck } from 'lucide-react';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 import { IMCService, IMCInput, PlanningMode, CampaignFocus, CalculatedMetrics, AssetChecklist, BudgetDistribution } from '../services/imcService';
@@ -611,6 +611,30 @@ const IMCPlanner: React.FC = () => {
                                         <p className="text-sm text-stone-800">{currentPlan.strategic_foundation.communication_obj}</p>
                                     </div>
                                 </div>
+                                {currentPlan.strategic_foundation.competitive_angle && (
+                                    <div className="mt-6 rounded-2xl border border-stone-200 bg-stone-900 p-6 text-white shadow-lg">
+                                        <div className="mb-4 flex items-center gap-2">
+                                            <ShieldCheck size={18} className="text-stone-400" />
+                                            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-stone-400">Competitive Angle</span>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <div className="text-[9px] font-bold uppercase tracking-widest text-stone-500 mb-1">Đối thủ nói gì</div>
+                                                <p className="text-sm font-medium text-stone-100">{currentPlan.strategic_foundation.competitive_angle.competitor_says}</p>
+                                            </div>
+                                            <div className="h-px bg-stone-800" />
+                                            <div>
+                                                <div className="text-[9px] font-bold uppercase tracking-widest text-stone-500 mb-1">Chúng ta nói gì khác biệt</div>
+                                                <p className="text-sm font-medium text-stone-100 italic">“{currentPlan.strategic_foundation.competitive_angle.we_say_differently}”</p>
+                                            </div>
+                                            <div className="h-px bg-stone-800" />
+                                            <div>
+                                                <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-500 mb-1">Khoảng trắng chúng ta chiếm</div>
+                                                <p className="text-sm font-bold text-white">{currentPlan.strategic_foundation.competitive_angle.gap_we_occupy}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className={`${cardClass} p-6 md:p-8`}>
@@ -635,6 +659,24 @@ const IMCPlanner: React.FC = () => {
                                                 <div className="text-xs text-stone-500">{phase.kpis.metric}</div>
                                                 <div className="text-sm font-medium text-stone-900">{phase.kpis.target}</div>
                                             </div>
+                                            {phase.weekly_checkpoint && (
+                                                <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/40 p-4">
+                                                    <div className="mb-2 flex items-center justify-between">
+                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Checkpoint: {phase.weekly_checkpoint.week_indicator}</span>
+                                                        <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold text-blue-800">{phase.weekly_checkpoint.target_metric}</span>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-start gap-2 text-[11px]">
+                                                            <div className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                                                            <div className="text-stone-600"><span className="font-semibold text-stone-800">Đạt:</span> {phase.weekly_checkpoint.if_reached}</div>
+                                                        </div>
+                                                        <div className="flex items-start gap-2 text-[11px]">
+                                                            <div className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" />
+                                                            <div className="text-stone-600"><span className="font-semibold text-stone-800">Chưa đạt:</span> <span className="text-rose-700 font-medium">{phase.weekly_checkpoint.if_not_reached}</span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                             {phase.execution_details && (
                                                 <button onClick={() => togglePhaseExpand(index)} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-xs font-medium text-stone-600 hover:bg-stone-50 transition-colors">
                                                     {expandedPhases.has(index) ? 'Thu gọn' : 'Xem chi tiết'}
