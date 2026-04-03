@@ -138,7 +138,7 @@ const STPModelGenerator: React.FC = () => {
     const [stpData, setStpData] = useState<STPResult | null>(null);
     const [currentInput, setCurrentInput] = useState<STPInput | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [thinkingStep, setThinkingStep] = useState<string>('');
+    const [isLongWait, setIsLongWait] = useState(false);
     const [savedItems, setSavedItems] = useState<SavedSTP[]>([]);
     const [showHistory, setShowHistory] = useState(false);
     const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
@@ -618,15 +618,22 @@ const STPModelGenerator: React.FC = () => {
         setIsGenerating(true);
         setStpData(null);
         setCurrentInput(merged);
+        setIsLongWait(false);
+
+        // Sau 15s mà vẫn đang generating → báo user đợi thêm
+        const waitTimer = setTimeout(() => {
+            setIsLongWait(true);
+        }, 15000);
+
         try {
             const context =
                 activeTab === 'vault' && currentBrand
                     ? `BRAND: ${currentBrand.identity.name}, VISION: ${currentBrand.strategy.vision}. `
                     : '';
-            const result = await generateSTPAnalysis(
-                { ...merged, productBrand: context + merged.productBrand },
-                setThinkingStep
-            );
+            const result = await generateSTPAnalysis({
+                ...merged,
+                productBrand: context + merged.productBrand,
+            });
             if (!result) {
                 toast.error('Không nhận được kết quả. Kiểm tra GEMINI_API_KEY và kết nối mạng, rồi thử lại.');
                 return;
@@ -649,8 +656,9 @@ const STPModelGenerator: React.FC = () => {
         } catch {
             toast.error('Phân tích thất bại');
         } finally {
+            clearTimeout(waitTimer);
             setIsGenerating(false);
-            setThinkingStep('');
+            setIsLongWait(false);
         }
     };
 
@@ -1070,7 +1078,6 @@ const STPModelGenerator: React.FC = () => {
                                             Quay lại
                                         </button>
                                     )}
-                                    {isGenerating && thinkingStep ? <span className="italic">{thinkingStep}</span> : null}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2">
                                     {formTab < 3 && (
@@ -1089,7 +1096,11 @@ const STPModelGenerator: React.FC = () => {
                                             className="inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-8 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-[0.98] disabled:opacity-50"
                                         >
                                             {isGenerating && <Loader2 size={18} className="animate-spin" />}
-                                            {isGenerating ? 'Đang phân tích...' : 'Phân tích STP'}
+                                            {isGenerating
+                                                ? isLongWait
+                                                    ? 'Đang phân tích, xin vui lòng đợi xíu...'
+                                                    : 'Đang phân tích...'
+                                                : 'Phân tích STP'}
                                         </button>
                                     )}
                                 </div>

@@ -3930,18 +3930,7 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
             };
         }
 
-        // Phase 2: STP Analysis
-        onProgress?.('📊 Đang phân tích Segmentation...');
-        await new Promise(r => setTimeout(r, 800));
-
-        onProgress?.('🎯 Đang phân tích Targeting...');
-        await new Promise(r => setTimeout(r, 800));
-
-        onProgress?.('🏆 Đang xây dựng Positioning...');
-        await new Promise(r => setTimeout(r, 800));
-
-        onProgress?.('📋 Đang tạo Action Plan...');
-
+        // Phase 2: STP Analysis (không gọi onProgress / không delay — UI chỉ dùng nút "Đang phân tích...")
         const stpPrompt = `Bạn là Giám đốc Marketing cấp cao với 15 năm kinh nghiệm phân tích thị trường và xây dựng chiến lược STP tại Việt Nam.
 
 NGUYÊN TẮC TUYỆT ĐỐI — ĐỌC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ:
