@@ -3652,8 +3652,7 @@ export const generateSTPAnalysis = async (
     onProgress?: (step: string) => void
 ): Promise<STPResult | null> => {
 
-    // Phase 1: Input Sanity Check
-    onProgress?.('🔍 Đang kiểm tra tính hợp lệ của input...');
+    // Phase 1: Input Sanity Check (không gọi onProgress — tránh hiển thị trạng thái kiểm tra trên UI STP)
 
     const sanityPrompt = `### ROLE: Senior Marketing Auditor
 Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp lệ của input trước khi tiến hành phân tích STP.
@@ -3725,92 +3724,113 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
 
         onProgress?.('📋 Đang tạo Action Plan...');
 
-        const stpPrompt = `### ROLE: Senior Marketing Strategist
-Bạn là một Senior Marketing Strategist chuyên về STP Framework (Segmentation - Targeting - Positioning).
-Bạn CHỈ đưa ra phân tích dựa trên DỮ LIỆU THỰC TẾ người dùng cung cấp.
-TUYỆT ĐỐI KHÔNG bịa đặt hoặc thêm thông tin không có cơ sở.
+        const stpPrompt = `Bạn là Giám đốc Marketing cấp cao với 15 năm kinh nghiệm phân tích thị trường và xây dựng chiến lược STP tại Việt Nam.
 
-### INPUT DATA:
-- Sản phẩm/Thương hiệu: "${input.productBrand}"
-- Ngành hàng: "${input.industry}"
-- Mô tả sản phẩm: "${input.productDescription}"
-- Khoảng giá: "${input.priceRange}"
-- Thị trường địa lý: "${input.targetMarket}"
-- Đối thủ trực tiếp: "${input.competitorNames || 'Không xác định'}"
-- Khách hàng hiện tại (mô tả): "${input.currentCustomers || 'Chưa có dữ liệu'}"
-- Lý do khách mua: "${input.purchaseReason || 'Chưa có dữ liệu'}"
-- Lý do khách không mua: "${input.nonPurchaseReason || 'Chưa có dữ liệu'}"
-- Mục tiêu STP: "${input.stpGoal || 'Chưa nêu'}"
-- USP / điểm mạnh thực sự: "${input.uspStrength || 'Chưa có dữ liệu'}"
+NGUYÊN TẮC TUYỆT ĐỐI — ĐỌC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ:
+• Chỉ phân tích dựa trên dữ liệu user đã cung cấp bên dưới
+• Nếu thiếu dữ liệu để kết luận → ghi rõ "Không đủ dữ liệu: cần thêm [X]" vào mục tương ứng
+• NGHIÊM CẤM bịa đặt số liệu, phân khúc, hay hành vi khách hàng
+• Mọi Positioning Statement phải dựa trên USP có thật trong input
 
-### FRAMEWORK STP - PHÂN TÍCH CHUYÊN SÂU:
+═══════════════════════════════════════
+INPUT — DỮ LIỆU DO USER CUNG CẤP
+═══════════════════════════════════════
 
-**1. SEGMENTATION (Phân khúc thị trường):**
-- Dựa vào ngành "${input.industry}" và thị trường "${input.targetMarket}"
-- Phân khúc theo: Demographics, Psychographics, Behavioral, Geographic
-- Mỗi segment phải có SIZE ESTIMATE dựa trên thị trường
+▌ THÔNG TIN SẢN PHẨM
+• Tên thương hiệu / Sản phẩm : ${input.productBrand}
+• Ngành hàng                  : ${input.industry}
+• Mô tả sản phẩm              : ${input.productDescription}
+• Khoảng giá bán              : ${input.priceRange}
+• Thị trường địa lý           : ${input.targetMarket}
 
-**2. TARGETING (Chọn thị trường mục tiêu):**
-- Chọn 1 segment PHÙ HỢP NHẤT với "${input.productBrand}"
-- Giải thích lý do chọn dựa trên: Market Fit, Growth Potential, Accessibility
-- Nêu rõ RỦI RO của lựa chọn này
+▌ DỮ LIỆU KHÁCH HÀNG THỰC TẾ
+• Khách hàng hiện đang mua    : ${input.currentCustomers || 'Không có'}
+• Lý do mua                   : ${input.purchaseReason || 'Không có'}
+• Lý do KHÔNG mua             : ${input.nonPurchaseReason || 'Không có'}
 
-**3. POSITIONING (Định vị thương hiệu):**
-- Viết POSITIONING STATEMENT theo format chuẩn:
-  "Dành cho [target segment] những người [need/want], [Brand] là [category] mang lại [key benefit] vì [reason to believe]"
-- Xác định COMPETITIVE FRAME: So với ai? Khác biệt gì?
-- Key Differentiators: Những điểm khác biệt CÓ THỂ CHỨNG MINH
+▌ BỐI CẢNH CẠNH TRANH
+• Đối thủ trực tiếp           : ${input.competitorNames || 'Không có'}
+• USP / Điểm mạnh thực sự     : ${input.uspStrength || 'Không có'}
+• Mục tiêu STP                : ${input.stpGoal || 'Không có'}
 
-**4. ACTION PLAN (Kế hoạch hành động):**
-- immediate_actions: 3-5 việc làm NGAY được trong 1-2 tuần
-- marketing_channels: Kênh phù hợp với segment đã chọn
-- messaging_hooks: 3-5 câu hook cho content marketing
+═══════════════════════════════════════
+YÊU CẦU PHÂN TÍCH (TIẾNG VIỆT, CHUYÊN NGHIỆP, 1500-2000 CHỮ)
+═══════════════════════════════════════
+
+1. SEGMENTATION (Phân khúc thị trường): Xác định 3–4 phân khúc thị trường dựa HOÀN TOÀN vào dữ liệu trên.
+2. TARGETING (Chọn thị trường mục tiêu): Đánh giá theo ma trận 4 tiêu chí (Quy mô, Tiếp cận, Cạnh tranh, Phù hợp USP) và chọn phân khúc ưu tiên.
+3. POSITIONING (Định vị thương hiệu): Xây dựng Statement chuẩn, ma trận 2x2 và thông điệp theo kênh.
+4. CHIẾN LƯỢC & CẢNH BÁO: Rút ra insights, rủi ro, cơ hội và những gì AI không biết.
 
 ### OUTPUT FORMAT (STRICT JSON, TIẾNG VIỆT):
 {
   "validationStatus": "PASS",
   "segmentation": {
-    "analysis_approach": "Mô tả ngắn phương pháp phân khúc được sử dụng",
+    "analysis_approach": "Mô tả ngắn phương pháp phân khúc (Demographics, Psychographics...)",
     "segments": [
       {
-        "name": "Tên segment",
-        "description": "Mô tả segment",
-        "demographics": "Nhân khẩu học",
-        "psychographics": "Tâm lý học",
-        "size_estimate": "Ước tính quy mô (VD: 2-3 triệu người tại Việt Nam)",
-        "needs": ["Nhu cầu 1", "Nhu cầu 2"],
-        "behaviors": ["Hành vi 1", "Hành vi 2"]
+        "name": "Tên ngắn gọn, dễ nhớ",
+        "description": "Mô tả chi tiết phân khúc",
+        "demographics": "Nhân khẩu học (tuổi, giới tính, thu nhập, địa lý)",
+        "psychographics": "Tâm lý học (giá trị, thái độ, phong cách sống)",
+        "size_estimate": "Ước tính quy mô (hoặc ghi Không đủ dữ liệu)",
+        "needs": ["Lý do mua 1", "Lý do mua 2"],
+        "behaviors": ["Tần suất", "Kênh mua", "Yếu tố quyết định"],
+        "barriers": ["Rào cản 1", "Rào cản 2"]
       }
     ]
   },
   "targeting": {
-    "primary_segment": "Tên segment được chọn",
-    "selection_rationale": "Lý do chọn segment này",
-    "market_fit_score": 85,
-    "growth_potential": "Tiềm năng tăng trưởng",
-    "accessibility": "Khả năng tiếp cận",
-    "risks": ["Rủi ro 1", "Rủi ro 2"]
+    "primary_segment": "Tên phân khúc được chọn",
+    "selection_rationale": "Lý do chọn dựa trên dẫn chứng cụ thể từ input",
+    "market_fit_score": 1-100,
+    "growth_potential": "Dựa trên dữ liệu cung cấp",
+    "accessibility": "Khả năng tiếp cận phân khúc này",
+    "risks": ["Cảnh báo rủi ro cụ thể"],
+    "secondary_segments": ["Tên các phân khúc thứ cấp"],
+    "segments_to_avoid": ["Tên và lý do cụ thể"],
+    "targeting_matrix": [
+      {
+        "segment_name": "Tên PK",
+        "size_score": 1-5,
+        "accessibility_score": 1-5,
+        "competition_score": 1-5,
+        "usp_fit_score": 1-5,
+        "total_score": 4-20,
+        "rationale": "Giải thích lý do chấm điểm"
+      }
+    ]
   },
   "positioning": {
-    "positioning_statement": "Câu định vị hoàn chỉnh",
-    "unique_value_proposition": "Giá trị độc nhất",
+    "positioning_statement": "Công thức: Dành cho [target], [tên thương hiệu] là [category] duy nhất [USP] bởi vì [RTB]",
+    "unique_value_proposition": "Giá trị độc nhất thực sự",
     "key_differentiators": ["Điểm khác biệt 1", "Điểm khác biệt 2"],
-    "brand_essence": "Tinh chất thương hiệu (1-2 từ)",
+    "brand_essence": "Tinh chất thương hiệu",
     "competitive_frame": "Khung cạnh tranh (so với ai)",
-    "reasons_to_believe": ["RTB 1", "RTB 2"]
+    "reasons_to_believe": ["Bằng chứng 1", "Bằng chứng 2"],
+    "matrix_2x2": {
+      "x_axis": "Tên trục X (VD: Giá)",
+      "y_axis": "Tên trục Y (VD: Chất lượng)",
+      "brand_position": { "x": 0-100, "y": 0-100 },
+      "competitors": [{ "name": "Đối thủ A", "x": 0-100, "y": 0-100 }]
+    },
+    "channel_messages": [{ "channel": "Kênh X", "message": "Thông điệp cho kênh X" }],
+    "perceptual_map_text": "Mô tả bằng text vị trí tương đối"
   },
   "actionPlan": {
-    "immediate_actions": ["Hành động 1", "Hành động 2", "Hành động 3"],
+    "immediate_actions": ["Hành động 1", "Hành động 2"],
     "marketing_channels": ["Kênh 1", "Kênh 2"],
-    "messaging_hooks": ["Hook 1", "Hook 2", "Hook 3"]
+    "messaging_hooks": ["Hook 1", "Hook 2"]
+  },
+  "strategy": {
+    "top_insights": ["Insight 1 + dẫn chứng", "Insight 2 + dẫn chứng"],
+    "strategic_risks": [{ "issue": "Rủi ro lớn nhất", "mitigation": "Cách giảm thiểu" }],
+    "opportunities": ["Cơ hội chưa khai thác"],
+    "ai_knowledge_gaps": ["Những gì AI KHÔNG BIẾT vì thiếu dữ liệu"]
   }
 }
 
-### QUALITY RULES:
-1. Segments: Tạo 3-4 segments phù hợp với ngành
-2. Size estimates phải THỰC TẾ với thị trường "${input.targetMarket}"
-3. Positioning Statement phải theo format chuẩn
-4. Action Plan phải KHẢ THI, làm được NGAY`;
+⚠️ QUAN TRỌNG: Phần 'Những gì AI không biết' là BẮT BUỘC.`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',

@@ -924,6 +924,17 @@ export interface STPTarget {
   growth_potential: string;
   accessibility: string;
   risks: string[];
+  secondary_segments?: string[];
+  segments_to_avoid?: string[];
+  targeting_matrix?: Array<{
+    segment_name: string;
+    size_score: number;
+    accessibility_score: number;
+    competition_score: number;
+    usp_fit_score: number;
+    total_score: number;
+    rationale: string;
+  }>;
 }
 
 export interface STPPosition {
@@ -933,6 +944,14 @@ export interface STPPosition {
   brand_essence: string;
   competitive_frame: string;
   reasons_to_believe: string[];
+  matrix_2x2?: {
+    x_axis: string;
+    y_axis: string;
+    brand_position: { x: number; y: number };
+    competitors: Array<{ name: string; x: number; y: number }>;
+  };
+  channel_messages?: Array<{ channel: string; message: string }>;
+  perceptual_map_text?: string;
 }
 
 export interface STPResult {
@@ -950,6 +969,13 @@ export interface STPResult {
     immediate_actions: string[];
     marketing_channels: string[];
     messaging_hooks: string[];
+  };
+
+  strategy?: {
+    top_insights: string[];
+    strategic_risks: Array<{ issue: string; mitigation: string }>;
+    opportunities: string[];
+    ai_knowledge_gaps: string[];
   };
 }
 

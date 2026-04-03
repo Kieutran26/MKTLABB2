@@ -59,6 +59,18 @@ const SegmentCard: React.FC<{ segment: STPSegment; index: number }> = ({ segment
                 <p className="text-sm text-stone-800">{segment.psychographics}</p>
             </div>
         </div>
+        {(segment as any).barriers && (segment as any).barriers.length > 0 && (
+            <div className="mt-4 border-t border-stone-100 pt-3">
+                <p className="mb-1 text-[10px] font-bold uppercase text-stone-400">Rào cản (Barriers)</p>
+                <div className="flex flex-wrap gap-2">
+                    {(segment as any).barriers.map((b: string, idx: number) => (
+                        <span key={idx} className="rounded-md bg-stone-100 px-2 py-1 text-[10px] text-stone-600">
+                            {b}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        )}
     </div>
 );
 
@@ -68,7 +80,7 @@ const STPModelGenerator: React.FC = () => {
     const [profile, setProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
     const [formTab, setFormTab] = useState<1 | 2 | 3>(1);
-    const [outputTab, setOutputTab] = useState<'segmentation' | 'targeting' | 'positioning'>('segmentation');
+    const [outputTab, setOutputTab] = useState<'segmentation' | 'targeting' | 'positioning' | 'strategy'>('segmentation');
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<STPInput>({
         defaultValues: STP_DEFAULTS,
     });
@@ -530,7 +542,7 @@ const STPModelGenerator: React.FC = () => {
                             </div>
 
                             <div className="flex w-fit gap-2 rounded-xl bg-stone-100 p-1">
-                                {(['segmentation', 'targeting', 'positioning'] as const).map((t) => (
+                                {(['segmentation', 'targeting', 'positioning', 'strategy'] as const).map((t) => (
                                     <button
                                         key={t}
                                         type="button"
@@ -592,6 +604,60 @@ const STPModelGenerator: React.FC = () => {
                                                     <p key={i} className="flex items-start gap-2 text-xs text-stone-600">
                                                         <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-stone-300" aria-hidden />
                                                         <span>{r}</span>
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {outputTab === 'strategy' && stpData.strategy && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8 text-stone-900">
+                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Top Strategic Insights</p>
+                                            <div className="space-y-4">
+                                                {stpData.strategy.top_insights.map((insight, i) => (
+                                                    <div key={i} className="flex gap-4">
+                                                        <span className="font-mono text-stone-300">0{i + 1}</span>
+                                                        <p className="text-sm leading-relaxed text-stone-800 font-medium">{insight}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-3xl border border-stone-200 bg-white p-8">
+                                            <p className="mb-4 text-[10px] font-bold uppercase text-red-400">Strategic Risks</p>
+                                            <div className="space-y-4">
+                                                {stpData.strategy.strategic_risks.map((risk, i) => (
+                                                    <div key={i} className="space-y-1">
+                                                        <p className="text-sm font-bold text-stone-900 leading-snug">{risk.issue}</p>
+                                                        <p className="text-xs italic text-stone-500">Giải pháp giảm thiểu: {risk.mitigation}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8">
+                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Opportunities</p>
+                                            <div className="space-y-2">
+                                                {stpData.strategy.opportunities.map((opt, i) => (
+                                                    <p key={i} className="text-sm text-stone-700">
+                                                        <span className="mr-2 text-stone-300">●</span> {opt}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="rounded-3xl border border-stone-900 bg-stone-900 p-8 text-white">
+                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-500">AI Knowledge Gaps (Bắt buộc)</p>
+                                            <div className="space-y-3">
+                                                {stpData.strategy.ai_knowledge_gaps.map((gap, i) => (
+                                                    <p key={i} className="text-xs leading-relaxed text-stone-400">
+                                                        <span className="mr-2 text-stone-600">?</span> {gap}
                                                     </p>
                                                 ))}
                                             </div>
