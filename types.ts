@@ -897,6 +897,14 @@ export interface STPInput {
   targetMarket: string;
   competitorNames?: string;
   currentCustomers?: string;
+  /** Lý do khách mua (ưu tiên insight phân khúc) */
+  purchaseReason?: string;
+  /** Lý do khách không mua / rào cản */
+  nonPurchaseReason?: string;
+  /** Mục tiêu STP của người dùng */
+  stpGoal?: string;
+  /** USP / điểm mạnh có thể chứng minh */
+  uspStrength?: string;
 }
 
 export interface STPSegment {

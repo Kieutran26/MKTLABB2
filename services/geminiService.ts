@@ -3663,9 +3663,13 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
 - Ngành hàng: "${input.industry}"
 - Mô tả sản phẩm: "${input.productDescription}"
 - Khoảng giá: "${input.priceRange}"
-- Thị trường: "${input.targetMarket}"
-- Đối thủ: "${input.competitorNames || 'Không có'}"
-- Khách hàng hiện tại: "${input.currentCustomers || 'Không có'}"
+- Thị trường địa lý: "${input.targetMarket}"
+- Đối thủ trực tiếp: "${input.competitorNames || 'Không có'}"
+- Khách hàng hiện tại (mô tả): "${input.currentCustomers || 'Không có'}"
+- Lý do khách mua: "${input.purchaseReason || 'Không có'}"
+- Lý do khách không mua: "${input.nonPurchaseReason || 'Không có'}"
+- Mục tiêu STP: "${input.stpGoal || 'Không nêu'}"
+- USP / điểm mạnh thực sự: "${input.uspStrength || 'Không có'}"
 
 ### KIỂM TRA (Trả về JSON):
 1. **Kiểm tra chi tiết**: Input có đủ CHI TIẾT để phân tích không?
@@ -3731,9 +3735,13 @@ TUYỆT ĐỐI KHÔNG bịa đặt hoặc thêm thông tin không có cơ sở.
 - Ngành hàng: "${input.industry}"
 - Mô tả sản phẩm: "${input.productDescription}"
 - Khoảng giá: "${input.priceRange}"
-- Thị trường mục tiêu: "${input.targetMarket}"
-- Đối thủ cạnh tranh: "${input.competitorNames || 'Không xác định'}"
-- Khách hàng hiện tại: "${input.currentCustomers || 'Chưa có dữ liệu'}"
+- Thị trường địa lý: "${input.targetMarket}"
+- Đối thủ trực tiếp: "${input.competitorNames || 'Không xác định'}"
+- Khách hàng hiện tại (mô tả): "${input.currentCustomers || 'Chưa có dữ liệu'}"
+- Lý do khách mua: "${input.purchaseReason || 'Chưa có dữ liệu'}"
+- Lý do khách không mua: "${input.nonPurchaseReason || 'Chưa có dữ liệu'}"
+- Mục tiêu STP: "${input.stpGoal || 'Chưa nêu'}"
+- USP / điểm mạnh thực sự: "${input.uspStrength || 'Chưa có dữ liệu'}"
 
 ### FRAMEWORK STP - PHÂN TÍCH CHUYÊN SÂU:
 
