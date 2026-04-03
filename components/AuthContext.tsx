@@ -15,11 +15,15 @@ import {
 } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../lib/firebase';
 
+export type SubscriptionTier = 'free' | 'pro' | 'promax';
+
 interface AuthContextValue {
     user: User | null;
     loading: boolean;
+    tier: SubscriptionTier;
     signInWithGoogle: () => Promise<void>;
     signOutUser: () => Promise<void>;
+    setTier: (t: SubscriptionTier) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -37,6 +41,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [tier, setTier] = useState<SubscriptionTier>('free');
 
     useEffect(() => {
         if (!isFirebaseConfigured) {
@@ -70,9 +75,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await signOut(auth);
     }, []);
 
-    return (
-        <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOutUser }}>
-            {children}
-        </AuthContext.Provider>
-    );
+        return (
+            <AuthContext.Provider value={{ user, loading, tier, signInWithGoogle, signOutUser, setTier }}>
+                {children}
+            </AuthContext.Provider>
+        );
 };

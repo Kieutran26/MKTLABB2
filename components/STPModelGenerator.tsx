@@ -15,6 +15,7 @@ import { StpOptimizerField } from './stp-optimizer-field';
 import { renderMarkdownBoldSegments } from '../utils/renderMarkdownBold';
 import { parseStpStrategyBodyChunks } from '../utils/stpInsightChunks';
 import { VIEW_TO_SLUG } from '../lib/route-mapping';
+import ProMaxAdviceGate from './ProMaxAdviceGate';
 import './MastermindStrategyEditorial.css';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -149,7 +150,7 @@ function renderStpBrandEssenceTitle(essence: string): React.ReactNode {
 
 const STPModelGenerator: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
     const [profile, setProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
@@ -545,22 +546,41 @@ const STPModelGenerator: React.FC = () => {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0;
-            border: 1px solid var(--stp-tg-border);
-            border-radius: 3px;
+            border: 1px solid var(--rule);
+            border-radius: 0;
             overflow: hidden;
             margin-top: 2rem;
-            background: var(--stp-tg-bg);
+            background: transparent;
         }
-        .stp-fb-col { padding: 0.875rem 1.25rem; border-right: 1px solid var(--stp-tg-rule); text-align: center; }
+        .stp-fb-col { padding: 1.25rem 1.5rem; border-right: 1px solid var(--rule); text-align: center; }
         .stp-fb-col:last-child { border-right: none; }
-        .stp-fb-val { font-family: var(--serif); font-size: 20px; color: var(--ink); display: block; }
+        .stp-fb-val { font-family: var(--serif); font-size: clamp(1.35rem, 3vw, 1.65rem); color: var(--ink); display: block; font-weight: 400; letter-spacing: -0.02em; }
         .stp-fb-label {
-            font-size: 9px;
-            letter-spacing: 0.1em;
+            font-size: 8px;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--accent);
-            margin-top: 3px;
+            margin-top: 0.5rem;
+        }
+
+        /* CMO + footer: khi khóa Pro Max, thanh số liệu trên, thẻ nâng cấp dưới cùng */
+        .stp-cmo-footer-stack {
+            display: flex;
+            flex-direction: column;
+        }
+        .stp-cmo-footer-stack--lock-last {
+            flex-direction: column-reverse;
+        }
+        .stp-cmo-footer-stack--lock-last .stp-cmo-wrap--gate-last {
+            border-top: none;
+            margin-top: 0;
+            padding-top: 0;
+        }
+        .stp-cmo-footer-stack--lock-last .pmg-locked {
+            margin-top: 0;
+            padding-top: 0;
+            padding-bottom: 0.5rem;
         }
         
         /* Map legend */
@@ -1486,9 +1506,20 @@ const STPModelGenerator: React.FC = () => {
                                 </>
                             )}
 
-                            {/* ── CMO ADVICE ─────────────────────────────────────── */}
+                            {/* ── CMO ADVICE + FOOTER (chưa Pro Max: đảo cột — số liệu trên, thẻ khóa dưới cùng) ── */}
+                            <div
+                                className={
+                                    stpData.cmo_advice
+                                        ? tier !== 'promax'
+                                            ? 'stp-cmo-footer-stack stp-cmo-footer-stack--lock-last'
+                                            : 'stp-cmo-footer-stack'
+                                        : undefined
+                                }
+                            >
                             {stpData.cmo_advice && (
-                                <div className="stp-cmo-wrap">
+                                <ProMaxAdviceGate
+                                    className={`stp-cmo-wrap${tier !== 'promax' ? ' stp-cmo-wrap--gate-last' : ''}`}
+                                >
                                     <div className="stp-cmo-header stp-a" style={{ animationDelay: '0.44s' }}>
                                         <span className="stp-cmo-label">Lời khuyên</span>
                                         <span className="stp-cmo-sig">Strategic Advisory</span>
@@ -1624,10 +1655,9 @@ const STPModelGenerator: React.FC = () => {
                                             &ldquo;{stpData.cmo_advice.final_positioning_quote}&rdquo;
                                         </div>
                                     )}
-                                </div>
+                                </ProMaxAdviceGate>
                             )}
 
-                            {/* FOOTER */}
                             <div className="stp-footer-bar stp-a" style={{ animationDelay: '0.55s' }}>
                                 <div className="stp-fb-col">
                                     <span className="stp-fb-val">{stpData.segmentation.segments.length}</span>
@@ -1641,6 +1671,7 @@ const STPModelGenerator: React.FC = () => {
                                     <span className="stp-fb-val">1</span>
                                     <div className="stp-fb-label">Khoảng trắng chiến lược</div>
                                 </div>
+                            </div>
                             </div>
                             </div>
                         </div>
