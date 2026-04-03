@@ -1,23 +1,35 @@
 import React from 'react';
 import { Check, ChevronRight, Diamond } from 'lucide-react';
-import { useAuth } from './AuthContext';
+import { useAuth, type SubscriptionTier } from './AuthContext';
 import './MastermindStrategyEditorial.css';
 import './ProMaxAdviceGate.css';
 
-const PRO_MAX_BENEFITS = [
+const DEFAULT_BENEFITS = [
     'Insight chiến lược, rủi ro & cơ hội bị bỏ lỡ',
     'Lộ trình hành động 30 · 60 · 90 ngày',
 ] as const;
 
-interface ProMaxAdviceGateProps {
-    children: React.ReactNode;
+export interface ProMaxAdviceGateProps {
+    children?: React.ReactNode;
     className?: string;
+    benefits?: readonly string[];
+    /** Ghi đè tier từ context — dùng profile.subscription_tier từ SaaS (AuthContext.tier hiện không đồng bộ profile). */
+    subscriptionTier?: SubscriptionTier | string | null | undefined;
 }
 
-const ProMaxAdviceGate: React.FC<ProMaxAdviceGateProps> = ({ children, className = '' }) => {
+const ProMaxAdviceGate: React.FC<ProMaxAdviceGateProps> = ({
+    children,
+    className = '',
+    benefits = DEFAULT_BENEFITS,
+    subscriptionTier: subscriptionTierProp,
+}) => {
     const { tier } = useAuth();
+    const effectiveTier: SubscriptionTier =
+        subscriptionTierProp === 'promax' || subscriptionTierProp === 'pro' || subscriptionTierProp === 'free'
+            ? subscriptionTierProp
+            : tier;
 
-    if (tier === 'promax') {
+    if (effectiveTier === 'promax') {
         return <div className={`pmg-wrap ${className}`}>{children}</div>;
     }
 
@@ -36,7 +48,7 @@ const ProMaxAdviceGate: React.FC<ProMaxAdviceGateProps> = ({ children, className
                     </p>
 
                     <div className="ms-vault-benefits pmg-compact-benefits">
-                        {PRO_MAX_BENEFITS.map((benefit, bIdx) => (
+                        {benefits.map((benefit, bIdx) => (
                             <div key={bIdx} className="ms-vault-benefit-item">
                                 <div className="ms-vault-benefit-icon">
                                     <Check size={13} strokeWidth={3} aria-hidden />

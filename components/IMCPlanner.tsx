@@ -585,7 +585,10 @@ const IMCPlanner: React.FC = () => {
             >
                 <div className="w-full max-w-none">
                     {viewMode === 'detail' && currentPlan ? (
-                        <IMCOutputEditorial plan={currentPlan} />
+                        <IMCOutputEditorial
+                            plan={currentPlan}
+                            subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? 'free'}
+                        />
                     ) : viewMode === 'history' ? (
                         <div className={`${cardClass} p-6 md:p-8`}>
                             <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">

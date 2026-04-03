@@ -3,9 +3,12 @@ import './MastermindStrategyEditorial.css';
 import { MastermindStrategy } from '../types';
 import { renderMarkdownBoldSegments } from '../utils/renderMarkdownBold';
 import { Check, X, Zap } from 'lucide-react';
+import ProMaxAdviceGate from './ProMaxAdviceGate';
+import type { SubscriptionTier } from './AuthContext';
 
 interface MastermindStrategyEditorialProps {
   strategy: MastermindStrategy;
+  subscriptionTier?: SubscriptionTier | string | null;
 }
 
 /* ── small helpers ── */
@@ -27,8 +30,9 @@ const SectionLabel = ({
   </div>
 );
 
-const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = ({ strategy }) => {
+const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = ({ strategy, subscriptionTier }) => {
   const { result } = strategy;
+  const isPromax = subscriptionTier === 'promax';
   if (!result) return null;
 
   /** API / DB có thể thiếu nhánh — tránh crash khi đọc nested */

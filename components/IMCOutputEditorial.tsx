@@ -1,15 +1,20 @@
 import React from 'react';
 import { Check, AlertTriangle, XCircle, Info, Zap, Users, Sparkles, Compass, Flag, Target, RefreshCw, ShieldCheck, AlertOctagon, Lightbulb, MessageSquareQuote } from 'lucide-react';
 import { IMCPlan } from '../types';
+import type { SubscriptionTier } from './AuthContext';
+import ProMaxAdviceGate from './ProMaxAdviceGate';
 import './imc-planner-editorial.css';
 
 interface IMCOutputEditorialProps {
   plan: IMCPlan;
+  /** Tier từ SaaS profile — khớp Brand Vault / STP (AuthContext.tier không đồng bộ). */
+  subscriptionTier?: SubscriptionTier | string | null;
 }
 
 const cleanText = (text: string) => text.replace(/\*\*/g, '');
 
-const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan }) => {
+const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, subscriptionTier }) => {
+  const isPromax = subscriptionTier === 'promax';
   const formatVND = (num: number) => {
     if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + ' tỷ';
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(0) + 'M';
@@ -280,135 +285,155 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan }) => {
           </div>
         )}
 
-        {/* CMO NOTE - STRATEGIC WATERFALL */}
-        {plan.expert_notes && (
-          <div className="imc-cmo-section imc-anim" style={{ animationDelay: '0.7s' }}>
-            <div className="imc-cmo-header">
-              <span className="imc-cmo-label">Strategic Executive Briefing</span>
-              <span className="imc-cmo-sig">Lời khuyên</span>
-            </div>
-
-            <div className="imc-cmo-waterfall">
-              {/* I. HERO INSIGHT */}
-              <div className="imc-cmo-hero">
-                <div className="imc-cmo-hero-icon"><ShieldCheck size={32} /></div>
-                <div className="imc-cmo-hero-content">
-                  <div className="imc-cmo-num">I. THE KEY SUCCESS FACTOR</div>
-                  <div className="imc-cmo-item-title">Điều quan trọng nhất phải làm đúng</div>
-                  
-                  <div className="imc-cmo-hero-two-col">
-                    <div className="imc-cmo-hero-c">
-                      <div className="imc-cmo-c-head">
-                        <Zap size={12} className="text-amber-500" />
-                        <span>QUYẾT ĐỊNH CHIẾN DỊCH</span>
-                      </div>
-                      <div className="imc-cmo-c-text">
-                        {cleanText(plan.expert_notes.key_success_factor.split('. ')[0])}.
-                      </div>
-                    </div>
-                    <div className="imc-cmo-hero-c">
-                      <div className="imc-cmo-c-head">
-                        <Info size={12} className="text-slate-400" />
-                        <span>LÝ DO & HỆ QUẢ</span>
-                      </div>
-                      <div className="imc-cmo-c-text">
-                        {cleanText(plan.expert_notes.key_success_factor.split('. ').slice(1).join('. '))}
-                      </div>
-                    </div>
+        {/* CMO NOTE - STRATEGIC WATERFALL + FOOTER BAR */}
+        <div
+          className={
+            plan.expert_notes && !isPromax
+              ? 'imc-cmo-footer-stack imc-cmo-footer-stack--lock-last'
+              : 'imc-cmo-footer-stack'
+          }
+        >
+          {/* Expert Notes — khóa theo Pro Max (có dữ liệu vẫn chỉ hiện card nếu chưa promax) */}
+          {plan.expert_notes && (
+            <ProMaxAdviceGate
+              subscriptionTier={subscriptionTier}
+              className={`imc-cmo-gate${isPromax ? ' imc-cmo-gate--open' : ''}`}
+              benefits={[
+                'Key success factor, rủi ro & cơ hội bị bỏ lỡ',
+                'Lời khuyên chiến lược theo từng giai đoạn IMC',
+              ]}
+            >
+              <div className="imc-cmo-wrap--gate">
+                <div className="imc-cmo-section imc-anim" style={{ animationDelay: '0.7s' }}>
+                  <div className="imc-cmo-header">
+                    <span className="imc-cmo-label">Strategic Executive Briefing</span>
+                    <span className="imc-cmo-sig">Lời khuyên</span>
                   </div>
-                </div>
-              </div>
 
-              {/* II. RISK MATRIX */}
-              <div className="imc-cmo-matrix-block">
-                <div className="imc-cmo-num">II. RISK MITIGATION & CONTINGENCY</div>
-                <div className="imc-cmo-item-title">Rủi ro lớn nhất & Phương án phòng tránh</div>
-                <div className="imc-cmo-risk-grid">
-                  {plan.expert_notes.risks.map((r, idx) => (
-                    <div key={idx} className="imc-cmo-risk-card">
-                      <div className="imc-cmo-risk-head">
-                        <AlertOctagon size={16} className="text-rose-600" />
-                        <strong>RISK: {cleanText(r.issue)}</strong>
-                      </div>
-                      <div className="imc-cmo-risk-arrow">↳</div>
-                      <div className="imc-cmo-risk-body">
-                        <span>MITIGATION:</span>
-                        <div className="imc-mitigation-list">
-                          {cleanText(r.mitigation).split('. ').map((point, pIdx) => (
-                            point && (
-                              <div key={pIdx} className="imc-mitigation-item">
-                                {point.trim()}{point.endsWith('.') ? '' : '.'}
-                              </div>
-                            )
-                          ))}
+                  <div className="imc-cmo-waterfall">
+                  {/* I. HERO INSIGHT */}
+                  <div className="imc-cmo-hero">
+                    <div className="imc-cmo-hero-icon"><ShieldCheck size={32} /></div>
+                    <div className="imc-cmo-hero-content">
+                      <div className="imc-cmo-num">I. THE KEY SUCCESS FACTOR</div>
+                      <div className="imc-cmo-item-title">Điều quan trọng nhất phải làm đúng</div>
+
+                      <div className="imc-cmo-hero-two-col">
+                        <div className="imc-cmo-hero-c">
+                          <div className="imc-cmo-c-head">
+                            <Zap size={12} className="text-amber-500" />
+                            <span>QUYẾT ĐỊNH CHIẾN DỊCH</span>
+                          </div>
+                          <div className="imc-cmo-c-text">
+                            {cleanText(plan.expert_notes.key_success_factor.split('. ')[0])}.
+                          </div>
+                        </div>
+                        <div className="imc-cmo-hero-c">
+                          <div className="imc-cmo-c-head">
+                            <Info size={12} className="text-slate-400" />
+                            <span>LÝ DO & HỆ QUẢ</span>
+                          </div>
+                          <div className="imc-cmo-c-text">
+                            {cleanText(plan.expert_notes.key_success_factor.split('. ').slice(1).join('. '))}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* II. RISK MATRIX */}
+                  <div className="imc-cmo-matrix-block">
+                    <div className="imc-cmo-num">II. RISK MITIGATION & CONTINGENCY</div>
+                    <div className="imc-cmo-item-title">Rủi ro lớn nhất & Phương án phòng tránh</div>
+                    <div className="imc-cmo-risk-grid">
+                      {plan.expert_notes.risks.map((r, idx) => (
+                        <div key={idx} className="imc-cmo-risk-card">
+                          <div className="imc-cmo-risk-head">
+                            <AlertOctagon size={16} className="text-rose-600" />
+                            <strong>RISK: {cleanText(r.issue)}</strong>
+                          </div>
+                          <div className="imc-cmo-risk-arrow">↳</div>
+                          <div className="imc-cmo-risk-body">
+                            <span>MITIGATION:</span>
+                            <div className="imc-mitigation-list">
+                              {cleanText(r.mitigation).split('. ').map((point, pIdx) => (
+                                point && (
+                                  <div key={pIdx} className="imc-mitigation-item">
+                                    {point.trim()}{point.endsWith('.') ? '' : '.'}
+                                  </div>
+                                )
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* III & IV. STRATEGIC LEVERS */}
+                  <div className="imc-cmo-levers-row">
+                    <div className="imc-cmo-lever-card">
+                      <div className="imc-cmo-num">III. OPPORTUNITY</div>
+                      <div className="imc-cmo-lever-head">
+                        <Lightbulb size={20} className="text-amber-500" />
+                        <span>CƠ HỘI ĐANG BỊ BỎ NGỎ</span>
+                      </div>
+                      <div className="imc-mitigation-list">
+                        {cleanText(plan.expert_notes.opportunity).split('. ').map((point, pIdx) => (
+                          point && (
+                            <div key={pIdx} className="imc-mitigation-item">
+                              {point.trim()}{point.endsWith('.') ? '' : '.'}
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="imc-cmo-lever-card imc-lever-soft">
+                      <div className="imc-cmo-num">IV. STRAIGHT TALK</div>
+                      <div className="imc-cmo-lever-head">
+                        <MessageSquareQuote size={20} className="text-slate-600" />
+                        <span>LỜI KHUYÊN THẲNG THẮN</span>
+                      </div>
+                      <div className="imc-mitigation-list">
+                        {cleanText(plan.expert_notes.frank_advice).split('. ').map((point, pIdx) => (
+                          point && (
+                            <div key={pIdx} className="imc-mitigation-item">
+                              {point.trim()}{point.endsWith('.') ? '' : '.'}
+                            </div>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                  <div className="imc-cmo-quote">
+                    Chiến lược IMC này mang tính định hướng cao. Thành công thực tế phụ thuộc rất lớn vào sự phối hợp nhịp nhàng giữa team Branding và Performance trong từng tuần thực thi.
+                  </div>
                 </div>
               </div>
+            </ProMaxAdviceGate>
+          )}
 
-              {/* III & IV. STRATEGIC LEVERS */}
-              <div className="imc-cmo-levers-row">
-                <div className="imc-cmo-lever-card">
-                  <div className="imc-cmo-num">III. OPPORTUNITY</div>
-                  <div className="imc-cmo-lever-head">
-                    <Lightbulb size={20} className="text-amber-500" />
-                    <span>CƠ HỘI ĐANG BỊ BỎ NGỎ</span>
-                  </div>
-                  <div className="imc-mitigation-list">
-                    {cleanText(plan.expert_notes.opportunity).split('. ').map((point, pIdx) => (
-                      point && (
-                        <div key={pIdx} className="imc-mitigation-item">
-                          {point.trim()}{point.endsWith('.') ? '' : '.'}
-                        </div>
-                      )
-                    ))}
-                  </div>
-                </div>
-
-                <div className="imc-cmo-lever-card imc-lever-soft">
-                  <div className="imc-cmo-num">IV. STRAIGHT TALK</div>
-                  <div className="imc-cmo-lever-head">
-                    <MessageSquareQuote size={20} className="text-slate-600" />
-                    <span>LỜI KHUYÊN THẲNG THẮN</span>
-                  </div>
-                  <div className="imc-mitigation-list">
-                    {cleanText(plan.expert_notes.frank_advice).split('. ').map((point, pIdx) => (
-                      point && (
-                        <div key={pIdx} className="imc-mitigation-item">
-                          {point.trim()}{point.endsWith('.') ? '' : '.'}
-                        </div>
-                      )
-                    ))}
-                  </div>
-                </div>
-              </div>
+          {/* FOOTER BAR — always visible */}
+          <div className="imc-footer-bar imc-anim" style={{ animationDelay: '0.8s' }}>
+            <div className="imc-fb-col">
+              <span className="imc-fb-val">{formatVND(plan.total_budget)}</span>
+              <div className="imc-fb-label">Ngân sách</div>
             </div>
-
-            <div className="imc-cmo-quote">
-              Chiến lược IMC này mang tính định hướng cao. Thành công thực tế phụ thuộc rất lớn vào sự phối hợp nhịp nhàng giữa team Branding và Performance trong từng tuần thực thi.
+            <div className="imc-fb-col">
+              <span className="imc-fb-val">{plan.imc_execution.length}</span>
+              <div className="imc-fb-label">Giai đoạn</div>
             </div>
-          </div>
-        )}
-
-        {/* FOOTER BAR */}
-        <div className="imc-footer-bar imc-anim" style={{ animationDelay: '0.8s' }}>
-          <div className="imc-fb-col">
-            <span className="imc-fb-val">{formatVND(plan.total_budget)}</span>
-            <div className="imc-fb-label">Ngân sách</div>
-          </div>
-          <div className="imc-fb-col">
-            <span className="imc-fb-val">{plan.imc_execution.length}</span>
-            <div className="imc-fb-label">Giai đoạn</div>
-          </div>
-          <div className="imc-fb-col">
-            <span className="imc-fb-val">{plan.timeline_weeks} tuần</span>
-            <div className="imc-fb-label">Thời gian</div>
-          </div>
-          <div className="imc-fb-col">
-            <span className="imc-fb-val">{plan.revenue_projection?.projected_revenue || 'N/A'}</span>
-            <div className="imc-fb-label">Doanh thu kỳ vọng</div>
+            <div className="imc-fb-col">
+              <span className="imc-fb-val">{plan.timeline_weeks} tuần</span>
+              <div className="imc-fb-label">Thời gian</div>
+            </div>
+            <div className="imc-fb-col">
+              <span className="imc-fb-val">{plan.revenue_projection?.projected_revenue || 'N/A'}</span>
+              <div className="imc-fb-label">Doanh thu kỳ vọng</div>
+            </div>
           </div>
         </div>
       </div>

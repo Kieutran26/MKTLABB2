@@ -1512,7 +1512,7 @@ const STPModelGenerator: React.FC = () => {
                             <div
                                 className={
                                     stpData.cmo_advice
-                                        ? tier !== 'promax'
+                                        ? profile?.subscription_tier !== 'promax'
                                             ? 'stp-cmo-footer-stack stp-cmo-footer-stack--lock-last'
                                             : 'stp-cmo-footer-stack'
                                         : undefined
@@ -1520,7 +1520,8 @@ const STPModelGenerator: React.FC = () => {
                             >
                             {stpData.cmo_advice && (
                                 <ProMaxAdviceGate
-                                    className={`stp-cmo-wrap${tier !== 'promax' ? ' stp-cmo-wrap--gate-last' : ''}`}
+                                    subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? tier}
+                                    className={`stp-cmo-wrap${profile?.subscription_tier !== 'promax' ? ' stp-cmo-wrap--gate-last' : ''}`}
                                 >
                                     <div className="stp-cmo-header stp-a" style={{ animationDelay: '0.44s' }}>
                                         <span className="stp-cmo-label">Lời khuyên</span>
@@ -1674,6 +1675,14 @@ const STPModelGenerator: React.FC = () => {
                                     <div className="stp-fb-label">Khoảng trắng chiến lược</div>
                                 </div>
                             </div>
+
+                            {/* Locked card — shown when cmo_advice is absent (non-Pro Max) */}
+                            {!stpData.cmo_advice && (
+                                <ProMaxAdviceGate
+                                    className="stp-cmo-wrap--gate-last"
+                                    subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? tier}
+                                />
+                            )}
                             </div>
                             </div>
                         </div>

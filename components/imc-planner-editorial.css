@@ -1013,6 +1013,60 @@
   font-weight: 800;
 }
 
+/* CMO + FOOTER STACK — Pro Max locked layout */
+.imc-cmo-footer-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.imc-cmo-footer-stack--lock-last {
+    flex-direction: column-reverse;
+    gap: 2rem;
+}
+
+.imc-cmo-footer-stack--lock-last .imc-cmo-gate .pmg-locked {
+    margin-top: 0;
+    padding-bottom: 0.5rem;
+    width: 100%;
+}
+
+.imc-cmo-wrap--gate {
+    border-top: 2px solid #111;
+    padding-top: 2rem;
+    margin-top: 2rem;
+}
+
+.imc-cmo-gate--open .imc-cmo-wrap--gate {
+    margin-top: 2rem;
+}
+
+/* Footer bar — nền xanh lá nhạt (đồng bộ STP stats bar) */
+.imc-cmo-footer-stack .imc-footer-bar {
+    margin-top: 0;
+    border-radius: 0;
+    background: #f0f7f4;
+    color: var(--ink);
+    border: 1px solid #b8d4c4;
+    box-shadow: none;
+}
+
+.imc-cmo-footer-stack .imc-fb-col {
+    border-right: 1px solid rgba(30, 77, 52, 0.14);
+}
+
+.imc-cmo-footer-stack .imc-fb-col:last-child {
+    border-right: none;
+}
+
+.imc-cmo-footer-stack .imc-fb-val {
+    color: var(--ink);
+}
+
+.imc-cmo-footer-stack .imc-fb-label {
+    color: var(--accent);
+    opacity: 1;
+}
+
 /* CONTROLS */
 .imc-output-controls {
   display: flex;
