@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Sparkles, Loader2, History, ChevronRight, BarChart3, Diamond, Lock, Pencil, Save, Plus } from 'lucide-react';
+import { Layers, Sparkles, Loader2, History, ChevronRight, BarChart3, Diamond, Lock, Pencil, Save, Plus, Check } from 'lucide-react';
 import { STPInput, STPResult } from '../types';
 import { generateSTPAnalysis } from '../services/geminiService';
 import { STPService, SavedSTP } from '../services/stpService';
@@ -15,6 +15,7 @@ import { StpOptimizerField } from './stp-optimizer-field';
 import { renderMarkdownBoldSegments } from '../utils/renderMarkdownBold';
 import { parseStpStrategyBodyChunks } from '../utils/stpInsightChunks';
 import { VIEW_TO_SLUG } from '../lib/route-mapping';
+import './MastermindStrategyEditorial.css';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass =
@@ -799,20 +800,59 @@ const STPModelGenerator: React.FC = () => {
                 {!stpData && (
                 <div className="order-2 mx-auto h-fit w-full max-w-[1182px]">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className={`${cardClass} space-y-6 p-8 text-center`}>
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-sm">
-                                <Diamond size={32} />
+                        <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                            <div className="ms-vault-card">
+                                <div className="ms-vault-content">
+                                    <div className="ms-vault-upper">
+                                        <div className="ms-vault-label">
+                                            <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
+                                            Brand Vault Access
+                                        </div>
+                                        <h3 className="ms-vault-title">Tính năng Brand Vault</h3>
+                                        <p className="ms-vault-desc">
+                                            Phân tích STP trở nên chính xác và nhất quán hơn khi AI học DNA thương hiệu từ Vault của bạn.
+                                        </p>
+                                    </div>
+
+                                    <div className="ms-vault-benefits">
+                                        {[
+                                            'Phân khúc – targeting – định vị bám sát sứ mệnh, tầm nhìn và giá trị cốt lõi trong Vault',
+                                            'Giảm suy đoán: AI đọc Brand Voice và bối cảnh chiến lược đã lưu thay vì chỉ từ khóa chung',
+                                            'Tự điền mô tả thương hiệu từ Vault — nhập liệu nhanh, kết quả STP đồng bộ DNA',
+                                            'Kết quả sẵn sàng làm nền cho quyết định phân khúc và thông điệp theo đúng bản sắc bạn',
+                                        ].map((benefit, bIdx) => (
+                                            <div key={bIdx} className="ms-vault-benefit-item">
+                                                <div className="ms-vault-benefit-icon">
+                                                    <Check size={14} strokeWidth={3} />
+                                                </div>
+                                                <span>{benefit}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button type="button" className="ms-vault-cta">
+                                        Nâng cấp Pro Max <ChevronRight size={18} />
+                                    </button>
+                                </div>
+                                <div className="ms-vault-visual">
+                                    <div className="ms-vault-dna">
+                                        {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                            <div
+                                                key={i}
+                                                className="ms-vault-dna-bar"
+                                                style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="ms-vault-lock-circle">
+                                        <div className="ms-vault-lock-icon">
+                                            <Lock size={32} strokeWidth={1.5} />
+                                        </div>
+                                    </div>
+                                    <div className="ms-vault-corner ms-vault-corner-tl" />
+                                    <div className="ms-vault-corner ms-vault-corner-br" />
+                                </div>
                             </div>
-                            <h2 className="text-xl font-medium">STP Precision Pro</h2>
-                            <p className="text-sm leading-relaxed text-stone-500">
-                                Tự động phân lớp thị trường và xác định tọa độ định vị dựa trên bản sắc thương hiệu trong Vault của bạn.
-                            </p>
-                            <button
-                                type="button"
-                                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-900 py-4 font-medium text-white"
-                            >
-                                Nâng cấp Pro Max <ChevronRight size={18} />
-                            </button>
                         </div>
                     ) : (
                         <form
