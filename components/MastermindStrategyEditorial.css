@@ -666,17 +666,38 @@
   gap: 1.125rem;
 }
 
-.ms-vault-upper { margin-bottom: 0; }
+.ms-vault-upper {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
 
-/* Nhãn phụ (TSX dùng ms-vault-label) */
+/* Eyebrow: Brand Vault Access — nền be #fffbeb, chữ slate xám-xanh */
 .ms-vault-label {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
   font-family: var(--ms-sans);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ms-ink-3);
-  margin-bottom: 0.35rem;
+  color: #64748b;
+  background: #fffbeb;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 6px;
+  margin: 0 0 0.5rem 0;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.ms-vault-label-diamond {
+  color: #64748b;
+  flex-shrink: 0;
 }
 
 .ms-vault-eyebrow {
@@ -705,7 +726,7 @@
   line-height: 1.2;
   color: var(--ms-ink);
   letter-spacing: -0.02em;
-  margin-top: 0.25rem;
+  margin-top: 0;
 }
 
 .ms-vault-desc {

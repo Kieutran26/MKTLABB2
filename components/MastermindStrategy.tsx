@@ -327,7 +327,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 <div className="ms-vault-card">
                                     <div className="ms-vault-content">
                                         <div className="ms-vault-upper">
-                                            <div className="ms-vault-label">Brand Vault Access</div>
+                                            <div className="ms-vault-label">
+                                                <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
+                                                Brand Vault Access
+                                            </div>
                                             <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
                                             <p className="ms-vault-desc">
                                                 AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
