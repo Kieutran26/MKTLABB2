@@ -281,34 +281,43 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
       {/* ── 7. LỜI KHUYÊN ─────────────────────────────────────── */}
       <Band color="paper">
         <SectionLabel num="07" label="Lời khuyên" dotStyle={{ background: 'var(--ms-rose)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-cmo-grid">
-          <div className="ms-cmo-card must">
-            <div className="ms-cmo-card-label">
-              <Check size={14} strokeWidth={2.5} /> Việc phải làm
+        <ProMaxAdviceGate
+          subscriptionTier={subscriptionTier}
+          className={`ms-cmo-gate${isPromax ? ' ms-cmo-gate--open' : ''}`}
+          benefits={[
+            'Việc cần làm, bẫy phổ biến & cơ hội ẩn',
+            'Positioning statement chuẩn bài bản',
+          ]}
+        >
+          <div className="ms-cmo-grid">
+            <div className="ms-cmo-card must">
+              <div className="ms-cmo-card-label">
+                <Check size={14} strokeWidth={2.5} /> Việc phải làm
+              </div>
+              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.the_must_do}</div>
             </div>
-            <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.the_must_do}</div>
-          </div>
-          <div className="ms-cmo-card avoid">
-            <div className="ms-cmo-card-label">
-              <X size={14} strokeWidth={2.5} /> Cần tránh
+            <div className="ms-cmo-card avoid">
+              <div className="ms-cmo-card-label">
+                <X size={14} strokeWidth={2.5} /> Cần tránh
+              </div>
+              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.common_pitfall}</div>
             </div>
-            <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.common_pitfall}</div>
-          </div>
-          <div className="ms-cmo-card oppt">
-            <div className="ms-cmo-card-label">
-              <Zap size={14} strokeWidth={2.5} /> Cơ hội ẩn
+            <div className="ms-cmo-card oppt">
+              <div className="ms-cmo-card-label">
+                <Zap size={14} strokeWidth={2.5} /> Cơ hội ẩn
+              </div>
+              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.hidden_opportunity}</div>
             </div>
-            <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.hidden_opportunity}</div>
           </div>
-        </div>
-        <div className="ms-final-positioning">
-          <div className="ms-fp-label">Positioning Statement</div>
-          <div className="ms-fp-text">
-            &ldquo;{renderMarkdownBoldSegments(result.conclusion?.positioning_statement)}
-            &rdquo;
+          <div className="ms-final-positioning">
+            <div className="ms-fp-label">Positioning Statement</div>
+            <div className="ms-fp-text">
+              &ldquo;{renderMarkdownBoldSegments(result.conclusion?.positioning_statement)}
+              &rdquo;
+            </div>
+            <div className="ms-fp-underline" />
           </div>
-          <div className="ms-fp-underline" />
-        </div>
+        </ProMaxAdviceGate>
       </Band>
 
     </div>

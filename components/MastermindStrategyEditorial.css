@@ -940,3 +940,16 @@
   border-bottom: 1.5px solid var(--ms-ink-4);
   border-right: 1.5px solid var(--ms-ink-4);
 }
+
+/* ── Pro Max Gate — Lời khuyên section ── */
+.ms-cmo-gate {
+    border-top: 2px solid var(--ms-ink);
+    padding-top: 2.5rem;
+    margin-top: 1.5rem;
+}
+
+.ms-cmo-gate--open {
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
+}

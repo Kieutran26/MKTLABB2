@@ -299,7 +299,7 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, subscript
               subscriptionTier={subscriptionTier}
               className={`imc-cmo-gate${isPromax ? ' imc-cmo-gate--open' : ''}`}
               benefits={[
-                'Key success factor, rủi ro & cơ hội bị bỏ lỡ',
+                'Yếu tố thành công chính, rủi ro & cơ hội bị bỏ lỡ',
                 'Lời khuyên chiến lược theo từng giai đoạn IMC',
               ]}
             >

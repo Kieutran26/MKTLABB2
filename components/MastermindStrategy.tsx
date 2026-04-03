@@ -734,7 +734,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 </header>
 
                 <div className="flex-1 overflow-y-auto">
-                    <MastermindStrategyEditorial strategy={strategyResult} />
+                    <MastermindStrategyEditorial
+                        strategy={strategyResult}
+                        subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? 'free'}
+                    />
                 </div>
 
                 
