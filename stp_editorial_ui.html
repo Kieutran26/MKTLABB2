@@ -1,0 +1,374 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --accent:#1a5c3a;--accent-w:#c17f2a;--accent-b:#1a3a5c;
+  --rule:rgba(15,15,13,0.1);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink)}
+.page{max-width:960px;margin:0 auto;padding:2rem 2rem 4rem}
+
+/* ANIM */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeUp .5s ease both;opacity:0;animation-fill-mode:both}
+
+/* HEADER */
+.doc-header{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:1.75rem;border-bottom:1px solid var(--rule);margin-bottom:2rem}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.doc-title{font-family:var(--serif);font-size:28px;line-height:1.2;font-weight:400}
+.doc-title em{font-style:italic;color:var(--accent)}
+.doc-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.tag{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em}
+.tag-g{background:var(--accent);color:#fff}
+.tag-w{background:var(--accent-w);color:#fff}
+.tag-b{background:var(--accent-b);color:#fff}
+
+/* SEC HEAD */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sh-g{background:var(--accent)}
+.sh-w{background:var(--accent-w)}
+.sh-b{background:var(--accent-b)}
+.sh-r{background:#8a1a1a}
+.sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
+
+/* SEGMENTATION */
+.seg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.seg-col{padding:1.25rem 1.1rem;border-right:1px solid var(--rule)}
+.seg-col:last-child{border-right:none}
+.seg-num{font-family:var(--serif);font-size:32px;color:var(--paper-3);line-height:1;margin-bottom:.5rem}
+.seg-name{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.3;margin-bottom:.875rem;font-weight:400}
+.seg-block{margin-bottom:.75rem}
+.seg-bl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.25rem}
+.seg-bt{font-size:11.5px;color:var(--ink-2);line-height:1.65}
+.seg-barrier{margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--rule)}
+.seg-bar-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8a1a1a;font-weight:500;margin-bottom:.25rem}
+.seg-bar-item{font-size:11px;color:var(--ink-2);line-height:1.6;display:flex;gap:5px;align-items:baseline;margin-bottom:2px}
+.seg-bar-dot{width:3px;height:3px;border-radius:50%;background:#c13a2a;flex-shrink:0;position:relative;top:4px}
+
+/* TARGETING */
+.target-block{background:var(--ink);border-radius:3px;padding:1.5rem;margin-bottom:2rem}
+.tg-eyebrow{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:500;margin-bottom:.75rem}
+.tg-name{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:.875rem;font-weight:400}
+.tg-body{font-size:12px;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:1.25rem}
+.tg-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid rgba(255,255,255,.1);padding-top:1.1rem;margin-bottom:1.1rem}
+.tg-met{padding-right:1.25rem;border-right:1px solid rgba(255,255,255,.1)}
+.tg-met:last-child{border-right:none;padding-right:0;padding-left:1.25rem}
+.tg-met:nth-child(2){padding:0 1.25rem}
+.tg-met-val{font-family:var(--serif);font-size:28px;color:#fff;line-height:1}
+.tg-met-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px}
+.tg-secondary{display:grid;grid-template-columns:1fr 1fr;gap:1rem;border-top:1px solid rgba(255,255,255,.1);padding-top:1rem}
+.tg-sec-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.25rem}
+.tg-sec-text{font-size:11.5px;color:rgba(255,255,255,.65);line-height:1.6}
+.tg-avoid{border-top:1px solid rgba(255,255,255,.1);padding-top:1rem;margin-top:1rem}
+.tg-avoid-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(200,60,60,.6);margin-bottom:.25rem}
+.tg-avoid-text{font-size:11.5px;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* POSITIONING */
+.pos-statement{padding:1.5rem 1.75rem;border:1px solid var(--rule);border-radius:3px;margin-bottom:1.25rem;position:relative}
+.pos-statement::before{content:'\201C';font-family:var(--serif);font-size:64px;color:var(--accent);opacity:.15;position:absolute;top:-8px;left:12px;line-height:1}
+.pos-text{font-family:var(--serif);font-size:17px;line-height:1.55;color:var(--ink);font-style:italic;padding-left:.5rem}
+.pos-text strong{font-style:normal;color:var(--accent)}
+
+.pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.pos-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem}
+.pos-card-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.75rem}
+
+/* PERCEPTUAL MAP */
+.map-wrap{position:relative;width:100%;aspect-ratio:1.6;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--paper-2)}
+.map-axis-x{position:absolute;top:50%;left:0;right:0;height:1px;background:var(--rule)}
+.map-axis-y{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--rule)}
+.map-label{position:absolute;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);font-weight:500}
+.map-label.lx1{bottom:calc(50% + 8px);left:8px}
+.map-label.lx2{bottom:calc(50% + 8px);right:8px}
+.map-label.ly1{top:8px;left:50%;transform:translateX(-50%)}
+.map-label.ly2{bottom:8px;left:50%;transform:translateX(-50%)}
+.map-dot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:4px}
+.map-circle{width:12px;height:12px;border-radius:50%}
+.map-dot-label{font-size:10px;font-weight:500;white-space:nowrap;background:var(--paper);padding:1px 5px;border-radius:2px;border:0.5px solid var(--rule)}
+.map-us .map-circle{background:var(--accent);box-shadow:0 0 0 3px rgba(26,92,58,.15)}
+.map-us .map-dot-label{color:var(--accent)}
+.map-them1 .map-circle{background:var(--ink-3)}
+.map-them1 .map-dot-label{color:var(--ink-3)}
+.map-them2 .map-circle{background:var(--accent-b)}
+.map-them2 .map-dot-label{color:var(--accent-b)}
+.map-gap{position:absolute;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;border:1px dashed var(--accent-w);display:flex;align-items:center;justify-content:center}
+.map-gap-label{font-size:9px;color:var(--accent-w);text-align:center;letter-spacing:.04em;line-height:1.3}
+
+/* MESSAGES */
+.msg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.msg-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.msg-col:last-child{border-right:none}
+.msg-ch{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.375rem}
+.msg-text{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.5;font-style:italic;margin-bottom:.5rem}
+.msg-note{font-size:11px;color:var(--ink-3);line-height:1.6}
+
+/* INSIGHTS */
+.ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.ins-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem}
+.ins-num{font-family:var(--serif);font-size:13px;color:var(--ink-4);margin-bottom:.375rem}
+.ins-title{font-size:11px;font-weight:500;color:var(--ink);margin-bottom:.375rem;letter-spacing:.02em}
+.ins-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+.ins-risk{border-left:2px solid #c13a2a;padding-left:.75rem}
+.ins-risk .ins-title{color:#8a1a1a}
+
+/* UNKNOWN */
+.unknown-block{border-top:1px dashed var(--rule);padding-top:1.25rem;margin-top:1.25rem}
+.unk-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:500;margin-bottom:.75rem}
+.unk-item{display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:var(--ink-3);line-height:1.6;align-items:baseline}
+.unk-dash{flex-shrink:0;color:var(--ink-4)}
+
+/* FOOTER */
+.footer-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-col{padding:.875rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-col:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:20px;color:var(--ink);display:block}
+.fb-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+</style>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="doc-header a" style="animation-delay:.0s">
+    <div>
+      <div class="eyebrow">STP Optimizer · Precision Market Segmentation</div>
+      <div class="doc-title">An tâm – Chăm sóc – Chất lượng<br><em>Trải nghiệm trọn vẹn</em></div>
+    </div>
+    <div class="doc-tags">
+      <span class="tag tag-g">Blue Vigor Travel</span>
+      <span class="tag tag-w">Tour nước ngoài</span>
+      <span class="tag tag-b">Khách hàng trung niên</span>
+    </div>
+  </div>
+
+  <!-- SEGMENTATION -->
+  <div class="a" style="animation-delay:.08s;margin-bottom:.75rem">
+    <div class="sh"><div class="sh-dot sh-g"></div><span class="sh-title">S — Segmentation: Phân khúc thị trường</span></div>
+  </div>
+  <div class="seg-grid a" style="animation-delay:.1s;margin-bottom:2rem">
+    <div class="seg-col">
+      <div class="seg-num">01</div>
+      <div class="seg-name">Khách hàng trung niên ưu tiên sức khỏe</div>
+      <div class="seg-block">
+        <div class="seg-bl">Nhân khẩu học</div>
+        <div class="seg-bt">Nữ 45–65 tuổi, thu nhập ổn định, con cái đã lớn. Sống tại TP.HCM, Hà Nội. Có thể là công chức cấp cao, doanh nhân nhỏ, hoặc kinh tế gia đình.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Tâm lý học</div>
+        <div class="seg-bt">Sức khỏe, an toàn, chất lượng dịch vụ. Tìm kiếm sự chăm sóc tận tâm. Muốn tự thưởng cho bản thân sau nhiều năm cống hiến. Thích hoạt động ngoài trời nhẹ nhàng.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Lý do mua</div>
+        <div class="seg-bt">Có điều dưỡng đi theo · Dịch vụ chăm sóc từ A–Z · Lịch trình không quá dày · Tour nhóm nhỏ thân thiện</div>
+      </div>
+      <div class="seg-barrier">
+        <div class="seg-bar-label">Rào cản mua</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Chưa tin tưởng tour Việt Nam chất lượng cao</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Lo ngại sức khỏe khi xa nhà lâu ngày</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Giá cao so với tour đại trà</div>
+      </div>
+    </div>
+    <div class="seg-col">
+      <div class="seg-num">02</div>
+      <div class="seg-name">Gia đình đa thế hệ tìm kiếm trải nghiệm an toàn</div>
+      <div class="seg-block">
+        <div class="seg-bl">Nhân khẩu học</div>
+        <div class="seg-bt">Người ra quyết định 35–55 tuổi, có cha mẹ 60+ và con nhỏ. Thu nhập cao 30–60 triệu/tháng. Ưu tiên an toàn cho cả gia đình. Sống tại các đô thị lớn.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Tâm lý học</div>
+        <div class="seg-bt">An toàn là số 1. Muốn tạo kỷ niệm gia đình đẹp. Không muốn tự lo từng chi tiết. Sẵn sàng trả thêm để có sự tiện lợi và yên tâm tuyệt đối.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Lý do mua</div>
+        <div class="seg-bt">Có điều dưỡng hỗ trợ người cao tuổi · Lịch trình phù hợp mọi lứa tuổi · Dịch vụ hỗ trợ 24/7</div>
+      </div>
+      <div class="seg-barrier">
+        <div class="seg-bar-label">Rào cản mua</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Thường chọn thương hiệu quốc tế quen thuộc</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Tiêu chí phức tạp vì nhiều độ tuổi</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Cần nhiều thời gian thuyết phục cả nhà</div>
+      </div>
+    </div>
+    <div class="seg-col">
+      <div class="seg-num">03</div>
+      <div class="seg-name">Người cao tuổi độc lập, có điều kiện</div>
+      <div class="seg-block">
+        <div class="seg-bl">Nhân khẩu học</div>
+        <div class="seg-bt">Nam/Nữ trên 60 tuổi, đã nghỉ hưu, thu nhập ổn từ lương hưu hoặc tiết kiệm. Có thể lên đến 60–100 triệu/tháng. Sống tại đô thị lớn, có lối sống hiện đại.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Tâm lý học</div>
+        <div class="seg-bt">Muốn chứng minh vẫn năng động. Tìm kiếm bạn đồng hành cùng trang lứa. Coi trọng danh giá và trải nghiệm xứng tầm. Thích chia sẻ lên mạng xã hội.</div>
+      </div>
+      <div class="seg-block">
+        <div class="seg-bl">Lý do mua</div>
+        <div class="seg-bt">Tour nhóm nhỏ đẳng cấp · Có bác sĩ/điều dưỡng · Chương trình văn hóa sâu · Dịch vụ cá nhân hóa cao</div>
+      </div>
+      <div class="seg-barrier">
+        <div class="seg-bar-label">Rào cản mua</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Sức khỏe không ổn định, sợ phát sinh</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Cần con cái approve quyết định</div>
+        <div class="seg-bar-item"><div class="seg-bar-dot"></div>Chưa quen đặt tour online</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TARGETING -->
+  <div class="a" style="animation-delay:.15s;margin-bottom:.75rem">
+    <div class="sh"><div class="sh-dot sh-w"></div><span class="sh-title">T — Targeting: Phân khúc ưu tiên</span></div>
+  </div>
+  <div class="target-block a" style="animation-delay:.18s;margin-bottom:2rem">
+    <div class="tg-eyebrow">Phân khúc được chọn · Market Fit cao nhất</div>
+    <div class="tg-name">Khách hàng trung niên ưu tiên sức khỏe</div>
+    <div class="tg-body">Phân khúc này phù hợp nhất với USP của Blue Vigor Travel vì: (1) Nhu cầu có điều dưỡng đi theo khớp chính xác với dịch vụ cốt lõi — không cần thuyết phục nhiều. (2) Khách hàng trung niên có thu nhập ổn định, sẵn sàng trả giá cao cho sự an tâm. (3) Quy mô phân khúc đang tăng trưởng theo xu hướng già hóa dân số Việt Nam — dự báo tăng 12–15%/năm. (4) Cạnh tranh thấp: chưa có thương hiệu Việt nào chiếm rõ ràng phân khúc này.</div>
+    <div class="tg-metrics">
+      <div class="tg-met">
+        <div class="tg-met-val">92%</div>
+        <div class="tg-met-label">Market Fit với USP</div>
+      </div>
+      <div class="tg-met">
+        <div class="tg-met-val">Thấp</div>
+        <div class="tg-met-label">Mức độ cạnh tranh trực tiếp</div>
+      </div>
+      <div class="tg-met">
+        <div class="tg-met-val">+15%</div>
+        <div class="tg-met-label">Tăng trưởng phân khúc/năm</div>
+      </div>
+    </div>
+    <div class="tg-secondary">
+      <div>
+        <div class="tg-sec-label">Phân khúc thứ cấp</div>
+        <div class="tg-sec-text">Gia đình đa thế hệ — tiếp cận sau khi đã xây dựng được trust và danh tiếng từ phân khúc chính. Market fit 74%, cạnh tranh cao hơn.</div>
+      </div>
+      <div>
+        <div class="tg-sec-label">Growth Potential</div>
+        <div class="tg-sec-text">Thị trường du lịch cao cấp cho người cao tuổi tại Việt Nam còn rất sơ khai. Blue Vigor Travel có cơ hội trở thành thương hiệu đầu ngành nếu đánh nhanh.</div>
+      </div>
+    </div>
+    <div class="tg-avoid">
+      <div class="tg-avoid-label">Phân khúc nên tránh trong giai đoạn này</div>
+      <div class="tg-avoid-text">Khách trẻ 25–35 tuổi, backpacker, hoặc tour giá rẻ — hoàn toàn trái ngược với USP và sẽ phá vỡ positioning cao cấp đang xây dựng.</div>
+    </div>
+  </div>
+
+  <!-- POSITIONING -->
+  <div class="a" style="animation-delay:.22s;margin-bottom:.75rem">
+    <div class="sh"><div class="sh-dot sh-b"></div><span class="sh-title">P — Positioning: Tọa độ định vị</span></div>
+  </div>
+
+  <div class="pos-statement a" style="animation-delay:.24s">
+    <div class="pos-text">"Dành cho <strong>khách hàng trung niên Việt Nam ưu tiên sức khỏe</strong>, <strong>Blue Vigor Travel</strong> là công ty du lịch cao cấp duy nhất cung cấp dịch vụ điều dưỡng đồng hành chuyên nghiệp, mang đến sự chăm sóc y tế và an toàn tuyệt đối, giúp quý vị tận hưởng trọn vẹn mỗi hành trình."</div>
+  </div>
+
+  <div class="pos-grid a" style="animation-delay:.26s">
+    <div class="pos-card">
+      <div class="pos-card-label">Perceptual Map — Vị trí trên thị trường</div>
+      <div class="map-wrap">
+        <div class="map-axis-x"></div>
+        <div class="map-axis-y"></div>
+        <div class="map-label lx1">Đại trà</div>
+        <div class="map-label lx2">Cao cấp</div>
+        <div class="map-label ly1">Chăm sóc sức khỏe cao</div>
+        <div class="map-label ly2">Chăm sóc sức khỏe thấp</div>
+        <!-- Blue Vigor: Cao cấp + Sức khỏe cao -->
+        <div class="map-dot map-us" style="left:78%;top:18%">
+          <div class="map-circle"></div>
+          <div class="map-dot-label">Blue Vigor</div>
+        </div>
+        <!-- Saigontimes Travel: Trung bình + Sức khỏe thấp -->
+        <div class="map-dot map-them1" style="left:55%;top:72%">
+          <div class="map-circle"></div>
+          <div class="map-dot-label">Tour đại trà</div>
+        </div>
+        <!-- Int'l brands: Cao cấp + Sức khỏe TB -->
+        <div class="map-dot map-them2" style="left:82%;top:52%">
+          <div class="map-circle"></div>
+          <div class="map-dot-label">Brand quốc tế</div>
+        </div>
+        <!-- Khoảng trắng -->
+        <div class="map-gap" style="left:35%;top:22%">
+          <div class="map-gap-label">Khoảng<br>trắng</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:.625rem;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink-3)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>Blue Vigor Travel</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink-3)"><div style="width:8px;height:8px;border-radius:50%;background:var(--ink-3)"></div>Tour đại trà VN</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink-3)"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent-b)"></div>Brand quốc tế</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink-3)"><div style="width:8px;height:8px;border-radius:50%;border:1px dashed var(--accent-w)"></div>Khoảng trắng</div>
+      </div>
+    </div>
+    <div class="pos-card">
+      <div class="pos-card-label">3 thông điệp định vị theo kênh</div>
+      <div class="msg-grid" style="border:none;margin-top:.5rem">
+        <div style="padding:.75rem .5rem .75rem 0;border-right:1px solid var(--rule)">
+          <div class="msg-ch">Facebook / Zalo</div>
+          <div class="msg-text">"Hành trình thảnh thơi — an tâm từng khoảnh khắc cùng điều dưỡng riêng của bạn."</div>
+          <div class="msg-note">Cảm xúc · Hình ảnh thiên nhiên · Story khách hàng thật</div>
+        </div>
+        <div style="padding:.75rem .5rem;border-right:1px solid var(--rule)">
+          <div class="msg-ch">Website / SEO</div>
+          <div class="msg-text">"Tour cao cấp có điều dưỡng đồng hành — tiêu chuẩn chăm sóc y tế quốc tế."</div>
+          <div class="msg-note">Lý trí · Chứng nhận · So sánh dịch vụ chi tiết</div>
+        </div>
+        <div style="padding:.75rem 0 .75rem .5rem">
+          <div class="msg-ch">Email / Tư vấn</div>
+          <div class="msg-text">"Để chúng tôi lo toàn bộ — từ sức khỏe đến từng bữa ăn, từng giấc ngủ."</div>
+          <div class="msg-note">Cá nhân hóa · Cam kết cụ thể · Testimonial thật</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS & RISKS -->
+  <div class="a" style="animation-delay:.30s;margin-top:2rem;margin-bottom:.75rem">
+    <div class="sh"><div class="sh-dot sh-r"></div><span class="sh-title">Chiến lược & Cảnh báo</span></div>
+  </div>
+  <div class="ins-grid a" style="animation-delay:.32s">
+    <div class="ins-card">
+      <div class="ins-num">I.</div>
+      <div class="ins-title">Insight — Giá không phải rào cản chính</div>
+      <div class="ins-body">Dữ liệu nhập cho thấy khách hàng trung niên sẵn sàng trả 30–60tr/tour nếu được đảm bảo an toàn và chăm sóc tận tâm. Rào cản thực sự là niềm tin, không phải giá. → Tập trung xây trust, không cạnh tranh về giá.</div>
+    </div>
+    <div class="ins-card">
+      <div class="ins-num">II.</div>
+      <div class="ins-title">Insight — Khoảng trắng "cao cấp + sức khỏe" chưa ai chiếm</div>
+      <div class="ins-body">Không có thương hiệu Việt nào hiện đang kết hợp "du lịch cao cấp + điều dưỡng chuyên nghiệp" một cách rõ ràng. Đây là cơ hội định vị độc quyền nếu hành động trước khi thị trường bão hòa.</div>
+    </div>
+    <div class="ins-card ins-risk">
+      <div class="ins-num">III.</div>
+      <div class="ins-title">Rủi ro — USP dễ bị sao chép</div>
+      <div class="ins-body">Điều dưỡng đi theo là dịch vụ có thể bị đối thủ copy trong 6–12 tháng nếu thành công. Cần xây dựng moat sâu hơn: chứng chỉ y tế, đối tác bệnh viện, hệ thống After-Tour Health Report độc quyền.</div>
+    </div>
+    <div class="ins-card ins-risk">
+      <div class="ins-num">IV.</div>
+      <div class="ins-title">Rủi ro — Nhầm lẫn định vị "tour nước ngoài" với "du lịch sức khỏe"</div>
+      <div class="ins-body">Nếu truyền thông không nhất quán, khách hàng sẽ không hiểu Blue Vigor Travel khác gì tour nước ngoài thông thường. Mọi điểm chạm phải nhấn mạnh yếu tố "điều dưỡng đồng hành" như USP số 1.</div>
+    </div>
+  </div>
+
+  <!-- AI KHÔNG BIẾT -->
+  <div class="a" style="animation-delay:.36s">
+    <div class="unknown-block">
+      <div class="unk-label">Những gì AI không đủ dữ liệu để kết luận</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Quy mô chính xác từng phân khúc: cần survey hoặc data từ Tổng cục Thống kê / Nielsen</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Tỷ lệ conversion thực tế từ lead sang đơn hàng: cần ít nhất 3 tháng dữ liệu chiến dịch</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Mức độ nhận biết thương hiệu hiện tại: cần brand tracking study hoặc khảo sát 200+ người</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Vị trí đối thủ trên Perceptual Map: ước tính dựa trên input — cần nghiên cứu thực địa để xác nhận</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Giá sẵn lòng trả thực tế (Willingness to Pay): cần phỏng vấn sâu hoặc conjoint analysis</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-bar a" style="animation-delay:.4s">
+    <div class="fb-col"><span class="fb-val">3</span><div class="fb-label">Phân khúc xác định</div></div>
+    <div class="fb-col"><span class="fb-val">92%</span><div class="fb-label">Market Fit phân khúc chính</div></div>
+    <div class="fb-col"><span class="fb-val">1</span><div class="fb-label">Khoảng trắng chiến lược</div></div>
+  </div>
+
+</div>

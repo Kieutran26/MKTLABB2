@@ -7,6 +7,8 @@ interface FeatureHeaderProps {
     title: string;
     subline: string;
     children?: React.ReactNode;
+    /** Override horizontal padding (default px-8) for edge-to-edge layouts */
+    className?: string;
 }
 
 const FeatureHeader: React.FC<FeatureHeaderProps> = ({ 
@@ -14,10 +16,13 @@ const FeatureHeader: React.FC<FeatureHeaderProps> = ({
     eyebrow, 
     title, 
     subline, 
-    children 
+    children,
+    className,
 }) => {
     return (
-        <header className="flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-6 items-center justify-between">
+        <header
+            className={`flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] py-6 items-center justify-between ${className ?? 'px-8'}`}
+        >
             <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2 text-stone-400">
                     <Icon size={14} strokeWidth={1.5} />
