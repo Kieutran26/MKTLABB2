@@ -627,7 +627,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     {step > 1 ? (
                                         <button 
                                             onClick={() => setStep(step-1)} 
-                                            className="px-6 h-10 text-stone-400 font-medium hover:text-stone-900 transition-colors flex items-center text-sm"
+                                            className="rounded-full border border-stone-200 bg-white px-8 h-10 text-sm font-medium text-stone-700 transition-all hover:bg-stone-50 shadow-sm flex items-center"
                                         >
                                             Quay lại
                                         </button>

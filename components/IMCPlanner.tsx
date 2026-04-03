@@ -1008,14 +1008,15 @@ const IMCPlanner: React.FC = () => {
                                             </div>
                                         )}
                                         <div className="mt-auto flex flex-col-reverse gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                                            <button
-                                                type="button"
-                                                onClick={goWizardPrev}
-                                                disabled={wizardStep === 1}
-                                                className="rounded-full border border-stone-200 px-5 py-2.5 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 disabled:pointer-events-none disabled:opacity-40"
-                                            >
-                                                Quay lại
-                                            </button>
+                                            {wizardStep > 1 ? (
+                                                <button
+                                                    type="button"
+                                                    onClick={goWizardPrev}
+                                                    className="rounded-full border border-stone-200 bg-white px-8 py-2.5 text-sm font-medium text-stone-600 transition-all hover:bg-stone-50 shadow-sm"
+                                                >
+                                                    Quay lại
+                                                </button>
+                                            ) : <div />}
                                             {wizardStep < 3 ? (
                                                 <button
                                                     type="button"

@@ -78,5 +78,25 @@ This document defines the visual standards and implementation rules for the **Ed
     - **Header Actions**: `size-10`, `rounded-2xl`, `border-stone-200`.
 
 ---
+
+## Navigation & Controls
+
+### The "Back" (Quay lại) Button
+- **Visibility**: The Back button must be **hidden** during the first step (Step 1) of any wizard or creation flow to maintain a clean entry point.
+- **Visual Style**:
+    - **Shape**: `rounded-full` (Pill-shape).
+    - **Border**: `1px solid var(--ms-rule)` or `stone-200`.
+    - **Background**: `bg-white` or `transparent`.
+    - **Text**: `text-stone-600` or `text-stone-700`, `font-medium`, `text-sm`.
+    - **Padding**: `px-8 py-2.5` (IMC) or `px-8 h-10` (Mastermind).
+    - **Effects**: `transition-all`, `hover:bg-stone-50`, `shadow-sm`.
+
+### The "Next" (Kế tiếp) Button
+- **Shape**: `rounded-full`.
+- **Background**: `bg-stone-950` (Primary Ink).
+- **Text**: `text-white`, `font-medium`.
+- **Padding**: `px-8` to `px-10`, `h-10`.
+
+---
 *Created: 2026-04-03*
 *Based on: Mastermind Strategy & IMC Planner sync*
