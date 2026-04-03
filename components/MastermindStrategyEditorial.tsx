@@ -1,6 +1,7 @@
 import React from 'react';
 import './MastermindStrategyEditorial.css';
 import { MastermindStrategy } from '../types';
+import { renderMarkdownBoldSegments } from '../utils/renderMarkdownBold';
 import { Check, X, Zap } from 'lucide-react';
 
 interface MastermindStrategyEditorialProps {
@@ -287,7 +288,8 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         <div className="ms-final-positioning">
           <div className="ms-fp-label">Positioning Statement</div>
           <div className="ms-fp-text">
-            “{result.conclusion?.positioning_statement}”
+            &ldquo;{renderMarkdownBoldSegments(result.conclusion?.positioning_statement)}
+            &rdquo;
           </div>
           <div className="ms-fp-underline" />
         </div>

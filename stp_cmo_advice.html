@@ -1,0 +1,262 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --accent:#1a5c3a;--accent-w:#c17f2a;--accent-b:#1a3a5c;
+  --danger:#8a1a1a;--rule:rgba(15,15,13,0.1);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink)}
+.page{max-width:960px;margin:0 auto;padding:2rem 2rem 4rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeUp .5s ease both;opacity:0;animation-fill-mode:both}
+
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sh-ink{background:var(--ink)}
+.sh-g{background:var(--accent)}
+.sh-w{background:var(--accent-w)}
+.sh-r{background:var(--danger)}
+.sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
+
+/* CMO SECTION */
+.cmo-wrap{border-top:2px solid var(--ink);padding-top:2rem;margin-bottom:2rem}
+.cmo-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.75rem}
+.cmo-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cmo-sig{font-family:var(--serif);font-size:14px;color:var(--ink-3);font-style:italic}
+
+/* 4 ADVICE CARDS */
+.advice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.adv-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem 1.25rem}
+.adv-card.priority{border-color:var(--accent);background:rgba(26,92,58,.03)}
+.adv-card.risk{border-left:3px solid var(--danger);border-radius:0 3px 3px 0}
+.adv-card.opp{border-left:3px solid var(--accent-w);border-radius:0 3px 3px 0}
+.adv-card.action{background:var(--paper-2)}
+.adv-num{font-family:var(--serif);font-size:13px;color:var(--ink-4);margin-bottom:.375rem}
+.adv-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:.5rem;letter-spacing:.02em;line-height:1.4}
+.adv-title.green{color:var(--accent)}
+.adv-title.red{color:var(--danger)}
+.adv-title.warm{color:var(--accent-w)}
+.adv-body{font-size:12px;color:var(--ink-2);line-height:1.75}
+.adv-tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:2px;margin-top:.625rem;font-weight:500}
+.tag-do{background:rgba(26,92,58,.1);color:var(--accent)}
+.tag-dont{background:rgba(138,26,26,.1);color:var(--danger)}
+.tag-now{background:rgba(193,127,42,.12);color:var(--accent-w)}
+
+/* ACTION PRIORITY */
+.action-strip{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.25rem}
+.action-head{display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.action-head-col{padding:.625rem 1rem;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-right:1px solid var(--rule)}
+.action-head-col:last-child{border-right:none}
+.action-rows{display:grid;grid-template-columns:repeat(3,1fr)}
+.action-col{padding:1rem;border-right:1px solid var(--rule)}
+.action-col:last-child{border-right:none}
+.action-item{display:flex;gap:8px;margin-bottom:8px;font-size:12px;color:var(--ink-2);line-height:1.5;align-items:baseline}
+.action-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;position:relative;top:4px}
+.dot-now{background:var(--danger)}
+.dot-soon{background:var(--accent-w)}
+.dot-later{background:var(--accent)}
+.action-note{font-size:11px;color:var(--ink-3);margin-top:.375rem;font-style:italic}
+
+/* ONE THING */
+.one-thing{padding:1.5rem 1.75rem;border:1px solid var(--rule);border-radius:3px;margin-bottom:1.25rem;background:var(--paper-2);display:flex;gap:1.5rem;align-items:flex-start}
+.ot-num{font-family:var(--serif);font-size:48px;color:var(--paper-3);line-height:1;flex-shrink:0}
+.ot-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.ot-text{font-family:var(--serif);font-size:16px;line-height:1.5;color:var(--ink);font-style:italic}
+.ot-sub{font-size:12px;color:var(--ink-3);margin-top:.625rem;line-height:1.65}
+
+/* QUOTE */
+.cmo-quote{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.55;font-style:italic;padding:1.1rem 1.5rem;background:var(--paper);border-radius:3px;border-left:2px solid var(--ink)}
+
+/* UNKNOWN */
+.unknown-block{border-top:1px dashed var(--rule);padding-top:1.25rem;margin-top:1.25rem}
+.unk-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:500;margin-bottom:.75rem}
+.unk-item{display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:var(--ink-3);line-height:1.6;align-items:baseline}
+.unk-dash{flex-shrink:0;color:var(--ink-4)}
+
+/* PROMPT PANEL */
+.prompt-card{border:0.5px solid var(--color-border-tertiary,rgba(15,15,13,.12));border-radius:8px;overflow:hidden;margin-top:2rem}
+.prompt-head{padding:.875rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary,rgba(15,15,13,.12));display:flex;justify-content:space-between;align-items:center;background:var(--paper-2)}
+.prompt-title{font-size:13px;font-weight:500;color:var(--ink)}
+.copy-btn{padding:6px 14px;border:0.5px solid var(--rule);border-radius:6px;font-size:12px;cursor:pointer;background:transparent;color:var(--ink);transition:all .15s;font-family:var(--sans)}
+.copy-btn:hover{background:var(--paper-3)}
+.copy-btn.ok{color:var(--accent)}
+.prompt-body{padding:1.25rem;font-size:12px;line-height:1.9;color:var(--ink-2);white-space:pre-wrap;font-family:monospace;max-height:500px;overflow-y:auto;background:var(--paper)}
+
+.footer-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-col{padding:.875rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-col:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:20px;color:var(--ink);display:block}
+.fb-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+</style>
+
+<div class="page">
+
+  <!-- CMO SECTION -->
+  <div class="cmo-wrap a" style="animation-delay:.0s">
+    <div class="cmo-header">
+      <span class="cmo-label">Lời khuyên từ Giám đốc Marketing (CMO)</span>
+      <span class="cmo-sig">Strategic Advisory</span>
+    </div>
+
+    <!-- 4 ADVICE CARDS -->
+    <div class="advice-grid">
+      <div class="adv-card priority">
+        <div class="adv-num">I.</div>
+        <div class="adv-title green">Điều quan trọng nhất phải làm đúng</div>
+        <div class="adv-body">Đừng cố giải thích "điều dưỡng là gì" — hãy cho khách hàng thấy cảm giác được chăm sóc. Video testimonial thật của khách hàng 55–65 tuổi chia sẻ cảm xúc sau chuyến đi sẽ convert tốt hơn bất kỳ quảng cáo nào. Đây là ngành "trust-first, buy-second" — xây niềm tin trước, bán sau.</div>
+        <span class="adv-tag tag-do">Làm ngay</span>
+      </div>
+      <div class="adv-card risk">
+        <div class="adv-num">II.</div>
+        <div class="adv-title red">Cạm bẫy lớn nhất cần tránh</div>
+        <div class="adv-body">Không được chạy khuyến mãi giá hay discount để tăng đơn hàng nhanh. Một lần discount là mất positioning cao cấp vĩnh viễn trong tâm trí khách hàng trung niên. Thay vào đó nếu cần kích cầu, dùng "value add" — tặng thêm dịch vụ, không giảm giá.</div>
+        <span class="adv-tag tag-dont">Tuyệt đối tránh</span>
+      </div>
+      <div class="adv-card opp">
+        <div class="adv-num">III.</div>
+        <div class="adv-title warm">Cơ hội đang bị bỏ ngỏ</div>
+        <div class="adv-body">Chưa có thương hiệu nào tại Việt Nam làm "After-Tour Health Report" — báo cáo sức khỏe cá nhân sau mỗi chuyến đi. Chi phí thấp nhưng đây là moat cạnh tranh mạnh nhất, tạo ra sự khác biệt không thể copy trong 2–3 năm tới và biến khách hàng thành đại sứ thương hiệu tự nhiên.</div>
+        <span class="adv-tag tag-now">Cơ hội chiến lược</span>
+      </div>
+      <div class="adv-card action">
+        <div class="adv-num">IV.</div>
+        <div class="adv-title">Nếu chỉ được làm 1 điều trong 30 ngày đầu</div>
+        <div class="adv-body">Phỏng vấn sâu 10 khách hàng đã từng đi tour nước ngoài trong phân khúc mục tiêu. Hỏi đúng 3 câu: Điều gì khiến bạn lo lắng nhất? Điều gì khiến bạn quyết định đặt tour? Bạn kể gì cho bạn bè sau chuyến đi? Câu trả lời sẽ là brief marketing chính xác hơn bất kỳ nghiên cứu nào.</div>
+        <span class="adv-tag tag-now">Research trước</span>
+      </div>
+    </div>
+
+    <!-- ACTION PRIORITY TABLE -->
+    <div class="sh" style="margin-top:1.5rem"><div class="sh-dot sh-w"></div><span class="sh-title">Action Priority — 30 · 60 · 90 ngày</span></div>
+    <div class="action-strip">
+      <div class="action-head">
+        <div class="action-head-col">Tháng 1 — Xây nền</div>
+        <div class="action-head-col">Tháng 2 — Kiểm chứng</div>
+        <div class="action-head-col">Tháng 3 — Mở rộng</div>
+      </div>
+      <div class="action-rows">
+        <div class="action-col">
+          <div class="action-item"><div class="action-dot dot-now"></div>Phỏng vấn sâu 10 khách hàng tiềm năng — ghi âm, đừng note</div>
+          <div class="action-item"><div class="action-dot dot-now"></div>Sản xuất 3–5 video testimonial khách hàng cũ</div>
+          <div class="action-item"><div class="action-dot dot-now"></div>Xây Landing Page chuẩn positioning mới với USP "điều dưỡng đồng hành"</div>
+          <div class="action-item"><div class="action-dot dot-now"></div>Thiết lập Google Analytics + Meta Pixel để track hành vi</div>
+          <div class="action-note">Không chạy ads cho đến khi có đủ social proof</div>
+        </div>
+        <div class="action-col">
+          <div class="action-item"><div class="action-dot dot-soon"></div>Chạy thử Facebook Ads nhỏ (5–10tr) để test message nào resonates</div>
+          <div class="action-item"><div class="action-dot dot-soon"></div>A/B test 3 angle: An toàn vs. Đẳng cấp vs. Sức khỏe</div>
+          <div class="action-item"><div class="action-dot dot-soon"></div>Xây chuỗi email nurture 6 bước cho lead đã để lại thông tin</div>
+          <div class="action-item"><div class="action-dot dot-soon"></div>Thử nghiệm 1 Webinar sức khỏe du lịch miễn phí — thu lead</div>
+          <div class="action-note">Đánh giá CPL và chọn angle chiến thắng để scale tháng 3</div>
+        </div>
+        <div class="action-col">
+          <div class="action-item"><div class="action-dot dot-later"></div>Scale budget kênh có CPL tốt nhất từ tháng 2</div>
+          <div class="action-item"><div class="action-dot dot-later"></div>Triển khai After-Tour Health Report như dịch vụ độc quyền</div>
+          <div class="action-item"><div class="action-dot dot-later"></div>Bắt đầu chương trình referral cho khách hàng đã đặt tour</div>
+          <div class="action-item"><div class="action-dot dot-later"></div>PR trên VnExpress Sức khỏe / VietnamNet — câu chuyện thực tế</div>
+          <div class="action-note">Mục tiêu: 65 qualified leads và 8–10 đơn tour đầu tiên</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONE THING -->
+    <div class="one-thing">
+      <div class="ot-num">★</div>
+      <div>
+        <div class="ot-label">Lời khuyên quan trọng nhất — từ 15 năm kinh nghiệm</div>
+        <div class="ot-text">"Positioning cao cấp không được xây bằng quảng cáo — nó được xây bằng từng trải nghiệm khách hàng thật sự xuất sắc. Hãy phục vụ 10 khách đầu tiên như họ là người thân của bạn, và họ sẽ làm marketing tốt hơn bất kỳ chiến dịch nào bạn có thể chạy."</div>
+        <div class="ot-sub">→ Blue Vigor Travel nên đặt Net Promoter Score (NPS) làm KPI số 1 trong năm đầu, không phải doanh thu.</div>
+      </div>
+    </div>
+
+    <!-- AI KHÔNG BIẾT -->
+    <div class="unknown-block">
+      <div class="unk-label">Những gì AI không đủ dữ liệu để kết luận</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Quy mô chính xác từng phân khúc: cần survey hoặc data GSO / Nielsen Vietnam</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Tỷ lệ conversion thực tế lead → đơn hàng: cần ít nhất 3 tháng dữ liệu chiến dịch</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Mức độ nhận biết thương hiệu hiện tại: cần brand tracking study với 200+ người</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Willingness to Pay thực tế: cần phỏng vấn sâu hoặc conjoint analysis</div>
+      <div class="unk-item"><span class="unk-dash">—</span>Vị trí đối thủ trên Perceptual Map: ước tính từ input — cần nghiên cứu thực địa xác nhận</div>
+    </div>
+
+    <!-- FINAL QUOTE -->
+    <div class="cmo-quote" style="margin-top:1.5rem">
+      "Dành cho khách hàng trung niên Việt Nam ưu tiên sức khỏe, Blue Vigor Travel là công ty du lịch cao cấp duy nhất cung cấp điều dưỡng đồng hành chuyên nghiệp — mang đến sự an toàn tuyệt đối và trải nghiệm trọn vẹn cho mỗi hành trình."
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-bar a" style="animation-delay:.1s">
+    <div class="fb-col"><span class="fb-val">4</span><div class="fb-label">Lời khuyên chiến lược</div></div>
+    <div class="fb-col"><span class="fb-val">90 ngày</span><div class="fb-label">Action roadmap</div></div>
+    <div class="fb-col"><span class="fb-val">NPS #1</span><div class="fb-label">KPI ưu tiên năm đầu</div></div>
+  </div>
+
+  <!-- PROMPT -->
+  <div class="prompt-card a" style="animation-delay:.15s">
+    <div class="prompt-head">
+      <span class="prompt-title">Đoạn prompt bổ sung — thêm vào cuối prompt STP hiện tại</span>
+      <button class="copy-btn" id="cbtn" onclick="doCopy()">Sao chép</button>
+    </div>
+    <div class="prompt-body" id="ptext">═══════════════════════════════════════
+PHẦN 5 — LỜI KHUYÊN CHIẾN LƯỢC CMO (BẮT BUỘC)
+═══════════════════════════════════════
+
+Sau khi hoàn thành S-T-P, xuất ra phần lời khuyên với 4 mục sau.
+QUAN TRỌNG: Mọi lời khuyên phải cụ thể cho thương hiệu/ngành này
+— NGHIÊM CẤM viết lời khuyên chung chung áp dụng được cho mọi thương hiệu.
+
+5.1 Điều quan trọng nhất phải làm đúng
+    • 1 yếu tố quyết định thành bại của chiến lược STP này
+    • Tại sao nó quan trọng hơn tất cả những thứ khác
+    • Dẫn chứng từ đặc thù ngành / phân khúc đã phân tích
+
+5.2 Cạm bẫy lớn nhất cần tránh
+    • 1 sai lầm phổ biến nhất với loại positioning này
+    • Hậu quả cụ thể nếu mắc phải
+    • Thay vào đó nên làm gì
+
+5.3 Cơ hội đang bị bỏ ngỏ
+    • 1 góc định vị hoặc phân khúc mà đối thủ chưa khai thác
+    • Phải rút ra từ dữ liệu đối thủ và khoảng trắng đã phân tích
+    • Cách khai thác cụ thể trong 90 ngày tới
+
+5.4 Action Priority — 30 · 60 · 90 ngày
+    Tháng 1 (Xây nền): 4 việc ưu tiên + lý do làm trước
+    Tháng 2 (Kiểm chứng): 4 việc ưu tiên + KPI cần đạt
+    Tháng 3 (Mở rộng): 4 việc ưu tiên + mục tiêu cụ thể
+
+5.5 Nếu chỉ được làm 1 điều
+    • 1 hành động quan trọng nhất trong 30 ngày đầu
+    • Tại sao đây là leverage point cao nhất
+    • KPI đề xuất theo dõi cho năm đầu tiên
+
+5.6 Những gì AI KHÔNG BIẾT (BẮT BUỘC — không được bỏ qua)
+    • Liệt kê ít nhất 4 điều không thể kết luận vì thiếu dữ liệu
+    • Với mỗi điều: ghi rõ cần nghiên cứu thêm bằng phương pháp nào
+    • Mục này thể hiện tính trung thực — không được bỏ qua dù output
+      có vẻ đã đầy đủ
+
+─────────────────────────────
+Kết thúc toàn bộ output bằng:
+1 câu Positioning Statement súc tích nhất (dạng quote)
+theo công thức: "Dành cho [target], [thương hiệu] là [category]
+duy nhất [điểm khác biệt] — [cam kết cụ thể]."</div>
+  </div>
+
+</div>
+
+<script>
+function doCopy(){
+  navigator.clipboard.writeText(document.getElementById('ptext').textContent).then(()=>{
+    var b=document.getElementById('cbtn');
+    b.textContent='Đã sao chép!';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='Sao chép';b.classList.remove('ok')},2000);
+  });
+}
+</script>

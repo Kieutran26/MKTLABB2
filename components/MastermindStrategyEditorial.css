@@ -615,6 +615,10 @@
   position: relative;
   padding: 0 2rem;
 }
+.ms-fp-text strong {
+  font-weight: 600;
+  color: var(--ms-blue);
+}
 .ms-fp-underline {
   margin-top: 3rem;
   width: 60px;

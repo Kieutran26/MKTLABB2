@@ -977,9 +977,51 @@ export interface STPResult {
     opportunities: string[];
     ai_knowledge_gaps: string[];
   };
+
+  cmo_advice?: CMOAdvice;
 }
 
-
+export interface CMOAdvice {
+  most_important: {
+    factor: string;
+    why_matters: string;
+    evidence: string;
+  };
+  biggest_pitfall: {
+    mistake: string;
+    consequence: string;
+    instead_do: string;
+  };
+  missed_opportunity: {
+    gap: string;
+    evidence: string;
+    how_to_exploit_90days: string;
+  };
+  one_thing: {
+    action: string;
+    why_leverage: string;
+    kpi_year1: string;
+  };
+  action_30_60_90: {
+    month1: {
+      phase: string;
+      items: string[];
+      reason: string;
+    };
+    month2: {
+      phase: string;
+      items: string[];
+      kpis: string[];
+    };
+    month3: {
+      phase: string;
+      items: string[];
+      goals: string[];
+    };
+  };
+  ai_unknowns: string[];
+  final_positioning_quote: string;
+}
 
 
 // --- AUTO BRIEF GENERATOR ---

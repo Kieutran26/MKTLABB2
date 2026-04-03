@@ -3645,7 +3645,7 @@ YÊU CẦU:
 };
 
 // --- STP MODEL GENERATOR ---
-import { STPInput, STPPosition, STPResult, STPSegment, STPTarget } from "../types";
+import { STPInput, STPPosition, STPResult, STPSegment, STPTarget, CMOAdvice } from "../types";
 
 /** Gemini occasionally wraps JSON in fences despite responseMimeType. */
 function stripJsonFences(text: string): string {
@@ -3762,6 +3762,73 @@ function normalizeSTPResult(raw: Record<string, unknown>): STPResult {
           }
         : undefined;
 
+    // ── CMO ADVICE ────────────────────────────────────────────────────────────
+    const rawCmo = raw.cmo_advice as Record<string, unknown> | undefined;
+    let cmo_advice: STPResult["cmo_advice"] | undefined;
+
+    if (rawCmo && typeof rawCmo === "object") {
+        const r = (k: string) => (rawCmo as Record<string, unknown>)[k];
+
+        const rk = (obj: unknown, k: string): string =>
+            typeof (obj as Record<string, unknown>)?.[k] === "string"
+                ? String((obj as Record<string, unknown>)[k])
+                : "";
+
+        const mostImp = r("most_important") as Record<string, unknown> | undefined;
+        const pitfall = r("biggest_pitfall") as Record<string, unknown> | undefined;
+        const opp = r("missed_opportunity") as Record<string, unknown> | undefined;
+        const oneThing = r("one_thing") as Record<string, unknown> | undefined;
+        const a306090 = r("action_30_60_90") as Record<string, unknown> | undefined;
+
+        const m1 = a306090?.month1 as Record<string, unknown> | undefined;
+        const m2 = a306090?.month2 as Record<string, unknown> | undefined;
+        const m3 = a306090?.month3 as Record<string, unknown> | undefined;
+
+        cmo_advice = {
+            most_important: {
+                factor: rk(mostImp, "factor"),
+                why_matters: rk(mostImp, "why_matters"),
+                evidence: rk(mostImp, "evidence"),
+            },
+            biggest_pitfall: {
+                mistake: rk(pitfall, "mistake"),
+                consequence: rk(pitfall, "consequence"),
+                instead_do: rk(pitfall, "instead_do"),
+            },
+            missed_opportunity: {
+                gap: rk(opp, "gap"),
+                evidence: rk(opp, "evidence"),
+                how_to_exploit_90days: rk(opp, "how_to_exploit_90days"),
+            },
+            one_thing: {
+                action: rk(oneThing, "action"),
+                why_leverage: rk(oneThing, "why_leverage"),
+                kpi_year1: rk(oneThing, "kpi_year1"),
+            },
+            action_30_60_90: {
+                month1: {
+                    phase: rk(m1, "phase") || "Xây nền",
+                    items: Array.isArray(m1?.items) ? (m1!.items as unknown[]).map(String) : [],
+                    reason: rk(m1, "reason"),
+                },
+                month2: {
+                    phase: rk(m2, "phase") || "Kiểm chứng",
+                    items: Array.isArray(m2?.items) ? (m2!.items as unknown[]).map(String) : [],
+                    kpis: Array.isArray(m2?.kpis) ? (m2!.kpis as unknown[]).map(String) : [],
+                },
+                month3: {
+                    phase: rk(m3, "phase") || "Mở rộng",
+                    items: Array.isArray(m3?.items) ? (m3!.items as unknown[]).map(String) : [],
+                    goals: Array.isArray(m3?.goals) ? (m3!.goals as unknown[]).map(String) : [],
+                },
+            },
+            ai_unknowns: Array.isArray(rawCmo.ai_unknowns)
+                ? (rawCmo.ai_unknowns as unknown[]).map(String)
+                : [],
+            final_positioning_quote: rk(rawCmo, "final_positioning_quote"),
+        };
+    }
+
     const validationStatus =
         raw.validationStatus === "FAIL" || raw.validationStatus === "WARNING"
             ? raw.validationStatus
@@ -3791,6 +3858,7 @@ function normalizeSTPResult(raw: Record<string, unknown>): STPResult {
         positioning,
         actionPlan,
         strategy,
+        cmo_advice,
     };
 }
 
@@ -3912,6 +3980,49 @@ YÊU CẦU PHÂN TÍCH (TIẾNG VIỆT, CHUYÊN NGHIỆP, 1500-2000 CHỮ)
 3. POSITIONING (Định vị thương hiệu): Xây dựng Statement chuẩn, ma trận 2x2 và thông điệp theo kênh.
 4. CHIẾN LƯỢC & CẢNH BÁO: Rút ra insights, rủi ro, cơ hội và những gì AI không biết.
 
+═══════════════════════════════════════
+PHẦN 5 — LỜI KHUYÊN CHIẾN LƯỢC CMO (BẮT BUỘC)
+═══════════════════════════════════════
+
+Sau khi hoàn thành S-T-P, xuất ra phần lời khuyên với 4 mục sau.
+QUAN TRỌNG: Mọi lời khuyên phải cụ thể cho thương hiệu/ngành này
+— NGHIÊM CẤM viết lời khuyên chung chung áp dụng được cho mọi thương hiệu.
+
+5.1 Điều quan trọng nhất phải làm đúng
+    • 1 yếu tố quyết định thành bại của chiến lược STP này
+    • Tại sao nó quan trọng hơn tất cả những thứ khác
+    • Dẫn chứng từ đặc thù ngành / phân khúc đã phân tích
+
+5.2 Cạm bẫy lớn nhất cần tránh
+    • 1 sai lầm phổ biến nhất với loại positioning này
+    • Hậu quả cụ thể nếu mắc phải
+    • Thay vào đó nên làm gì
+
+5.3 Cơ hội đang bị bỏ ngỏ
+    • 1 góc định vị hoặc phân khúc mà đối thủ chưa khai thác
+    • Phải rút ra từ dữ liệu đối thủ và khoảng trắng đã phân tích
+    • Cách khai thác cụ thể trong 90 ngày tới
+
+5.4 Action Priority — 30 · 60 · 90 ngày
+    Tháng 1 (Xây nền): 4 việc ưu tiên + lý do làm trước
+    Tháng 2 (Kiểm chứng): 4 việc ưu tiên + KPI cần đạt
+    Tháng 3 (Mở rộng): 4 việc ưu tiên + mục tiêu cụ thể
+
+5.5 Nếu chỉ được làm 1 điều
+    • 1 hành động quan trọng nhất trong 30 ngày đầu
+    • Tại sao đây là leverage point cao nhất
+    • KPI đề xuất theo dõi cho năm đầu tiên
+
+5.6 Những gì AI KHÔNG BIẾT (BẮT BUỘC — không được bỏ qua)
+    • Liệt kê ít nhất 4 điều không thể kết luận vì thiếu dữ liệu
+    • Với mỗi điều: ghi rõ cần nghiên cứu thêm bằng phương pháp nào
+    • Mục này thể hiện tính trung thực — không được bỏ qua dù output có vẻ đã đầy đủ
+
+─────────────────────────────
+Kết thúc toàn bộ output bằng:
+1 câu Positioning Statement súc tích nhất (dạng quote)
+theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nhất [điểm khác biệt] — [cam kết cụ thể]."
+
 ### OUTPUT FORMAT (STRICT JSON, TIẾNG VIỆT):
 {
   "validationStatus": "PASS",
@@ -3977,10 +4088,54 @@ YÊU CẦU PHÂN TÍCH (TIẾNG VIỆT, CHUYÊN NGHIỆP, 1500-2000 CHỮ)
     "strategic_risks": [{ "issue": "Rủi ro lớn nhất", "mitigation": "Cách giảm thiểu" }],
     "opportunities": ["Cơ hội chưa khai thác"],
     "ai_knowledge_gaps": ["Những gì AI KHÔNG BIẾT vì thiếu dữ liệu"]
+  },
+  "cmo_advice": {
+    "most_important": {
+      "factor": "1 yếu tố quyết định thành bại",
+      "why_matters": "Tại sao nó quan trọng hơn tất cả",
+      "evidence": "Dẫn chứng từ đặc thù ngành / phân khúc"
+    },
+    "biggest_pitfall": {
+      "mistake": "1 sai lầm phổ biến nhất",
+      "consequence": "Hậu quả cụ thể nếu mắc phải",
+      "instead_do": "Thay vào đó nên làm gì"
+    },
+    "missed_opportunity": {
+      "gap": "1 góc định vị / phân khúc đối thủ chưa khai thác",
+      "evidence": "Từ dữ liệu đối thủ và khoảng trắng đã phân tích",
+      "how_to_exploit_90days": "Cách khai thác cụ thể trong 90 ngày"
+    },
+    "one_thing": {
+      "action": "1 hành động quan trọng nhất trong 30 ngày đầu",
+      "why_leverage": "Tại sao đây là leverage point cao nhất",
+      "kpi_year1": "KPI đề xuất theo dõi cho năm đầu tiên"
+    },
+    "action_30_60_90": {
+      "month1": {
+        "phase": "Xây nền",
+        "items": ["Việc ưu tiên 1", "Việc ưu tiên 2", "Việc ưu tiên 3", "Việc ưu tiên 4"],
+        "reason": "Lý do làm trước"
+      },
+      "month2": {
+        "phase": "Kiểm chứng",
+        "items": ["Việc ưu tiên 1", "Việc ưu tiên 2", "Việc ưu tiên 3", "Việc ưu tiên 4"],
+        "kpis": ["KPI 1", "KPI 2"]
+      },
+      "month3": {
+        "phase": "Mở rộng",
+        "items": ["Việc ưu tiên 1", "Việc ưu tiên 2", "Việc ưu tiên 3", "Việc ưu tiên 4"],
+        "goals": ["Mục tiêu 1", "Mục tiêu 2"]
+      }
+    },
+    "ai_unknowns": ["Điều 1 không thể kết luận + cần phương pháp nghiên cứu", "Điều 2...", "Điều 3...", "Điều 4..."],
+    "final_positioning_quote": "Dành cho [target], [thương hiệu] là [category] duy nhất [điểm khác biệt] — [cam kết cụ thể]."
   }
 }
 
-⚠️ QUAN TRỌNG: Phần 'Những gì AI không biết' là BẮT BUỘC.`;
+⚠️ QUAN TRỌNG:
+• Phần 'Những gì AI không biết' trong strategy là BẮT BUỘC.
+• Phần cmo_advice là BẮT BUỘC — viết càng cụ thể cho ngành/thương hiệu này càng tốt.
+• Positioning statement cuối cùng phải thật súc tích, 1 câu duy nhất.`;
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',

@@ -36,7 +36,7 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
     className = '',
 }) => (
     <div className={`${fullWidth ? 'md:col-span-2' : ''} ${className}`}>
-        <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
             <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-950">{title}</span>
             {badge === 'required' && (
                 <span className="rounded bg-rose-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-rose-600 ring-1 ring-rose-100/80">
@@ -44,8 +44,8 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
                 </span>
             )}
             {badge === 'important' && (
-                <span className="rounded bg-violet-50 px-1.5 py-px text-[8px] font-bold uppercase tracking-wide text-violet-600 ring-1 ring-violet-100/80">
-                    Quan trọng
+                <span className="rounded bg-amber-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-amber-100/80">
+                    Tùy chọn
                 </span>
             )}
             <EditorialFieldHint title="Gợi ý" anchor="label">
@@ -57,6 +57,6 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
                 </div>
             </EditorialFieldHint>
         </div>
-        <div className="relative mt-1">{children}</div>
+        <div className="relative mt-0.5">{children}</div>
     </div>
 );
