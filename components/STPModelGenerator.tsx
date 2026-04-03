@@ -752,7 +752,7 @@ const STPModelGenerator: React.FC = () => {
                     )}
                     <button
                         type="button"
-                        onClick={() => navigate(VIEW_TO_SLUG.SMART_CALENDAR)}
+                        onClick={() => navigate(VIEW_TO_SLUG.STP_MODEL)}
                         className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.98]"
                     >
                         <Plus size={18} strokeWidth={2} />
