@@ -29,15 +29,15 @@ export const ImcPlannerEditorialField: React.FC<ImcPlannerEditorialFieldProps> =
     className = '',
 }) => (
     <div className={className}>
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-            <span className="text-[15px] font-semibold tracking-tight text-stone-900">{title}</span>
+        <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">{title}</span>
             {required && (
-                <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700 ring-1 ring-rose-100">
+                <span className="rounded bg-rose-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-rose-600 ring-1 ring-rose-100/80">
                     Bắt buộc
                 </span>
             )}
             {optional && (
-                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-amber-100">
+                <span className="rounded bg-amber-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-amber-100/80">
                     Tùy chọn
                 </span>
             )}
@@ -53,9 +53,9 @@ export const ImcPlannerEditorialField: React.FC<ImcPlannerEditorialFieldProps> =
                 </div>
             </EditorialFieldHint>
 
-            {headerMeta && <span className="text-[10px] font-medium text-stone-400">{headerMeta}</span>}
+            {headerMeta && <span className="text-[9px] font-medium text-stone-400">{headerMeta}</span>}
         </div>
-        <div className="relative">
+        <div className="relative mt-0.5">
             {children}
         </div>
     </div>

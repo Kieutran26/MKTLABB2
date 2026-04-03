@@ -174,6 +174,41 @@ const INDUSTRY_CHANNELS: Record<string, { aware: string[]; trigger: string[]; co
         trigger: ['Influencer Try-on', 'Pinterest Boards', 'User Reviews'],
         convert: ['Website Flash Sale', 'Livestream Shopping', 'Limited Edition']
     },
+    'Beauty': {
+        aware: ['Instagram Ads', 'TikTok Spark Ads', 'KOL Review Videos'],
+        trigger: ['Beauty Community Hub', 'Tutorial Content', 'Before/After Showcase'],
+        convert: ['Samples Program', 'E-commerce Flash Sale', 'Loyalty App']
+    },
+    'Travel': {
+        aware: ['YouTube Travel Vlogs', 'FB Travel Groups', 'Search Ads (Destinations)'],
+        trigger: ['Itinerary Guides', 'Travel Blogger Content', 'Customer Vlogs'],
+        convert: ['Early Bird Discount', 'Booking Engine Ads', 'Last Minute Deals']
+    },
+    'SaaS': {
+        aware: ['LinkedIn Lead Gen', 'Search Ads (Solutions)', 'Twitter/X Tech Hub'],
+        trigger: ['Webinars', 'Case Studies', 'Product Roadmap Content'],
+        convert: ['Free Trial', 'Request Demo', 'Live Onboarding Session']
+    },
+    'Finance': {
+        aware: ['PR Financial News', 'Search Ads (Interest Rates)', 'FB Community'],
+        trigger: ['Investment Calculators', 'Expert Interviews', 'Comparison Tools'],
+        convert: ['Consultation Call', 'Account Opening Page', 'Secure Login Portal']
+    },
+    'Ecom': {
+        aware: ['Google Shopping', 'Social Discovery Ads', 'Affiliate Network'],
+        trigger: ['Unboxing Content', 'User-generated Content (UGC)', 'Related Products'],
+        convert: ['Retargeting Ads', 'Abandoned Cart Emails', 'Coupon Codes']
+    },
+    'Automotive': {
+        aware: ['Billboard OOH', 'YouTube High-end Vlogs', 'FB Vehicle Listings'],
+        trigger: ['Test Drive Videos', 'Comparison Blogs', 'Interactive 360 View'],
+        convert: ['Test Drive Booking', 'Locate Dealer', 'Trade-in Evaluation']
+    },
+    'Interior': {
+        aware: ['Pinterest Home Inspo', 'Instagram Home Tours', 'FB Decor Groups'],
+        trigger: ['Visual Moodboards', 'Designer Interviews', 'VR/AR Visualization'],
+        convert: ['Online Catalog', 'Schedule Consultation', 'Project Quote']
+    },
     'Default': {
         aware: ['Facebook/TikTok Ads', 'PR Báo chí', 'OOH'],
         trigger: ['KOL Content', 'Social Seeding', 'Interactive Ads'],

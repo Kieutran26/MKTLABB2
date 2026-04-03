@@ -22,6 +22,14 @@ const INDUSTRIES = [
     { value: 'Healthcare', label: 'Healthcare (Y tế/Sức khỏe)' },
     { value: 'Education', label: 'Education (Giáo dục)' },
     { value: 'Real Estate', label: 'Real Estate (Bất động sản)' },
+    { value: 'Beauty', label: 'Beauty & Cosmetics (Làm đẹp)' },
+    { value: 'Travel', label: 'Travel & Tourism (Du lịch)' },
+    { value: 'SaaS', label: 'SaaS (Phần mềm dịch vụ)' },
+    { value: 'Finance', label: 'Finance & Banking (Tài chính)' },
+    { value: 'Ecom', label: 'E-commerce (Thương mại điện tử)' },
+    { value: 'Automotive', label: 'Automotive (Ô tô & Xe máy)' },
+    { value: 'Entertainment', label: 'Entertainment (Giải trí)' },
+    { value: 'Interior', label: 'Interior & Decor (Nội thất)' },
 ];
 
 const PLANNING_MODES = [
@@ -471,7 +479,7 @@ const IMCPlanner: React.FC = () => {
                 </button>
             </FeatureHeader>
 
-            <div className="flex-1 overflow-y-auto px-0 py-0">
+            <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8 xl:px-10">
                 <div className="w-full">
                     {viewMode === 'history' ? (
                         <div className={`${cardClass} p-6 md:p-8`}>
@@ -581,38 +589,38 @@ const IMCPlanner: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="w-full">
+                        <div className="mx-auto w-full max-w-[1182px]">
                             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                                 {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
-                                    <div className={`${cardClass} mb-8 p-6`}>
+                                    <div className={`${cardClass} mb-5 p-4`}>
                                         <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Lấy dữ liệu từ Brand Vault</h2>
                                         <BrandSelector />
                                     </div>
                                 )}
-                                <div className={`${cardClass} flex min-h-[480px] flex-col overflow-hidden`}>
+                                <div className={`${cardClass} flex min-h-[360px] flex-col overflow-hidden`}>
                                     <div className="flex border-b border-stone-200 bg-stone-50/50">
                                         {([1, 2, 3] as const).map((i) => (
                                             <div
                                                 key={i}
-                                                className={`flex flex-1 flex-col items-center justify-center py-4 text-center transition-colors ${wizardStep === i ? 'border-b-2 border-stone-900 text-stone-900' : 'border-b-2 border-transparent text-stone-400'}`}
+                                                className={`flex flex-1 flex-col items-center justify-center py-3 text-center transition-colors ${wizardStep === i ? 'border-b-2 border-stone-900 text-stone-900' : 'border-b-2 border-transparent text-stone-400'}`}
                                             >
                                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Giai đoạn {i}</span>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="flex flex-1 flex-col p-8 md:p-10">
+                                    <div className="flex flex-1 flex-col p-5 md:p-6">
                                         {wizardStep === 1 && (
-                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-8 duration-300">
-                                                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300">
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-stone-900">
                                                             1
                                                         </div>
-                                                        <h2 className="text-lg font-medium tracking-tight text-stone-900">Thông tin chiến dịch cơ bản</h2>
+                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Thông tin chiến dịch cơ bản</h2>
                                                     </div>
-                                                    <p className="text-xs font-medium text-stone-400 sm:pt-2">Bắt buộc · 6 trường</p>
+                                                    <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">Bắt buộc · 6 trường</p>
                                                 </div>
-                                                <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
+                                                <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
                                                     <ImcPlannerEditorialField
                                                         title="Thương hiệu"
                                                         required
@@ -621,7 +629,7 @@ const IMCPlanner: React.FC = () => {
                                                     >
                                                         <input
                                                             disabled={activeTab === 'vault'}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
                                                             placeholder="Nhập tên thương hiệu…"
                                                             value={brand}
                                                             onChange={(e) => setBrand(e.target.value)}
@@ -635,7 +643,7 @@ const IMCPlanner: React.FC = () => {
                                                     >
                                                         <select
                                                             disabled={activeTab === 'vault'}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-500"
                                                             value={industry}
                                                             onChange={(e) => setIndustry(e.target.value)}
                                                         >
@@ -653,7 +661,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Gói Spa 5 buổi · Nước ngọt vị mới · Tính năng thanh toán"
                                                     >
                                                         <input
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Mô tả sản phẩm / dịch vụ…"
                                                             value={product}
                                                             onChange={(e) => setProduct(e.target.value)}
@@ -668,7 +676,7 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập giá VND…"
                                                             value={productPrice}
                                                             onChange={(e) => setProductPrice(e.target.value)}
@@ -683,32 +691,15 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 disabled:bg-stone-50 disabled:text-stone-400"
                                                             placeholder="Nhập ngân sách (VND)…"
                                                             value={budget}
                                                             onChange={(e) => setBudget(e.target.value)}
                                                             disabled={planningMode === 'GOAL_DRIVEN'}
                                                         />
                                                         {planningMode === 'GOAL_DRIVEN' && (
-                                                            <p className="mt-2 text-[11px] text-stone-400">Bỏ qua ở chế độ Mục tiêu — nhập mục tiêu doanh thu ở bước 3.</p>
+                                                            <p className="mt-1.5 text-[10px] leading-snug text-stone-400">Bỏ qua ở chế độ Mục tiêu — nhập mục tiêu doanh thu ở bước 3.</p>
                                                         )}
-                                                    </ImcPlannerEditorialField>
-                                                    <ImcPlannerEditorialField
-                                                        title="Chế độ tính"
-                                                        required
-                                                        hint="Tôi có Ngân sách → AI tính mục tiêu · Tôi có Mục tiêu → AI tính ngân sách · Kiểm tra Khả thi → AI đánh giá cả hai."
-                                                    >
-                                                        <select
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400"
-                                                            value={planningMode}
-                                                            onChange={(e) => setPlanningMode(e.target.value as PlanningMode)}
-                                                        >
-                                                            {PLANNING_MODES.map((m) => (
-                                                                <option key={m.value} value={m.value}>
-                                                                    {m.label}
-                                                                </option>
-                                                            ))}
-                                                        </select>
                                                     </ImcPlannerEditorialField>
                                                     <ImcPlannerEditorialField
                                                         title="Thời gian chiến dịch"
@@ -720,24 +711,61 @@ const IMCPlanner: React.FC = () => {
                                                             type="number"
                                                             min={4}
                                                             max={52}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all focus:border-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all focus:border-stone-400"
                                                             value={timeline}
                                                             onChange={(e) => setTimeline(Number(e.target.value) || 8)}
                                                         />
+                                                    </ImcPlannerEditorialField>
+                                                    <ImcPlannerEditorialField
+                                                        title="Chế độ tính"
+                                                        required
+                                                        hint="Tôi có Ngân sách → AI tính mục tiêu · Tôi có Mục tiêu → AI tính ngân sách · Kiểm tra Khả thi → AI đánh giá cả hai."
+                                                    >
+                                                        <div className="grid max-w-[380px] grid-cols-3 gap-2 sm:gap-2.5" role="group" aria-label="Chế độ tính">
+                                                            {PLANNING_MODES.map((m) => {
+                                                                const Icon = m.icon;
+                                                                const selected = planningMode === m.value;
+                                                                return (
+                                                                    <button
+                                                                        key={m.value}
+                                                                        type="button"
+                                                                        onClick={() => setPlanningMode(m.value)}
+                                                                        className={`flex w-full flex-col items-center justify-center gap-0.5 overflow-hidden rounded-lg border p-1.5 py-2 text-center transition-all sm:gap-1 sm:p-2 sm:py-2.5 ${
+                                                                            selected
+                                                                                ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-900/10'
+                                                                                : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'
+                                                                        }`}
+                                                                    >
+                                                                        <Icon
+                                                                            size={15}
+                                                                            strokeWidth={1.5}
+                                                                            className={`size-[15px] shrink-0 sm:size-4 ${selected ? 'text-stone-900' : 'text-stone-500'}`}
+                                                                            aria-hidden
+                                                                        />
+                                                                        <span className="text-[9px] font-semibold leading-tight text-stone-900 sm:text-[9.5px]">
+                                                                            {m.label}
+                                                                        </span>
+                                                                        <span className="line-clamp-2 text-[7.5px] leading-tight text-stone-500 sm:text-[8px]">
+                                                                            {m.desc}
+                                                                        </span>
+                                                                    </button>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </ImcPlannerEditorialField>
                                                 </div>
                                             </div>
                                         )}
                                         {wizardStep === 2 && (
-                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-8 duration-300">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-stone-900">
                                                         2
                                                     </div>
-                                                    <h2 className="text-lg font-medium tracking-tight text-stone-900">Context: Thấu hiểu thực tế</h2>
+                                                    <h2 className="text-base font-medium tracking-tight text-stone-900">Context: Thấu hiểu thực tế</h2>
                                                 </div>
                                                 {activeTab === 'manual' ? (
-                                                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                                                         <ImcPlannerEditorialField
                                                             title="Tầm nhìn & Giá trị"
                                                             required
@@ -745,19 +773,19 @@ const IMCPlanner: React.FC = () => {
                                                             example="VD: Mang lại cảm hứng và sự đổi mới cho mọi vận động viên."
                                                         >
                                                             {brand.trim() && (
-                                                                <p className="mb-4 text-[12px] text-stone-500">
+                                                                <p className="mb-2 text-[11px] leading-snug text-stone-500">
                                                                     Đã nhập ở bước 1: <span className="font-medium text-stone-800">{brand}</span>
                                                                 </p>
                                                             )}
                                                             <textarea
-                                                                className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                                 placeholder="Nhập tầm nhìn & giá trị (Vision & Mission)…"
                                                                 value={brandVision}
                                                                 onChange={(e) => setBrandVision(e.target.value)}
                                                             />
                                                         </ImcPlannerEditorialField>
 
-                                                        <div className="space-y-6">
+                                                        <div className="space-y-4">
                                                             <ImcPlannerEditorialField
                                                                 title="Đối tượng mục tiêu"
                                                                 required
@@ -765,7 +793,7 @@ const IMCPlanner: React.FC = () => {
                                                                 example="VD: Gen Z yêu thích thời trang bền vững, quan tâm đến môi trường."
                                                             >
                                                                 <input
-                                                                    className="w-full rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                    className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                                     placeholder="Tên khách hàng mục tiêu…"
                                                                     value={audienceName}
                                                                     onChange={(e) => setAudienceName(e.target.value)}
@@ -779,7 +807,7 @@ const IMCPlanner: React.FC = () => {
                                                                 example="VD: Lo lắng về môi trường nhưng vẫn muốn mặc đẹp và sành điệu."
                                                             >
                                                                 <textarea
-                                                                    className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                    className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                                     placeholder="Pain & Desire…"
                                                                     value={audiencePain}
                                                                     onChange={(e) => setAudiencePain(e.target.value)}
@@ -788,12 +816,12 @@ const IMCPlanner: React.FC = () => {
                                                         </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
+                                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                                         <div>
-                                                            <span className="mb-3 block text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Chọn Brand</span>
+                                                            <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">Chọn Brand</span>
                                                             <BrandSelector />
                                                         </div>
-                                                        <p className="text-sm leading-relaxed text-stone-500">
+                                                        <p className="text-xs leading-relaxed text-stone-500">
                                                             Persona từ Vault có thể bổ sung sau trong Brand Vault. Tiếp tục bước 3 để hoàn tất thông số chiến dịch.
                                                         </p>
                                                     </div>
@@ -801,18 +829,18 @@ const IMCPlanner: React.FC = () => {
                                             </div>
                                         )}
                                         {wizardStep === 3 && (
-                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-8 duration-300">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                            <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300">
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-stone-900">
                                                             3
                                                         </div>
-                                                        <h2 className="text-lg font-medium tracking-tight text-stone-900">Bối cảnh thương hiệu & Cạnh tranh</h2>
+                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Bối cảnh thương hiệu & Cạnh tranh</h2>
                                                     </div>
                                                     <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Quan trọng · 4 trường</span>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                                                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                                                     <ImcPlannerEditorialField
                                                         title="USP / Điểm khác biệt"
                                                         required
@@ -820,7 +848,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Giao hàng trong 2 giờ · Nguyên liệu 100% organic · Đội ngũ chuyên gia 10 năm"
                                                     >
                                                         <textarea
-                                                            className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập USP…"
                                                             value={usp}
                                                             onChange={(e) => setUsp(e.target.value)}
@@ -834,7 +862,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Thương hiệu A (mạnh giá) · B (mạnh content) · C (mạnh distribution)"
                                                     >
                                                         <textarea
-                                                            className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập đối thủ chính…"
                                                             value={competitors}
                                                             onChange={(e) => setCompetitors(e.target.value)}
@@ -848,7 +876,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Trẻ trung, năng động · Chuyên nghiệp, đáng tin · Ấm áp, gần gũi"
                                                     >
                                                         <input
-                                                            className="w-full rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="VD: Trẻ trung, năng động…"
                                                             value={tone}
                                                             onChange={(e) => setTone(e.target.value)}
@@ -862,7 +890,7 @@ const IMCPlanner: React.FC = () => {
                                                         example="VD: Chạy Facebook Ads tháng 3, CPL 120k, 200 leads — chuyển đổi thấp"
                                                     >
                                                         <textarea
-                                                            className="h-32 w-full resize-y rounded-xl border border-stone-200 p-3 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="VD: Chạy Meta Ads tháng trước hiệu quả thấp…"
                                                             value={pastCampaigns}
                                                             onChange={(e) => setPastCampaigns(e.target.value)}
@@ -870,8 +898,8 @@ const IMCPlanner: React.FC = () => {
                                                     </ImcPlannerEditorialField>
                                                 </div>
 
-                                                <div className="border-t border-stone-100 pt-8">
-                                                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                                                <div className="border-t border-stone-100 pt-5">
+                                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                                                         <ImcPlannerEditorialField
                                                             title="Trọng tâm chiến dịch"
                                                             required
@@ -881,18 +909,18 @@ const IMCPlanner: React.FC = () => {
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => setCampaignFocus('CONVERSION')}
-                                                                    className={`rounded-2xl border p-4 text-left transition-all ${campaignFocus === 'CONVERSION' ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'}`}
+                                                                    className={`rounded-xl border p-3 text-left transition-all ${campaignFocus === 'CONVERSION' ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'}`}
                                                                 >
                                                                     <div className="text-sm font-medium text-stone-900">Chuyển đổi doanh số</div>
-                                                                    <div className="mt-1 text-[11px] text-stone-500">Ưu tiên đơn hàng, ROAS.</div>
+                                                                    <div className="mt-0.5 text-[11px] text-stone-500">Ưu tiên đơn hàng, ROAS.</div>
                                                                 </button>
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => setCampaignFocus('BRANDING')}
-                                                                    className={`rounded-2xl border p-4 text-left transition-all ${campaignFocus === 'BRANDING' ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'}`}
+                                                                    className={`rounded-xl border p-3 text-left transition-all ${campaignFocus === 'BRANDING' ? 'border-stone-900 bg-stone-50 ring-1 ring-stone-200' : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50/50'}`}
                                                                 >
                                                                     <div className="text-sm font-medium text-stone-900">Nhận diện thương hiệu</div>
-                                                                    <div className="mt-1 text-[11px] text-stone-500">Ưu tiên reach, awareness.</div>
+                                                                    <div className="mt-0.5 text-[11px] text-stone-500">Ưu tiên reach, awareness.</div>
                                                                 </button>
                                                             </div>
                                                         </ImcPlannerEditorialField>
@@ -902,16 +930,16 @@ const IMCPlanner: React.FC = () => {
                                                             required
                                                             hint="Chọn những tài nguyên thương hiệu đang sở hữu để AI tối ưu phân bổ."
                                                         >
-                                                            <div className="space-y-3">
-                                                                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-stone-200 p-3 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
+                                                            <div className="space-y-2">
+                                                                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
                                                                     <input type="checkbox" className="rounded border-stone-300" checked={hasWebsite} onChange={(e) => setHasWebsite(e.target.checked)} />
                                                                     Website / landing
                                                                 </label>
-                                                                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-stone-200 p-3 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
+                                                                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
                                                                     <input type="checkbox" className="rounded border-stone-300" checked={hasCustomerList} onChange={(e) => setHasCustomerList(e.target.checked)} />
                                                                     Danh sách khách hàng (CRM)
                                                                 </label>
-                                                                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-stone-200 p-3 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
+                                                                <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50/80">
                                                                     <input type="checkbox" className="rounded border-stone-300" checked={hasCreativeAssets} onChange={(e) => setHasCreativeAssets(e.target.checked)} />
                                                                     Creative / key visual sẵn có
                                                                 </label>
@@ -930,7 +958,7 @@ const IMCPlanner: React.FC = () => {
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-full rounded-lg border border-stone-200 bg-white p-2 text-xs text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="Nhập mục tiêu VND…"
                                                             value={revenueTarget}
                                                             onChange={(e) => setRevenueTarget(e.target.value)}
@@ -940,7 +968,7 @@ const IMCPlanner: React.FC = () => {
 
                                             </div>
                                         )}
-                                        <div className="mt-auto flex flex-col-reverse gap-3 border-t border-stone-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="mt-auto flex flex-col-reverse gap-3 border-t border-stone-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
                                             <button
                                                 type="button"
                                                 onClick={goWizardPrev}
