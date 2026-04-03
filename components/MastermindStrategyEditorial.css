@@ -37,7 +37,7 @@
 
 /* ─── WRAPPER ─────────────────────────────────────────────── */
 .ms-editorial-wrapper {
-  background: var(--ms-paper);
+  background: transparent;
   font-family: var(--ms-sans);
   color: var(--ms-ink);
   width: 100%;
@@ -638,8 +638,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 2rem;
-  min-height: calc(100vh - 240px); /* Better vertical centering in the dashboard */
+  padding: 2rem 1.25rem;
+  min-height: min(70vh, calc(100vh - 200px));
 }
 
 .ms-vault-card {
@@ -658,15 +658,26 @@
 
 /* ── LEFT: Content ─────────────────────────────────────── */
 .ms-vault-content {
-  padding: 5rem 5.5rem;
+  padding: 2.5rem 3rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   border-right: 1px solid rgba(26, 25, 22, 0.05);
-  gap: 2.25rem;
+  gap: 1.125rem;
 }
 
 .ms-vault-upper { margin-bottom: 0; }
+
+/* Nhãn phụ (TSX dùng ms-vault-label) */
+.ms-vault-label {
+  font-family: var(--ms-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ms-ink-3);
+  margin-bottom: 0.35rem;
+}
 
 .ms-vault-eyebrow {
   display: inline-flex;
@@ -690,37 +701,43 @@
 
 .ms-vault-title {
   font-family: var(--ms-serif);
-  font-size: 32px;
-  line-height: 1.15;
+  font-size: 26px;
+  line-height: 1.2;
   color: var(--ms-ink);
   letter-spacing: -0.02em;
-  margin-top: 1.25rem;
+  margin-top: 0.25rem;
 }
 
 .ms-vault-desc {
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--ms-ink-3);
   max-width: 440px;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 /* ── Benefits strip ──────────────────────────────────── */
 .ms-vault-benefits {
-  padding-top: 2rem;
+  padding-top: 1rem;
+  margin-top: 0.25rem;
   border-top: 1px solid var(--ms-rule);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 .ms-vault-benefit-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 11.5px;
+  line-height: 1.35;
   color: var(--ms-ink-3);
 }
 .ms-vault-benefit-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
   background: var(--ms-green-bg);
   border: 1px solid var(--ms-green-mid);
   display: flex;
@@ -740,14 +757,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   background: var(--ms-ink);
   color: #fff;
-  padding: 0.8rem 1.75rem;
+  padding: 0.55rem 1.35rem;
   border-radius: 99px;
   font-family: var(--ms-sans);
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12.5px;
   width: fit-content;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
@@ -767,7 +784,7 @@
 
 /* ── RIGHT: Visual ────────────────────────────────────── */
 .ms-vault-visual {
-  background: var(--ms-paper);
+  background: #faf9f6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -793,7 +810,7 @@
   gap: 6px;
   padding: 0 1.5rem;
   height: 100%;
-  padding-bottom: 48px;
+  padding-bottom: 32px;
 }
 .ms-vault-dna-bar {
   width: 3px;
@@ -820,7 +837,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #fff;
+  background: #faf9f6;
   box-shadow:
     0 2px 10px rgba(0,0,0,0.04),
     0 6px 24px rgba(0,0,0,0.05);

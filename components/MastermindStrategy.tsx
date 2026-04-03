@@ -333,6 +333,21 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                 AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
                                             </p>
                                         </div>
+
+                                        <div className="ms-vault-benefits">
+                                            {[
+                                                "Kết nối AI DNA: Đồng bộ Persona & DNA từ Vault",
+                                                "Chiến lược đa kênh: Tối ưu nội dung toàn hệ sinh thái",
+                                                "Insight thị trường: Phân tích đối thủ & xu hướng",
+                                                "Quyền riêng tư: Bảo mật dữ liệu chiến lược tuyệt đối"
+                                            ].map((benefit, bIdx) => (
+                                                <div key={bIdx} className="ms-vault-benefit-item">
+                                                    <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
+                                                    <span>{benefit}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
                                         <button className="ms-vault-cta">
                                             Nâng cấp Pro Max <ChevronRight size={18} />
                                         </button>
