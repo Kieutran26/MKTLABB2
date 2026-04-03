@@ -541,18 +541,18 @@ const STPModelGenerator: React.FC = () => {
         .stp-ins-risk { border-left: 2px solid #c13a2a; padding-left: 0.75rem; }
         .stp-ins-risk .stp-ins-title { color: #8a1a1a; }
         
-        /* Footer — nền mint nhạt đồng bộ thẻ Targeting */
+        /* Footer — nền xanh lá nhạt, đồng bộ thẻ Targeting */
         .stp-footer-bar {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0;
-            border: 1px solid var(--rule);
+            border: 1px solid var(--stp-tg-border);
             border-radius: 0;
             overflow: hidden;
             margin-top: 2rem;
-            background: transparent;
+            background: var(--stp-tg-bg);
         }
-        .stp-fb-col { padding: 1.25rem 1.5rem; border-right: 1px solid var(--rule); text-align: center; }
+        .stp-fb-col { padding: 1.25rem 1.5rem; border-right: 1px solid var(--stp-tg-rule); text-align: center; }
         .stp-fb-col:last-child { border-right: none; }
         .stp-fb-val { font-family: var(--serif); font-size: clamp(1.35rem, 3vw, 1.65rem); color: var(--ink); display: block; font-weight: 400; letter-spacing: -0.02em; }
         .stp-fb-label {
@@ -571,6 +571,7 @@ const STPModelGenerator: React.FC = () => {
         }
         .stp-cmo-footer-stack--lock-last {
             flex-direction: column-reverse;
+            gap: 2rem;
         }
         .stp-cmo-footer-stack--lock-last .stp-cmo-wrap--gate-last {
             border-top: none;
@@ -581,6 +582,7 @@ const STPModelGenerator: React.FC = () => {
             margin-top: 0;
             padding-top: 0;
             padding-bottom: 0.5rem;
+            width: 100%;
         }
         
         /* Map legend */

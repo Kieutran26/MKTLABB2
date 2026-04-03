@@ -1,98 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Prata&display=swap');
-
-.pmg-wrap {
-  /* Unlocked: chỉ bọc nội dung */
-}
+/* Thẻ Pro Max gọn, một cột — không cột ổ khóa bên phải */
 
 .pmg-locked {
   width: 100%;
   max-width: 100%;
 }
 
-/* Editorial minimalism — không bóng, lưới rõ, serif tiêu đề, khoảng đệm rộng */
-.pmg-card--editorial {
+.pmg-compact-card {
   width: 100%;
-  max-width: 100%;
+  max-width: 26rem;
   margin: 0 auto;
-  padding: 2.75rem 0 2.25rem;
-  text-align: left;
-  background: transparent;
-  border: none;
-  border-top: 1px solid rgba(26, 42, 30, 0.14);
-  border-bottom: 1px solid rgba(26, 42, 30, 0.14);
-  border-radius: 0;
-  box-shadow: none;
+  background: #fff;
+  border: 1px solid rgba(26, 25, 22, 0.06);
+  border-radius: 18px;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.03),
+    0 12px 32px -12px rgba(0, 0, 0, 0.07);
+  box-sizing: border-box;
 }
 
-.pmg-kicker {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #1a5c3a;
-  margin: 0 0 1rem;
+.pmg-compact-inner {
+  padding: 1.25rem 1.35rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
 }
 
-.pmg-title {
-  font-family: 'Prata', 'Times New Roman', serif;
-  font-size: clamp(1.35rem, 2.5vw, 1.65rem);
-  font-weight: 400;
-  line-height: 1.35;
-  color: #0f0f0d;
-  margin: 0 0 1.25rem;
-  letter-spacing: -0.02em;
+.pmg-compact-title {
+  font-size: 1.25rem !important;
+  line-height: 1.25 !important;
+  margin: 0.15rem 0 0 !important;
 }
 
-.pmg-desc {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.75;
-  color: #4a4843;
-  margin: 0 0 1.75rem;
-  max-width: 38rem;
+.pmg-compact-desc {
+  font-size: 12.5px !important;
+  line-height: 1.5 !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
 
-.pmg-desc strong {
-  color: #1a5c3a;
+.pmg-desc-strong {
+  color: var(--ms-green, #1e4d34);
   font-weight: 600;
 }
 
-.pmg-desc-break {
-  display: block;
-  height: 0.65rem;
+.pmg-compact-benefits {
+  padding-top: 0.65rem !important;
+  margin-top: 0.45rem !important;
+  margin-bottom: 0.35rem !important;
+  gap: 0.35rem !important;
+  width: 100%;
 }
 
-.pmg-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 0.65rem 0;
-  min-height: 44px;
-  background: transparent;
-  color: #1a5c3a;
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  border: none;
-  border-bottom: 1px solid #1a5c3a;
-  border-radius: 0;
-  cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+.pmg-compact-benefits .ms-vault-benefit-item {
+  font-size: 11px !important;
+  line-height: 1.35 !important;
 }
 
-.pmg-cta:hover {
-  opacity: 0.82;
+.pmg-compact-benefits .ms-vault-benefit-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
 }
 
-.pmg-cta:focus-visible {
-  outline: 2px solid #1a5c3a;
-  outline-offset: 4px;
+.pmg-compact-cta {
+  margin-top: 0.35rem;
 }
 
-.pmg-cta:active {
-  opacity: 0.7;
+@media (min-width: 640px) {
+  .pmg-compact-card {
+    max-width: 30rem;
+  }
+
+  .pmg-compact-inner {
+    padding: 1.35rem 1.5rem 1.45rem;
+  }
 }
