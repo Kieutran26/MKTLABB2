@@ -758,34 +758,49 @@ const IMCPlanner: React.FC = () => {
                                         )}
                                         {wizardStep === 2 && (
                                             <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300">
-                                                <div className="flex items-center gap-2.5">
-                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-stone-900">
-                                                        2
+                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-stone-900">
+                                                            2
+                                                        </div>
+                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Context: Thấu hiểu thực tế</h2>
                                                     </div>
-                                                    <h2 className="text-base font-medium tracking-tight text-stone-900">Context: Thấu hiểu thực tế</h2>
+                                                    {activeTab === 'manual' && (
+                                                        <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">Yêu cầu · 4 trường</p>
+                                                    )}
                                                 </div>
                                                 {activeTab === 'manual' ? (
-                                                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                                                        <ImcPlannerEditorialField
-                                                            title="Tầm nhìn & Giá trị"
-                                                            required
-                                                            hint="Mô tả tầm nhìn dài hạn và những giá trị cốt lõi mà thương hiệu bạn đang hướng tới."
-                                                            example="VD: Mang lại cảm hứng và sự đổi mới cho mọi vận động viên."
-                                                        >
-                                                            {brand.trim() && (
-                                                                <p className="mb-2 text-[11px] leading-snug text-stone-500">
-                                                                    Đã nhập ở bước 1: <span className="font-medium text-stone-800">{brand}</span>
-                                                                </p>
-                                                            )}
-                                                            <textarea
-                                                                className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                                placeholder="Nhập tầm nhìn & giá trị (Vision & Mission)…"
-                                                                value={brandVision}
-                                                                onChange={(e) => setBrandVision(e.target.value)}
-                                                            />
-                                                        </ImcPlannerEditorialField>
-
-                                                        <div className="space-y-4">
+                                                    <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                                                        <div className="flex flex-col gap-y-5">
+                                                            <ImcPlannerEditorialField
+                                                                title="Thương hiệu"
+                                                                required
+                                                                hint="Tên thương hiệu / sản phẩm cần lập IMC (đồng bộ với bước 1)."
+                                                                example="VD: Coca-Cola Zero, Spa Thư Giãn, App MoMo"
+                                                            >
+                                                                <input
+                                                                    className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                    placeholder="Nhập tên thương hiệu…"
+                                                                    value={brand}
+                                                                    onChange={(e) => setBrand(e.target.value)}
+                                                                />
+                                                            </ImcPlannerEditorialField>
+                                                            <ImcPlannerEditorialField
+                                                                title="Tầm nhìn & Giá trị"
+                                                                required
+                                                                hint="Mô tả tầm nhìn dài hạn và những giá trị cốt lõi mà thương hiệu bạn đang hướng tới."
+                                                                example="VD: Mang lại cảm hứng và sự đổi mới cho mọi vận động viên."
+                                                            >
+                                                                <textarea
+                                                                    rows={3}
+                                                                    className="min-h-[4.75rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2 text-sm leading-snug text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                    placeholder="Tầm nhìn & Giá trị (Vision & Mission)…"
+                                                                    value={brandVision}
+                                                                    onChange={(e) => setBrandVision(e.target.value)}
+                                                                />
+                                                            </ImcPlannerEditorialField>
+                                                        </div>
+                                                        <div className="flex flex-col gap-y-5">
                                                             <ImcPlannerEditorialField
                                                                 title="Đối tượng mục tiêu"
                                                                 required
@@ -799,7 +814,6 @@ const IMCPlanner: React.FC = () => {
                                                                     onChange={(e) => setAudienceName(e.target.value)}
                                                                 />
                                                             </ImcPlannerEditorialField>
-
                                                             <ImcPlannerEditorialField
                                                                 title="Nỗi đau & Khao khát"
                                                                 required
@@ -807,8 +821,9 @@ const IMCPlanner: React.FC = () => {
                                                                 example="VD: Lo lắng về môi trường nhưng vẫn muốn mặc đẹp và sành điệu."
                                                             >
                                                                 <textarea
-                                                                    className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
-                                                                    placeholder="Pain & Desire…"
+                                                                    rows={3}
+                                                                    className="min-h-[4.75rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2 text-sm leading-snug text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                                    placeholder="Nỗi đau & Khao khát (Pain & Desire)…"
                                                                     value={audiencePain}
                                                                     onChange={(e) => setAudiencePain(e.target.value)}
                                                                 />

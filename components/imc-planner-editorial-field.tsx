@@ -30,7 +30,7 @@ export const ImcPlannerEditorialField: React.FC<ImcPlannerEditorialFieldProps> =
 }) => (
     <div className={className}>
         <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">{title}</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-950">{title}</span>
             {required && (
                 <span className="rounded bg-rose-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-rose-600 ring-1 ring-rose-100/80">
                     Bắt buộc
