@@ -1,19 +1,15 @@
 import React from 'react';
-import { ArrowLeft, Check, AlertTriangle, XCircle, Info, Zap, Users, Sparkles, Compass, Flag, Target, RefreshCw, ShieldCheck, AlertOctagon, Lightbulb, MessageSquareQuote } from 'lucide-react';
+import { Check, AlertTriangle, XCircle, Info, Zap, Users, Sparkles, Compass, Flag, Target, RefreshCw, ShieldCheck, AlertOctagon, Lightbulb, MessageSquareQuote } from 'lucide-react';
 import { IMCPlan } from '../types';
 import './imc-planner-editorial.css';
 
 interface IMCOutputEditorialProps {
   plan: IMCPlan;
-  onBack: () => void;
-  onSave: () => void;
-  saving: boolean;
-  saved: boolean;
 }
 
 const cleanText = (text: string) => text.replace(/\*\*/g, '');
 
-const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, onSave, saving, saved }) => {
+const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan }) => {
   const formatVND = (num: number) => {
     if (num >= 1_000_000_000) return (num / 1_000_000_000).toFixed(1) + ' tỷ';
     if (num >= 1_000_000) return (num / 1_000_000).toFixed(0) + 'M';
@@ -48,21 +44,21 @@ const IMCOutputEditorial: React.FC<IMCOutputEditorialProps> = ({ plan, onBack, o
   ];
 
   return (
-    <div className="imc-editorial-wrapper">
+    <div className="imc-editorial-wrapper imc-editorial-wrapper--full-bleed">
 
-      <div className="imc-editorial-page">
-        {/* HEADER */}
-        <div className="imc-doc-header imc-anim">
-          <div>
-            <div className="imc-eyebrow">IMC Planner · Chiến lược tích hợp</div>
-            <h1 className="imc-doc-title">
+      <div className="imc-editorial-page imc-editorial-page--full-bleed">
+        {/* Ngữ cảnh thương hiệu — tiêu đề dự án nằm ở header trang (giống Mastermind) */}
+        <div className="imc-result-strip imc-anim">
+          <div className="imc-eyebrow">IMC Planner · Chiến lược tích hợp</div>
+          <div className="imc-result-strip-inner">
+            <div className="imc-result-brandline">
               {plan.brand}: <em>{plan.product}</em>
-            </h1>
-          </div>
-          <div className="imc-doc-meta">
-            <span className="imc-meta-tag imc-tag-green">{plan.industry}</span>
-            <span className="imc-meta-tag imc-tag-blue">8 tuần</span>
-            <span className="imc-meta-tag imc-tag-warm">{formatVND(plan.total_budget)} Budget</span>
+            </div>
+            <div className="imc-result-badges">
+              <span className="imc-meta-tag imc-tag-green">{plan.industry}</span>
+              <span className="imc-meta-tag imc-tag-blue">{plan.timeline_weeks} tuần</span>
+              <span className="imc-meta-tag imc-tag-warm">{formatVND(plan.total_budget)} Budget</span>
+            </div>
           </div>
         </div>
 

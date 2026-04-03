@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { Layers, Sparkles, Loader2, History, ChevronRight, BarChart3, Diamond, Lock, Pencil, Save, Plus, Check } from 'lucide-react';
+import { Layers, Sparkles, Loader2, History, ChevronRight, BarChart3, Diamond, Lock, Pencil, Save, Plus, Check, Trash2, Target, Calendar } from 'lucide-react';
 import { STPInput, STPResult } from '../types';
 import { generateSTPAnalysis } from '../services/geminiService';
 import { STPService, SavedSTP } from '../services/stpService';
@@ -126,6 +126,27 @@ const StpStrategyInsightBody: React.FC<{ text: string }> = ({ text }) => {
     );
 };
 
+/** Đoạn sau dấu – / — (hoặc " - ") cuối → chữ xanh nghiêng (layout editorial như mẫu STP). */
+function renderStpBrandEssenceTitle(essence: string): React.ReactNode {
+    const t = (essence ?? '').trim();
+    if (!t) return null;
+    const normalized = t.replace(/\s+-\s+/g, ' – ');
+    const bits = normalized.split(/\s*[–—]\s*/).map((s) => s.trim()).filter(Boolean);
+    if (bits.length <= 1) {
+        return <>{t}</>;
+    }
+    return bits.map((part, i) =>
+        i === bits.length - 1 ? (
+            <em key={i}>{part}</em>
+        ) : (
+            <React.Fragment key={i}>
+                {part}
+                <span aria-hidden> – </span>
+            </React.Fragment>
+        )
+    );
+}
+
 const STPModelGenerator: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -180,10 +201,18 @@ const STPModelGenerator: React.FC = () => {
             color: var(--ink);
             width: 100%;
             max-width: none;
+            min-height: 100%;
             margin: 0;
-            /* Thụt hai bên ~50px tối đa; màn hẹp giảm dần, tối thiểu 16px */
-            padding: 1rem max(16px, min(50px, 5vw)) 3rem;
+            padding: 0;
             box-sizing: border-box;
+        }
+        .stp-editorial-inner {
+            box-sizing: border-box;
+            width: 100%;
+            padding-top: 1rem;
+            padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+            padding-left: calc(50px + env(safe-area-inset-left, 0px));
+            padding-right: calc(50px + env(safe-area-inset-right, 0px));
         }
         
         @keyframes fadeUp {
@@ -193,34 +222,50 @@ const STPModelGenerator: React.FC = () => {
         
         .stp-a { animation: fadeUp 0.5s ease both; opacity: 0; animation-fill-mode: both; }
         
-        /* Header */
+        /* Header — giống mẫu: eyebrow full width, hàng dưới: tiêu đề serif + badge ngang */
         .stp-doc-header {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: start;
-            padding-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
             border-bottom: 1px solid var(--rule);
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
         }
         .stp-eyebrow {
+            font-family: var(--sans);
             font-size: 10px;
             letter-spacing: 0.14em;
             text-transform: uppercase;
             color: var(--ink-3);
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .stp-doc-header-inner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px 16px;
         }
         .stp-doc-title {
             font-family: var(--serif);
-            font-size: 28px;
-            line-height: 1.2;
+            font-size: clamp(1.375rem, 3.2vw, 1.875rem);
+            line-height: 1.28;
             font-weight: 400;
+            color: var(--ink);
+            flex: 1 1 min(100%, 320px);
+            min-width: 0;
         }
         .stp-doc-title em {
             font-style: italic;
             color: var(--accent);
+            font-weight: 400;
         }
-        .stp-doc-tags { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+        .stp-doc-tags {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            justify-content: flex-end;
+        }
         .stp-tag { font-size: 10px; padding: 3px 10px; border-radius: 2px; font-weight: 500; letter-spacing: 0.05em; }
         .stp-tag-g { background: var(--accent); color: #fff; }
         .stp-tag-w { background: var(--accent-w); color: #fff; }
@@ -672,6 +717,23 @@ const STPModelGenerator: React.FC = () => {
         setFormTab(1);
     };
 
+    const handleDeleteStp = async (id: string) => {
+        if (!confirm('Xóa bản phân tích STP này?')) return;
+        const ok = await STPService.deleteSTP(id);
+        if (ok) {
+            await loadHistory();
+            if (activeHistoryId === id) {
+                setStpData(null);
+                setCurrentInput(null);
+                setActiveHistoryId(null);
+                reset(STP_DEFAULTS);
+            }
+            toast.success('Đã xóa khỏi lịch sử');
+        } else {
+            toast.error('Xóa thất bại');
+        }
+    };
+
     const handleSaveStp = async () => {
         if (!stpData) return;
         setIsSaving(true);
@@ -703,7 +765,6 @@ const STPModelGenerator: React.FC = () => {
                 eyebrow="PRECISION MARKET SEGMENTATION"
                 title="STP Optimizer"
                 subline="Phân lớp thị trường, xác định mục tiêu và tọa độ định vị."
-                className="px-3 sm:px-4 lg:px-5"
             >
                 <div className="mr-2 flex shrink-0 items-center justify-end gap-2">
                     <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm">
@@ -731,9 +792,10 @@ const STPModelGenerator: React.FC = () => {
                         onClick={() => setShowHistory(!showHistory)}
                         className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
                         aria-pressed={showHistory}
-                        aria-label="Lịch sử"
+                        title={`Lịch sử (${savedItems.length})`}
+                        aria-label={`Mở lịch sử phân tích STP, ${savedItems.length} bản đã lưu`}
                     >
-                        <History size={18} strokeWidth={2} />
+                        <History size={17} strokeWidth={1.5} />
                     </button>
                     {stpData && (
                         <button
@@ -763,40 +825,92 @@ const STPModelGenerator: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className={`grid min-h-0 flex-1 gap-0 overflow-hidden ${
-                    stpData
-                        ? showHistory
-                            ? 'max-xl:grid-rows-[auto_minmax(0,1fr)] xl:grid-cols-[minmax(0,260px)_minmax(0,1fr)] xl:grid-rows-[minmax(0,1fr)]'
-                            : 'grid-cols-1 grid-rows-[minmax(0,1fr)]'
-                        : showHistory
-                          ? 'xl:grid-cols-[minmax(0,260px)_1fr]'
-                          : 'grid-cols-1 items-start'
+                className={`flex min-h-0 flex-1 flex-col overflow-hidden pb-3 sm:pb-4 lg:pb-4 ${
+                    stpData && !showHistory
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
                 }`}
             >
-                {showHistory && (
-                    <aside
-                        className={`${cardClass} order-1 max-h-[36vh] min-h-0 space-y-3 overflow-y-auto bg-stone-50/30 p-3 sm:p-4 xl:max-h-none xl:pl-3 xl:pr-2 ${stpData ? 'xl:min-h-0 xl:h-full' : ''}`}
-                    >
-                        <h3 className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Lịch sử</h3>
-                        {savedItems.length === 0 && (
-                            <p className="px-2 text-xs text-stone-500">Chưa có bản phân tích đã lưu.</p>
-                        )}
-                        {savedItems.map((m) => (
-                            <button
-                                key={m.id}
-                                type="button"
-                                onClick={() => openHistoryItem(m)}
-                                className="w-full cursor-pointer rounded-xl border border-stone-100 bg-white p-4 text-left transition-all hover:border-stone-300"
-                            >
-                                <div className="truncate text-sm font-medium text-stone-900">{m.input.productBrand}</div>
-                                <div className="mt-2 text-[10px] text-stone-400">
-                                    {m.input.industry} · {new Date(m.timestamp).toLocaleDateString('vi-VN')}
+                {showHistory ? (
+                    <div className="flex-1 overflow-y-auto px-0 pb-2">
+                        <div className={`${cardClass} p-6 md:p-8`}>
+                            <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                Lịch sử phân tích STP ({savedItems.length})
+                            </h2>
+                            {savedItems.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                                    <p className="text-base font-normal text-stone-600">Chưa có bản phân tích nào</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowHistory(false)}
+                                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+                                    >
+                                        <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                                    </button>
                                 </div>
-                            </button>
-                        ))}
-                    </aside>
-                )}
-
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    {savedItems.map((m) => {
+                                        const segCount = m.data?.segmentation?.segments?.length ?? 0;
+                                        const fit = m.data?.targeting?.market_fit_score;
+                                        const primary = m.data?.targeting?.primary_segment?.trim() || '—';
+                                        return (
+                                            <div
+                                                key={m.id}
+                                                role="button"
+                                                tabIndex={0}
+                                                className="cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                                onClick={() => openHistoryItem(m)}
+                                                onKeyDown={(e) => e.key === 'Enter' && openHistoryItem(m)}
+                                            >
+                                                <div className="mb-3 flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="line-clamp-2 font-medium text-stone-900">
+                                                            {m.input.productBrand || 'Không tên'}
+                                                        </h3>
+                                                        <p className="mt-1 line-clamp-2 text-sm font-normal text-stone-500">
+                                                            {m.input.industry || '—'} • {primary}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            void handleDeleteStp(m.id);
+                                                        }}
+                                                        className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                                        aria-label="Xóa bản phân tích"
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={1.25} />
+                                                    </button>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-3 text-xs font-normal text-stone-500">
+                                                    <span className="flex items-center gap-1">
+                                                        <Target size={12} strokeWidth={1.25} />
+                                                        {typeof fit === 'number' ? `${fit}%` : '—'} Market fit
+                                                    </span>
+                                                    <span className="flex items-center gap-1">
+                                                        <BarChart3 size={12} strokeWidth={1.25} />
+                                                        {segCount} phân khúc
+                                                    </span>
+                                                </div>
+                                                <div className="mt-3 border-t border-stone-100 pt-3 text-xs font-normal text-stone-400">
+                                                    <span className="flex items-center gap-1">
+                                                        <Calendar size={12} strokeWidth={1.25} aria-hidden />
+                                                        {new Date(m.timestamp).toLocaleDateString('vi-VN')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden">
                 {!stpData && (
                 <div className="order-2 mx-auto h-fit w-full max-w-[1182px]">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
@@ -1152,24 +1266,21 @@ const STPModelGenerator: React.FC = () => {
 
                 {stpData && (
                     <div
-                        className="order-2 h-full min-h-0 min-w-0 w-full overflow-y-auto border-0 bg-transparent p-0 shadow-none"
+                        className="order-2 h-full min-h-0 min-w-0 w-full overflow-y-auto border-0 bg-[#faf9f6] p-0 shadow-none"
                     >
                         <style>{editorialStyles}</style>
                         <div className="stp-editorial">
+                            <div className="stp-editorial-inner">
                             {/* HEADER */}
                             <div className="stp-doc-header stp-a" style={{ animationDelay: '0.05s' }}>
-                                <div>
-                                    <div className="stp-eyebrow">STP Optimizer · Precision Market Segmentation</div>
-                                    <div className="stp-doc-title">
-                                        {stpData.positioning.brand_essence.split('–').map((part, i, arr) => (
-                                            i === arr.length - 1 ? <em key={i}>{part.trim()}</em> : part.trim() + ' – '
-                                        ))}
+                                <div className="stp-eyebrow">STP Optimizer · Precision Market Segmentation</div>
+                                <div className="stp-doc-header-inner">
+                                    <h1 className="stp-doc-title">{renderStpBrandEssenceTitle(stpData.positioning.brand_essence)}</h1>
+                                    <div className="stp-doc-tags">
+                                        <span className="stp-tag stp-tag-g">{currentInput?.productBrand || 'Brand'}</span>
+                                        <span className="stp-tag stp-tag-w">{currentInput?.industry || 'Industry'}</span>
+                                        <span className="stp-tag stp-tag-b">{stpData.targeting.primary_segment.split(' ').slice(0, 3).join(' ')}</span>
                                     </div>
-                                </div>
-                                <div className="stp-doc-tags">
-                                    <span className="stp-tag stp-tag-g">{currentInput?.productBrand || 'Brand'}</span>
-                                    <span className="stp-tag stp-tag-w">{currentInput?.industry || 'Industry'}</span>
-                                    <span className="stp-tag stp-tag-b">{stpData.targeting.primary_segment.split(' ').slice(0, 3).join(' ')}</span>
                                 </div>
                             </div>
 
@@ -1531,7 +1642,10 @@ const STPModelGenerator: React.FC = () => {
                                     <div className="stp-fb-label">Khoảng trắng chiến lược</div>
                                 </div>
                             </div>
+                            </div>
                         </div>
+                    </div>
+                )}
                     </div>
                 )}
             </div>

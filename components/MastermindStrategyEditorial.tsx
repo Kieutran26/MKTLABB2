@@ -31,6 +31,18 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
   const { result } = strategy;
   if (!result) return null;
 
+  /** API / DB có thể thiếu nhánh — tránh crash khi đọc nested */
+  const contentAngles = {
+    text: [] as string[],
+    visual: [] as string[],
+    story: [] as string[],
+    data: [] as string[],
+    action: [] as string[],
+    weekly_distribution: 'hàng tuần',
+    sample_week_schedule: '',
+    ...result.contentAngles,
+  };
+
   const createdAt = new Date(strategy.createdAt);
   const quarter   = `Q${Math.floor(createdAt.getMonth() / 3) + 1} · ${createdAt.getFullYear()}`;
 
@@ -128,7 +140,7 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
             <div className="ms-col-body">{result.brand_context?.persona.psychographics}</div>
 
             <div className="ms-col-micro-label">Nỗi đau chính</div>
-            {result.brand_context?.pain_gain.ranked_pains.slice(0, 3).map((pain, i) => (
+            {(result.brand_context?.pain_gain?.ranked_pains ?? []).slice(0, 3).map((pain, i) => (
               <div key={i} className="ms-list-item">
                 <div className={`ms-list-dot ${pain.impact === 'High' ? 'ms-list-dot-red' : 'ms-list-dot-amber'}`} />
                 {pain.content}
@@ -136,7 +148,7 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
             ))}
 
             <div className="ms-col-micro-label">Khao khát thật sự</div>
-            {result.brand_context?.pain_gain.top_gains.slice(0, 2).map((gain, i) => (
+            {(result.brand_context?.pain_gain?.top_gains ?? []).slice(0, 2).map((gain, i) => (
               <div key={i} className="ms-list-item">
                 <div className="ms-list-dot ms-list-dot-green" />
                 {gain}
@@ -151,9 +163,9 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
 
             <div className="ms-col-micro-label">Trục cạnh tranh</div>
             <div className="ms-col-body" style={{ fontSize: 12, color: 'var(--ms-ink-3)' }}>
-              {result.brand_context?.positioning.competitive_map.x_axis}
+              {result.brand_context?.positioning?.competitive_map?.x_axis ?? '—'}
               {' · '}
-              {result.brand_context?.positioning.competitive_map.y_axis}
+              {result.brand_context?.positioning?.competitive_map?.y_axis ?? '—'}
             </div>
 
             <div className="ms-diff-pill">
@@ -168,14 +180,14 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
       <Band color="blue">
         <SectionLabel num="04" label="Lộ trình 90 ngày" dotStyle={{ background: 'var(--ms-blue)', width: 8, height: 8, borderRadius: '50%' }} />
         <div className="ms-roadmap-cols">
-          {result.strategic_goals?.roadmap_90day.months.map((month, i) => (
+          {(result.strategic_goals?.roadmap_90day?.months ?? []).map((month, i) => (
             <div key={i} className="ms-rm-card">
               <div className="ms-rm-card-top">
                 <div className="ms-rm-month-label">{month.month_name}</div>
                 <div className="ms-rm-priority">{month.priority}</div>
               </div>
               <div className="ms-rm-card-body">
-                {month.actions.slice(0, 3).map((action, j) => (
+                {(month.actions ?? []).slice(0, 3).map((action, j) => (
                   <div key={j} className="ms-rm-action-item">
                     <span className="ms-rm-action-num">{j + 1}.</span>
                     {action}
@@ -212,17 +224,17 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
 
       {/* ── 6. CONTENT MIX ──────────────────────────────────── */}
       <Band color="paper2">
-        <SectionLabel num="06" label={`Content Mix · ${result.contentAngles.weekly_distribution || 'hàng tuần'}`} dotStyle={{ background: 'var(--ms-amber)', width: 8, height: 8, borderRadius: '50%' }} />
+        <SectionLabel num="06" label={`Content Mix · ${contentAngles.weekly_distribution || 'hàng tuần'}`} dotStyle={{ background: 'var(--ms-amber)', width: 8, height: 8, borderRadius: '50%' }} />
         <div className="ms-content-grid">
           {/* Visual */}
           <div className="ms-ct-card">
             <div className="ms-ct-card-top visual">
               <div className="ms-ct-type-label visual">Visual</div>
-              <div className="ms-ct-count">{result.contentAngles.visual?.length ?? 0}×</div>
+              <div className="ms-ct-count">{contentAngles.visual?.length ?? 0}×</div>
             </div>
             <div className="ms-ct-card-body">
-              {result.contentAngles.visual?.[0] && (
-                <div className="ms-ct-example-text">"{result.contentAngles.visual[0]}"</div>
+              {contentAngles.visual?.[0] && (
+                <div className="ms-ct-example-text">"{contentAngles.visual[0]}"</div>
               )}
               <div className="ms-ct-direction">
                 <strong>Định hướng:</strong> Tập trung vào cảm xúc và hình ảnh thương hiệu nhất quán.
@@ -233,11 +245,11 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
           <div className="ms-ct-card">
             <div className="ms-ct-card-top story">
               <div className="ms-ct-type-label story">Story</div>
-              <div className="ms-ct-count">{result.contentAngles.story?.length ?? 0}×</div>
+              <div className="ms-ct-count">{contentAngles.story?.length ?? 0}×</div>
             </div>
             <div className="ms-ct-card-body">
-              {result.contentAngles.story?.[0] && (
-                <div className="ms-ct-example-text">"{result.contentAngles.story[0]}"</div>
+              {contentAngles.story?.[0] && (
+                <div className="ms-ct-example-text">"{contentAngles.story[0]}"</div>
               )}
               <div className="ms-ct-direction">
                 <strong>Định hướng:</strong> Kể chuyện để xây dựng trust và kết nối persona.
@@ -248,11 +260,11 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
           <div className="ms-ct-card">
             <div className="ms-ct-card-top action">
               <div className="ms-ct-type-label action">Action</div>
-              <div className="ms-ct-count">{result.contentAngles.action?.length ?? 0}×</div>
+              <div className="ms-ct-count">{contentAngles.action?.length ?? 0}×</div>
             </div>
             <div className="ms-ct-card-body">
-              {result.contentAngles.action?.[0] && (
-                <div className="ms-ct-example-text">"{result.contentAngles.action[0]}"</div>
+              {contentAngles.action?.[0] && (
+                <div className="ms-ct-example-text">"{contentAngles.action[0]}"</div>
               )}
               <div className="ms-ct-direction">
                 <strong>Định hướng:</strong> Call-to-action rõ ràng, thúc đẩy chuyển đổi trực tiếp.

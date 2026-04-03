@@ -31,8 +31,32 @@
 
 .imc-editorial-page {
   max-width: 100%;
-  margin: 0 auto;
-  padding: 2.5rem;
+  margin: 0;
+  padding: 1.25rem clamp(0.5rem, 1.25vw, 1rem);
+}
+
+@media (min-width: 1024px) {
+  .imc-editorial-page {
+    padding: 1.5rem clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+}
+
+/* Kết quả IMC: thụt 50px khỏi mép main (trái/phải) + safe-area */
+.imc-editorial-wrapper--full-bleed {
+  width: 100%;
+  min-height: 100%;
+}
+
+.imc-planner-detail-gutter {
+  padding-left: calc(50px + env(safe-area-inset-left, 0px));
+  padding-right: calc(50px + env(safe-area-inset-right, 0px));
+}
+
+.imc-editorial-page--full-bleed {
+  padding-top: 0;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(50px + env(safe-area-inset-left, 0px));
+  padding-right: calc(50px + env(safe-area-inset-right, 0px));
 }
 
 /* HEADER */
@@ -43,6 +67,75 @@
   padding-bottom: 1.75rem;
   border-bottom: 1px solid var(--rule);
   margin-bottom: 2rem;
+}
+
+/* Dải ngữ cảnh dưới header app (tên dự án ở thanh Mastermind-style) */
+.imc-result-strip {
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1.75rem;
+}
+
+/* Full-bleed kết quả: thanh trắng full ngang, chữ thụt 50px giống mẫu IMC */
+.imc-editorial-wrapper--full-bleed .imc-result-strip {
+  margin-left: calc(-50px - env(safe-area-inset-left, 0px));
+  margin-right: calc(-50px - env(safe-area-inset-right, 0px));
+  margin-top: 0;
+  padding: 1.25rem calc(50px + env(safe-area-inset-right, 0px)) 1.25rem calc(50px + env(safe-area-inset-left, 0px));
+  background: #ffffff;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 1.75rem;
+  box-shadow: 0 1px 0 rgba(15, 15, 13, 0.04);
+}
+
+.imc-editorial-wrapper--full-bleed .imc-result-strip .imc-eyebrow {
+  font-family: var(--sans);
+  margin-bottom: 0.65rem;
+}
+
+.imc-result-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-top: 0;
+}
+
+.imc-result-brandline {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-2);
+  max-width: 100%;
+  flex: 1 1 280px;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.imc-editorial-wrapper--full-bleed .imc-result-brandline {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.8vw, 1.85rem);
+  font-weight: 400;
+  line-height: 1.28;
+  color: var(--ink);
+}
+
+.imc-result-brandline em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.imc-editorial-wrapper--full-bleed .imc-result-brandline em {
+  font-weight: 400;
+}
+
+.imc-result-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .imc-eyebrow {

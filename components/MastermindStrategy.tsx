@@ -91,6 +91,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     // Results
     const [strategyResult, setStrategyResult] = useState<MastermindStrategy | null>(null);
+    const [editingMastermindTitle, setEditingMastermindTitle] = useState(false);
+    const [mastermindTitleDraft, setMastermindTitleDraft] = useState('');
 
     useEffect(() => {
         const loadUser = async () => {
@@ -191,6 +193,27 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         } catch (e) {
             showToast("Lỗi khi xóa chiến lược", "error");
         }
+    };
+
+    const commitMastermindTitle = () => {
+        if (!strategyResult) return;
+        const t = mastermindTitleDraft.trim();
+        if (t) {
+            const updated = { ...strategyResult, name: t };
+            setStrategyResult(updated);
+            setAvailableStrategies((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+            try {
+                const localRaw = localStorage.getItem('mktlab_mastermind_history');
+                if (localRaw) {
+                    const local: MastermindStrategy[] = JSON.parse(localRaw);
+                    const next = local.map((s) => (s.id === updated.id ? updated : s));
+                    localStorage.setItem('mktlab_mastermind_history', JSON.stringify(next));
+                }
+            } catch {
+                /* ignore */
+            }
+        }
+        setEditingMastermindTitle(false);
     };
 
     const handleSave = async () => {
@@ -650,13 +673,59 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     }
 
     if (viewMode === 'dashboard' && strategyResult) {
-        const { result } = strategyResult;
         return (
             <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
-                <header className="z-20 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setViewMode('create')} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><ArrowRight size={20} className="rotate-180" /></button>
-                        <div><h2 className="text-xl font-medium">{strategyResult.name}</h2><p className="text-xs text-stone-400 mt-0.5">Chiến lược tổng thể Mastermind</p></div>
+                <header className="relative z-10 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-4">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setEditingMastermindTitle(false);
+                                setViewMode('create');
+                            }}
+                            className="shrink-0 rounded-full p-2 transition-colors hover:bg-stone-100"
+                            aria-label="Quay lại form"
+                        >
+                            <ArrowRight size={20} className="rotate-180" />
+                        </button>
+                        <div className="min-w-0 flex-1">
+                            {editingMastermindTitle ? (
+                                <input
+                                    autoFocus
+                                    className="w-full max-w-xl border-b border-stone-300 bg-transparent text-xl font-medium text-stone-900 outline-none focus:border-stone-500"
+                                    value={mastermindTitleDraft}
+                                    onChange={(e) => setMastermindTitleDraft(e.target.value)}
+                                    onBlur={commitMastermindTitle}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            commitMastermindTitle();
+                                        }
+                                        if (e.key === 'Escape') {
+                                            setMastermindTitleDraft(strategyResult.name);
+                                            setEditingMastermindTitle(false);
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div className="flex min-w-0 flex-wrap items-center gap-2">
+                                    <h2 className="truncate text-xl font-medium text-stone-900">{strategyResult.name}</h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setMastermindTitleDraft(strategyResult.name);
+                                            setEditingMastermindTitle(true);
+                                        }}
+                                        className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                                        aria-label="Sửa tên chiến lược"
+                                        title="Sửa tên chiến lược"
+                                    >
+                                        <Pencil size={16} strokeWidth={1.75} />
+                                    </button>
+                                </div>
+                            )}
+                            <p className="mt-0.5 text-xs text-stone-400">Chiến lược tổng thể Mastermind</p>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={handleSave} className="px-5 py-2.5 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 flex items-center gap-2"><Save size={16} /> Lưu</button>

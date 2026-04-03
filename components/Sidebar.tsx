@@ -248,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className="h-screen fixed left-0 top-0 z-20 flex flex-col border-r transition-[width] duration-300 ease-out"
+      className="h-screen fixed left-0 top-0 z-40 flex flex-col border-r transition-[width] duration-300 ease-out"
       style={{
         width: collapsed ? '4.75rem' : '17rem',
         backgroundColor: SIDEBAR_BG,
@@ -260,7 +260,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <button
         type="button"
         onClick={() => onCollapsedChange?.(!collapsed)}
-        className="fixed z-50 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-[left,background-color] duration-300 ease-out hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 top-[42px]"
+        className="fixed z-[100] flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] transition-[left,background-color] duration-300 ease-out hover:bg-stone-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/10 top-[42px]"
         style={{
           borderColor: BORDER_SUBTLE,
           left: collapsed ? 'calc(4.75rem - 14px)' : 'calc(17rem - 14px)',
