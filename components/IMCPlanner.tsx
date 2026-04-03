@@ -890,8 +890,8 @@ const IMCPlanner: React.FC = () => {
                                                         hint="Giọng điệu muốn dùng trong chiến dịch này"
                                                         example="VD: Trẻ trung, năng động · Chuyên nghiệp, đáng tin · Ấm áp, gần gũi"
                                                     >
-                                                        <input
-                                                            className="w-full rounded-xl border border-stone-200 px-3 py-2 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                        <textarea
+                                                            className="h-28 min-h-[7rem] w-full resize-y rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                             placeholder="VD: Trẻ trung, năng động…"
                                                             value={tone}
                                                             onChange={(e) => setTone(e.target.value)}

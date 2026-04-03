@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil
+    Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map as LucideMap, Heart, Lightbulb, Users,
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
@@ -30,9 +30,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     const [step, setStep] = useState(1);
     const [isGenerating, setIsGenerating] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
-    const [viewMode, setViewMode] = useState<'create' | 'dashboard'>('create');
+    const [viewMode, setViewMode] = useState<'create' | 'dashboard' | 'history'>('create');
     const [availableStrategies, setAvailableStrategies] = useState<MastermindStrategy[]>([]);
-    const [showHistory, setShowHistory] = useState(false);
 
     const [showSaveSuccessModal, setShowSaveSuccessModal] = useState(false);
     const [showDeploySuccessModal, setShowDeploySuccessModal] = useState(false);
@@ -48,7 +47,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 const localHistory: MastermindStrategy[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
                 
                 // Merge and remove duplicates by ID
-                const mergedMap = new Map();
+                const mergedMap = new Map<string, MastermindStrategy>();
                 localHistory.forEach((s: MastermindStrategy) => mergedMap.set(s.id, s));
                 dbHistory.forEach((s: MastermindStrategy) => mergedMap.set(s.id, s));
                 
@@ -173,7 +172,25 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     const loadStrategy = (strategy: MastermindStrategy) => {
         setStrategyResult(strategy);
         setViewMode('dashboard');
-        setShowHistory(false);
+    };
+
+    const handleDeleteStrategy = async (id: string) => {
+        if (!confirm('Bạn có chắc chắn muốn xóa chiến lược này?')) return;
+        
+        try {
+            await MastermindService.deleteMastermindStrategy(id);
+            
+            // Update Local state
+            const updated = availableStrategies.filter(s => s.id !== id);
+            setAvailableStrategies(updated);
+            
+            // Update LocalStorage
+            localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updated));
+            
+            showToast("Đã xóa chiến lược", "info");
+        } catch (e) {
+            showToast("Lỗi khi xóa chiến lược", "error");
+        }
     };
 
     const handleSave = async () => {
@@ -208,7 +225,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         }
     };
 
-    if (viewMode === 'create') {
+    if (viewMode === 'create' || viewMode === 'history') {
         return (
             <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
                 <FeatureHeader 
@@ -228,8 +245,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                     <button
                         type="button"
-                        onClick={() => setShowHistory(true)}
-                        className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-stone-200 text-stone-600 shadow-sm transition-colors hover:bg-stone-50"
+                        onClick={() => setViewMode(viewMode === 'history' ? 'create' : 'history')}
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl border transition-all ${viewMode === 'history' ? 'bg-stone-900 text-white shadow-md border-stone-900' : 'border-stone-200 text-stone-600 shadow-sm hover:bg-stone-50'}`}
                         title={`Lịch sử (${availableStrategies.length})`}
                         aria-label={`Lịch sử, ${availableStrategies.length} chiến lược đã lưu`}
                     >
@@ -243,7 +260,69 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                 <div className="flex-1 overflow-y-auto px-4 py-8 lg:px-8 xl:px-10">
                     <div className="w-full max-w-none">
-                        {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
+                        {viewMode === 'history' ? (
+                            <div className="rounded-2xl border border-stone-200/90 bg-white p-6 md:p-8 shadow-sm">
+                                <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                    <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                    Lịch sử chiến lược ({availableStrategies.length})
+                                </h2>
+
+                                {availableStrategies.length === 0 ? (
+                                    <div className="py-16 text-center">
+                                        <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                                        <p className="text-base font-normal text-stone-600">Chưa có chiến lược nào</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => setViewMode('create')}
+                                            className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+                                        >
+                                            <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                        {availableStrategies.map((s) => (
+                                            <div
+                                                key={s.id}
+                                                role="button"
+                                                tabIndex={0}
+                                                className="group cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                                onClick={() => loadStrategy(s)}
+                                            >
+                                                <div className="mb-3 flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="line-clamp-1 font-medium text-stone-900 group-hover:text-stone-950 transition-colors">{s.name}</h3>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className={`text-[10px] uppercase font-bold tracking-wider ${s.brandId === 'manual' ? 'text-stone-400' : 'text-amber-500'}`}>
+                                                                {s.brandId === 'manual' ? 'Manual Input' : 'Brand Vault'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteStrategy(s.id);
+                                                        }}
+                                                        className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                                        title="Xóa chiến lược"
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={1.5} />
+                                                    </button>
+                                                </div>
+                                                <div className="mt-3 flex items-center justify-between border-t border-stone-100 pt-3">
+                                                    <div className="flex items-center gap-1.5 text-[11px] font-normal text-stone-400">
+                                                        <Calendar size={12} strokeWidth={1.5} />
+                                                        {new Date(s.createdAt).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                    <ChevronRight size={14} className="text-stone-300 transition-transform group-hover:translate-x-1" />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                             <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
                                 <div className="ms-vault-card">
                                     <div className="ms-vault-content">
@@ -474,8 +553,9 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                     hint="Nếu thương hiệu là một người, họ sẽ nói chuyện như thế nào?"
                                                     example="VD: Người bạn thân gần gũi · Chuyên gia tự tin · Người thầy truyền cảm hứng."
                                                 >
-                                                    <input
-                                                        className="w-full rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-[13px] text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
+                                                    <textarea
+                                                        rows={3}
+                                                        className="min-h-[4rem] w-full resize-y rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-[13px] leading-snug text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400"
                                                         placeholder="VD: Chuyên nghiệp, đáng tin…"
                                                         value={tone}
                                                         onChange={(e) => setTone(e.target.value)}
@@ -546,23 +626,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     </div>
                 </div>
 
-                {showHistory && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                        <div className="bg-white rounded-3xl w-full max-w-lg h-[60vh] flex flex-col border border-stone-200 shadow-2xl overflow-hidden">
-                            <header className="p-6 border-b border-stone-100 flex justify-between items-center"><h3 className="font-medium">Lịch sử chiến lược</h3><button onClick={() => setShowHistory(false)}><X size={20} className="text-stone-300" /></button></header>
-                            <div className="flex-1 overflow-y-auto p-6 space-y-3">
-                                {availableStrategies.length === 0 ? (
-                                    <div className="text-center text-stone-500">Chưa có lịch sử chiến lược.</div>
-                                ) : (
-                                    availableStrategies.map(s => <button key={s.id} onClick={() => loadStrategy(s)} className="w-full text-left p-4 rounded-2xl border border-stone-100 hover:border-stone-300 bg-stone-50/50 transition-all">
-                                        <div className="font-medium text-stone-900">{s.name}</div>
-                                        <div className="text-[10px] text-stone-400 mt-1">{new Date(s.createdAt).toLocaleDateString()}</div>
-                                    </button>)
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
             </div>
         );
     }
