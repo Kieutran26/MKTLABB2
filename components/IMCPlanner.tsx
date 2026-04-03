@@ -10,6 +10,7 @@ import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
 import IMCOutputEditorial from './IMCOutputEditorial';
 import { saasService } from '../services/saasService';
+import './MastermindStrategyEditorial.css';
 
 type ViewMode = 'create' | 'history' | 'detail';
 
@@ -559,32 +560,55 @@ const IMCPlanner: React.FC = () => {
                             saved={saved}
                         />
                     ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="mb-12 overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-xl">
-                            <div className="grid grid-cols-1 md:grid-cols-2">
-                                <div className="p-10 md:p-14">
-                                    <div className="mb-6 inline-flex rounded-2xl bg-amber-50 p-3 text-amber-600"><Diamond size={32} /></div>
-                                    <h2 className="mb-4 text-3xl font-medium tracking-tight text-stone-900">Tính năng Brand Vault</h2>
-                                    <p className="mb-8 text-lg text-stone-500">Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn.</p>
-                                    <ul className="mb-10 space-y-4 text-sm">
-                                        {["Kết nối đa kênh dự trên giá trị cốt lõi", "Phân bổ ngân sách tối ưu theo đặc thù ngành", "Tự động viết Key Hook theo Brand Voice", "Sẵn sàng hạng mục triển khai cho Team sản xuất"].map((text, i) => (
-                                            <li key={i} className="flex items-center gap-3 text-stone-700">
-                                                <div className="rounded-full bg-emerald-50 p-1 text-emerald-600"><Check size={14} strokeWidth={3} /></div>
-                                                {text}
-                                            </li>
+                        <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                            <div className="ms-vault-card">
+                                <div className="ms-vault-content">
+                                    <div className="ms-vault-upper">
+                                        <div className="ms-vault-label">
+                                            <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
+                                            Brand Vault Access
+                                        </div>
+                                        <h3 className="ms-vault-title">Tính năng Brand Vault</h3>
+                                        <p className="ms-vault-desc">
+                                            Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn.
+                                        </p>
+                                    </div>
+
+                                    <div className="ms-vault-benefits">
+                                        {[
+                                            "Kết nối đa kênh dự trên giá trị cốt lõi",
+                                            "Phân bổ ngân sách tối ưu theo đặc thù ngành",
+                                            "Tự động viết Key Hook theo Brand Voice",
+                                            "Sẵn sàng hạng mục triển khai cho Team sản xuất"
+                                        ].map((benefit, bIdx) => (
+                                            <div key={bIdx} className="ms-vault-benefit-item">
+                                                <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
+                                                <span>{benefit}</span>
+                                            </div>
                                         ))}
-                                    </ul>
-                                    <button className="flex items-center gap-2 rounded-2xl bg-stone-900 px-8 py-4 font-medium text-white shadow-lg transition-transform hover:scale-105">Mở khóa quy trình Pro Max <ChevronRight size={18} /></button>
+                                    </div>
+
+                                    <button className="ms-vault-cta">
+                                        Nâng cấp Pro Max <ChevronRight size={18} />
+                                    </button>
                                 </div>
-                                <div className="relative flex items-center justify-center bg-stone-50 p-10 overflow-hidden">
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] scale-150"><Lightbulb size={400} /></div>
-                                    <div className="relative z-10 w-full max-w-sm space-y-4 p-6 blur-[2px] grayscale opacity-40">
-                                        <div className="h-6 w-1/2 rounded bg-stone-300" />
-                                        <div className="h-24 rounded-xl bg-white shadow-sm" />
-                                        <div className="grid grid-cols-3 gap-2"><div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /> <div className="h-16 rounded-lg bg-stone-200" /></div>
+                                <div className="ms-vault-visual">
+                                    <div className="ms-vault-dna">
+                                        {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                            <div 
+                                                key={i} 
+                                                className="ms-vault-dna-bar" 
+                                                style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
+                                            />
+                                        ))}
                                     </div>
-                                    <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/95 p-8 shadow-2xl backdrop-blur">
-                                        <Lock size={48} className="text-stone-400" />
+                                    <div className="ms-vault-lock-circle">
+                                        <div className="ms-vault-lock-icon">
+                                            <Lock size={32} strokeWidth={1.5} />
+                                        </div>
                                     </div>
+                                    <div className="ms-vault-corner ms-vault-corner-tl" />
+                                    <div className="ms-vault-corner ms-vault-corner-br" />
                                 </div>
                             </div>
                         </div>
