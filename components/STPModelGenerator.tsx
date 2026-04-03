@@ -688,7 +688,7 @@ const STPModelGenerator: React.FC = () => {
 
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
-            <Toaster position="top-right" />
+            <Toaster position="bottom-right" />
             <FeatureHeader
                 icon={Layers}
                 eyebrow="PRECISION MARKET SEGMENTATION"
@@ -942,7 +942,7 @@ const STPModelGenerator: React.FC = () => {
                                                 </div>
                                                 <h2 className="text-base font-medium tracking-tight text-stone-900">Dữ liệu khách hàng</h2>
                                             </div>
-                                            <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">Tùy chọn · 3 trường</p>
+                                            <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">Quan trọng · 3 trường</p>
                                         </div>
                                         <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
                                         <StpOptimizerField

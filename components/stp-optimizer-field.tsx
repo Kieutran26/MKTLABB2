@@ -1,5 +1,4 @@
 import React from 'react';
-import { Diamond } from 'lucide-react';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 
 export type StpOptimizerBadge = 'required' | 'important';
@@ -44,8 +43,8 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
                 </span>
             )}
             {badge === 'important' && (
-                <span className="rounded bg-amber-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-amber-100/80">
-                    Tùy chọn
+                <span className="rounded bg-violet-50 px-1.5 py-px text-[8px] font-bold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200/80">
+                    Quan trọng
                 </span>
             )}
             <EditorialFieldHint title="Gợi ý" anchor="label">
