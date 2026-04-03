@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Layers, Sparkles, Loader2, History, Save, ChevronRight, BarChart3, Diamond, Lock, Pencil } from 'lucide-react';
+import { Layers, Sparkles, Loader2, History, Save, ChevronRight, BarChart3, Diamond, Lock, Pencil, ArrowLeft } from 'lucide-react';
 import { STPInput, STPResult, STPSegment } from '../types';
 import { generateSTPAnalysis } from '../services/geminiService';
 import { STPService, SavedSTP } from '../services/stpService';
@@ -80,7 +80,6 @@ const STPModelGenerator: React.FC = () => {
     const [profile, setProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
     const [formTab, setFormTab] = useState<1 | 2 | 3>(1);
-    const [outputTab, setOutputTab] = useState<'segmentation' | 'targeting' | 'positioning' | 'strategy'>('segmentation');
     const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<STPInput>({
         defaultValues: STP_DEFAULTS,
     });
@@ -140,8 +139,22 @@ const STPModelGenerator: React.FC = () => {
                 { ...merged, productBrand: context + merged.productBrand },
                 setThinkingStep
             );
-            if (result) {
-                setStpData(result);
+            if (!result) {
+                toast.error('Không nhận được kết quả. Kiểm tra GEMINI_API_KEY và kết nối mạng, rồi thử lại.');
+                return;
+            }
+            if (result.validationStatus === 'FAIL') {
+                toast.error(
+                    result.clarificationMessage ||
+                        'Dữ liệu đầu vào chưa đủ chi tiết. Hãy bổ sung mô tả cụ thể (sản phẩm, khách hàng, ngành) rồi phân tích lại.'
+                );
+                setStpData(null);
+                return;
+            }
+            setStpData(result);
+            if (result.validationStatus === 'WARNING' && result.clarificationMessage) {
+                toast.success(`Phân tích hoàn tất. Lưu ý: ${result.clarificationMessage}`);
+            } else {
                 toast.success('Phân tích STP hoàn tất!');
             }
         } catch {
@@ -172,6 +185,10 @@ const STPModelGenerator: React.FC = () => {
         reset(mergeInput(m.input));
         setShowHistory(false);
         setFormTab(1);
+    };
+
+    const backToInputForm = () => {
+        setStpData(null);
     };
 
     return (
@@ -217,14 +234,18 @@ const STPModelGenerator: React.FC = () => {
 
             <div
                 className={`grid min-h-0 flex-1 gap-4 overflow-hidden p-4 lg:gap-6 lg:p-6 ${
-                    stpData 
-                        ? (showHistory ? 'xl:grid-cols-[minmax(0,260px)_minmax(420px,1fr)_minmax(280px,1.2fr)]' : 'xl:grid-cols-[minmax(420px,1fr)_minmax(280px,1.2fr)]') 
-                        : (showHistory ? 'xl:grid-cols-[minmax(0,260px)_1fr]' : 'grid-cols-1 items-start')
+                    stpData
+                        ? showHistory
+                            ? 'max-xl:grid-rows-[auto_minmax(0,1fr)] xl:grid-cols-[minmax(0,260px)_minmax(0,1fr)] xl:grid-rows-[minmax(0,1fr)]'
+                            : 'grid-cols-1 grid-rows-[minmax(0,1fr)]'
+                        : showHistory
+                          ? 'xl:grid-cols-[minmax(0,260px)_1fr]'
+                          : 'grid-cols-1 items-start'
                 }`}
             >
                 {showHistory && (
                     <aside
-                        className={`${cardClass} order-1 max-h-[36vh] min-h-0 space-y-3 overflow-y-auto bg-stone-50/30 p-4 xl:max-h-none`}
+                        className={`${cardClass} order-1 max-h-[36vh] min-h-0 space-y-3 overflow-y-auto bg-stone-50/30 p-4 xl:max-h-none ${stpData ? 'xl:min-h-0 xl:h-full' : ''}`}
                     >
                         <h3 className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Lịch sử</h3>
                         {savedItems.length === 0 && (
@@ -246,8 +267,9 @@ const STPModelGenerator: React.FC = () => {
                     </aside>
                 )}
 
+                {!stpData && (
                 <div
-                    className={`${formCardClass} order-2 flex flex-col overflow-hidden ${!stpData ? 'mx-auto w-full max-w-[1182px] h-fit' : 'min-h-0 flex-1 min-w-0'} ${showHistory ? '' : 'xl:col-start-1'}`}
+                    className={`${formCardClass} order-2 flex flex-col overflow-hidden mx-auto h-fit w-full max-w-[1182px]`}
                 >
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                         <div className="space-y-6 p-8 text-center">
@@ -520,14 +542,23 @@ const STPModelGenerator: React.FC = () => {
                         </form>
                     )}
                 </div>
+                )}
 
                 {stpData && (
                     <div
-                        className={`${cardClass} order-3 min-h-[280px] min-w-0 overflow-y-auto p-6 md:p-8 xl:min-h-0 ${showHistory ? '' : 'xl:col-start-2'}`}
+                        className={`${cardClass} order-2 h-full min-h-0 min-w-0 overflow-y-auto p-6 md:p-8 ${showHistory ? '' : 'mx-auto w-full max-w-[min(100%,1182px)]'}`}
                     >
                         <div className="animate-in fade-in zoom-in-95 space-y-8">
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
+                            <div className="flex flex-wrap items-start justify-between gap-4">
+                                <div className="min-w-0 flex-1">
+                                    <button
+                                        type="button"
+                                        onClick={backToInputForm}
+                                        className="mb-3 inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:bg-stone-50"
+                                    >
+                                        <ArrowLeft size={16} strokeWidth={2} />
+                                        Chỉnh sửa đầu vào
+                                    </button>
                                     <h2 className="text-2xl font-medium text-stone-900">{stpData.positioning.brand_essence}</h2>
                                     <p className="text-sm text-stone-400">Vị thế: {stpData.targeting.primary_segment}</p>
                                 </div>
@@ -541,130 +572,145 @@ const STPModelGenerator: React.FC = () => {
                                 </button>
                             </div>
 
-                            <div className="flex w-fit gap-2 rounded-xl bg-stone-100 p-1">
-                                {(['segmentation', 'targeting', 'positioning', 'strategy'] as const).map((t) => (
-                                    <button
-                                        key={t}
-                                        type="button"
-                                        onClick={() => setOutputTab(t)}
-                                        className={`rounded-lg px-4 py-2 text-xs font-bold uppercase transition-all ${outputTab === t ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-400'}`}
+                            <div className="space-y-14 border-t border-stone-200/80 pt-12">
+                                <section aria-labelledby="stp-section-segmentation">
+                                    <h3
+                                        id="stp-section-segmentation"
+                                        className="mb-6 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"
                                     >
-                                        {t}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {outputTab === 'segmentation' && (
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    {stpData.segmentation.segments.map((s, i) => (
-                                        <SegmentCard key={i} segment={s} index={i} />
-                                    ))}
-                                </div>
-                            )}
-
-                            {outputTab === 'targeting' && (
-                                <div className="space-y-6 rounded-3xl border border-stone-900 bg-stone-900 p-8 text-white">
-                                    <div>
-                                        <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Bullseye Targeting</p>
-                                        <h3 className="text-2xl font-medium">{stpData.targeting.primary_segment}</h3>
-                                    </div>
-                                    <p className="font-light italic leading-relaxed text-stone-300">
-                                        &ldquo;{stpData.targeting.selection_rationale}&rdquo;
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-6 border-t border-stone-800 pt-4">
-                                        <div>
-                                            <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Market Fit</p>
-                                            <p className="text-2xl font-medium">{stpData.targeting.market_fit_score}%</p>
-                                        </div>
-                                        <div>
-                                            <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Growth Potential</p>
-                                            <p className="text-sm">{stpData.targeting.growth_potential}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {outputTab === 'positioning' && (
-                                <div className="space-y-6">
-                                    <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8">
-                                        <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">The Position Statement</p>
-                                        <p className="text-xl font-medium italic leading-relaxed text-stone-800">
-                                            &ldquo;{stpData.positioning.positioning_statement}&rdquo;
-                                        </p>
-                                    </div>
+                                        Segmentation · Phân khúc
+                                    </h3>
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                        <div className="rounded-2xl border border-stone-100 bg-white p-6">
-                                            <p className="mb-2 text-[10px] font-bold uppercase text-stone-400">Unique Value</p>
-                                            <p className="text-sm font-medium text-stone-900">{stpData.positioning.unique_value_proposition}</p>
+                                        {stpData.segmentation.segments.map((s, i) => (
+                                            <SegmentCard key={i} segment={s} index={i} />
+                                        ))}
+                                    </div>
+                                </section>
+
+                                <section aria-labelledby="stp-section-targeting">
+                                    <h3
+                                        id="stp-section-targeting"
+                                        className="mb-6 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"
+                                    >
+                                        Targeting · Nhắm mục tiêu
+                                    </h3>
+                                    <div className="space-y-6 rounded-3xl border border-stone-900 bg-stone-900 p-8 text-white">
+                                        <div>
+                                            <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Bullseye Targeting</p>
+                                            <h4 className="text-2xl font-medium">{stpData.targeting.primary_segment}</h4>
                                         </div>
-                                        <div className="rounded-2xl border border-stone-100 bg-white p-6">
-                                            <p className="mb-2 text-[10px] font-bold uppercase text-stone-400">RTB (Truth)</p>
-                                            <div className="space-y-2">
-                                                {stpData.positioning.reasons_to_believe.map((r, i) => (
-                                                    <p key={i} className="flex items-start gap-2 text-xs text-stone-600">
-                                                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-stone-300" aria-hidden />
-                                                        <span>{r}</span>
-                                                    </p>
-                                                ))}
+                                        <p className="font-light italic leading-relaxed text-stone-300">
+                                            &ldquo;{stpData.targeting.selection_rationale}&rdquo;
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-6 border-t border-stone-800 pt-4">
+                                            <div>
+                                                <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Market Fit</p>
+                                                <p className="text-2xl font-medium">{stpData.targeting.market_fit_score}%</p>
+                                            </div>
+                                            <div>
+                                                <p className="mb-2 text-[10px] font-bold uppercase text-stone-500">Growth Potential</p>
+                                                <p className="text-sm">{stpData.targeting.growth_potential}</p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                </section>
 
-                            {outputTab === 'strategy' && stpData.strategy && (
-                                <div className="space-y-6">
-                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                        <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8 text-stone-900">
-                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Top Strategic Insights</p>
-                                            <div className="space-y-4">
-                                                {stpData.strategy.top_insights.map((insight, i) => (
-                                                    <div key={i} className="flex gap-4">
-                                                        <span className="font-mono text-stone-300">0{i + 1}</span>
-                                                        <p className="text-sm leading-relaxed text-stone-800 font-medium">{insight}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="rounded-3xl border border-stone-200 bg-white p-8">
-                                            <p className="mb-4 text-[10px] font-bold uppercase text-red-400">Strategic Risks</p>
-                                            <div className="space-y-4">
-                                                {stpData.strategy.strategic_risks.map((risk, i) => (
-                                                    <div key={i} className="space-y-1">
-                                                        <p className="text-sm font-bold text-stone-900 leading-snug">{risk.issue}</p>
-                                                        <p className="text-xs italic text-stone-500">Giải pháp giảm thiểu: {risk.mitigation}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                <section aria-labelledby="stp-section-positioning">
+                                    <h3
+                                        id="stp-section-positioning"
+                                        className="mb-6 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"
+                                    >
+                                        Positioning · Định vị
+                                    </h3>
+                                    <div className="space-y-6">
                                         <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8">
-                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Opportunities</p>
-                                            <div className="space-y-2">
-                                                {stpData.strategy.opportunities.map((opt, i) => (
-                                                    <p key={i} className="text-sm text-stone-700">
-                                                        <span className="mr-2 text-stone-300">●</span> {opt}
-                                                    </p>
-                                                ))}
-                                            </div>
+                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">The Position Statement</p>
+                                            <p className="text-xl font-medium italic leading-relaxed text-stone-800">
+                                                &ldquo;{stpData.positioning.positioning_statement}&rdquo;
+                                            </p>
                                         </div>
-
-                                        <div className="rounded-3xl border border-stone-900 bg-stone-900 p-8 text-white">
-                                            <p className="mb-4 text-[10px] font-bold uppercase text-stone-500">AI Knowledge Gaps (Bắt buộc)</p>
-                                            <div className="space-y-3">
-                                                {stpData.strategy.ai_knowledge_gaps.map((gap, i) => (
-                                                    <p key={i} className="text-xs leading-relaxed text-stone-400">
-                                                        <span className="mr-2 text-stone-600">?</span> {gap}
-                                                    </p>
-                                                ))}
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <div className="rounded-2xl border border-stone-100 bg-white p-6">
+                                                <p className="mb-2 text-[10px] font-bold uppercase text-stone-400">Unique Value</p>
+                                                <p className="text-sm font-medium text-stone-900">{stpData.positioning.unique_value_proposition}</p>
+                                            </div>
+                                            <div className="rounded-2xl border border-stone-100 bg-white p-6">
+                                                <p className="mb-2 text-[10px] font-bold uppercase text-stone-400">RTB (Truth)</p>
+                                                <div className="space-y-2">
+                                                    {stpData.positioning.reasons_to_believe.map((r, i) => (
+                                                        <p key={i} className="flex items-start gap-2 text-xs text-stone-600">
+                                                            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-stone-300" aria-hidden />
+                                                            <span>{r}</span>
+                                                        </p>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                </section>
+
+                                {stpData.strategy && (
+                                    <section aria-labelledby="stp-section-strategy">
+                                        <h3
+                                            id="stp-section-strategy"
+                                            className="mb-6 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400"
+                                        >
+                                            Strategy · Chiến lược
+                                        </h3>
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                                <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8 text-stone-900">
+                                                    <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Top Strategic Insights</p>
+                                                    <div className="space-y-4">
+                                                        {stpData.strategy.top_insights.map((insight, i) => (
+                                                            <div key={i} className="flex gap-4">
+                                                                <span className="font-mono text-stone-300">0{i + 1}</span>
+                                                                <p className="text-sm font-medium leading-relaxed text-stone-800">{insight}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-3xl border border-stone-200 bg-white p-8">
+                                                    <p className="mb-4 text-[10px] font-bold uppercase text-red-400">Strategic Risks</p>
+                                                    <div className="space-y-4">
+                                                        {stpData.strategy.strategic_risks.map((risk, i) => (
+                                                            <div key={i} className="space-y-1">
+                                                                <p className="text-sm font-bold leading-snug text-stone-900">{risk.issue}</p>
+                                                                <p className="text-xs italic text-stone-500">Giải pháp giảm thiểu: {risk.mitigation}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                                <div className="rounded-3xl border border-stone-100 bg-stone-50/50 p-8">
+                                                    <p className="mb-4 text-[10px] font-bold uppercase text-stone-400">Opportunities</p>
+                                                    <div className="space-y-2">
+                                                        {stpData.strategy.opportunities.map((opt, i) => (
+                                                            <p key={i} className="text-sm text-stone-700">
+                                                                <span className="mr-2 text-stone-300">●</span> {opt}
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="rounded-3xl border border-stone-900 bg-stone-900 p-8 text-white">
+                                                    <p className="mb-4 text-[10px] font-bold uppercase text-stone-500">AI Knowledge Gaps (Bắt buộc)</p>
+                                                    <div className="space-y-3">
+                                                        {stpData.strategy.ai_knowledge_gaps.map((gap, i) => (
+                                                            <p key={i} className="text-xs leading-relaxed text-stone-400">
+                                                                <span className="mr-2 text-stone-600">?</span> {gap}
+                                                            </p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}

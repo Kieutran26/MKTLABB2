@@ -3645,7 +3645,154 @@ YÊU CẦU:
 };
 
 // --- STP MODEL GENERATOR ---
-import { STPInput, STPResult } from "../types";
+import { STPInput, STPPosition, STPResult, STPSegment, STPTarget } from "../types";
+
+/** Gemini occasionally wraps JSON in fences despite responseMimeType. */
+function stripJsonFences(text: string): string {
+    let t = text.trim();
+    const fenced = /^```(?:json)?\s*([\s\S]*?)```$/im.exec(t);
+    if (fenced) return fenced[1].trim();
+    return t.replace(/```json|```/g, "").trim();
+}
+
+function coerceMarketFitScore(v: unknown): number {
+    if (typeof v === "number" && Number.isFinite(v)) {
+        return Math.min(100, Math.max(0, Math.round(v)));
+    }
+    if (typeof v === "string") {
+        const n = parseInt(String(v).replace(/%/g, "").trim(), 10);
+        return Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 0;
+    }
+    return 0;
+}
+
+/** Fill missing targeting from segments / matrix when the model omits fields. */
+function normalizeSTPResult(raw: Record<string, unknown>): STPResult {
+    const segBlock = raw.segmentation as STPResult["segmentation"] | undefined;
+    const segments: STPSegment[] = Array.isArray(segBlock?.segments) ? segBlock!.segments : [];
+    const analysisApproach =
+        typeof segBlock?.analysis_approach === "string" ? segBlock.analysis_approach : "";
+
+    const tgt = (raw.targeting as Partial<STPTarget> | undefined) || {};
+    const matrix = Array.isArray(tgt.targeting_matrix) ? tgt.targeting_matrix : [];
+
+    let primary = typeof tgt.primary_segment === "string" ? tgt.primary_segment.trim() : "";
+    let rationale =
+        typeof tgt.selection_rationale === "string" ? tgt.selection_rationale.trim() : "";
+    let growth =
+        typeof tgt.growth_potential === "string" ? tgt.growth_potential.trim() : "";
+    let marketFit = coerceMarketFitScore(tgt.market_fit_score);
+
+    if (!primary && segments[0]?.name) {
+        primary = segments[0].name;
+    }
+
+    if (matrix.length > 0) {
+        const best = matrix.reduce((a, b) =>
+            (b.total_score ?? 0) > (a.total_score ?? 0) ? b : a
+        );
+        if (!primary && best.segment_name) {
+            primary = String(best.segment_name);
+        }
+        if (marketFit === 0 && typeof best.total_score === "number" && best.total_score > 0) {
+            marketFit = Math.min(100, Math.round((best.total_score / 20) * 100));
+        }
+        if (!rationale && best.rationale) {
+            rationale = String(best.rationale);
+        }
+        if (!growth && best.rationale) {
+            growth = `Dựa trên ma trận targeting: ${best.rationale}`;
+        }
+    }
+
+    if (!rationale && primary) {
+        rationale = `Ưu tiên phân khúc "${primary}" theo dữ liệu phân khúc và mục tiêu STP đã phân tích.`;
+    }
+    if (!growth) {
+        growth =
+            primary || segments.length
+                ? "Cần thêm số liệu thị trường (CAGR, quy mô) để định lượng chính xác — xem Segmentation và đối thủ."
+                : "";
+    }
+
+    const pos = (raw.positioning as Partial<STPPosition> | undefined) || {};
+    const positioning: STPPosition = {
+        positioning_statement: String(pos.positioning_statement ?? ""),
+        unique_value_proposition: String(pos.unique_value_proposition ?? ""),
+        key_differentiators: Array.isArray(pos.key_differentiators)
+            ? pos.key_differentiators.map(String)
+            : [],
+        brand_essence: String(pos.brand_essence ?? ""),
+        competitive_frame: String(pos.competitive_frame ?? ""),
+        reasons_to_believe: Array.isArray(pos.reasons_to_believe)
+            ? pos.reasons_to_believe.map(String)
+            : [],
+        matrix_2x2: pos.matrix_2x2,
+        channel_messages: pos.channel_messages,
+        perceptual_map_text: pos.perceptual_map_text,
+    };
+
+    const ap = raw.actionPlan as STPResult["actionPlan"] | undefined;
+    const actionPlan: STPResult["actionPlan"] = {
+        immediate_actions: Array.isArray(ap?.immediate_actions)
+            ? ap!.immediate_actions.map(String)
+            : [],
+        marketing_channels: Array.isArray(ap?.marketing_channels)
+            ? ap!.marketing_channels.map(String)
+            : [],
+        messaging_hooks: Array.isArray(ap?.messaging_hooks) ? ap!.messaging_hooks.map(String) : [],
+    };
+
+    const st = raw.strategy as STPResult["strategy"] | undefined;
+    const strategy: STPResult["strategy"] | undefined = st
+        ? {
+              top_insights: Array.isArray(st.top_insights) ? st.top_insights.map(String) : [],
+              strategic_risks: Array.isArray(st.strategic_risks)
+                  ? st.strategic_risks.map((r) => ({
+                        issue: String((r as { issue?: string }).issue ?? ""),
+                        mitigation: String((r as { mitigation?: string }).mitigation ?? ""),
+                    }))
+                  : [],
+              opportunities: Array.isArray(st.opportunities)
+                  ? st.opportunities.map(String)
+                  : [],
+              ai_knowledge_gaps: Array.isArray(st.ai_knowledge_gaps)
+                  ? st.ai_knowledge_gaps.map(String)
+                  : [],
+          }
+        : undefined;
+
+    const validationStatus =
+        raw.validationStatus === "FAIL" || raw.validationStatus === "WARNING"
+            ? raw.validationStatus
+            : raw.validationStatus === "PASS"
+              ? "PASS"
+              : "PASS";
+
+    return {
+        validationStatus,
+        clarificationMessage:
+            typeof raw.clarificationMessage === "string" ? raw.clarificationMessage : undefined,
+        segmentation: { analysis_approach: analysisApproach, segments },
+        targeting: {
+            primary_segment: primary,
+            selection_rationale: rationale,
+            market_fit_score: marketFit,
+            growth_potential: growth,
+            accessibility:
+                typeof tgt.accessibility === "string" && tgt.accessibility.trim()
+                    ? tgt.accessibility
+                    : "—",
+            risks: Array.isArray(tgt.risks) ? tgt.risks.map(String) : [],
+            secondary_segments: tgt.secondary_segments,
+            segments_to_avoid: tgt.segments_to_avoid,
+            targeting_matrix: tgt.targeting_matrix,
+        },
+        positioning,
+        actionPlan,
+        strategy,
+    };
+}
 
 export const generateSTPAnalysis = async (
     input: STPInput,
@@ -3699,7 +3846,10 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
         });
 
         const sanityText = sanityResponse.text || "{}";
-        const sanityResult = JSON.parse(sanityText);
+        const sanityResult = JSON.parse(stripJsonFences(sanityText)) as {
+            status?: string;
+            message?: string;
+        };
 
         if (sanityResult.status === 'FAIL') {
             return {
@@ -3844,11 +3994,12 @@ YÊU CẦU PHÂN TÍCH (TIẾNG VIỆT, CHUYÊN NGHIỆP, 1500-2000 CHỮ)
         });
 
         const text = response.text || "{}";
-        const result = JSON.parse(text) as STPResult;
+        const parsed = JSON.parse(stripJsonFences(text)) as Record<string, unknown>;
+        const result = normalizeSTPResult(parsed);
 
         // Add warning status if sanity check returned warning
-        if (sanityResult.status === 'WARNING') {
-            result.validationStatus = 'WARNING';
+        if (sanityResult.status === "WARNING") {
+            result.validationStatus = "WARNING";
             result.clarificationMessage = sanityResult.message;
         }
 
