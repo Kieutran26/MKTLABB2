@@ -12,7 +12,7 @@ import { useAuth } from './AuthContext';
 import { StpOptimizerField } from './stp-optimizer-field';
 import { useBrand } from './BrandContext';
 import { PESTELService, SavedPESTEL } from '../services/pestelService';
-import toast from 'react-hot-toast';
+import { useToast } from './Toast';
 
 const PESTEL_ICONS: Record<string, any> = {
     Political: PoliticalIcon,
@@ -43,8 +43,413 @@ const PESTEL_DEFAULTS: PESTELInput = {
     knownEventsPolicies: ''
 };
 
+const REPORT_STYLES = `
+.pestel-report {
+    max-width: 1000px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1c1917;
+    line-height: 1.6;
+}
+
+.doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1.5px solid #e7e5e4;
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+}
+
+.doc-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #a8a29e;
+    margin-bottom: 0.5rem;
+}
+
+.doc-title {
+    font-size: 32px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    color: #1c1917;
+}
+
+.doc-title em {
+    font-style: italic;
+    color: #78716c;
+}
+
+.doc-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.doc-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: #44403c;
+}
+
+.doc-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: #f5f5f4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #78716c;
+}
+
+.pestel-summary {
+    background: #fafaf9;
+    border: 1px solid #e7e5e4;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 4rem;
+}
+
+.ps-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #78716c;
+    margin-bottom: 1.5rem;
+}
+
+.ps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.ps-item {
+    display: flex;
+    gap: 1rem;
+}
+
+.ps-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: #d6d3d1;
+    font-family: 'Outfit', sans-serif;
+}
+
+.ps-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #44403c;
+    line-height: 1.5;
+}
+
+.pestel-factor-card {
+    margin-bottom: 3.5rem;
+}
+
+.pf-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.pf-icon {
+    font-size: 20px;
+}
+
+.pf-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1c1917;
+    letter-spacing: -0.01em;
+}
+
+.pf-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-left: 1rem;
+    border-left: 1.5px solid #f5f5f4;
+}
+
+.tree-item {
+    display: flex;
+    gap: 2rem;
+}
+
+.tree-label {
+    flex: 0 0 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #a8a29e;
+    margin-top: 0.25rem;
+}
+
+.tree-content {
+    flex: 1;
+    font-size: 14.5px;
+    color: #44403c;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 0.75rem;
+}
+
+.tag.positive { background: #ecfdf5; color: #059669; }
+.tag.negative { background: #fff1f2; color: #e11d48; }
+.tag.neutral { background: #fffbeb; color: #d97706; }
+
+.score {
+    font-size: 12px;
+    font-weight: 500;
+    color: #a8a29e;
+    font-style: italic;
+}
+
+.timeline-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 0.75rem;
+    background: #f5f5f4;
+    color: #78716c;
+}
+
+.timeline-tag.short { color: #e11d48; background: #fff1f2; }
+.timeline-tag.mid { color: #d97706; background: #fffbeb; }
+.timeline-tag.long { color: #059669; background: #ecfdf5; }
+
+.pestel-matrix-v2 {
+    margin: 4rem 0;
+}
+
+.or-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+}
+
+.or-card {
+    background: #fff;
+    border: 1px solid #e7e5e4;
+    border-radius: 24px;
+    padding: 2rem;
+}
+
+.or-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.or-label.ops { color: #059669; }
+.or-label.risks { color: #e11d48; }
+
+.or-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.or-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.or-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1c1917;
+    line-height: 1.4;
+}
+
+.or-origin {
+    font-size: 11px;
+    font-weight: 500;
+    color: #a8a29e;
+    font-style: italic;
+}
+
+.or-action {
+    font-size: 13.5px;
+    color: #44403c;
+    line-height: 1.6;
+    padding-left: 1rem;
+    border-left: 1.5px solid #f5f5f4;
+}
+
+.unknowns-box {
+    background: #fafaf9;
+    border: 1px dashed #d6d3d1;
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin-top: 4rem;
+}
+
+.uk-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #78716c;
+    margin-bottom: 1.25rem;
+}
+
+.uk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.uk-item {
+    font-size: 13.5px;
+    color: #44403c;
+    display: flex;
+    gap: 0.75rem;
+    line-height: 1.5;
+}
+
+.uk-dash {
+    color: #d6d3d1;
+}
+
+.pestel-matrix {
+    margin: 5rem 0;
+}
+
+.section-head {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #78716c;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e7e5e4;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    caption-side: bottom;
+}
+
+.matrix-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #a8a29e;
+    padding: 1rem;
+    border-bottom: 1px solid #f5f5f4;
+}
+
+.matrix-table td {
+    padding: 1.25rem 1rem;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f5f5f4;
+    color: #44403c;
+}
+
+.prio-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.prio-tag.high { background: #1c1917; color: #fff; }
+.prio-tag.med { background: #78716c; color: #fff; }
+.prio-tag.low { background: #e7e5e4; color: #78716c; }
+
+.cmo-advice-box {
+    background: #1c1917;
+    color: #fff;
+    border-radius: 32px;
+    padding: 3rem;
+    margin-top: 5rem;
+}
+
+.cmo-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.cmo-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #78716c;
+}
+
+.cmo-sig {
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    color: #44403c;
+    font-size: 13px;
+}
+
+.cmo-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.advice-item {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.advice-num {
+    font-size: 20px;
+    font-weight: 400;
+    font-family: 'Outfit', sans-serif;
+    color: #44403c;
+    min-width: 24px;
+}
+
+.advice-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #d6d3d1;
+}
+
+.advice-text strong {
+    color: #fff;
+    font-weight: 600;
+}
+`;
+
 const PESTELBuilder: React.FC = () => {
     const { user } = useAuth();
+    const toast = useToast();
     const { register, handleSubmit, watch, reset } = useForm<PESTELInput>({
         defaultValues: PESTEL_DEFAULTS
     });
@@ -96,8 +501,11 @@ const PESTELBuilder: React.FC = () => {
                 setPestelData(result);
                 
                 // Save using service (Local + Supabase)
-                await PESTELService.saveReport(newReport);
+                const success = await PESTELService.saveReport(newReport);
                 await loadHistory();
+                if (success) {
+                    toast.success('Bản phân tích đã được tự động lưu.');
+                }
             }
         } catch (error) {
             console.error('PESTEL Generation error:', error);
@@ -108,7 +516,10 @@ const PESTELBuilder: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!pestelData || !currentInput) return;
+        if (!pestelData || !currentInput) {
+            toast.error('Chưa có dữ liệu để lưu bản thảo.');
+            return;
+        }
         
         const reportId = Date.now().toString();
         const reportToSave: SavedPESTEL = {
@@ -120,10 +531,10 @@ const PESTELBuilder: React.FC = () => {
 
         const success = await PESTELService.saveReport(reportToSave);
         if (success) {
-            toast.success('Đã lưu bản phân tích PESTEL.');
+            toast.success('Đã lưu bản phân tích PESTEL thành công.');
             await loadHistory();
         } else {
-            toast.error('Không thể lưu bản phân tích.');
+            toast.error('Không thể lưu bản phân tích vào hệ thống.');
         }
     };
 
@@ -200,7 +611,7 @@ const PESTELBuilder: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className="flex-1 grid items-start overflow-hidden p-6 gap-6"
+                className="flex-1 grid overflow-hidden p-6 gap-6"
                 style={{
                     gridTemplateColumns: showHistory ? '280px 1fr' : '1fr'
                 }}
@@ -390,7 +801,7 @@ const PESTELBuilder: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className={`${cardClass} flex-1 overflow-y-auto p-8 animate-in fade-in slide-in-from-right-4 duration-500 w-full`}>
+                    <div className={`${cardClass} flex-1 h-full overflow-y-auto p-8 animate-in fade-in slide-in-from-right-4 duration-500 w-full`}>
                         {!pestelData ? (
                             <div className="h-full flex flex-col items-center justify-center text-stone-300 opacity-50">
                                 <div className="text-center space-y-6">
@@ -407,53 +818,79 @@ const PESTELBuilder: React.FC = () => {
                             </div>
                         ) : (
                             <div className="space-y-8 animate-in fade-in zoom-in-95">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h2 className="text-2xl font-serif text-stone-900">{pestelData.context}</h2>
-                                        <p className="text-stone-400 text-xs italic tracking-wide mt-1">Macro Scan Analysis • {pestelData.data_freshness}</p>
+                                <style dangerouslySetInnerHTML={{ __html: REPORT_STYLES }} />
+                                <div className="flex justify-between items-center mb-8 border-b border-stone-100 pb-6">
+                                    <div className="max-w-2xl">
+                                        <h2 className="text-3xl font-serif text-stone-900 leading-tight">
+                                            {pestelData.pestel_context || pestelData.context}
+                                        </h2>
+                                        <p className="text-stone-400 text-xs italic tracking-widest mt-2 uppercase">
+                                            Macro Scan Intelligence • {pestelData.data_freshness}
+                                        </p>
                                     </div>
-                                    <button onClick={handleSave} className="p-3 bg-white border border-stone-100 rounded-xl hover:border-stone-300 shadow-sm transition-all active:scale-95" title="Lưu lại"><Save size={18} className="text-stone-600" /></button>
+                                    <div className="flex items-center gap-3">
+                                        <button 
+                                            onClick={handleSave} 
+                                            className="h-10 px-4 bg-white border border-stone-200 rounded-full hover:border-stone-400 shadow-sm transition-all flex items-center gap-2 text-sm font-medium text-stone-700" 
+                                            title="Lưu vào Cloud"
+                                        >
+                                            <Save size={16} /> Lưu bản thảo
+                                        </button>
+                                        <button 
+                                            onClick={handleReset} 
+                                            className="h-10 px-6 bg-stone-900 text-white rounded-full hover:bg-stone-800 shadow-lg transition-all text-sm font-medium flex items-center gap-2"
+                                        >
+                                            <Plus size={16} /> Phân tích mới
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                                    {pestelData.pestel_factors.map((f: PESTELFactorGroup, i: number) => {
-                                        const Icon = PESTEL_ICONS[f.category] || Landmark;
-                                        return (
-                                            <div key={i} className="p-6 rounded-2xl border border-stone-100 bg-white shadow-sm hover:shadow-md transition-shadow">
-                                                <div className="flex items-center gap-3 mb-5 border-b border-stone-50 pb-3">
-                                                    <div className="bg-stone-50 p-2 rounded-xl text-stone-900 shadow-inner"><Icon size={18} /></div>
-                                                    <h3 className="text-[11px] font-bold text-stone-900 uppercase tracking-[0.15em]">{f.category_vi}</h3>
-                                                </div>
-                                                <div className="space-y-5">
-                                                    {f.items.slice(0, 4).map((item, ii) => (
-                                                        <div key={ii} className="group relative">
-                                                            <div className="flex justify-between items-start mb-1.5">
-                                                                  <div className="flex items-center gap-2">
-                                                                       <span className={`w-2 h-2 rounded-full shrink-0 ${item.impact_direction === 'Positive' ? 'bg-emerald-500' : item.impact_direction === 'Negative' ? 'bg-rose-500' : 'bg-amber-500'}`} title={item.impact_direction} />
-                                                                       <p className="text-[13px] font-bold text-stone-900 leading-tight">
-                                                                             {item.factor}
-                                                                             {item.is_priority && <span className="ml-2 text-[10px] bg-rose-50 text-rose-600 px-1.5 py-px rounded font-bold uppercase tracking-wider">Ưu tiên</span>}
-                                                                       </p>
-                                                                  </div>
-                                                                  <span className="text-[11px] font-serif font-bold text-stone-400 opacity-60 px-2 py-0.5 bg-stone-50 rounded italic">{item.impact_score}/10</span>
+                                {pestelData.html_report ? (
+                                    <div 
+                                        className="pestel-report-container pt-4 pb-20"
+                                        dangerouslySetInnerHTML={{ __html: pestelData.html_report }} 
+                                    />
+                                ) : (
+                                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                        {pestelData.pestel_factors.map((f: PESTELFactorGroup, i: number) => {
+                                            const Icon = PESTEL_ICONS[f.category] || Landmark;
+                                            return (
+                                                <div key={i} className="p-6 rounded-2xl border border-stone-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="flex items-center gap-3 mb-5 border-b border-stone-50 pb-3">
+                                                        <div className="bg-stone-50 p-2 rounded-xl text-stone-900 shadow-inner"><Icon size={18} /></div>
+                                                        <h3 className="text-[11px] font-bold text-stone-900 uppercase tracking-[0.15em]">{f.category_vi}</h3>
+                                                    </div>
+                                                    <div className="space-y-5">
+                                                        {f.items.slice(0, 4).map((item, ii) => (
+                                                            <div key={ii} className="group relative">
+                                                                <div className="flex justify-between items-start mb-1.5">
+                                                                      <div className="flex items-center gap-2">
+                                                                           <span className={`w-2 h-2 rounded-full shrink-0 ${item.impact_direction === 'Positive' ? 'bg-emerald-500' : item.impact_direction === 'Negative' ? 'bg-rose-500' : 'bg-amber-500'}`} title={item.impact_direction} />
+                                                                           <p className="text-[13px] font-bold text-stone-900 leading-tight">
+                                                                                 {item.factor}
+                                                                                 {item.is_priority && <span className="ml-2 text-[10px] bg-rose-50 text-rose-600 px-1.5 py-px rounded font-bold uppercase tracking-wider">Ưu tiên</span>}
+                                                                           </p>
+                                                                      </div>
+                                                                      <span className="text-[11px] font-serif font-bold text-stone-400 opacity-60 px-2 py-0.5 bg-stone-50 rounded italic">{item.impact_score}/10</span>
+                                                                </div>
+                                                                <p className="text-[12px] text-stone-500 leading-relaxed pl-4 mb-3 border-l border-stone-100 italic">{item.detail}</p>
+                                                                <div className="bg-stone-50/80 p-3 rounded-xl border border-white shadow-sm">
+                                                                    <p className="text-[11px] font-semibold text-stone-900 flex items-start gap-2">
+                                                                        <Sparkles size={12} className="text-amber-500 shrink-0 mt-0.5" />
+                                                                        <span>{item.actionable_insight}</span>
+                                                                    </p>
+                                                                    {item.source && (
+                                                                        <p className="text-[9px] text-stone-400 mt-2 font-mono uppercase tracking-tighter opacity-80 border-t border-stone-100/50 pt-1.5">Nguồn: {item.source}</p>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            <p className="text-[12px] text-stone-500 leading-relaxed pl-4 mb-3 border-l border-stone-100 italic">{item.detail}</p>
-                                                            <div className="bg-stone-50/80 p-3 rounded-xl border border-white shadow-sm">
-                                                                <p className="text-[11px] font-semibold text-stone-900 flex items-start gap-2">
-                                                                    <Sparkles size={12} className="text-amber-500 shrink-0 mt-0.5" />
-                                                                    <span>{item.actionable_insight}</span>
-                                                                </p>
-                                                                {item.source && (
-                                                                    <p className="text-[9px] text-stone-400 mt-2 font-mono uppercase tracking-tighter opacity-80 border-t border-stone-100/50 pt-1.5">Nguồn: {item.source}</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

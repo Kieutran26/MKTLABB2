@@ -1512,10 +1512,15 @@ export interface PESTELBuilderInput {
 
 export interface PESTELBuilderResult {
   context: string;
+  pestel_context?: string; // New: Summary context
+  html_report?: string;    // New: Editorial Minimalism report
   pestel_factors: PESTELFactorGroup[];
   generated_at: string;
   data_freshness: string;
 }
+
+export type PESTELInput = PESTELBuilderInput;
+export type PESTELResult = PESTELBuilderResult;
 
 // --- PORTER'S FIVE FORCES ---
 export type ForceStatus = 'Low' | 'Medium' | 'High' | 'Extreme';
