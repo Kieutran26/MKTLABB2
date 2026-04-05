@@ -230,7 +230,7 @@ const PorterAnalyzer: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6"
+                className={`grid min-h-0 flex-1 gap-6 overflow-hidden ${!analysisData ? 'p-6' : 'p-0'}`}
                 style={{ gridTemplateColumns: showHistory ? '260px minmax(0,1fr)' : 'minmax(0,1fr)' }}
             >
                 {showHistory && (
@@ -254,7 +254,7 @@ const PorterAnalyzer: React.FC = () => {
                     </div>
                 )}
 
-                <div className="mx-auto flex min-h-0 min-w-0 w-full max-w-[1178px] flex-col">
+                <div className={`flex min-h-0 min-w-0 w-full flex-col ${!analysisData ? 'mx-auto max-w-[1178px]' : ''}`}>
                     {!analysisData ? (
                         <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
                             {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
@@ -418,7 +418,7 @@ const PorterAnalyzer: React.FC = () => {
                             )}
                         </div>
                     ) : (
-                        <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative">
+                        <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
                             <div className="flex p-4 shrink-0 justify-end z-10">
                                 <button
                                     type="button"

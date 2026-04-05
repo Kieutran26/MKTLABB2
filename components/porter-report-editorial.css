@@ -21,9 +21,9 @@
   background: var(--paper);
   font-family: var(--sans);
   color: var(--ink);
-  padding: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 40px;
+  width: 100%;
+  margin: 0;
 }
 
 @keyframes porterFadeUp {
@@ -84,14 +84,13 @@
 
 /* OVERALL */
 .porter-report .overall {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1.5rem 0;
+  margin-bottom: 2.5rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: start;
+  border-bottom: 1px solid var(--rule);
 }
 
 .porter-report .ov-label {
@@ -165,10 +164,7 @@
 
 /* MATRIX TABLE */
 .porter-report .matrix {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
 .porter-report .mh {
@@ -185,7 +181,7 @@
   text-transform: uppercase;
   color: var(--ink-3);
   font-weight: 500;
-  border-right: 1px solid var(--rule);
+  border-right: none;
 }
 
 .porter-report .mh-c:last-child {
@@ -206,7 +202,7 @@
   padding: 0.875rem 1rem;
   font-size: 12px;
   color: var(--ink-2);
-  border-right: 1px solid var(--rule);
+  border-right: none;
   display: flex;
   align-items: flex-start;
   line-height: 1.5;
@@ -343,11 +339,10 @@
 }
 
 .porter-report .fc {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 1.1rem;
+  padding: 1.1rem 0;
   overflow: hidden;
-  background: white;
+  background: transparent;
+  border-bottom: 1px solid var(--rule);
 }
 
 .porter-report .fc-top {
@@ -424,10 +419,10 @@
 
 /* STRATEGY BLOCK */
 .porter-report .strategy-block {
-  background: var(--ink);
-  border-radius: 3px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 2rem 0;
+  margin-bottom: 3rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .porter-report .sb-eyebrow {
@@ -452,17 +447,17 @@
 
 .porter-report .sb-title {
   font-family: var(--serif);
-  font-size: 18px;
-  color: #fff;
-  margin-bottom: 0.875rem;
+  font-size: 24px;
+  color: var(--ink);
+  margin-bottom: 1rem;
   font-weight: 400;
 }
 
 .porter-report .sb-body {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  color: var(--ink-2);
   line-height: 1.8;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .porter-report .sb-grid {
@@ -477,20 +472,20 @@
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--ink-3);
   margin-bottom: 0.375rem;
 }
 
 .porter-report .sb-col-val {
   font-family: var(--serif);
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.85);
-  margin-bottom: 0.25rem;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 0.375rem;
 }
 
 .porter-report .sb-col-body {
-  font-size: 11.5px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  color: var(--ink-2);
   line-height: 1.6;
 }
 
@@ -531,10 +526,8 @@
 }
 
 .porter-report .cmo-card {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  padding: 1rem 1.1rem;
-  background: white;
+  padding: 1rem 0;
+  background: transparent;
 }
 
 .porter-report .cmo-card.priority {
@@ -543,13 +536,13 @@
 }
 
 .porter-report .cmo-card.risk {
-  border-left: 3px solid var(--f1);
-  border-radius: 0 3px 3px 0;
+  border-left: 2px solid var(--f1);
+  padding-left: 1.25rem;
 }
 
 .porter-report .cmo-card.opp {
-  border-left: 3px solid var(--f4);
-  border-radius: 0 3px 3px 0;
+  border-left: 2px solid var(--f4);
+  padding-left: 1.25rem;
 }
 
 .porter-report .cmo-num {
@@ -583,10 +576,7 @@
 
 /* ACTION TABLE */
 .porter-report .action-strip {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 .porter-report .action-head {
@@ -658,15 +648,15 @@
 /* VERDICT LINE */
 .porter-report .verdict-line {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--ink);
-  line-height: 1.55;
+  line-height: 1.6;
   font-style: italic;
-  padding: 1.1rem 1.5rem;
-  background: var(--paper-2);
-  border-radius: 3px;
-  border-left: 2px solid var(--ink);
-  margin-bottom: 1.25rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  margin-bottom: 2.5rem;
+  text-align: center;
 }
 
 /* UNKNOWN */
@@ -710,10 +700,9 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  border: 1px solid var(--ink);
-  border-radius: 3px;
-  overflow: hidden;
-  margin-top: 2rem;
+  border-top: 1px solid var(--ink);
+  margin-top: 3rem;
+  padding-top: 1rem;
 }
 
 .porter-report .fb-c {

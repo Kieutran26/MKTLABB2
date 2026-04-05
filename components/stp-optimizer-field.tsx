@@ -5,13 +5,13 @@ export type StpOptimizerBadge = 'required' | 'important' | 'optional';
 
 export type StpOptimizerFieldProps = {
     title: string;
-    badge: StpOptimizerBadge;
+    badge?: StpOptimizerBadge;
     /** Mô tả ngắn dưới tiêu đề */
-    subtitle: string;
+    subtitle?: string;
     /** Hướng dẫn nhập (tuỳ chọn) */
     guideline?: string;
     /** Dòng ví dụ VD: … */
-    example: string;
+    example?: string;
     /** Nội dung bổ sung cho popover ? */
     hintExtra?: string;
     children: React.ReactNode;
@@ -25,7 +25,7 @@ export type StpOptimizerFieldProps = {
  */
 export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
     title,
-    badge,
+    badge = 'optional',
     subtitle,
     guideline,
     example,
@@ -54,10 +54,10 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
             )}
             <EditorialFieldHint title="Gợi ý" anchor="label">
                 <div className="space-y-2">
-                    <p>{subtitle}</p>
+                    {subtitle && <p>{subtitle}</p>}
                     {guideline && <p className="text-stone-600">{guideline}</p>}
                     {hintExtra && <p className="border-t border-stone-100 pt-2 text-[11px] text-stone-500">{hintExtra}</p>}
-                    <p className="border-t border-stone-100 pt-2 text-[11px] italic text-stone-500">{example}</p>
+                    {example && <p className="border-t border-stone-100 pt-2 text-[11px] italic text-stone-500">{example}</p>}
                 </div>
             </EditorialFieldHint>
         </div>
