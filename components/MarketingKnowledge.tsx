@@ -237,7 +237,7 @@ const MarketingKnowledge: React.FC = () => {
         'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors';
 
     return (
-        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+        <div className="min-h-full bg-[#FCFDFC] font-sans text-stone-900">
             <div className="sticky top-0 z-20 border-b border-stone-200/70 bg-[#FCFDFC]/95 backdrop-blur-sm">
                 <div className="px-6 py-4">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

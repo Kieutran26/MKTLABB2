@@ -79,7 +79,7 @@ const PlanCalendar: React.FC = () => {
     const activePlansCount = plans.length;
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             {/* Header */}
             <div className="z-10 flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4">

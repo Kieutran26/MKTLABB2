@@ -604,7 +604,7 @@ const MockupGenerator: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
              {/* Header */}
              <div className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-6 shadow-sm">
                  <div className="flex items-center gap-2 text-lg font-normal tracking-tight text-stone-900">

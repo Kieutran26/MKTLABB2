@@ -214,7 +214,7 @@ const HomePage: React.FC<HomePageProps> = ({ setView }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-soft-bg">
+        <div className="min-h-full bg-soft-bg">
             {/* Dịch thuật AI — cùng nền & viền với Dashboard / Khám phá công cụ */}
             <div className="border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-14 md:px-10 md:py-20">
                 <TranslationView />

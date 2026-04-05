@@ -180,7 +180,7 @@ const KeyVisuals: React.FC<KeyVisualsProps> = ({ initialView }) => {
     // --- LIST VIEW ---
     if (viewMode === 'list') {
         return (
-            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
                 <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-6 py-5 md:flex-row md:items-start md:justify-between md:px-8">
                     <div className="max-w-2xl">
                         <div className="mb-2 flex items-center gap-2 text-stone-400">
@@ -281,7 +281,7 @@ const KeyVisuals: React.FC<KeyVisualsProps> = ({ initialView }) => {
     if (!currentProject) return null;
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             {/* Top Bar */}
             <div className="z-20 flex h-16 shrink-0 items-center justify-between border-b border-stone-200/80 bg-[#FCFDFC] px-6 shadow-sm">
                 <div className="flex items-center gap-4">

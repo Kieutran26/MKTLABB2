@@ -387,7 +387,7 @@ const SmartSalary: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-gray-50 flex flex-col overflow-hidden font-sans text-slate-900" >
+        <div className="h-full bg-gray-50 flex flex-col overflow-hidden font-sans text-slate-900" >
             <Toaster position="bottom-right" reverseOrder={false} />
 
             {/* HEADER */}

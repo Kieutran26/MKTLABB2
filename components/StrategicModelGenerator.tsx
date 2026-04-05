@@ -396,7 +396,7 @@ const StrategicModelGenerator: React.FC = () => {
     const currentResult = results[selectedModel];
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
             <FeatureHeader
                 icon={Target}
                 eyebrow="AI-POWERED STRATEGIC FRAMEWORK"

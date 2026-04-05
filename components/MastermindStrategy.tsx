@@ -256,7 +256,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     if (viewMode === 'create' || viewMode === 'history') {
         return (
-            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
                 <FeatureHeader 
                     icon={Lightbulb}
                     eyebrow="AI-POWERED STRATEGIC FRAMEWORK"
@@ -692,7 +692,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     if (viewMode === 'dashboard' && strategyResult) {
         return (
-            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
                 <header className="relative z-10 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between gap-4">
                     <div className="flex min-w-0 flex-1 items-center gap-4">
                         <button

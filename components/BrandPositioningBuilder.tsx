@@ -87,7 +87,7 @@ const BrandPositioningBuilder: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-right" />
             <FeatureHeader
                 icon={Target}

@@ -103,7 +103,7 @@ const WordCounter: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] p-8">
+        <div className="min-h-full bg-[#F9FAFB] p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">

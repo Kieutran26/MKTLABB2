@@ -205,7 +205,7 @@ const PorterAnalyzer: React.FC = () => {
         inp.nganh_hang?.trim() || inp.thi_truong?.trim() || 'Phân tích Porter';
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-right" />
             <FeatureHeader
                 icon={Target}
@@ -245,11 +245,11 @@ const PorterAnalyzer: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className="flex-1 grid overflow-hidden gap-6 p-6"
+                className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6"
                 style={{ gridTemplateColumns: showHistory ? '260px minmax(0,1fr)' : 'minmax(0,1fr)' }}
             >
                 {showHistory && (
-                    <div className={`${cardClass} space-y-3 overflow-y-auto bg-stone-50/30 p-4`}>
+                    <div className={`${cardClass} min-h-0 space-y-3 overflow-y-auto bg-stone-50/30 p-4`}>
                         <h3 className="mb-4 px-2 text-[10px] font-bold uppercase text-stone-400">Lịch sử</h3>
                         {savedAnalyses.map((m) => (
                             <div
@@ -269,7 +269,7 @@ const PorterAnalyzer: React.FC = () => {
                     </div>
                 )}
 
-                <div className="mx-auto flex max-h-full w-full max-w-[1178px] flex-col gap-6 self-start overflow-y-auto">
+                <div className="mx-auto flex h-full min-h-0 min-w-0 w-full max-w-[1178px] flex-col gap-6 overflow-y-auto overscroll-y-contain">
                 <div className={`${cardClass} flex flex-col overflow-hidden`}>
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                         <div className="space-y-6 p-8 text-center">
@@ -557,7 +557,9 @@ const PorterAnalyzer: React.FC = () => {
                                     </>
                                 )}
                             </div>
-                            <p className="px-5 pb-3 text-center text-[10px] italic text-stone-400">{thinkingStep || ' '}</p>
+                            {thinkingStep ? (
+                                <p className="px-5 pb-3 text-center text-[10px] italic text-stone-400">{thinkingStep}</p>
+                            ) : null}
                         </form>
                     )}
                 </div>

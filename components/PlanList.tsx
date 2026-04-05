@@ -131,7 +131,7 @@ const PlanList: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             {/* Header */}
             <div className="z-10 flex shrink-0 items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-4">
                 <div className="flex items-center gap-4">

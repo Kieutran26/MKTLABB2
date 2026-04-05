@@ -240,7 +240,7 @@ const FeaturesGuide: React.FC<FeaturesGuideProps> = ({ onBack }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+        <div className="min-h-full bg-[#FCFDFC] font-sans text-stone-900">
             <div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-10">
                 <div className="mb-10">
                     {onBack && (

@@ -292,7 +292,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-soft-bg text-soft-text font-sans selection:bg-indigo-100 selection:text-indigo-800">
+    <div className="flex h-screen overflow-hidden bg-soft-bg text-soft-text font-sans selection:bg-indigo-100 selection:text-indigo-800">
       {/* Sidebar is hidden when in full-screen study session, Landing Page, or Login */}
       {currentView !== 'LEARN_SESSION' && currentView !== 'LANDING_INTRO' && currentView !== 'LOGIN' && (
         <Sidebar

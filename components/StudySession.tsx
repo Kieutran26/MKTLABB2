@@ -293,7 +293,7 @@ const StudySession: React.FC<StudySessionProps> = ({ mode, setIds, initialWords,
   const currentWord = words[currentIndex];
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50">
+    <div className="h-full flex flex-col bg-slate-50">
       {/* Header */}
       <div className="px-6 py-4 flex justify-between items-center bg-white border-b border-slate-200 shadow-sm z-10">
         <button onClick={onExit} className="text-slate-500 hover:text-slate-800 flex items-center gap-2 font-medium bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl transition-colors">

@@ -176,7 +176,7 @@ const FrameVisual: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <header className="flex shrink-0 flex-col gap-4 border-b border-stone-200/70 bg-[#FCFDFC] px-5 py-5 md:flex-row md:items-start md:justify-between md:px-8">
                 <div className="max-w-2xl">
                     <div className="mb-2 flex items-center gap-2 text-stone-400">

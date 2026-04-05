@@ -364,7 +364,7 @@ const SmartContentCalendar: React.FC<SmartContentCalendarProps> = ({ onNavigateT
     };
 
     return (
-        <div className="h-screen flex flex-col bg-[#FCFDFC] overflow-hidden font-sans">
+        <div className="h-full flex flex-col bg-[#FCFDFC] overflow-hidden font-sans">
             <FeatureHeader
                 icon={CalendarDays}
                 eyebrow="AI CONTENT STRATEGY & SCHEDULING"

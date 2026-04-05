@@ -117,7 +117,7 @@ const ToolkitPage: React.FC = () => {
     // If a tool is active, show it with back button and dropdown
     if (activeTool !== 'menu') {
         return (
-            <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+            <div className="min-h-full bg-[#FCFDFC] font-sans text-stone-900">
                 <div className="sticky top-0 z-30 flex items-center justify-between border-b border-stone-200/70 bg-[#FCFDFC]/95 px-4 py-3 backdrop-blur-sm sm:px-6">
                     <button
                         type="button"
@@ -175,7 +175,7 @@ const ToolkitPage: React.FC = () => {
 
     // Main Menu View
     return (
-        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900">
+            <div className="min-h-full bg-[#FCFDFC] font-sans text-stone-900">
             <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-12">
                 <div className="mb-12 text-center">
                     <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-stone-200/90 bg-white text-stone-500 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">

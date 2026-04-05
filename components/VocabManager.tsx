@@ -247,7 +247,7 @@ const VocabManager: React.FC = () => {
   };
 
   return (
-    <div className="h-screen pt-4 pb-4 px-8 flex flex-col">
+    <div className="h-full pt-4 pb-4 px-8 flex flex-col">
       <h2 className="text-3xl font-bold mb-6 text-slate-800">Quản lý từ vựng</h2>
 
       <div className="flex flex-1 gap-6 overflow-hidden">

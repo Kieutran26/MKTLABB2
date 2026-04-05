@@ -151,7 +151,7 @@ const CreativeAngleExplorer: React.FC = () => {
     const emotions = ['All', 'FOMO', 'Vanity', 'Greed', 'Laziness', 'Curiosity', 'Fear', 'Joy', 'Surprise'];
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <FeatureHeader
                 icon={Video}
                 eyebrow="CONTENT ARCHITECTURE & HOOK GENERATION"

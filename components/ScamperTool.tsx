@@ -181,7 +181,7 @@ const ScamperTool: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <FeatureHeader
                 icon={Lightbulb}
                 eyebrow="CREATIVE THINKING"

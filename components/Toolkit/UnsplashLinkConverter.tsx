@@ -136,7 +136,7 @@ const UnsplashLinkConverter: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] p-8">
+        <div className="min-h-full bg-[#F9FAFB] p-8">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">

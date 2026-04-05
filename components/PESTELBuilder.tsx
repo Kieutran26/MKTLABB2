@@ -215,7 +215,7 @@ const PESTELBuilder: React.FC = () => {
     ].filter(Boolean).length;
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
             <FeatureHeader
                 icon={Globe}
                 eyebrow="MACRO ENVIRONMENT SCAN"

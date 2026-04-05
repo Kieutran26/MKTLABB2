@@ -93,7 +93,7 @@ const SecondBrain: React.FC = () => {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-slate-50 overflow-hidden relative">
+        <div className="h-full flex flex-col bg-slate-50 overflow-hidden relative">
             {/* Header */}
             <div className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 shadow-sm z-20">
                 <div className="flex items-center gap-3">

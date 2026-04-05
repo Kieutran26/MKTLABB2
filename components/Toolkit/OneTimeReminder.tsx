@@ -239,7 +239,7 @@ const OneTimeReminder: React.FC = () => {
     const today = new Date().toISOString().split('T')[0];
 
     return (
-        <div className="min-h-screen bg-slate-50 p-8">
+        <div className="min-h-full bg-slate-50 p-8">
             <Toaster position="top-center" />
             <div className="max-w-2xl mx-auto">
                 {/* Header */}

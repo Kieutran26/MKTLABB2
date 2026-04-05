@@ -21,7 +21,7 @@ interface Props {
 
 // ── Shared editorial styles ────────────────────────────────────────────────
 const pageWrap =
-    'min-h-screen bg-[#FCFDFC] font-sans text-stone-900';
+    'min-h-full bg-[#FCFDFC] font-sans text-stone-900';
 
 const cardBase =
     'overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -179,7 +179,7 @@ const PricingAnalyzer: React.FC<Props> = () => {
     };
 
     return (
-        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
             {/* ── Standardized Header ────────────────────────────────────────── */}

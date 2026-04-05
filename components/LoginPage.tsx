@@ -29,7 +29,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="min-h-screen bg-[#FCFDFC] font-sans text-stone-900 flex flex-col">
+        <div className="min-h-full bg-[#FCFDFC] font-sans text-stone-900 flex flex-col">
             <div className="flex flex-1 flex-col items-center justify-center px-5 py-12">
                 <div className="w-full max-w-sm">
 

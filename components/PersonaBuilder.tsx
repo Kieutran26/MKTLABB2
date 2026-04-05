@@ -304,7 +304,7 @@ const PersonaBuilder: React.FC = () => {
 
     if (viewMode === 'detail' && viewingPersona) {
         return (
-            <div className="flex h-screen flex-col bg-[#FCFDFC] font-sans">
+            <div className="flex h-full flex-col bg-[#FCFDFC] font-sans">
                 <header className="border-b border-stone-200 px-5 py-4">
                     <div className="mx-auto flex max-w-6xl items-center justify-between">
                         <button onClick={() => setViewMode('list')} className="flex items-center gap-2 text-stone-500 hover:text-stone-900"><ChevronLeft size={20} /> Quay lại</button>
@@ -343,7 +343,7 @@ const PersonaBuilder: React.FC = () => {
     if (!editingPersona) return null;
 
     return (
-        <div className="flex h-screen flex-col bg-[#FCFDFC] font-sans overflow-hidden">
+        <div className="flex h-full flex-col bg-[#FCFDFC] font-sans overflow-hidden">
             <header className="h-16 shrink-0 border-b border-stone-200 px-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <button onClick={() => setViewMode('list')}><ChevronLeft size={20} /></button>
