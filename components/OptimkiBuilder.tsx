@@ -187,41 +187,43 @@ const OptimkiBuilder: React.FC = () => {
   const areaClass = "w-full rounded-xl border border-stone-200 bg-white p-3 text-[13px] text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 focus:ring-1 focus:ring-stone-400/20 min-h-[80px] resize-none";
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
+    <div className="flex h-full w-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
       <FeatureHeader
         icon={Target}
         eyebrow="STRATEGIC MODEL GENERATOR"
         title="Opti M.KI Engine"
         subline="Phân tích SWOT, AIDA, 4P, 5W1H và SMART bằng AI với độ chính xác cao."
       >
-        <div className={WS_SEGMENT_SHELL}>
+        <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className={WS_SEGMENT_SHELL}>
+            <button
+              onClick={() => setActiveTab('manual')}
+              className={wsWorkspaceTabClass(activeTab === 'manual')}
+            >
+              <Pencil size={14} /> Thủ công
+            </button>
+            <button
+              onClick={() => setActiveTab('vault')}
+              className={wsWorkspaceTabClass(activeTab === 'vault')}
+            >
+              <Diamond size={14} className={isPromax ? 'text-amber-500 fill-amber-500' : 'text-stone-400'} /> Brand Vault
+            </button>
+          </div>
+
           <button
-            onClick={() => setActiveTab('manual')}
-            className={wsWorkspaceTabClass(activeTab === 'manual')}
+            onClick={() => setShowHistory(!showHistory)}
+            className={wsHistoryToggleClass(showHistory)}
           >
-            <Pencil size={14} /> Thủ công
+            <History size={17} strokeWidth={1.5} />
           </button>
-          <button
-            onClick={() => setActiveTab('vault')}
-            className={wsWorkspaceTabClass(activeTab === 'vault')}
-          >
-            <Diamond size={14} className={isPromax ? 'text-amber-500 fill-amber-500' : 'text-stone-400'} /> Brand Vault
+
+          <button onClick={handleReset} className={WS_PRIMARY_CTA}>
+            <Plus size={18} strokeWidth={2.5} /> Tạo mới
           </button>
         </div>
-
-        <button
-          onClick={() => setShowHistory(!showHistory)}
-          className={wsHistoryToggleClass(showHistory)}
-        >
-          <History size={17} strokeWidth={1.5} />
-        </button>
-
-        <button onClick={handleReset} className={WS_PRIMARY_CTA}>
-          <Plus size={18} strokeWidth={2.5} /> Tạo mới
-        </button>
       </FeatureHeader>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="min-w-0 flex-1 w-full overflow-y-auto">
         {result ? (
           <EditorialOptimkiReport result={result} />
         ) : isGenerating ? (

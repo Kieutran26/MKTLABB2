@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { OptimkiResult } from '../types';
 import { Download, Copy, Share2, Check } from 'lucide-react';
 import './optimki-report-editorial.css';
@@ -7,9 +7,20 @@ interface EditorialOptimkiReportProps {
   result: OptimkiResult;
 }
 
+/** Legacy system prompt asked for max-width:960px; rewrite so host frame can use full width */
+function normalizeOptimkiReportHtml(html: string): string {
+  return html
+    .replace(/max-width\s*:\s*960px/gi, 'max-width: 100%')
+    .replace(/max-width\s*:\s*920px/gi, 'max-width: 100%')
+    .replace(/max-width\s*:\s*900px/gi, 'max-width: 100%')
+    .replace(/max-width\s*:\s*800px/gi, 'max-width: 100%')
+    .replace(/margin\s*:\s*0(?:px)?\s+auto/gi, 'margin: 0');
+}
+
 export const EditorialOptimkiReport: React.FC<EditorialOptimkiReportProps> = ({ result }) => {
   const [copied, setCopied] = React.useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
+  const safeHtml = useMemo(() => normalizeOptimkiReportHtml(result.html_report), [result.html_report]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -25,7 +36,7 @@ export const EditorialOptimkiReport: React.FC<EditorialOptimkiReportProps> = ({ 
   };
 
   const handleExportHtml = () => {
-    const blob = new Blob([result.html_report], { type: 'text/html' });
+    const blob = new Blob([safeHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -64,11 +75,11 @@ export const EditorialOptimkiReport: React.FC<EditorialOptimkiReportProps> = ({ 
       <div 
         ref={reportRef}
         className="optimki-report"
-        dangerouslySetInnerHTML={{ __html: result.html_report }} 
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
 
       {/* Decorative Brand Tag */}
-      <div className="max-width-[960px] mx-auto mt-8 px-10 flex justify-between items-center opacity-30 select-none pointer-events-none">
+      <div className="mx-auto mt-8 flex w-full max-w-full items-center justify-between px-4 opacity-30 select-none pointer-events-none sm:px-6">
         <div className="text-[10px] uppercase tracking-widest font-medium">Opti M.KI Strategy Engine</div>
         <div className="text-[10px] uppercase tracking-widest font-medium">© 2026 ClaudeKit Marketing</div>
       </div>

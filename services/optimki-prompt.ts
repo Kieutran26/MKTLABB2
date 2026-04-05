@@ -269,10 +269,12 @@ theo Design System của OptiM.KI. Áp dụng đầy đủ các quy tắc sau:
 --accent: #1a5c3a   --accent-w: #c17f2a  --accent-b: #1a3a5c  --danger: #8a1a1a
 --rule  : rgba(15,15,13,0.1)
 
-▌ LAYOUT
-• Background: var(--paper) — TUYỆT ĐỐI KHÔNG dùng #fff
-• Max-width: 960px · margin: 0 auto · padding: 2rem 2rem 4rem
-• Border: 1px solid var(--rule) · Border-radius: 3px (KHÔNG > 4px)
+▌ LAYOUT (html_report = fragment bên trong khung app React — đã có viền & padding ngoài)
+• Chiều ngang: width 100%, max-width 100%, margin 0 — CẤM max-width cố định (px/rem), CẤM margin: 0 auto trên wrapper
+• KHÔNG bọc toàn bộ trong div giới hạn 960px / 800px; nội dung kéo full khung host
+• Background fragment: trong suốt hoặc inherit — TUYỆT ĐỐI KHÔNG dùng #fff làm nền full viewport
+• Border ngoài & bo góc: do app xử lý — fragment không lặp viền hộp ngoài cùng
+• Padding: chỉ khoảng cách giữa các section bên trong; tránh padding ngang lớn trùng với khung app
 • KHÔNG dùng box-shadow, gradient, blur
 • Animation: fadeUp staggered (delay tăng dần 0.06s mỗi section)
 
