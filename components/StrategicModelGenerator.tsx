@@ -5,6 +5,12 @@ import { StrategicModelService, SavedStrategicModel } from '../services/strategi
 import { toPng } from 'html-to-image';
 import { Toast, ToastType } from './Toast';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_SAVE_ICON_BTN,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import { saasService } from '../services/saasService';
@@ -398,24 +404,18 @@ const StrategicModelGenerator: React.FC = () => {
                 subline="Phân tích SWOT, AIDA, 4P bằng AI thông minh."
             >
                 <div className="flex shrink-0 items-center justify-end gap-2">
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
+                    <div className={WS_SEGMENT_SHELL}>
                         <button
                             type="button"
                             onClick={() => setActiveTab('manual')}
-                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
-                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
-                                : 'text-stone-500 hover:text-stone-700'
-                                }`}
+                            className={wsWorkspaceTabClass(activeTab === 'manual')}
                         >
                             <Pencil size={14} /> Thủ công
                         </button>
                         <button
                             type="button"
                             onClick={() => setActiveTab('vault')}
-                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
-                                ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200'
-                                : 'text-stone-500 hover:text-stone-700'
-                                }`}
+                            className={wsWorkspaceTabClass(activeTab === 'vault')}
                         >
                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
                             Brand Vault
@@ -424,16 +424,21 @@ const StrategicModelGenerator: React.FC = () => {
                     <button
                         type="button"
                         onClick={handleSave}
-                        className="inline-flex items-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 shadow-sm transition-colors hover:border-stone-300 hover:bg-stone-50"
+                        className={WS_SAVE_ICON_BTN}
+                        aria-label="Lưu"
+                        title="Lưu"
                     >
-                        <Save size={16} strokeWidth={1.5} /> Lưu
+                        <Save size={18} strokeWidth={2} />
                     </button>
                     <button
                         type="button"
                         onClick={() => setShowHistory(true)}
-                        className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-stone-950 text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                        className={wsHistoryToggleClass(showHistory)}
+                        aria-pressed={showHistory}
+                        title="Lịch sử"
+                        aria-label="Mở lịch sử mô hình chiến lược"
                     >
-                        <History size={18} strokeWidth={2} />
+                        <History size={17} strokeWidth={1.5} />
                     </button>
                 </div>
             </FeatureHeader>

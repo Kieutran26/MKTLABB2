@@ -7,6 +7,13 @@ import { generateSTPAnalysis } from '../services/geminiService';
 import { STPService, SavedSTP } from '../services/stpService';
 import toast, { Toaster } from 'react-hot-toast';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA,
+    WS_SAVE_ICON_BTN,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
@@ -788,62 +795,60 @@ const STPModelGenerator: React.FC = () => {
                 title="STP Optimizer"
                 subline="Phân lớp thị trường, xác định mục tiêu và tọa độ định vị."
             >
-                <div className="mr-2 flex shrink-0 items-center justify-end gap-2">
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm">
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('manual')}
-                            className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}
-                        >
-                            <Pencil size={14} className="inline" /> Thủ công
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setActiveTab('vault')}
-                            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}
-                        >
-                            <Diamond
-                                size={14}
-                                className={profile?.subscription_tier === 'promax' ? 'fill-amber-500 text-amber-500' : 'text-stone-400'}
-                            />
-                            Brand Vault
-                        </button>
-                    </div>
+                <div className={WS_SEGMENT_SHELL}>
                     <button
                         type="button"
-                        onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
-                        aria-pressed={showHistory}
-                        title={`Lịch sử (${savedItems.length})`}
-                        aria-label={`Mở lịch sử phân tích STP, ${savedItems.length} bản đã lưu`}
+                        onClick={() => setActiveTab('manual')}
+                        className={wsWorkspaceTabClass(activeTab === 'manual')}
                     >
-                        <History size={17} strokeWidth={1.5} />
+                        <Pencil size={14} /> Thủ công
                     </button>
-                    {stpData && (
-                        <button
-                            type="button"
-                            onClick={handleSaveStp}
-                            disabled={isSaving}
-                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
-                            aria-label="Lưu vào lịch sử"
-                            title="Lưu vào lịch sử"
-                        >
-                            {isSaving ? (
-                                <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                            ) : (
-                                <Save size={18} strokeWidth={2} />
-                            )}
-                        </button>
-                    )}
                     <button
                         type="button"
-                        onClick={() => navigate(VIEW_TO_SLUG.STP_MODEL)}
-                        className="flex h-10 w-[161.648px] shrink-0 items-center justify-center gap-2 rounded-full bg-stone-900 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.98]"
+                        onClick={() => setActiveTab('vault')}
+                        className={wsWorkspaceTabClass(activeTab === 'vault')}
                     >
-                        <Plus size={18} strokeWidth={2} />
-                        Tạo kế hoạch
+                        <Diamond
+                            size={14}
+                            className={profile?.subscription_tier === 'promax' ? 'fill-amber-500 text-amber-500' : 'text-stone-400'}
+                        />
+                        Brand Vault
                     </button>
                 </div>
+                <button
+                    type="button"
+                    onClick={() => setShowHistory(!showHistory)}
+                    className={wsHistoryToggleClass(showHistory)}
+                    aria-pressed={showHistory}
+                    title={`Lịch sử (${savedItems.length})`}
+                    aria-label={`Mở lịch sử phân tích STP, ${savedItems.length} bản đã lưu`}
+                >
+                    <History size={17} strokeWidth={1.5} />
+                </button>
+                {stpData && (
+                    <button
+                        type="button"
+                        onClick={handleSaveStp}
+                        disabled={isSaving}
+                        className={WS_SAVE_ICON_BTN}
+                        aria-label="Lưu vào lịch sử"
+                        title="Lưu vào lịch sử"
+                    >
+                        {isSaving ? (
+                            <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                        ) : (
+                            <Save size={18} strokeWidth={2} />
+                        )}
+                    </button>
+                )}
+                <button
+                    type="button"
+                    onClick={() => navigate(VIEW_TO_SLUG.STP_MODEL)}
+                    className={WS_PRIMARY_CTA}
+                >
+                    <Plus size={18} strokeWidth={2.5} />
+                    Tạo kế hoạch
+                </button>
             </FeatureHeader>
 
             <div

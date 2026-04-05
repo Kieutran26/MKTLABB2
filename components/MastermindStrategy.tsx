@@ -6,6 +6,12 @@ import {
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
@@ -257,11 +263,19 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     title="Mastermind Strategy"
                     subline="Đối thoại cùng AI → Xây dựng chiến lược đa kênh chuyên nghiệp."
                 >
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
-                         <button onClick={() => setActiveTab('manual')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
+                    <div className={WS_SEGMENT_SHELL}>
+                         <button
+                             type="button"
+                             onClick={() => setActiveTab('manual')}
+                             className={wsWorkspaceTabClass(activeTab === 'manual')}
+                         >
                              <Pencil size={14} /> Thủ công
                          </button>
-                         <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
+                         <button
+                             type="button"
+                             onClick={() => setActiveTab('vault')}
+                             className={wsWorkspaceTabClass(activeTab === 'vault')}
+                         >
                              <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                          </button>
                     </div>
@@ -269,17 +283,17 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     <button
                         type="button"
                         onClick={() => setViewMode(viewMode === 'history' ? 'create' : 'history')}
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition-all ${viewMode === 'history' ? 'bg-stone-900 text-white shadow-md border-stone-900' : 'border-stone-200 text-stone-600 shadow-sm hover:bg-stone-50'}`}
+                        className={wsHistoryToggleClass(viewMode === 'history')}
                         title={`Lịch sử (${availableStrategies.length})`}
                         aria-label={`Lịch sử, ${availableStrategies.length} chiến lược đã lưu`}
                     >
-                        <History size={18} strokeWidth={1.5} />
+                        <History size={17} strokeWidth={1.5} />
                     </button>
 
                     <button 
                         type="button"
                         onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} 
-                        className="flex h-10 w-[161.648px] items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                        className={WS_PRIMARY_CTA}
                     >
                         <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                     </button>

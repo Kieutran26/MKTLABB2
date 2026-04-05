@@ -19,10 +19,18 @@ import {
     Save,
     Target,
     Trash2,
+    Pencil,
 } from 'lucide-react';
 import { generatePESTELAnalysis } from '../services/geminiService';
 import { PESTELInput, PESTELResult, PESTELFactorGroup } from '../types';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA,
+    WS_SAVE_ICON_BTN,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { StpOptimizerField } from './stp-optimizer-field';
@@ -214,52 +222,58 @@ const PESTELBuilder: React.FC = () => {
                 title="PESTEL Builder"
                 subline="Quét radar kinh tế vĩ mô: Chính trị, Kinh tế, Xã hội, Công nghệ, Môi trường, Pháp lý."
             >
-                <div className="flex items-center gap-2">
-                    <div className="inline-flex gap-1 rounded-full border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
-                        <button onClick={() => setActiveTab('manual')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
-                            Thủ công
-                        </button>
-                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
-                            <Diamond size={14} className={isPromax ? 'text-amber-500 fill-amber-500' : 'text-stone-400'} /> Brand Vault
-                        </button>
-                    </div>
-
+                <div className={WS_SEGMENT_SHELL}>
                     <button
                         type="button"
-                        onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
-                        title={`Lịch sử (${savedReports.length})`}
-                        aria-pressed={showHistory}
-                        aria-label={`Mở lịch sử phân tích PESTEL, ${savedReports.length} bản đã lưu`}
+                        onClick={() => setActiveTab('manual')}
+                        className={wsWorkspaceTabClass(activeTab === 'manual')}
                     >
-                        <History size={17} strokeWidth={1.5} />
+                        <Pencil size={14} /> Thủ công
                     </button>
-
-                    {pestelData && (
-                        <button
-                            type="button"
-                            onClick={() => void handleSave()}
-                            disabled={isSaving}
-                            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 transition-all hover:border-stone-300 hover:bg-stone-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50"
-                            aria-label="Lưu vào lịch sử"
-                            title="Lưu vào lịch sử"
-                        >
-                            {isSaving ? (
-                                <Loader2 size={18} strokeWidth={2} className="animate-spin" />
-                            ) : (
-                                <Save size={18} strokeWidth={2} />
-                            )}
-                        </button>
-                    )}
-
                     <button
                         type="button"
-                        onClick={handleReset}
-                        className="flex items-center justify-center gap-2 h-10 w-[161.648px] bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-all active:scale-95 shadow-sm"
+                        onClick={() => setActiveTab('vault')}
+                        className={wsWorkspaceTabClass(activeTab === 'vault')}
                     >
-                        <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
+                        <Diamond size={14} className={isPromax ? 'text-amber-500 fill-amber-500' : 'text-stone-400'} /> Brand Vault
                     </button>
                 </div>
+
+                <button
+                    type="button"
+                    onClick={() => setShowHistory(!showHistory)}
+                    className={wsHistoryToggleClass(showHistory)}
+                    title={`Lịch sử (${savedReports.length})`}
+                    aria-pressed={showHistory}
+                    aria-label={`Mở lịch sử phân tích PESTEL, ${savedReports.length} bản đã lưu`}
+                >
+                    <History size={17} strokeWidth={1.5} />
+                </button>
+
+                {pestelData && (
+                    <button
+                        type="button"
+                        onClick={() => void handleSave()}
+                        disabled={isSaving}
+                        className={WS_SAVE_ICON_BTN}
+                        aria-label="Lưu vào lịch sử"
+                        title="Lưu vào lịch sử"
+                    >
+                        {isSaving ? (
+                            <Loader2 size={18} strokeWidth={2} className="animate-spin" />
+                        ) : (
+                            <Save size={18} strokeWidth={2} />
+                        )}
+                    </button>
+                )}
+
+                <button
+                    type="button"
+                    onClick={handleReset}
+                    className={WS_PRIMARY_CTA}
+                >
+                    <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
+                </button>
             </FeatureHeader>
 
             <div
@@ -373,7 +387,7 @@ const PESTELBuilder: React.FC = () => {
                                     <div className="space-y-5">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-7 h-7 rounded-full border border-stone-200 flex items-center justify-center text-stone-500 text-xs font-medium">{formTab}</div>
+                                                <div className="size-8 shrink-0 rounded-full border border-stone-200 flex items-center justify-center text-stone-600 text-sm font-medium">{formTab}</div>
                                                 <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wide">{FORM_TABS.find(t => t.id === formTab)?.sub}</h3>
                                             </div>
                                             <div className="text-[10px] font-medium uppercase tracking-wider text-stone-400">

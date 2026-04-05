@@ -4,6 +4,11 @@ import { analyzeEmotionalJourney } from '../services/geminiService';
 import { EmotionMapService, SavedEmotionMap } from '../services/emotionMapService';
 import { Toast, ToastType } from './Toast';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import {Heart, Map, Lightbulb, Loader2, AlertCircle, ChevronDown, ChevronUp, CheckCircle2, XCircle, Save, History as HistoryIcon, Trash2, Plus, BarChart3, Diamond, Lock, ChevronRight, Check, Pencil, Sparkles} from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from 'recharts';
 import { saasService } from '../services/saasService';
@@ -117,17 +122,21 @@ const AudienceEmotionMap: React.FC<Props> = () => {
                 subline="Vẽ bản đồ hành trình cảm xúc và tâm lý khách hàng để tối ưu điểm chạm nội dung."
             >
                 <div className="flex shrink-0 items-center justify-end gap-2">
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}><Pencil size={14} /> Thủ công</button>
-                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
+                    <div className={WS_SEGMENT_SHELL}>
+                        <button type="button" onClick={() => setActiveTab('manual')} className={wsWorkspaceTabClass(activeTab === 'manual')}>
+                            <Pencil size={14} /> Thủ công
+                        </button>
+                        <button type="button" onClick={() => setActiveTab('vault')} className={wsWorkspaceTabClass(activeTab === 'vault')}>
                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                         </button>
                     </div>
                     <button
+                        type="button"
                         onClick={() => setShowHistory(!showHistory)}
-                        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
+                        className={wsHistoryToggleClass(showHistory)}
+                        aria-pressed={showHistory}
                     >
-                        <HistoryIcon size={18} strokeWidth={2} />
+                        <HistoryIcon size={17} strokeWidth={1.5} />
                     </button>
                 </div>
             </FeatureHeader>

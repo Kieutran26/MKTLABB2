@@ -8,6 +8,11 @@ import BrandSelector from './BrandSelector';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA_AUTO,
+    WS_SEGMENT_SHELL,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
@@ -207,24 +212,27 @@ const PersonaBuilder: React.FC = () => {
                     title="Persona Builder"
                     subline="Vẽ chân dung khách hàng mục tiêu bằng AI Insight."
                 >
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
-                        <button 
-                            onClick={() => setActiveTab('manual')} 
-                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}
+                    <div className={WS_SEGMENT_SHELL}>
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('manual')}
+                            className={wsWorkspaceTabClass(activeTab === 'manual')}
                         >
                             <Pencil size={14} /> Thủ công
                         </button>
-                        <button 
-                            onClick={() => setActiveTab('vault')} 
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('vault')}
+                            className={wsWorkspaceTabClass(activeTab === 'vault')}
                         >
-                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> 
+                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
                             Brand Vault
                         </button>
                     </div>
-                    <button 
-                        onClick={handleCreateNew} 
-                        className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    <button
+                        type="button"
+                        onClick={handleCreateNew}
+                        className={WS_PRIMARY_CTA_AUTO}
                     >
                         <Plus size={18} strokeWidth={2.5} /> Thêm Persona
                     </button>

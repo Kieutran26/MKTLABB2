@@ -8,6 +8,11 @@ import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 
 interface Props {}
 
@@ -143,22 +148,23 @@ const AdsHealthChecker: React.FC<Props> = () => {
                 subline="Phân tích sức khỏe quảng cáo — Chẩn đoán và tối ưu hiệu suất chiến dịch của bạn."
             >
                 <div className="flex shrink-0 items-center justify-end gap-2">
-                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/50 p-1 shadow-sm mr-2">
-                        <button onClick={() => setActiveTab('manual')} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200/50' : 'text-stone-500 hover:text-stone-700'}`}>
-                            <Pencil size={14} className="inline mr-1" /> Thủ công
+                    <div className={WS_SEGMENT_SHELL}>
+                        <button type="button" onClick={() => setActiveTab('manual')} className={wsWorkspaceTabClass(activeTab === 'manual')}>
+                            <Pencil size={14} /> Thủ công
                         </button>
-                        <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-200/50' : 'text-stone-500 hover:text-stone-700'}`}>
+                        <button type="button" onClick={() => setActiveTab('vault')} className={wsWorkspaceTabClass(activeTab === 'vault')}>
                             <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                         </button>
                     </div>
                     <button
                         type="button"
                         onClick={() => setShowHistoryModal(true)}
-                        className="inline-flex size-10 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-sm transition-all hover:border-stone-300 hover:bg-stone-50"
+                        className={wsHistoryToggleClass(showHistoryModal)}
                         title="Lịch sử"
                         aria-label="Mở lịch sử chẩn đoán"
+                        aria-pressed={showHistoryModal}
                     >
-                        <HistoryIcon size={18} strokeWidth={1.5} />
+                        <HistoryIcon size={17} strokeWidth={1.5} />
                     </button>
                 </div>
             </FeatureHeader>

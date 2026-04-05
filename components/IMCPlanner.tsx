@@ -8,6 +8,12 @@ import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import IMCOutputEditorial from './IMCOutputEditorial';
 import { saasService } from '../services/saasService';
 import './MastermindStrategyEditorial.css';
@@ -523,30 +529,24 @@ const IMCPlanner: React.FC = () => {
                 subline="3 bước nhập liệu → Kế hoạch IMC đa kênh chuyên nghiệp."
             >
                 {quota && (
-                    <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[10px] font-medium text-stone-600 mr-2">
+                    <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[10px] font-medium text-stone-600">
                         <Zap size={10} className="text-amber-500 fill-amber-500" />
                         {quota.plan_limit - quota.plan_creation_count} lượt kế hoạch
                     </div>
                 )}
 
-                <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
+                <div className={WS_SEGMENT_SHELL}>
                     <button
                         type="button"
                         onClick={() => setActiveTab('manual')}
-                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
-                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
-                            : 'text-stone-400 hover:text-stone-600'
-                            }`}
+                        className={wsWorkspaceTabClass(activeTab === 'manual')}
                     >
                         <Pencil size={14} /> Thủ công
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab('vault')}
-                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
-                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
-                            : 'text-stone-400 hover:text-stone-600'
-                            }`}
+                        className={wsWorkspaceTabClass(activeTab === 'vault')}
                     >
                         <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
                         Brand Vault
@@ -556,10 +556,7 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={() => setViewMode('history')}
-                    className={`inline-flex size-10 shrink-0 items-center justify-center rounded-full transition-all ${viewMode === 'history'
-                        ? 'bg-stone-900 text-white shadow-md'
-                        : 'border border-stone-200 bg-white text-stone-600 shadow-sm hover:bg-stone-50'
-                        }`}
+                    className={wsHistoryToggleClass(viewMode === 'history')}
                     title={`Lịch sử (${savedPlans.length})`}
                     aria-label={`Mở lịch sử kế hoạch IMC, ${savedPlans.length} kế hoạch đã lưu`}
                 >
@@ -569,7 +566,7 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={handleResetForm}
-                    className="flex h-10 w-[161.648px] items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    className={WS_PRIMARY_CTA}
                 >
                     <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                 </button>
