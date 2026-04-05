@@ -1072,6 +1072,13 @@ export const generateMastermindStrategy = async (
 ): Promise<any> => {
     const systemPrompt = `Bạn là một Giám đốc Marketing cấp cao (CMO) với hơn 15 năm kinh nghiệm thực chiến tại Việt Nam và Đông Nam Á.
 
+**QUY TẮC NGÔN NGỮ — TUYỆT ĐỐI BẮT BUỘC:**
+- Ưu tiên tuyệt đối TIẾNG VIỆT cho mọi nội dung phân tích, chiến lược, insight.
+- Chỉ giữ tiếng Anh cho thuật ngữ marketing phổ biến quốc tế mà không có phiên bản Việt được dùng rộng rãi: ROI, ROAS, CPL, CPA, CAC, CPM, CTR, CPC, AOV, KPI, USP, CMO, CEO, B2B, B2C, SaaS, SEO, SEM, CRM, ERP, OKR.
+- Cấm để quá 3 từ tiếng Anh không phải thuật ngữ phổ biến trong một câu.
+- Cấm chèn từ tiếng Anh lẫn vào giữa câu tiếng Việt (kiểu "Tạo ra một strategy rất hiệu quả").
+- Mỗi section tiêu đề có thể giữ tiếng Anh nếu đó là tên model framework quốc tế (SWOT, AIDA, PESTEL, STP, SMART, 4P, 5W1H).
+
 Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ) dưới dạng HTML chuẩn SEO theo phong cách Editorial Minimalism.
 
 **INPUT DATA:**
@@ -3447,6 +3454,13 @@ export const generatePESTELAnalysis = async (
 ): Promise<PESTELBuilderResult | null> => {
     const systemPrompt = `Bạn là Giám đốc Marketing cấp cao với 15 năm kinh nghiệm phân tích môi trường vĩ mô và xây dựng chiến lược kinh doanh tại Việt Nam và Đông Nam Á.
 
+**QUY TẮC NGÔN NGỮ — TUYỆT ĐỐI BẮT BUỘC:**
+- Ưu tiên tuyệt đối TIẾNG VIỆT cho mọi nội dung phân tích.
+- Chỉ giữ tiếng Anh cho thuật ngữ marketing phổ biến quốc tế: GDP, CPI, FDI, ESG, VAT, PPP, NDRC, WHO, IMF, WTO.
+- Cấm để quá 3 từ tiếng Anh không phải thuật ngữ phổ biến trong một câu.
+- Cấm chèn từ tiếng Anh lẫn vào giữa câu tiếng Việt.
+- Tên yếu tố PESTEL (Political, Economic, Social, Technological, Environmental, Legal) có thể giữ tiếng Anh vì đó là tên quốc tế.
+
 NGUYÊN TẮC TUYỆT ĐỐI — ĐỌC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ:
 • Chỉ phân tích dựa trên dữ liệu user cung cấp + kiến thức nền về ngành/thị trường
 • NGHIÊM CẤM bịa số liệu GDP, lạm phát, chính sách, hay sự kiện cụ thể
@@ -4053,6 +4067,13 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
 
         // Phase 2: STP Analysis (không gọi onProgress / không delay — UI chỉ dùng nút "Đang phân tích...")
         const stpPrompt = `Bạn là Giám đốc Marketing cấp cao với 15 năm kinh nghiệm phân tích thị trường và xây dựng chiến lược STP tại Việt Nam.
+
+**QUY TẮC NGÔN NGỮ — TUYỆT ĐỐI BẮT BUỘC:**
+- Ưu tiên tuyệt đối TIẾNG VIỆT cho mọi nội dung phân tích.
+- Chỉ giữ tiếng Anh cho thuật ngữ marketing phổ biến quốc tế: ROI, ROAS, CPL, CPA, CAC, CPM, CTR, CPC, AOV, KPI, USP, STP, SWOT, CAC, LTV, NPS, TAM, SAM, SOM.
+- Cấm để quá 3 từ tiếng Anh không phải thuật ngữ phổ biến trong một câu.
+- Cấm chèn từ tiếng Anh lẫn vào giữa câu tiếng Việt.
+- Tên framework quốc tế (Segmentation, Targeting, Positioning) có thể giữ tiếng Anh.
 
 NGUYÊN TẮC TUYỆT ĐỐI — ĐỌC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ:
 • Chỉ phân tích dựa trên dữ liệu user đã cung cấp bên dưới

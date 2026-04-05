@@ -39,7 +39,7 @@ const ProMaxAdviceGate: React.FC<ProMaxAdviceGateProps> = ({
                 <div className="pmg-compact-inner">
                     <div className="ms-vault-label">
                         <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
-                        Pro Max
+                        PRO MAX
                     </div>
                     <h3 className="ms-vault-title pmg-compact-title">Lời khuyên chiến lược</h3>
                     <p className="ms-vault-desc pmg-compact-desc">

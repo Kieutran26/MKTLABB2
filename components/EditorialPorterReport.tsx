@@ -1,5 +1,7 @@
 import React from 'react';
 import { PorterAnalysisResult, PorterForce } from '../types';
+import type { SubscriptionTier } from './AuthContext';
+import ProMaxAdviceGate from './ProMaxAdviceGate';
 import './porter-report-editorial.css';
 
 /** "Tiêu đề: mô tả" → in đậm phần trước dấu hai chấm (giống mock roadmap). */
@@ -28,17 +30,30 @@ interface Props {
   data: PorterAnalysisResult;
   nganh_hang?: string;
   thi_truong?: string;
+  /** SaaS profile tier — khóa phần lời khuyên / chiến lược / roadmap khi không phải Pro Max */
+  subscriptionTier?: SubscriptionTier | string | null | undefined;
 }
 
-const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }) => {
+const PORTER_PROMAX_BENEFITS = [
+  'Insight chiến lược, rủi ro & cơ hội bị bỏ lỡ',
+  'Lộ trình hành động 30 - 60 - 90 ngày',
+] as const;
+
+const EditorialPorterReport: React.FC<Props> = ({
+  data,
+  nganh_hang,
+  thi_truong,
+  subscriptionTier,
+}) => {
   const { forces, advice } = data;
+  const isPromax = subscriptionTier === 'promax';
 
   // Radar: tọa độ nội bộ 0..chartInner; viewBox âm để nhãn trục (Cạnh tranh, Thay thế…) không bị cắt
-  const chartInner = 240;
-  const viewPad = 52;
+  const chartInner = 278;
+  const viewPad = 56;
   const viewBoxSize = chartInner + 2 * viewPad;
   const center = chartInner / 2;
-  const radius = (chartInner / 2) * 0.8;
+  const radius = (chartInner / 2) * 0.84;
   const angleStep = (Math.PI * 2) / 5;
 
   const getPoint = (score: number, index: number, r: number) => {
@@ -300,7 +315,7 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
                   key={i}
                   cx={p.x}
                   cy={p.y}
-                  r="4"
+                  r="4.5"
                   fill={getForceColor(i)}
                   stroke="var(--paper)"
                   strokeWidth="1"
@@ -362,181 +377,168 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
         </div>
       </section>
 
-      {/* STRATEGY BLOCK — Layout ảnh 2 (Expert dark card) */}
-      <section className="strategy-section a" style={{ animationDelay: '0.7s' }}>
-        <div className="sb-header">
-          <div className="sb-header-dot" />
-          <h2 className="sb-header-title">CHIẾN LƯỢC CẠNH TRANH ĐỀ XUẤT</h2>
-        </div>
-        
-        <div className="strategy-block">
-          <div className="sb-eyebrow">CHIẾN LƯỢC ĐƯỢC CHỌN</div>
-          <div className="sb-badge">{advice.recommended_strategy}</div>
-          <h3 className="sb-title">{getStrategyTitleVi(advice.recommended_strategy)}</h3>
-          <p className="sb-body">{advice.strategy_rationale}</p>
-          
-          <div className="sb-divider" />
-          
-          <div className="sb-grid">
-            <div className="sb-col">
-              <div className="sb-col-label">LỰC NGUY HIỂM NHẤT</div>
-              <div className="sb-col-val">
-                {advice.biggest_threat.force_name} — {advice.biggest_threat.score}/10
+      {/* Chiến lược + Lời khuyên + Roadmap + Verdict — Pro Max (thẻ khóa giống IMC/Mastermind) */}
+      <ProMaxAdviceGate
+        subscriptionTier={subscriptionTier}
+        className={`porter-pmg-gate${isPromax ? ' porter-pmg-gate--open' : ''}`}
+        benefits={PORTER_PROMAX_BENEFITS}
+      >
+        {/* STRATEGY BLOCK — Layout ảnh 2 (Expert dark card) */}
+        <section className="strategy-section a" style={{ animationDelay: '0.7s' }}>
+          <div className="sb-header">
+            <div className="sb-header-dot" />
+            <h2 className="sb-header-title">CHIẾN LƯỢC CẠNH TRANH ĐỀ XUẤT</h2>
+          </div>
+
+          <div className="strategy-block">
+            <div className="sb-eyebrow">CHIẾN LƯỢC ĐƯỢC CHỌN</div>
+            <div className="sb-badge">{advice.recommended_strategy}</div>
+            <h3 className="sb-title">{getStrategyTitleVi(advice.recommended_strategy)}</h3>
+            <p className="sb-body">{advice.strategy_rationale}</p>
+
+            <div className="sb-divider" />
+
+            <div className="sb-grid">
+              <div className="sb-col">
+                <div className="sb-col-label">LỰC NGUY HIỂM NHẤT</div>
+                <div className="sb-col-val">
+                  {advice.biggest_threat.force_name} — {advice.biggest_threat.score}/10
+                </div>
+                <p className="sb-col-body">
+                  {advice.biggest_threat.reason}. {advice.biggest_threat.consequence}
+                </p>
               </div>
-              <p className="sb-col-body">
-                {advice.biggest_threat.reason}. {advice.biggest_threat.consequence}
-              </p>
-            </div>
-            <div className="sb-col">
-              <div className="sb-col-label">LỰC LỢI THẾ NHẤT</div>
-              <div className="sb-col-val">
-                {advice.biggest_opportunity.force_name} — {advice.biggest_opportunity.score}/10
+              <div className="sb-col">
+                <div className="sb-col-label">LỰC LỢI THẾ NHẤT</div>
+                <div className="sb-col-val">
+                  {advice.biggest_opportunity.force_name} — {advice.biggest_opportunity.score}/10
+                </div>
+                <p className="sb-col-body">
+                  {advice.biggest_opportunity.reason}. {advice.biggest_opportunity.exploitation_plan}
+                </p>
               </div>
-              <p className="sb-col-body">
-                {advice.biggest_opportunity.reason}. {advice.biggest_opportunity.exploitation_plan}
-              </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CMO EXPERT NOTE — Layout ảnh 2 (4 cards with markers) */}
-      <section className="cmo-section a" style={{ animationDelay: '0.8s' }}>
-        <div className="cmo-header">
-          <div className="cmo-label">Lời khuyên chiến lược từ CMO</div>
-          <div className="cmo-sig">Expert Verdict</div>
-        </div>
-
-        <div className="cmo-grid">
-          <div className="cmo-card cmo-card--must">
-            <div className="cmo-num">I.</div>
-            <div className="cmo-title">Điều quan trọng nhất phải làm đúng</div>
-            <p className="cmo-body">
-              {advice.critical_must_do.factor}. {advice.critical_must_do.why_leverage}
-            </p>
-            <div className="cmo-tag-wrap">
-              <span className="cmo-tag">Làm ngay · Không thương lượng</span>
-            </div>
-          </div>
-
-          <div className="cmo-card cmo-card--pitfall">
-            <div className="cmo-num">II.</div>
-            <div className="cmo-title">Cạm bẫy lớn nhất cần tránh</div>
-            <p className="cmo-body">
-              {advice.biggest_pitfall.mistake}. {advice.biggest_pitfall.example_consequence}
-            </p>
-            <div className="cmo-tag-wrap">
-              <span className="cmo-tag">Tuyệt đối tránh</span>
-            </div>
-          </div>
-
-          <div className="cmo-card cmo-card--opp">
-            <div className="cmo-num">III.</div>
-            <div className="cmo-title">Cơ hội đang bị bỏ ngỏ</div>
-            <p className="cmo-body">
-              {advice.untapped_opportunity.gap}. {advice.untapped_opportunity.how_to_capture}
-            </p>
-            <div className="cmo-tag-wrap">
-              <span className="cmo-tag">Cơ hội chiến lược dài hạn</span>
-            </div>
-          </div>
-
-          <div className="cmo-card cmo-card--priority">
-            <div className="cmo-num">IV.</div>
-            <div className="cmo-title">Nếu chỉ được làm 1 điều trong 30 ngày</div>
-            <p className="cmo-body">
-              {advice.action_plan.month_1[0] || 'Tập trung triển khai các hành động ưu tiên giai đoạn 1.'}
-            </p>
-            <div className="cmo-tag-wrap">
-              <span className="cmo-tag">Ưu tiên số 1</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ACTION ROADMAP — khung kem + header chấm cam (đồng bộ mock 30·60·90) */}
-      <div className="action-roadmap-box a" style={{ animationDelay: '0.9s' }}>
-        <header className="action-roadmap-head">
-          <div className="action-roadmap-head-inner">
-            <span className="action-roadmap-dot" aria-hidden />
-            <h2 className="action-roadmap-title">Ưu tiên hành động — 30 · 60 · 90 ngày</h2>
-          </div>
-        </header>
-        <div className="action-head">
-          <div className="ah-col">Tháng 1 — Phòng thủ & nền tảng</div>
-          <div className="ah-col">Tháng 2 — Tấn công & khác biệt hóa</div>
-          <div className="ah-col">Tháng 3 — Tối ưu & đánh giá</div>
-        </div>
-        <div className="action-rows">
-          <div className="ar-col">
-            {advice.action_plan.month_1.map((task, idx) => (
-              <div className="ar-item" key={idx}>
-                <span className="ar-dot dot-r" aria-hidden />
-                <ActionRoadmapTaskLine task={task} />
-              </div>
-            ))}
-            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[0]}</p>
-          </div>
-          <div className="ar-col">
-            {advice.action_plan.month_2.map((task, idx) => (
-              <div className="ar-item" key={idx}>
-                <span className="ar-dot dot-o" aria-hidden />
-                <ActionRoadmapTaskLine task={task} />
-              </div>
-            ))}
-            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[1]}</p>
-          </div>
-          <div className="ar-col">
-            {advice.action_plan.month_3.map((task, idx) => (
-              <div className="ar-item" key={idx}>
-                <span className="ar-dot dot-g" aria-hidden />
-                <ActionRoadmapTaskLine task={task} />
-              </div>
-            ))}
-            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[2]}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* VERDICT LINE */}
-      <div className="verdict-line a" style={{ animationDelay: '1.0s' }}>
-        "{advice.final_verdict}"
-      </div>
-
-      {/* UNKNOWNS */}
-      {advice.unknowns.length > 0 && (
-        <section className="unknown-block a" style={{ animationDelay: '1.1s' }}>
-          <div className="unk-label">Data Limitations & Required Field Research</div>
-          <div className="unk-grid">
-            {advice.unknowns.map((unk, idx) => (
-              <div className="unk-item" key={idx}>
-                <span className="unk-dash">—</span>
-                <div>{unk}</div>
-              </div>
-            ))}
           </div>
         </section>
-      )}
 
-      {/* FOOTER BAR */}
-      <div className="footer-bar a" style={{ animationDelay: '1.2s' }}>
-        <div className="fb-c">
-          <span className="fb-val">{data.total_threat_score}/50</span>
-          <span className="fb-lbl">Threat Score</span>
+        {/* CMO EXPERT NOTE — 4 thẻ 2×2 (viền xám + cạnh trái màu, mock editorial) */}
+        <section className="cmo-section a" style={{ animationDelay: '0.8s' }}>
+          <div className="cmo-header">
+            <div className="cmo-label">Lời khuyên</div>
+            <div className="cmo-sig">Expert Verdict</div>
+          </div>
+
+          <div className="cmo-grid">
+            <div className="cmo-card cmo-card--must">
+              <div className="cmo-num">I.</div>
+              <div className="cmo-title">Điều quan trọng nhất phải làm đúng</div>
+              <p className="cmo-body">
+                {advice.critical_must_do.factor}. {advice.critical_must_do.why_leverage}
+              </p>
+              <div className="cmo-tag-wrap">
+                <span className="cmo-tag">Làm ngay · Không thương lượng</span>
+              </div>
+            </div>
+
+            <div className="cmo-card cmo-card--pitfall">
+              <div className="cmo-num">II.</div>
+              <div className="cmo-title">Cạm bẫy lớn nhất cần tránh</div>
+              <p className="cmo-body">
+                {advice.biggest_pitfall.mistake}. {advice.biggest_pitfall.example_consequence}
+              </p>
+              <div className="cmo-tag-wrap">
+                <span className="cmo-tag">Tuyệt đối tránh</span>
+              </div>
+            </div>
+
+            <div className="cmo-card cmo-card--opp">
+              <div className="cmo-num">III.</div>
+              <div className="cmo-title">Cơ hội đang bị bỏ ngỏ</div>
+              <p className="cmo-body">
+                {advice.untapped_opportunity.gap}. {advice.untapped_opportunity.how_to_capture}
+              </p>
+              <div className="cmo-tag-wrap">
+                <span className="cmo-tag">Cơ hội chiến lược dài hạn</span>
+              </div>
+            </div>
+
+            <div className="cmo-card cmo-card--priority">
+              <div className="cmo-num">IV.</div>
+              <div className="cmo-title">Nếu chỉ được làm 1 điều trong 30 ngày</div>
+              <p className="cmo-body">
+                {advice.action_plan.month_1[0] || 'Tập trung triển khai các hành động ưu tiên giai đoạn 1.'}
+              </p>
+              <div className="cmo-tag-wrap">
+                <span className="cmo-tag">Ưu tiên số 1</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ACTION ROADMAP — khung kem + header chấm cam (đồng bộ mock 30·60·90) */}
+        <div className="action-roadmap-box a" style={{ animationDelay: '0.9s' }}>
+          <header className="action-roadmap-head">
+            <div className="action-roadmap-head-inner">
+              <span className="action-roadmap-dot" aria-hidden />
+              <h2 className="action-roadmap-title">Ưu tiên hành động — 30 · 60 · 90 ngày</h2>
+            </div>
+          </header>
+          <div className="action-head">
+            <div className="ah-col">Tháng 1 — Phòng thủ & nền tảng</div>
+            <div className="ah-col">Tháng 2 — Tấn công & khác biệt hóa</div>
+            <div className="ah-col">Tháng 3 — Tối ưu & đánh giá</div>
+          </div>
+          <div className="action-rows">
+            <div className="ar-col">
+              {advice.action_plan.month_1.map((task, idx) => (
+                <div className="ar-item" key={idx}>
+                  <span className="ar-dot dot-r" aria-hidden />
+                  <ActionRoadmapTaskLine task={task} />
+                </div>
+              ))}
+              <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[0]}</p>
+            </div>
+            <div className="ar-col">
+              {advice.action_plan.month_2.map((task, idx) => (
+                <div className="ar-item" key={idx}>
+                  <span className="ar-dot dot-o" aria-hidden />
+                  <ActionRoadmapTaskLine task={task} />
+                </div>
+              ))}
+              <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[1]}</p>
+            </div>
+            <div className="ar-col">
+              {advice.action_plan.month_3.map((task, idx) => (
+                <div className="ar-item" key={idx}>
+                  <span className="ar-dot dot-g" aria-hidden />
+                  <ActionRoadmapTaskLine task={task} />
+                </div>
+              ))}
+              <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[2]}</p>
+            </div>
+          </div>
         </div>
-        <div className="fb-c">
-          <span className="fb-val">{forces.find(f => f.score === Math.max(...forces.map(v => v.score)))?.name_vi.split(' ')[0]}</span>
-          <span className="fb-lbl">Max Force</span>
+
+        {/* VERDICT LINE */}
+        <div className="verdict-line a" style={{ animationDelay: '1.0s' }}>
+          &ldquo;{advice.final_verdict}&rdquo;
         </div>
-        <div className="fb-c">
-          <span className="fb-val">{advice.recommended_strategy.split(' ')[0]}</span>
-          <span className="fb-lbl">Strategy</span>
-        </div>
-        <div className="fb-c">
-          <span className="fb-val">{new Date(data.generated_at).toLocaleDateString('vi-VN')}</span>
-          <span className="fb-lbl">Analysis Date</span>
-        </div>
-      </div>
+
+        {/* UNKNOWNS */}
+        {advice.unknowns.length > 0 && (
+          <section className="unknown-block a" style={{ animationDelay: '1.1s' }}>
+            <div className="unk-label">Data Limitations & Required Field Research</div>
+            <div className="unk-grid">
+              {advice.unknowns.map((unk, idx) => (
+                <div className="unk-item" key={idx}>
+                  <span className="unk-dash">—</span>
+                  <div>{unk}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </ProMaxAdviceGate>
     </div>
   );
 };

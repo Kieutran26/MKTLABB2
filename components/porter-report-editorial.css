@@ -326,7 +326,7 @@
 
 .porter-report .pr-radar-grid {
   display: grid;
-  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 310px) minmax(0, 1fr);
   gap: 2rem 2.5rem;
   /* Căn giữa radar theo chiều dọc so với cột bảng bên phải */
   align-items: center;
@@ -754,7 +754,7 @@
   line-height: 1.65;
 }
 
-/* CMO EXPERT NOTE — Layout ảnh 2 (4 cards with markers) */
+/* CMO EXPERT NOTE — mock ảnh 2: viền ngoài xám, nền #f9f9f9, số vàng cát, tiêu đề sans đậm, IV xám */
 .porter-report .cmo-section {
   padding-top: 2rem;
   margin-bottom: 3.5rem;
@@ -790,46 +790,54 @@
 }
 
 .porter-report .cmo-card {
-  padding: 1.5rem 1.75rem;
-  background: var(--paper-2);
-  border: 1px solid var(--rule);
-  border-left: 4px solid var(--ink-4);
-  border-radius: 4px;
+  padding: 1.25rem 1.5rem;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid var(--ink-4);
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   min-height: 200px;
   position: relative;
 }
 
-.porter-report .cmo-card--must { border-left-color: var(--f3); }
-.porter-report .cmo-card--pitfall { border-left-color: var(--f1); }
-.porter-report .cmo-card--opp { border-left-color: var(--f4); }
-.porter-report .cmo-card--priority { border-left-color: var(--ink); }
+.porter-report .cmo-card--must { border-left-color: #1a5c3a; }
+.porter-report .cmo-card--pitfall { border-left-color: #8b1a1a; }
+.porter-report .cmo-card--opp { border-left-color: #c17f2a; }
+/* Thẻ IV: accent xám + chữ đen (không còn xanh dương như mock cũ) */
+.porter-report .cmo-card--priority {
+  border-left-color: #c5c2bc;
+}
 
 .porter-report .cmo-num {
-  font-family: var(--serif);
-  font-size: 14px;
-  color: var(--ink-4);
-  margin-bottom: 0.75rem;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: #c9a76d;
+  margin-bottom: 0.65rem;
   font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 .porter-report .cmo-title {
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--ink);
-  margin-bottom: 1rem;
-  line-height: 1.4;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-2);
+  margin-bottom: 0.875rem;
+  line-height: 1.35;
 }
 
-.porter-report .cmo-card--must .cmo-title { color: var(--f3); }
-.porter-report .cmo-card--pitfall .cmo-title { color: var(--f1); }
-.porter-report .cmo-card--opp .cmo-title { color: var(--f4); }
+.porter-report .cmo-card--must .cmo-title { color: #1a5c3a; }
+.porter-report .cmo-card--pitfall .cmo-title { color: #8b1a1a; }
+.porter-report .cmo-card--opp .cmo-title { color: #b86a1a; }
+.porter-report .cmo-card--priority .cmo-title {
+  color: #1a1a1a;
+}
 
 .porter-report .cmo-body {
+  font-family: var(--sans);
   font-size: 12.5px;
-  color: var(--ink-2);
+  color: #4a4845;
   line-height: 1.75;
   margin-bottom: 1.5rem;
   flex-grow: 1;
@@ -841,19 +849,32 @@
 
 .porter-report .cmo-tag {
   display: inline-block;
+  font-family: var(--sans);
   font-size: 10px;
-  padding: 5px 10px;
-  border-radius: 2px;
+  padding: 6px 11px;
+  border-radius: 4px;
   font-weight: 500;
   background: rgba(15, 15, 13, 0.05);
   color: var(--ink-3);
   letter-spacing: 0.02em;
 }
 
-.porter-report .cmo-card--must .cmo-tag { background: rgba(26, 92, 58, 0.08); color: var(--f3); }
-.porter-report .cmo-card--pitfall .cmo-tag { background: rgba(138, 26, 26, 0.08); color: var(--f1); }
-.porter-report .cmo-card--opp .cmo-tag { background: rgba(193, 127, 42, 0.08); color: var(--f4); }
-.porter-report .cmo-card--priority .cmo-tag { background: rgba(48, 79, 116, 0.08); color: var(--ink); }
+.porter-report .cmo-card--must .cmo-tag {
+  background: rgba(26, 92, 58, 0.1);
+  color: #1a5c3a;
+}
+.porter-report .cmo-card--pitfall .cmo-tag {
+  background: rgba(139, 26, 26, 0.1);
+  color: #8b1a1a;
+}
+.porter-report .cmo-card--opp .cmo-tag {
+  background: rgba(193, 127, 42, 0.12);
+  color: #a65f12;
+}
+.porter-report .cmo-card--priority .cmo-tag {
+  background: #ecebe8;
+  color: #5c5a55;
+}
 
 @media (max-width: 800px) {
   .porter-report .cmo-grid {
@@ -1019,9 +1040,10 @@
   color: var(--ink);
   line-height: 1.6;
   font-style: italic;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
+  padding: 1.5rem 1.25rem;
+  background: #e8f0fa;
+  border-top: 1px solid #c5d4e8;
+  border-bottom: 1px solid #c5d4e8;
   margin-bottom: 2.5rem;
   text-align: center;
 }
@@ -1062,37 +1084,16 @@
   color: var(--ink-4);
 }
 
-/* FOOTER BAR */
-.porter-report .footer-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border-top: 1px solid var(--ink);
-  margin-top: 3rem;
-  padding-top: 1rem;
+/* Pro Max — khoảng cách thẻ khóa lời khuyên Porter */
+.porter-report .porter-pmg-gate.pmg-locked {
+  margin-top: 1.5rem;
+  padding: 0 1rem 2.5rem;
+  box-sizing: border-box;
 }
 
-.porter-report .fb-c {
-  padding: 0.875rem 1.25rem;
-  border-right: 1px solid var(--ink);
-  text-align: center;
-}
-
-.porter-report .fb-c:last-child {
-  border-right: none;
-}
-
-.porter-report .fb-val {
-  font-family: var(--serif);
-  font-size: 18px;
-  color: var(--ink);
-  display: block;
-}
-
-.porter-report .fb-lbl {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-top: 3px;
+@media (min-width: 640px) {
+  .porter-report .porter-pmg-gate.pmg-locked {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }

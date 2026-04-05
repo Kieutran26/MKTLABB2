@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import {
     Target,
@@ -9,6 +9,12 @@ import {
     ChevronRight,
     Pencil,
     Plus,
+    Check,
+    Calendar,
+    BarChart3,
+    TrendingUp,
+    Trash2,
+    Sparkles,
 } from 'lucide-react';
 import { PorterAnalysisInput, PorterAnalysisResult } from '../types';
 import { generatePorterAnalysis } from '../services/geminiService';
@@ -71,7 +77,7 @@ function migrateLegacyPorterInput(raw: unknown): PorterAnalysisInput {
 }
 
 const PorterAnalyzer: React.FC = () => {
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
     const [profile, setProfile] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
@@ -92,6 +98,8 @@ const PorterAnalyzer: React.FC = () => {
     const [thinkingStep, setThinkingStep] = useState<string>('');
     const [savedAnalyses, setSavedAnalyses] = useState<SavedPorterAnalysis[]>([]);
     const [showHistory, setShowHistory] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
+    const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const watchG1 = watch(['nganh_hang', 'thi_truong', 'vi_the', 'mo_hinh', 'san_pham_usp']);
     const filledG1 = watchG1.filter(Boolean).length;
@@ -163,7 +171,9 @@ const PorterAnalyzer: React.FC = () => {
         const saved = await PorterService.saveAnalysis(newAnalysis);
         if (saved) {
             await loadSavedAnalyses();
-            toast.success('Đã lưu');
+            setIsSaved(true);
+            if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+            savedTimerRef.current = setTimeout(() => setIsSaved(false), 2500);
         } else {
             toast.error('Lưu thất bại');
         }
@@ -184,6 +194,16 @@ const PorterAnalyzer: React.FC = () => {
         setCurrentInput(null);
         setFormTab(1);
         setShowHistory(false);
+    };
+
+    const handleDeleteAnalysis = async (id: string) => {
+        if (window.confirm('Bạn có chắc muốn xóa bản phân tích này?')) {
+            const success = await PorterService.deleteAnalysis(id);
+            if (success) {
+                toast.success('Đã xóa bản phân tích.');
+                await loadSavedAnalyses();
+            }
+        }
     };
 
     const historyTitle = (inp: PorterAnalysisInput) =>
@@ -230,32 +250,92 @@ const PorterAnalyzer: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className={`grid min-h-0 flex-1 gap-6 overflow-hidden ${!analysisData ? 'p-6' : 'p-0'}`}
-                style={{ gridTemplateColumns: showHistory ? '260px minmax(0,1fr)' : 'minmax(0,1fr)' }}
+                className={`flex min-h-0 flex-1 flex-col overflow-hidden pb-3 sm:pb-4 lg:pb-4 ${
+                    analysisData && !showHistory
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
+                }`}
             >
-                {showHistory && (
-                    <div className={`${cardClass} min-h-0 space-y-3 overflow-y-auto bg-stone-50/30 p-4 shrink-0`}>
-                        <h3 className="mb-4 px-2 text-[10px] font-bold uppercase text-stone-400">Lịch sử</h3>
-                        {savedAnalyses.map((m) => (
-                            <div
-                                key={m.id}
-                                role="button"
-                                tabIndex={0}
-                                onClick={() => handleLoad(m)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleLoad(m)}
-                                className="cursor-pointer rounded-xl border border-stone-100 bg-white p-4 transition-all hover:border-stone-300"
-                            >
-                                <div className="truncate text-sm font-medium text-stone-900">{historyTitle(m.input)}</div>
-                                <div className="mt-2 text-[10px] text-stone-400">
-                                    {m.data.overall_verdict} • {new Date(m.timestamp).toLocaleDateString('vi-VN')}
+                {showHistory ? (
+                    <div className="flex-1 overflow-y-auto px-0 pb-2">
+                        <div className={`${cardClass} p-6 md:p-8`}>
+                            <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                Lịch sử phân tích Porter ({savedAnalyses.length})
+                            </h2>
+                            {savedAnalyses.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                                    <p className="text-base font-normal text-stone-600">Chưa có bản phân tích nào</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowHistory(false)}
+                                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+                                    >
+                                        <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                                    </button>
                                 </div>
-                            </div>
-                        ))}
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    {savedAnalyses.map((m) => {
+                                        const totalThreat = m.data?.total_threat_score ?? 0;
+                                        const verdict = m.data?.overall_verdict ?? '';
+                                        return (
+                                            <div
+                                                key={m.id}
+                                                role="button"
+                                                tabIndex={0}
+                                                className="cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                                onClick={() => handleLoad(m)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleLoad(m)}
+                                            >
+                                                <div className="mb-3 flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="line-clamp-2 font-medium text-stone-900">
+                                                            {historyTitle(m.input)}
+                                                        </h3>
+                                                        <p className="mt-1 line-clamp-2 text-sm font-normal text-stone-500">
+                                                            {verdict || '—'}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            void handleDeleteAnalysis(m.id);
+                                                        }}
+                                                        className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                                        aria-label="Xóa bản phân tích"
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={1.25} />
+                                                    </button>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-3 text-xs font-normal text-stone-500">
+                                                    <span className="flex items-center gap-1">
+                                                        <TrendingUp size={12} strokeWidth={1.25} />
+                                                        Threat {totalThreat}/50
+                                                    </span>
+                                                    <span className="flex min-w-0 max-w-full items-center gap-1">
+                                                        <BarChart3 size={12} strokeWidth={1.25} className="shrink-0" />
+                                                        <span className="truncate">
+                                                            5 lực lượng
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                                <div className="mt-3 border-t border-stone-100 pt-3 text-xs font-normal text-stone-400">
+                                                    <span className="flex items-center gap-1">
+                                                        <Calendar size={12} strokeWidth={1.25} aria-hidden />
+                                                        {new Date(m.timestamp).toLocaleDateString('vi-VN')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
-
-                <div className={`flex min-h-0 min-w-0 w-full flex-col ${!analysisData ? 'mx-auto max-w-[1178px]' : ''}`}>
-                    {!analysisData ? (
+                ) : !analysisData ? (
                         <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
                             {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                                 <div className="space-y-6 p-8 text-center">
@@ -423,23 +503,46 @@ const PorterAnalyzer: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={handleSave}
-                                    className="shrink-0 rounded-xl border border-stone-200 bg-white/80 backdrop-blur-sm p-2.5 transition-all hover:bg-white hover:border-stone-300 shadow-sm"
+                                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 backdrop-blur-sm transition-all duration-300 shadow-sm ${
+                                        isSaved
+                                            ? 'border-emerald-300/80 bg-emerald-50/80'
+                                            : 'border-stone-200 bg-white/80 hover:border-stone-300 hover:bg-white'
+                                    }`}
                                     aria-label="Lưu kết quả"
                                 >
-                                    <Save size={18} className="text-stone-600" />
+                                    <span
+                                        className="relative inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center"
+                                        aria-hidden
+                                    >
+                                        <span
+                                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+                                        >
+                                            <Check size={17} strokeWidth={1.15} className="text-emerald-500" />
+                                        </span>
+                                        <span
+                                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+                                        >
+                                            <Save size={17} strokeWidth={1.15} className="text-stone-500" />
+                                        </span>
+                                    </span>
+                                    <span className={`text-[13px] font-extralight tracking-wide transition-colors duration-300 ${isSaved ? 'text-emerald-600' : 'text-stone-600'}`}>
+                                        {isSaved ? 'Đã lưu' : 'Lưu'}
+                                    </span>
                                 </button>
                             </div>
                             <div className="flex-1 min-h-0 -mt-14 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto">
-                                <EditorialPorterReport 
-                                    data={analysisData!} 
+                                <EditorialPorterReport
+                                    data={analysisData!}
                                     nganh_hang={currentInput?.nganh_hang}
                                     thi_truong={currentInput?.thi_truong}
+                                    subscriptionTier={
+                                        (profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? tier
+                                    }
                                 />
                             </div>
                         </div>
                     )}
                 </div>
-            </div>
         </div>
     );
 };
