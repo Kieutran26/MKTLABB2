@@ -395,9 +395,9 @@ const PESTELBuilder: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="overflow-y-auto p-5 md:p-6">
+                            <div className="overflow-y-auto p-6">
                                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
-                                    <div className="space-y-5 px-5 md:px-6 py-5 md:py-6">
+                                    <div className="space-y-5">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <div className="size-8 shrink-0 rounded-full border border-stone-200 flex items-center justify-center text-stone-600 text-sm font-medium">{formTab}</div>
@@ -506,7 +506,8 @@ const PESTELBuilder: React.FC = () => {
                                             <button
                                                 type="button"
                                                 onClick={() => setFormTab(2)}
-                                                className="flex items-center justify-center px-6 py-2.5 bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-all active:scale-95"
+                                                className="inline-flex items-center justify-center bg-stone-950 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-all active:scale-95 py-2.5"
+                                                style={{ width: '111.109px' }}
                                             >
                                                 Kế tiếp
                                             </button>

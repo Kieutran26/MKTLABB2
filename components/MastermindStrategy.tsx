@@ -390,7 +390,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     ))}
                                 </div>
                                 
-                                <div className="flex-1 px-8 py-6">
+                                <div className="flex-1 p-6">
                                     {step === 1 && (
                                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                             <div className="flex flex-col gap-3 pb-1 sm:flex-row sm:items-center sm:justify-between">
@@ -405,7 +405,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                 )}
                                             </div>
                                             {activeTab === 'manual' ? (
-                                                <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
+                                                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
                                                     <div className="flex flex-col gap-y-4">
                                                         <ImcPlannerEditorialField
                                                             title="Thương hiệu"
@@ -629,7 +629,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     )}
                                 </div>
 
-                                <div className="px-8 py-4 border-t border-stone-100 bg-stone-50/20 flex justify-between items-center shrink-0">
+                                <div className="px-6 py-4 border-t border-stone-100 bg-stone-50/20 flex justify-between items-center shrink-0">
                                     {step > 1 ? (
                                         <button 
                                             onClick={() => setStep(step-1)} 
