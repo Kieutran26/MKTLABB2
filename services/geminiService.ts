@@ -3289,6 +3289,47 @@ function stripMarkdownJsonFence(input: string): string {
  * First complete `{ ... }` slice, respecting JSON string rules (handles `}` inside html_report).
  * `lastIndexOf('}')` breaks when HTML/CSS contains `}` outside of a broken string.
  */
+/**
+ * Model often outputs HTML with class="..." inside JSON string → breaks JSON.parse.
+ * Convert attribute pairs to single quotes (full open+close) where safe.
+ */
+function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
+    const patchHtmlSlice = (mid: string): string => {
+        let out = mid;
+        // name="value" → name='value' when value contains no "
+        out = out.replace(
+            /([<\s\/])([a-zA-Z_:@][a-zA-Z0-9_:.\-@]*)="([^"]*)"/g,
+            '$1$2=\'$3\''
+        );
+        // Multiline or rare nested cases
+        out = out.replace(/=\s*"([\s\S]*?)"/g, "='$1'");
+        return out;
+    };
+
+    const startMarkers = ['"html_report":"', '"html_report": "'];
+    const endMarkers = ['","pestel_factors":[', '", "pestel_factors":[', '","pestel_factors"'];
+
+    for (const sm of startMarkers) {
+        const i = s.indexOf(sm);
+        if (i === -1) continue;
+        const bodyStart = i + sm.length;
+        let endIdx = -1;
+        for (const em of endMarkers) {
+            const k = s.indexOf(em, bodyStart);
+            if (k !== -1 && (endIdx === -1 || k < endIdx)) endIdx = k;
+        }
+        if (endIdx === -1) continue;
+        const mid = s.slice(bodyStart, endIdx);
+        return s.slice(0, bodyStart) + patchHtmlSlice(mid) + s.slice(endIdx);
+    }
+
+    // No marker pair — light global pass (no raw newlines in attr values assumed)
+    return s.replace(
+        /([<\s\/])([a-zA-Z_:@][a-zA-Z0-9_:.\-@]*)="([^"]*)"/g,
+        '$1$2=\'$3\''
+    );
+}
+
 function extractBalancedJsonObject(raw: string): string | null {
     const cleaned = stripMarkdownJsonFence(raw);
     const start = cleaned.indexOf('{');
@@ -3321,35 +3362,83 @@ function extractBalancedJsonObject(raw: string): string | null {
     return null;
 }
 
+/**
+ * If html_report still contains broken quotes, splice by marker and re-escape inner HTML.
+ */
+function tryRebuildPestelJsonAroundHtmlReport(work: string): string | null {
+    const key = '"html_report":"';
+    const endMark = '","pestel_factors":[';
+    const i = work.indexOf(key);
+    if (i === -1) return null;
+    const bodyStart = i + key.length;
+    const j = work.indexOf(endMark, bodyStart);
+    if (j === -1) return null;
+    const htmlRaw = work.slice(bodyStart, j);
+    const prefix = work.slice(0, bodyStart);
+    const suffix = work.slice(j);
+    const escapedInner = JSON.stringify(htmlRaw).slice(1, -1);
+    return prefix + escapedInner + suffix;
+}
+
 function parsePESTELBuilderJsonText(text: string): PESTELBuilderResult {
-    let jsonStr = extractBalancedJsonObject(text);
+    const cleaned = stripMarkdownJsonFence(text);
+    const normalized = normalizeHtmlAttrDoubleQuotesInJsonPayload(cleaned);
+
+    let jsonStr = extractBalancedJsonObject(normalized);
     if (!jsonStr) {
-        const startIdx = text.indexOf('{');
-        const endIdx = text.lastIndexOf('}');
+        const startIdx = normalized.indexOf('{');
+        const endIdx = normalized.lastIndexOf('}');
         if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
-            jsonStr = text.slice(startIdx, endIdx + 1);
+            jsonStr = normalized.slice(startIdx, endIdx + 1);
         } else {
             throw new SyntaxError('PESTEL: no JSON object found in model output');
         }
     }
 
-    jsonStr = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
+    // Strip only NULL / BOM; removing all \n breaks valid pretty-printed JSON minimally but
+    // was collapsing strings — keep newlines and only remove truly dangerous chars.
+    jsonStr = jsonStr.replace(/\u0000/g, '').replace(/\uFEFF/g, '');
 
     const tryParse = (s: string) => JSON.parse(s) as PESTELBuilderResult;
 
-    try {
-        return tryParse(jsonStr);
-    } catch (e) {
-        // Attempt fallback for unescaped double quotes inside HTML attributes (very common)
-        // If we see ="something" or class="foo", we try to turn it into ='something'
-        const fixedQuotes = jsonStr.replace(/=([\"'])(.*?)\1/g, "='$2'");
-        const noTrailingCommas = fixedQuotes.replace(/,\s*([}\]])/g, '$1');
+    const attempts: string[] = [
+        jsonStr,
+        jsonStr.replace(/,\s*([}\]])/g, '$1'),
+        jsonStr.replace(/\r\n|\r|\n/g, ' ').replace(/,\s*([}\]])/g, '$1'),
+    ];
+
+    for (const candidate of attempts) {
         try {
-            return tryParse(noTrailingCommas);
+            return tryParse(candidate);
         } catch {
-            throw e; // throw original error if recovery fails
+            /* continue */
+        }
+        const fixedPair = candidate.replace(/=([\"'])([\s\S]*?)\1/g, "='$2'");
+        try {
+            return tryParse(fixedPair.replace(/,\s*([}\]])/g, '$1'));
+        } catch {
+            /* continue */
         }
     }
+
+    const rebuilt = tryRebuildPestelJsonAroundHtmlReport(normalized);
+    if (rebuilt) {
+        try {
+            return tryParse(rebuilt.replace(/\u0000/g, ''));
+        } catch {
+            try {
+                return tryParse(
+                    rebuilt.replace(/\r\n|\r|\n/g, ' ').replace(/,\s*([}\]])/g, '$1')
+                );
+            } catch {
+                /* fall through */
+            }
+        }
+    }
+
+    throw new SyntaxError(
+        'PESTEL: JSON.parse failed after HTML quote repair; model output may be truncated or malformed'
+    );
 }
 
 export const generatePESTELAnalysis = async (
@@ -3429,7 +3518,7 @@ Mỗi yếu tố là một thẻ (sao chép cấu trúc, đổi nội dung và m
   <div class='factor-body'>
     <div class='fb-col'><div class='fb-label'>Hiện trạng</div>[Nội dung]</div>
     <div class='fb-col'><div class='fb-label'>Tác động</div>[Nội dung]</div>
-    <div class='fb-col'><div class='fb-label'>Phân loại</div>[opp-tag / mô tả cơ hội & rủi ro]</div>
+    <div class='fb-col fb-col-classify'><div class='fb-label'>Phân loại</div><div class='classify-badges'><span class='opp-tag tag-opp'>Cơ hội · [nhãn ngắn 2–8 từ, VD: Thị trường ngách]</span><span class='opp-tag opp-risk-lm'>Rủi ro · [Cao / Trung bình / Thấp hoặc nhãn ngắn]</span></div><div class='classify-narrative'>[1–2 câu giải thích bổ sung]</div></div>
     <div class='fb-col'><div class='fb-label'>Hành động</div><div class='action-item'><div class='action-dot'></div>[Gợi ý 1]</div><div class='action-item'><div class='action-dot'></div>[Gợi ý 2]</div></div>
   </div>
 </div>
@@ -3444,65 +3533,77 @@ Bảng màu inline (factor-letter + impact-badge — áp dụng cho đúng yếu
 
 Ưu tiên (level-badge): CAO → class thêm lh; TRUNG BÌNH → lm; THẤP → ll (VD: <span class='level-badge lm'>Ưu tiên TB</span>).
 
+**Cột Phân loại (fb-col-classify) — BẮT BUỘC giống Editorial pill (không plain text một dòng):**
+• Luôn có <div class='classify-badges'> chứa ít nhất một <span class='opp-tag tag-opp'>Cơ hội · …</span> (nền mint, chữ xanh đậm).
+• Luôn thêm một thẻ rủi ro: <span class='opp-tag opp-risk-lh'>…</span> nếu rủi ro CAO; opp-risk-lm nếu TRUNG BÌNH; opp-risk-ll nếu THẤP. Nội dung dạng "Rủi ro · …" (dấu chấm giữa ·).
+• Không dùng border-left / vạch màu trên opp-tag. Không style inline rgba trên opp-tag (CSS đã có sẵn).
+• Đoạn mô tả dài đặt trong <div class='classify-narrative'> bên dưới badges, không gộp "Cơ hội… và Rủi ro…" thành một câu plain không có opp-tag.
+
 *Lưu ý: Mọi thẻ HTML (class, style...) trong html_report đều dùng dấu nháy đơn ' để không xung đột JSON. Không emoji trong tiêu đề factor.*
 
-4. HIỆN THỰC HÓA CHIẾN LƯỢC (Top 3 Ops & Risks):
-<div class="pestel-matrix-v2">
-    <div class="ps-label">Ma trận ưu tiên cơ hội & rủi ro</div>
-    <div class="or-grid">
-        <div class="or-card">
-            <div class="or-label ops">Top 3 Cơ hội bứt phá</div>
-            <div class="or-list">
-                [Lặp lại 3 items]
-                <div class="or-item">
-                    <div class="or-title">[Tên cơ hội]</div>
-                    <div class="or-origin">Nguồn: [Yếu tố PESTEL nào]</div>
-                    <div class="or-action">Hành động cụ thể trong 90 ngày: [Mô tả chi tiết]</div>
+4. HIỆN THỰC HÓA CHIẾN LƯỢC (Top 3 Ops & Risks) — layout card như dashboard: từng mục là thẻ trắng, cạnh trái vạch màu xanh (cơ hội) / đỏ (rủi ro).
+<div class='pestel-matrix-v2'>
+    <div class='ps-label'>Top 3 cơ hội lớn nhất và Top 3 rủi ro nguy hiểm nhất</div>
+    <div class='or-grid'>
+        <div class='or-card opp'>
+            <div class='or-label ops'>Top 3 cơ hội bứt phá</div>
+            <div class='or-list'>
+                <div class='or-item'>
+                    <div class='or-num g'>Cơ hội 1</div>
+                    <div class='or-title g'>[Tên cơ hội — tiêu đề ngắn]</div>
+                    <div class='or-body'>[2–4 câu mô tả bối cảnh / vì sao quan trọng]</div>
+                    <div class='or-origin'>Nguồn: [Political/Economic/...]</div>
+                    <div class='or-action'><div class='or-action-label'>Hành động trong 90 ngày</div>[Chỉ nội dung hành động, không lặp lại nhãn]</div>
                 </div>
+                [Cơ hội 2, Cơ hội 3 — cùng cấu trúc: or-num g, or-title g, or-origin, or-body, or-action với or-action-label]
             </div>
         </div>
-        <div class="or-card">
-            <div class="or-label risks">Top 3 Rủi ro nguy hiểm</div>
-            <div class="or-list">
-                [Lặp lại 3 items]
-                <div class="or-item">
-                    <div class="or-title">[Tên rủi ro]</div>
-                    <div class="or-origin">Nguồn: [Yếu tố PESTEL nào]</div>
-                    <div class="or-action">Kế hoạch phòng thủ: [Hậu quả cụ thể + Cách xử lý]</div>
+        <div class='or-card risk'>
+            <div class='or-label risks'>Top 3 rủi ro nguy hiểm</div>
+            <div class='or-list'>
+                <div class='or-item'>
+                    <div class='or-num r'>Rủi ro 1</div>
+                    <div class='or-title r'>[Tên rủi ro]</div>
+                    <div class='or-body'>[2–4 câu mô tả]</div>
+                    <div class='or-origin'>Nguồn: [Yếu tố PESTEL]</div>
+                    <div class='or-action'><div class='or-action-label'>Kế hoạch phòng thủ</div>[Nội dung phòng thủ cụ thể]</div>
                 </div>
+                [Rủi ro 2, 3 — cùng cấu trúc với or-num r, or-title r]
             </div>
         </div>
     </div>
 </div>
 
-5. MATRIX PESTEL SUMMARY:
-<div class="pestel-matrix">
-    <div class="section-head"><span class="section-title">Ma trận Ưu tiên Chiến lược</span></div>
-    <table class="matrix-table">
-        <thead>
-            <tr>
-                <th>Yếu tố</th>
-                <th>Tác động chính</th>
-                <th>Mức độ</th>
-                <th>Ưu tiên</th>
-            </tr>
-        </thead>
-        <tbody>
-            [6 hàng cho 6 yếu tố]
-            <tr>
-                <td>[Factor Name]</td>
-                <td>[Tóm tắt 1 câu]</td>
-                <td>[X]/10</td>
-                <td><span class="prio-tag [high/med/low]">[Cấp độ]</span></td>
-            </tr>
-        </tbody>
-    </table>
+5. MA TRẬN ƯU TIÊN CHIẾN LƯỢC (5 cột — BẮT BUỘC dùng matrix-wrap + matrix-head/matrix-row; TUYỆT ĐỐI KHÔNG dùng <table class='matrix-table'> hay 4 cột cũ):
+<div class='pestel-matrix'>
+    <div class='sh'><div class='sh-dot' style='background:var(--ink)'></div><span class='sh-title'>Ma trận ưu tiên chiến lược</span></div>
+    <div class='matrix-wrap'>
+        <div class='matrix-head'>
+            <div class='mh-col'>Yếu tố</div>
+            <div class='mh-col'>Cơ hội</div>
+            <div class='mh-col'>Rủi ro</div>
+            <div class='mh-col'>Timeline</div>
+            <div class='mh-col'>Ưu tiên</div>
+        </div>
+        [Đúng 6 hàng matrix-row theo thứ tự Political, Economic, Social, Technological, Environmental, Legal]
+        <div class='matrix-row'>
+            <div class='mr-col'><div><div class='mr-factor'>Political</div><div class='mr-desc'>[1 dòng mô tả ngắn]</div></div></div>
+            <div class='mr-col'><span class='level-badge ll'>[Cao / Rất cao / Trung bình]</span></div>
+            <div class='mr-col'><span class='level-badge lm'>[Trung bình / Cao / Thấp]</span></div>
+            <div class='mr-col mr-timeline'>[VD: 0–6 tháng, Đang diễn ra, 12–24 tháng]</div>
+            <div class='mr-col'><span class='pri-now'>Ngay</span></div>
+        </div>
+    </div>
 </div>
+Quy ước badge:
+• Cột Cơ hội (cột 2): level-badge — ll = mức cơ hội cao/rất cao, lm = trung bình, lh = thấp (hiếm).
+• Cột Rủi ro (cột 3): lh = rủi ro cao, lm = trung bình, ll = rủi ro thấp.
+• Cột Ưu tiên: pri-now (xử lý ngay), pri-soon (khoảng 6 tháng), pri-later (dài hạn) — chỉ chọn một class cho mỗi ô.
 
-5. LỜI KHUYÊN CMO:
+6. LỜI KHUYÊN:
 <div class="cmo-advice-box">
     <div class="cmo-head">
-        <div class="cmo-label">Chiến lược hành động từ CMO</div>
+        <div class="cmo-label">Lời khuyên</div>
         <div class="cmo-sig">Expert Verdict</div>
     </div>
     <div class="cmo-content">
@@ -3521,7 +3622,7 @@ Bảng màu inline (factor-letter + impact-badge — áp dụng cho đúng yếu
     </div>
 </div>
 
-6. AI UNKNOWNS (MANDATORY):
+7. AI UNKNOWNS (MANDATORY):
 <div class="unknowns-box">
     <div class="uk-label">Những điều AI không đủ dữ liệu / Cần xác thực thực tế</div>
     <div class="uk-list">
@@ -3544,6 +3645,9 @@ QUAN TRỌNG — JSON HỢP LỆ (DÀNH CHO CEO):
 • Toàn bộ phản hồi là MỘT object JSON duy nhất, không markdown, không text thừa.
 • Trong html_report MỌI thuộc tính HTML đều PHẢI dùng dấu nháy đơn ' (ví dụ: <div class='card'>) thay cho dấu nháy kép.
 • Phần 6 yếu tố PESTEL trong html_report PHẢI dùng class factor / factor-head / factor-body như mục 3 (không dùng pestel-factor-card hay pf-tree).
+• Cột Phân loại trong factor-body PHẢI dùng fb-col-classify + classify-badges + opp-tag (tag-opp, opp-risk-lh/lm/ll), không chỉ để plain text.
+• Trong mục 4 (pestel-matrix-v2): hai thẻ cột PHẢI là <div class='or-card opp'> và <div class='or-card risk'> (không bỏ sót class opp/risk).
+• Mục 5 ma trận chiến lược PHẢI dùng matrix-wrap + matrix-head + matrix-row (5 cột), không dùng table.matrix-table.
 • Không bao giờ dùng dấu nháy kép " bên trong chuỗi giá trị JSON trừ khi nó là phân cách key-value của JSON.
 • Không chèn ký tự xuống dòng thô (raw newline) trong chuỗi JSON; dùng \\n nếu cần.
 `;

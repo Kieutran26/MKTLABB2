@@ -3,7 +3,7 @@
  * Toàn bộ rule nằm dưới .pestel-report để khớp HTML từ AI + tránh ảnh hưởng app.
  * Gồm class MỚI (ki-strip, factor…) và class CŨ từ geminiService (pestel-summary, pf-tree…).
  */
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prata&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
 
 .pestel-report {
   --ink: #0f0f0d;
@@ -19,8 +19,11 @@
   --t-color: #5c1a5c;
   --env-color: #2a7f3a;
   --l-color: #8a1a1a;
+  /* Vạch trái cơ hội / rủi ro (ma trận Top 3) — khớp ảnh mẫu */
+  --or-line-opp: #1e5c38;
+  --or-line-risk: #8b1e1e;
   --rule: rgba(15, 15, 13, 0.1);
-  --serif: 'DM Serif Display', Georgia, serif;
+  --serif: 'Prata', Georgia, serif;
   --sans: 'DM Sans', system-ui, sans-serif;
 
   /* Full-bleed giống STP Optimizer: không max-width hẹp, padding ngang rộng */
@@ -244,54 +247,71 @@
 
 /* —— Factor cards (Editorial — mẫu Phân tích 6 yếu tố) —— */
 .pestel-report .pestel-factors-intro {
-  margin-bottom: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .pestel-report .pestel-factors-intro .sh {
   margin-bottom: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  gap: 12px;
+}
+
+/* Key insights xong → tiêu đề mục: thở thêm khoảng */
+.pestel-report .pestel-summary + .pestel-factors-intro {
+  margin-top: 1.75rem;
+}
+
+/* AI bỏ quên intro: thẻ factor đầu vẫn cách summary đủ xa */
+.pestel-report .pestel-summary + .factor {
+  margin-top: 2rem;
+}
+
+.pestel-report .pestel-factors-intro + .factor {
+  margin-top: 0;
 }
 
 .pestel-report .factor {
-  border: 1px solid var(--rule);
-  border-radius: 6px;
+  border: 1px solid rgba(15, 15, 13, 0.12);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   background: #ffffff;
-  box-shadow: 0 1px 0 rgba(15, 15, 13, 0.04);
 }
 
 .pestel-report .factor-head {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 1rem 1.15rem;
-  border-bottom: 1px solid var(--rule);
+  gap: 16px;
+  padding: 1.125rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
   background: #ffffff;
 }
 
 .pestel-report .factor-letter {
   font-family: var(--serif);
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 400;
-  line-height: 1;
-  width: 34px;
+  line-height: 0.95;
+  width: 38px;
   text-align: center;
   flex-shrink: 0;
 }
 
 .pestel-report .factor-name {
   font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--ink);
-  letter-spacing: -0.01em;
-  line-height: 1.35;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
 .pestel-report .factor-name span {
-  margin-left: 8px;
-  font-size: 11px;
+  margin-left: 10px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--ink-3);
   letter-spacing: 0;
@@ -300,9 +320,38 @@
 .pestel-report .factor-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   justify-content: flex-end;
+}
+
+/* Badge trong factor-head: bo góc vừa (không pill), giống ảnh mẫu */
+.pestel-report .factor-head .impact-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: var(--sans);
+  line-height: 1.2;
+}
+
+.pestel-report .factor-head .timeline-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(15, 15, 13, 0.14);
+  color: var(--ink-3);
+  background: #ffffff;
+  font-weight: 500;
+  font-family: var(--sans);
+  line-height: 1.2;
+}
+
+.pestel-report .factor-head .level-badge {
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.2;
 }
 
 .pestel-report .impact-badge {
@@ -331,12 +380,12 @@
 }
 
 .pestel-report .fb-col {
-  padding: 1rem 1.05rem;
-  border-right: 1px solid var(--rule);
-  font-size: 12px;
+  padding: 1.125rem 1.15rem;
+  border-right: 1px solid rgba(15, 15, 13, 0.1);
+  font-size: 13px;
   color: var(--ink-2);
   line-height: 1.65;
-  font-family: var(--serif);
+  font-family: var(--sans);
 }
 
 .pestel-report .fb-col:last-child {
@@ -353,13 +402,63 @@
   margin-bottom: 0.375rem;
 }
 
+/* Phân loại: pill Editorial (ảnh 2) — badge + đoạn narrative bên dưới */
+.pestel-report .fb-col-classify .classify-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pestel-report .fb-col-classify .classify-narrative {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
 .pestel-report .opp-tag {
   display: inline-block;
   font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 2px;
-  margin-bottom: 0.25rem;
-  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: var(--sans);
+  line-height: 1.35;
+  border: none;
+  margin: 0;
+}
+
+/* Phân loại opp-tag: DÙNG CÙNG MÀU với matrix level-badge — đồng bộ toàn report */
+/* Cơ hội = mint (như matrix level-badge.ll) */
+.pestel-report .opp-tag.tag-opp {
+  background: rgba(30, 92, 56, 0.14);
+  color: #14532d;
+}
+
+/* Rủi ro cao = hồng nhạt (như matrix level-badge.lh ở cột rủi ro) */
+.pestel-report .opp-tag.opp-risk-lh {
+  background: rgba(139, 30, 30, 0.15);
+  color: #7a1818;
+}
+
+/* Rủi ro trung bình = be (như matrix level-badge.lm) */
+.pestel-report .opp-tag.opp-risk-lm {
+  background: rgba(193, 127, 42, 0.16);
+  color: #7a4f12;
+}
+
+/* Rủi ro thấp = mint như cơ hội (ll) */
+.pestel-report .opp-tag.opp-risk-ll {
+  background: rgba(30, 92, 56, 0.14);
+  color: #14532d;
+}
+
+/* Bản AI cũ: opp-tag chỉ có inline style — vẫn bo góc rõ hơn */
+.pestel-report .opp-tag:not(.tag-opp):not(.opp-risk-lh):not(.opp-risk-lm):not(.opp-risk-ll) {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
 }
 
 .pestel-report .action-item {
@@ -379,21 +478,26 @@
   top: 5px;
 }
 
-/* —— Legacy: pestel-factor-card / pf-tree —— */
+/* —— Legacy: pestel-factor-card / pf-tree (bản cũ AI) —— căn gần factor mới: nền trắng, viền mảnh */
+.pestel-report .pestel-summary + .pestel-factor-card {
+  margin-top: 2rem;
+}
+
 .pestel-report .pestel-factor-card {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
+  border: 1px solid rgba(15, 15, 13, 0.12);
+  border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  background: #ffffff;
 }
 
 .pestel-report .pf-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0.875rem 1.1rem;
-  border-bottom: 1px solid var(--rule);
-  background: var(--paper);
+  padding: 1.125rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
+  background: #ffffff;
 }
 
 .pestel-report .pf-icon {
@@ -402,23 +506,26 @@
 }
 
 .pestel-report .pf-title {
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 500;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
   color: var(--ink);
+  letter-spacing: -0.02em;
 }
 
 .pestel-report .pf-tree {
   padding: 0;
+  background: #ffffff;
 }
 
 .pestel-report .tree-item {
   display: grid;
   grid-template-columns: 100px 1fr;
   gap: 12px;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--rule);
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
   align-items: start;
+  background: #ffffff;
 }
 
 .pestel-report .tree-item:last-child {
@@ -434,7 +541,8 @@
 }
 
 .pestel-report .tree-content {
-  font-size: 12px;
+  font-family: var(--sans);
+  font-size: 13px;
   color: var(--ink-2);
   line-height: 1.65;
 }
@@ -519,15 +627,23 @@
   color: var(--ink-2);
 }
 
-/* Tiêu đề mục 6 yếu tố (chấm tròn + navy) */
+/* Tiêu đề mục 6 yếu tố — cỡ chữ & khoảng cách gần ảnh mẫu (12–14px, tracking rộng) */
+.pestel-report .pestel-factors-intro .sh-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--p-color);
+}
+
 .pestel-report .pestel-factors-intro .sh-title {
-  letter-spacing: 0.14em;
+  font-size: 13px;
+  letter-spacing: 0.16em;
   font-weight: 600;
   color: var(--p-color);
   font-family: var(--sans);
+  line-height: 1.35;
 }
 
-/* —— OPP / RISK (layout mới + ma trận v2 cũ) —— */
+/* —— OPP / RISK: lưới 2 cột (editorial phẳng + ma trận v2) —— */
 .pestel-report .or-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -535,42 +651,72 @@
   margin-bottom: 2rem;
 }
 
+/* Thẻ lớn 2 ô (bản HTML phẳng 6 card — không nằm trong matrix-v2) */
 .pestel-report .or-card {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
+  border: 1px solid rgba(15, 15, 13, 0.12);
+  border-radius: 4px;
   padding: 1.1rem;
+  background: #ffffff;
 }
 
 .pestel-report .or-card.opp {
-  border-left: 3px solid var(--e-color);
+  border-left: 3px solid var(--or-line-opp);
 }
 
 .pestel-report .or-card.risk {
-  border-left: 3px solid var(--l-color);
+  border-left: 3px solid var(--or-line-risk);
 }
 
+/* —— pestel-matrix-v2: ảnh 2 — tiêu đề chấm xanh + cột chứa nhiều card trắng —— */
 .pestel-report .pestel-matrix-v2 {
-  margin: 2rem 0;
+  margin: 2.25rem 0;
+  padding: 0;
 }
 
 .pestel-report .pestel-matrix-v2 > .ps-label {
-  margin-bottom: 1.25rem;
-  padding-bottom: 0.625rem;
-  border-bottom: 1px solid var(--rule);
-  font-size: 10px;
-  letter-spacing: 0.13em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(15, 15, 13, 0.12);
+  font-size: 13px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  font-weight: 600;
   color: var(--ink-2);
-  font-weight: 500;
+  font-family: var(--sans);
+  line-height: 1.35;
+}
+
+.pestel-report .pestel-matrix-v2 > .ps-label::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--or-line-opp);
+  flex-shrink: 0;
 }
 
 .pestel-report .pestel-matrix-v2 .or-grid {
-  align-items: stretch;
+  align-items: start;
+  gap: 18px;
 }
 
+/* Cột: không viền hộp kem; chỉ tiêu đề cột + stack card */
 .pestel-report .pestel-matrix-v2 .or-card {
   display: flex;
   flex-direction: column;
+  border: none;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pestel-report .pestel-matrix-v2 .or-card.opp,
+.pestel-report .pestel-matrix-v2 .or-card.risk {
+  border-left: none;
 }
 
 .pestel-report .or-label {
@@ -579,37 +725,69 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 1rem;
+  font-family: var(--sans);
 }
 
 .pestel-report .or-label.ops {
-  color: var(--e-color);
+  color: var(--or-line-opp);
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 
 .pestel-report .or-label.risks {
-  color: var(--l-color);
+  color: var(--or-line-risk);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.pestel-report .pestel-matrix-v2 .or-label {
+  margin-bottom: 14px;
 }
 
 .pestel-report .or-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   flex: 1;
 }
 
+/* Mỗi or-item = card trắng + vạch trái xanh (cơ hội) / đỏ (rủi ro), 5px */
 .pestel-report .pestel-matrix-v2 .or-item {
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--rule);
+  background: #ffffff;
+  border: 1px solid rgba(15, 15, 13, 0.12);
+  border-left: 3px solid rgba(15, 15, 13, 0.2);
+  border-radius: 4px;
+  padding: 1.15rem 1.2rem 1.2rem;
+  margin: 0;
+  box-shadow: 0 1px 3px rgba(15, 15, 13, 0.04);
+}
+
+.pestel-report .pestel-matrix-v2 .or-card.opp .or-item,
+.pestel-report .pestel-matrix-v2 .or-grid > .or-card:first-child .or-item {
+  border-left: 3px solid var(--or-line-opp);
+}
+
+.pestel-report .pestel-matrix-v2 .or-card.risk .or-item,
+.pestel-report .pestel-matrix-v2 .or-grid > .or-card:nth-child(2) .or-item {
+  border-left: 3px solid var(--or-line-risk);
 }
 
 .pestel-report .pestel-matrix-v2 .or-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  padding-bottom: 1.2rem;
 }
 
 .pestel-report .or-num {
-  font-family: var(--serif);
-  font-size: 13px;
-  margin-bottom: 0.375rem;
+  font-family: var(--sans);
+  font-size: 12px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.pestel-report .pestel-matrix-v2 .or-num {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-bottom: 6px;
 }
 
 .pestel-report .or-num.g {
@@ -620,11 +798,17 @@
   color: var(--l-color);
 }
 
+.pestel-report .pestel-matrix-v2 .or-num.g,
+.pestel-report .pestel-matrix-v2 .or-num.r {
+  color: var(--ink-3);
+}
+
 .pestel-report .or-title {
   font-size: 12px;
   font-weight: 600;
   margin-bottom: 0.375rem;
   color: var(--ink);
+  font-family: var(--sans);
 }
 
 .pestel-report .or-title.g {
@@ -635,11 +819,41 @@
   color: var(--l-color);
 }
 
+.pestel-report .pestel-matrix-v2 .or-card.opp .or-title,
+.pestel-report .pestel-matrix-v2 .or-grid > .or-card:first-child .or-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  color: var(--or-line-opp);
+}
+
+.pestel-report .pestel-matrix-v2 .or-card.risk .or-title,
+.pestel-report .pestel-matrix-v2 .or-grid > .or-card:nth-child(2) .or-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  color: var(--or-line-risk);
+}
+
 .pestel-report .or-body {
   font-size: 12px;
   color: var(--ink-2);
   line-height: 1.7;
   margin-bottom: 0.5rem;
+  font-family: var(--sans);
+}
+
+.pestel-report .pestel-matrix-v2 .or-body {
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: var(--ink-2);
+}
+
+.pestel-report .pestel-matrix-v2 .or-body:empty {
+  display: none;
+  margin-bottom: 0;
 }
 
 .pestel-report .or-origin {
@@ -647,6 +861,13 @@
   color: var(--ink-3);
   font-style: italic;
   margin-bottom: 6px;
+  font-family: var(--sans);
+}
+
+.pestel-report .pestel-matrix-v2 .or-origin {
+  font-size: 11px;
+  margin-bottom: 10px;
+  color: #888888;
 }
 
 .pestel-report .or-action {
@@ -655,19 +876,49 @@
   line-height: 1.6;
   padding-top: 0.5rem;
   border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+}
+
+.pestel-report .pestel-matrix-v2 .or-action {
+  border-top: 1px solid rgba(15, 15, 13, 0.1);
+  padding-top: 12px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--ink-3);
 }
 
 .pestel-report .or-action-label {
   font-size: 9px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-4);
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-family: var(--sans);
+}
+
+.pestel-report .pestel-matrix-v2 .or-action-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: #8a887f;
+  margin-bottom: 8px;
 }
 
 /* —— Matrix table —— */
 .pestel-report .pestel-matrix {
-  margin: 2rem 0;
+  margin: 2.25rem 0;
+}
+
+.pestel-report .pestel-matrix > .sh {
+  margin-bottom: 1rem;
+}
+
+.pestel-report .pestel-matrix > .sh .sh-title {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--ink-2);
+  font-family: var(--sans);
 }
 
 .pestel-report .section-head {
@@ -737,29 +988,31 @@
   color: #fff;
 }
 
-/* —— Matrix grid (layout HTML mới) —— */
+/* —— Matrix grid (5 cột — ảnh mẫu Cơ hội / Rủi ro / Timeline / Ưu tiên) —— */
 .pestel-report .matrix-wrap {
-  border: 1px solid var(--rule);
-  border-radius: 3px;
+  border: 1px solid rgba(15, 15, 13, 0.12);
+  border-radius: 4px;
   overflow: hidden;
   margin-bottom: 2rem;
+  background: #ffffff;
 }
 
 .pestel-report .matrix-head {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  background: var(--paper-2);
-  border-bottom: 1px solid var(--rule);
+  background: #f2f0ed;
+  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
 }
 
 .pestel-report .mh-col {
-  padding: 0.625rem 1rem;
+  padding: 0.75rem 1rem;
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-3);
-  font-weight: 500;
-  border-right: 1px solid var(--rule);
+  font-weight: 600;
+  font-family: var(--sans);
+  border-right: 1px solid rgba(15, 15, 13, 0.08);
 }
 
 .pestel-report .mh-col:last-child {
@@ -769,7 +1022,8 @@
 .pestel-report .matrix-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-  border-bottom: 1px solid var(--rule);
+  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
+  background: #ffffff;
 }
 
 .pestel-report .matrix-row:last-child {
@@ -777,20 +1031,32 @@
 }
 
 .pestel-report .mr-col {
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   font-size: 12px;
   color: var(--ink-2);
-  border-right: 1px solid var(--rule);
+  border-right: 1px solid rgba(15, 15, 13, 0.08);
   display: flex;
   align-items: center;
+  font-family: var(--sans);
 }
 
 .pestel-report .mr-col:last-child {
   border-right: none;
 }
 
+.pestel-report .mr-col.mr-timeline {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+/* Cột Cơ hội / Rủi ro: căn giữa badge (kiểu ảnh 2) */
+.pestel-report .matrix-wrap .mr-col:nth-child(2),
+.pestel-report .matrix-wrap .mr-col:nth-child(3) {
+  justify-content: center;
+}
+
 .pestel-report .mr-factor {
-  font-weight: 500;
+  font-weight: 700;
   color: var(--ink);
   font-size: 12px;
 }
@@ -798,7 +1064,58 @@
 .pestel-report .mr-desc {
   font-size: 11px;
   color: var(--ink-3);
-  margin-top: 1px;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* Cột Cơ hội / Rủi ro: pill không vạch trái — nền + chữ (giống ảnh 2) */
+.pestel-report .matrix-wrap .mr-col:nth-child(2) .level-badge,
+.pestel-report .matrix-wrap .mr-col:nth-child(3) .level-badge {
+  display: inline-block;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--sans);
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* Cơ hội: Cao / Rất cao (ll) — mint */
+.pestel-report .matrix-wrap .mr-col:nth-child(2) .level-badge.ll {
+  background: #e4f0e8;
+  color: #1b4332;
+}
+
+/* Cơ hội: Trung bình (lm) — be */
+.pestel-report .matrix-wrap .mr-col:nth-child(2) .level-badge.lm {
+  background: #f2e8d8;
+  color: #8b5a1a;
+}
+
+/* Cơ hội: thấp / hiếm (lh) — trung tính hơi cam */
+.pestel-report .matrix-wrap .mr-col:nth-child(2) .level-badge.lh {
+  background: #ede8e4;
+  color: #5c5348;
+}
+
+/* Rủi ro: Cao (lh) — hồng nhạt */
+.pestel-report .matrix-wrap .mr-col:nth-child(3) .level-badge.lh {
+  background: #fce8e8;
+  color: #7f1d1d;
+}
+
+/* Rủi ro: Trung bình (lm) — be */
+.pestel-report .matrix-wrap .mr-col:nth-child(3) .level-badge.lm {
+  background: #f2e8d8;
+  color: #8b5a1a;
+}
+
+/* Rủi ro: Thấp (ll) — mint */
+.pestel-report .matrix-wrap .mr-col:nth-child(3) .level-badge.ll {
+  background: #e4f0e8;
+  color: #1b4332;
 }
 
 .pestel-report .level-badge {
@@ -825,30 +1142,33 @@
 }
 
 .pestel-report .pri-now {
-  background: var(--l-color);
+  background: #8c2d2d;
   color: #fff;
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: var(--sans);
 }
 
 .pestel-report .pri-soon {
-  background: var(--s-color);
+  background: #b48a3d;
   color: #fff;
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: var(--sans);
 }
 
 .pestel-report .pri-later {
-  background: var(--e-color);
+  background: #1e5c38;
   color: #fff;
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-family: var(--sans);
 }
 
 /* —— CMO: hộp tối (prompt cũ) + layout sáng (HTML mới) —— */
@@ -868,6 +1188,15 @@
 }
 
 .pestel-report .cmo-label {
+  font-size: 0; /* hide underlying text from old AI output */
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.pestel-report .cmo-label::before {
+  content: 'Lời khuyên';
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -911,6 +1240,25 @@
 .pestel-report .advice-text strong {
   color: var(--ink);
   font-weight: 600;
+}
+
+/* CMO 3 cột: tiêu đề (strong hoặc .advice-title) — xanh → vàng → đỏ */
+.pestel-report .cmo-content > .advice-item:nth-child(1) .advice-text strong,
+.pestel-report .advice-title-e {
+  color: #387154;
+  font-weight: 700;
+}
+
+.pestel-report .cmo-content > .advice-item:nth-child(2) .advice-text strong,
+.pestel-report .advice-title-s {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.pestel-report .cmo-content > .advice-item:nth-child(3) .advice-text strong,
+.pestel-report .advice-title-l {
+  color: #b91c1c;
+  font-weight: 700;
 }
 
 .pestel-report .cmo-wrap {

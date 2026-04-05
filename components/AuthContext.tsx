@@ -75,6 +75,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await signOut(auth);
     }, []);
 
+    // Dev: cho phép console gọi window.__authTier('promax') để test UI (chỉ ảnh hưởng tier trong AuthContext).
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        const w = window as Window & {
+            __authTier?: (t: SubscriptionTier) => void;
+            __MKT_DEV?: { setAuthTier: (t: SubscriptionTier) => void };
+        };
+        const set = (t: SubscriptionTier) => {
+            setTier(t);
+            console.info('[dev] AuthContext.tier →', t, '(PESTEL/STP còn đọc profile Supabase nếu có)');
+        };
+        w.__authTier = set;
+        w.__MKT_DEV = { ...w.__MKT_DEV, setAuthTier: set };
+        return () => {
+            delete w.__authTier;
+            if (w.__MKT_DEV?.setAuthTier === set) {
+                delete w.__MKT_DEV.setAuthTier;
+                if (Object.keys(w.__MKT_DEV).length === 0) delete w.__MKT_DEV;
+            }
+        };
+    }, []);
+
         return (
             <AuthContext.Provider value={{ user, loading, tier, signInWithGoogle, signOutUser, setTier }}>
                 {children}

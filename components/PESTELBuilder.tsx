@@ -1,8 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { 
-    Globe, Shield, TrendingUp, Users, Cpu, Leaf, Landmark, Loader2, Sparkles, 
-    History, ChevronRight, Plus, Diamond, Save, ArrowRight
+import {
+    BarChart3,
+    Calendar,
+    Globe,
+    Shield,
+    TrendingUp,
+    Users,
+    Cpu,
+    Leaf,
+    Landmark,
+    Loader2,
+    Sparkles,
+    History,
+    ChevronRight,
+    Plus,
+    Diamond,
+    Save,
+    Target,
+    Trash2,
 } from 'lucide-react';
 import { generatePESTELAnalysis } from '../services/geminiService';
 import { PESTELInput, PESTELResult, PESTELFactorGroup } from '../types';
@@ -13,6 +29,8 @@ import { StpOptimizerField } from './stp-optimizer-field';
 import { useBrand } from './BrandContext';
 import { PESTELService, SavedPESTEL } from '../services/pestelService';
 import { useToast } from './Toast';
+import ProMaxAdviceGate from './ProMaxAdviceGate';
+import { stripPestelCmoAdviceBox } from '../utils/stripPestelCmoAdviceBox';
 import './pestel-report-editorial.css';
 
 const PESTEL_ICONS: Record<string, any> = {
@@ -45,7 +63,7 @@ const PESTEL_DEFAULTS: PESTELInput = {
 };
 
 const PESTELBuilder: React.FC = () => {
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const toast = useToast();
     const { register, handleSubmit, watch, reset } = useForm<PESTELInput>({
         defaultValues: PESTEL_DEFAULTS
@@ -168,6 +186,17 @@ const PESTELBuilder: React.FC = () => {
 
     const cardClass = 'rounded-3xl border border-stone-200/60 bg-white shadow-sm';
     const showPestelOutput = !!(pestelData || isGenerating);
+
+    /** Pro Max: Supabase profile hoặc AuthContext (dev: window.__authTier('promax')) */
+    const isPromax =
+        profile?.subscription_tier === 'promax' || tier === 'promax';
+
+    const pestelHtmlForDisplay = useMemo(() => {
+        if (!pestelData?.html_report) return { html: '', showAdviceGate: false };
+        if (isPromax) return { html: pestelData.html_report, showAdviceGate: false };
+        const { html, hadCmoBlock } = stripPestelCmoAdviceBox(pestelData.html_report);
+        return { html, showAdviceGate: hadCmoBlock };
+    }, [pestelData?.html_report, isPromax, tier, profile?.subscription_tier]);
     const inputClass = 'w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400';
     
     // Check if required fields are filled
@@ -191,7 +220,7 @@ const PESTELBuilder: React.FC = () => {
                             Thủ công
                         </button>
                         <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
-                            <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
+                            <Diamond size={14} className={isPromax ? 'text-amber-500 fill-amber-500' : 'text-stone-400'} /> Brand Vault
                         </button>
                     </div>
 
@@ -199,9 +228,9 @@ const PESTELBuilder: React.FC = () => {
                         type="button"
                         onClick={() => setShowHistory(!showHistory)}
                         className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-all active:scale-95 ${showHistory ? 'bg-stone-900 text-white shadow-md' : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'}`}
-                        title="Lịch sử phân tích"
+                        title={`Lịch sử (${savedReports.length})`}
                         aria-pressed={showHistory}
-                        aria-label="Mở lịch sử phân tích PESTEL"
+                        aria-label={`Mở lịch sử phân tích PESTEL, ${savedReports.length} bản đã lưu`}
                     >
                         <History size={17} strokeWidth={1.5} />
                     </button>
@@ -234,40 +263,88 @@ const PESTELBuilder: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className={`flex-1 grid min-h-0 overflow-hidden ${
-                    showPestelOutput
-                        ? showHistory
-                            ? 'gap-6 pl-6 pr-0 pt-0 pb-0'
-                            : 'gap-0 p-0'
-                        : 'gap-6 p-6'
+                className={`flex min-h-0 flex-1 flex-col overflow-hidden pb-3 sm:pb-4 lg:pb-4 ${
+                    showPestelOutput && !showHistory
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
                 }`}
-                style={{
-                    gridTemplateColumns: showHistory ? '280px 1fr' : '1fr'
-                }}
             >
-                {showHistory && (
-                    <div className={`${cardClass} overflow-y-auto p-4 space-y-3 bg-stone-50/30`}>
-                        <h3 className="text-[10px] font-bold uppercase text-stone-400 mb-4 px-2">Saved PESTEL</h3>
-                        {savedReports.length === 0 ? (
-                            <div className="text-center py-8 text-stone-400 text-xs italic">Chưa có bản lưu nào.</div>
-                        ) : (
-                            savedReports.map(m => (
-                                <div key={m.id} onClick={() => handleLoadReport(m)} className="group relative p-4 rounded-xl border border-stone-100 bg-white hover:border-stone-300 cursor-pointer transition-all">
-                                    <div className="font-medium text-sm text-stone-900 truncate pr-6">{m.input.industry}</div>
-                                    <div className="text-[10px] text-stone-400 mt-2">{m.input.location} • {new Date(m.timestamp).toLocaleDateString()}</div>
-                                    <button 
-                                        onClick={(e) => handleDeleteReport(e, m.id)}
-                                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 text-stone-300 hover:text-rose-500 transition-all"
+                {showHistory ? (
+                    <div className="flex-1 overflow-y-auto px-0 pb-2">
+                        <div className={`${cardClass} p-6 md:p-8`}>
+                            <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+                                <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+                                Lịch sử phân tích PESTEL ({savedReports.length})
+                            </h2>
+                            {savedReports.length === 0 ? (
+                                <div className="py-16 text-center">
+                                    <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                                    <p className="text-base font-normal text-stone-600">Chưa có bản phân tích nào</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowHistory(false)}
+                                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
                                     >
-                                        <Plus size={14} className="rotate-45" />
+                                        <Plus size={17} strokeWidth={1.25} /> Tạo mới
                                     </button>
                                 </div>
-                            ))
-                        )}
+                            ) : (
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    {savedReports.map((m) => {
+                                        const factorCount = m.data?.pestel_factors?.length ?? 6;
+                                        return (
+                                            <div
+                                                key={m.id}
+                                                role="button"
+                                                tabIndex={0}
+                                                className="cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                                                onClick={() => handleLoadReport(m)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleLoadReport(m)}
+                                            >
+                                                <div className="mb-3 flex items-start justify-between gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                        <h3 className="line-clamp-2 font-medium text-stone-900">
+                                                            {m.input.industry || 'Không tên'}
+                                                        </h3>
+                                                        <p className="mt-1 line-clamp-2 text-sm font-normal text-stone-500">
+                                                            {m.input.location || '—'} • {m.input.businessScale || m.input.businessModel || '—'}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => void handleDeleteReport(e, m.id)}
+                                                        className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                                                        aria-label="Xóa bản phân tích"
+                                                    >
+                                                        <Trash2 size={16} strokeWidth={1.25} />
+                                                    </button>
+                                                </div>
+                                                <div className="flex flex-wrap items-center gap-3 text-xs font-normal text-stone-500">
+                                                    <span className="flex items-center gap-1">
+                                                        <Target size={12} strokeWidth={1.25} />
+                                                        {factorCount} yếu tố
+                                                    </span>
+                                                    <span className="flex min-w-0 max-w-full items-center gap-1">
+                                                        <BarChart3 size={12} strokeWidth={1.25} className="shrink-0" />
+                                                        <span className="truncate">
+                                                            {m.input.businessModel || m.data?.data_freshness || 'Radar vĩ mô'}
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                                <div className="mt-3 border-t border-stone-100 pt-3 text-xs font-normal text-stone-400">
+                                                    <span className="flex items-center gap-1">
+                                                        <Calendar size={12} strokeWidth={1.25} aria-hidden />
+                                                        {new Date(m.timestamp).toLocaleDateString('vi-VN')}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
-
-                {!(pestelData || isGenerating) ? (
+                ) : !(pestelData || isGenerating) ? (
                     <div className={`${cardClass} flex flex-col overflow-hidden transition-all duration-500 max-w-[1180px] mx-auto w-full`}>
                         <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
                             {FORM_TABS.map((t) => (
@@ -284,7 +361,7 @@ const PESTELBuilder: React.FC = () => {
                         </div>
 
                         <div className="overflow-y-auto p-5 md:p-6">
-                            {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
+                            {activeTab === 'vault' && !isPromax ? (
                                 <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6 mt-10">
                                     <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
                                     <h2 className="text-xl font-medium">PESTEL Intelligence Pro</h2>
@@ -448,10 +525,23 @@ const PESTELBuilder: React.FC = () => {
                         ) : (
                             <div className="animate-in fade-in zoom-in-95 w-full">
                                 {pestelData.html_report ? (
-                                    <div
-                                        className="pestel-report-host w-full min-h-0 bg-[#faf9f6]"
-                                        dangerouslySetInnerHTML={{ __html: pestelData.html_report }}
-                                    />
+                                    <div className="w-full min-h-0 bg-[#faf9f6]">
+                                        <div
+                                            className="pestel-report-host w-full min-h-0 bg-[#faf9f6]"
+                                            dangerouslySetInnerHTML={{ __html: pestelHtmlForDisplay.html }}
+                                        />
+                                        {!isPromax && pestelHtmlForDisplay.showAdviceGate && (
+                                            <div className="pestel-promax-advice-gate w-full px-4 pb-10 pt-1 sm:px-6">
+                                                <ProMaxAdviceGate
+                                                    subscriptionTier={isPromax ? 'promax' : profile?.subscription_tier ?? tier}
+                                                    benefits={[
+                                                        'Insight chiến lược, rủi ro & cơ hội bị bỏ lỡ',
+                                                        'Lộ trình hành động 30 · 60 · 90 ngày',
+                                                    ]}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
                                 ) : (
                                     /* Fallback: cùng scope .pestel-report để dùng pestel-report-editorial.css */
                                     <div className="pestel-report w-full min-h-0 bg-[#faf9f6]">
