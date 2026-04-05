@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Prata&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
 
 /* ─── TOKENS ─────────────────────────────────────────────── */
 :root {
@@ -28,7 +28,7 @@
   --ms-rose-mid:   #ead0d0;
 
   --ms-rule:       rgba(26,25,22,0.10);
-  --ms-serif:      'Prata', Georgia, serif;
+  --ms-serif:      'Playfair Display', Georgia, serif;
   --ms-sans:       'DM Sans', system-ui, sans-serif;
 
   --ms-radius:     8px;

@@ -176,12 +176,12 @@ const STPModelGenerator: React.FC = () => {
 
     // Editorial styles for STP output
     const editorialStyles = `
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Prata&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Prata&display=swap');
         
         .stp-editorial-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
         
         :root {
-            --ink: #0f0f0d;
+            --ink: #304f74;
             --ink-2: #3a3935;
             --ink-3: #8a887f;
             --ink-4: #b8b6ae;
@@ -192,7 +192,7 @@ const STPModelGenerator: React.FC = () => {
             --accent-w: #c17f2a;
             --accent-b: #1a3a5c;
             --rule: rgba(15,15,13,0.1);
-            --serif: 'Prata', Georgia, serif;
+            --serif: 'Playfair Display', Georgia, serif;
             --sans: 'DM Sans', system-ui, sans-serif;
             /* Targeting card — nền mint nhạt giống thẻ editorial xanh (CH / roadmap) */
             --stp-tg-bg: #f0f7f4;

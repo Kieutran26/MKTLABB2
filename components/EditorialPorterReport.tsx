@@ -11,8 +11,8 @@ interface Props {
 const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }) => {
   const { forces, advice } = data;
 
-  // Radar Chart Logic
-  const size = 200;
+  // Radar Chart Logic (viewBox lớn hơn cho nhãn trục + polygon rõ)
+  const size = 240;
   const center = size / 2;
   const radius = (size / 2) * 0.8;
   const angleStep = (Math.PI * 2) / 5;
@@ -56,6 +56,27 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
     if (trend === 'Increasing') return 'trend-up';
     if (trend === 'Decreasing') return 'trend-down';
     return 'trend-flat';
+  };
+
+  /** Nhãn ngắn trên trục radar (ảnh mẫu) */
+  const axisLabelsVi = ['Cạnh tranh', 'Đối thủ mới', 'Người mua', 'Nhà cung cấp', 'Thay thế'];
+
+  const statusLabelVi = (status: string) => {
+    if (status === 'High' || status === 'Extreme') return 'Cao';
+    if (status === 'Medium') return 'TB';
+    return 'Thấp';
+  };
+
+  const trendLabelVi = (trend: string) => {
+    if (trend === 'Increasing') return 'Tăng ↑';
+    if (trend === 'Decreasing') return 'Giảm ↓';
+    return 'Ổn định →';
+  };
+
+  const pillToneClass = (status: string) => {
+    if (status === 'High' || status === 'Extreme') return 'pr-radar-pill--high';
+    if (status === 'Medium') return 'pr-radar-pill--med';
+    return 'pr-radar-pill--low';
   };
 
   return (
@@ -130,64 +151,102 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
         ))}
       </div>
 
-      {/* RADAR & LEGEND */}
-      <div className="radar-wrap a" style={{ animationDelay: '0.4s' }}>
-        <div className="radar-svg-wrap">
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {/* Background Polygons */}
-            {[0.2, 0.4, 0.6, 0.8, 1].map((step) => (
-              <polygon
-                key={step}
-                points={forces
-                  .map((_, i) => {
-                    const p = getPoint(10 * step, i, radius);
-                    return `${p.x},${p.y}`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="var(--rule)"
-                strokeWidth="0.5"
-              />
-            ))}
-            {/* Axis Lines */}
-            {forces.map((_, i) => {
-              const p = getPoint(10, i, radius);
-              return (
-                <line
-                  key={i}
-                  x1={center}
-                  y1={center}
-                  x2={p.x}
-                  y2={p.y}
-                  stroke="var(--rule)"
-                  strokeWidth="0.5"
+      {/* RADAR + CHI TIẾT — layout ảnh 2 */}
+      <section className="pr-radar-section a" style={{ animationDelay: '0.4s' }}>
+        <div className="pr-radar-head">
+          <div className="pr-radar-head-dot" aria-hidden />
+          <h2 className="pr-radar-head-title">Radar chart — Hình dạng nguy hiểm</h2>
+        </div>
+        <div className="pr-radar-grid">
+          <div className="pr-radar-chart">
+            <svg className="pr-radar-svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+              {[0.2, 0.4, 0.6, 0.8, 1].map((step) => (
+                <polygon
+                  key={step}
+                  points={forces
+                    .map((_, i) => {
+                      const p = getPoint(10 * step, i, radius);
+                      return `${p.x},${p.y}`;
+                    })
+                    .join(' ')}
+                  fill="none"
+                  stroke="rgba(15, 15, 13, 0.08)"
+                  strokeWidth="0.75"
                 />
-              );
-            })}
-            {/* Data Polygon */}
-            <polygon
-              points={polygonPoints}
-              fill="rgba(15, 15, 13, 0.05)"
-              stroke="var(--ink)"
-              strokeWidth="1.5"
-            />
-            {/* Data Points */}
-            {points.map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y} r="3" fill="var(--ink)" />
+              ))}
+              {forces.map((_, i) => {
+                const p = getPoint(10, i, radius);
+                return (
+                  <line
+                    key={i}
+                    x1={center}
+                    y1={center}
+                    x2={p.x}
+                    y2={p.y}
+                    stroke="rgba(15, 15, 13, 0.08)"
+                    strokeWidth="0.75"
+                  />
+                );
+              })}
+              <polygon
+                points={polygonPoints}
+                fill="rgba(193, 127, 42, 0.1)"
+                stroke="var(--ink)"
+                strokeWidth="1.25"
+              />
+              {points.map((p, i) => (
+                <circle
+                  key={i}
+                  cx={p.x}
+                  cy={p.y}
+                  r="4"
+                  fill={getForceColor(i)}
+                  stroke="var(--paper)"
+                  strokeWidth="1"
+                />
+              ))}
+              {forces.map((_, i) => {
+                const angle = i * angleStep - Math.PI / 2;
+                const lr = radius * 1.22;
+                const lx = center + lr * Math.cos(angle);
+                const ly = center + lr * Math.sin(angle);
+                return (
+                  <text
+                    key={`lbl-${i}`}
+                    x={lx}
+                    y={ly}
+                    className="pr-radar-axis-label"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    {axisLabelsVi[i]}
+                  </text>
+                );
+              })}
+            </svg>
+          </div>
+          <div className="pr-radar-list" role="list">
+            {forces.map((f, i) => (
+              <div className="pr-radar-row" key={f.name} role="listitem">
+                <div className="pr-radar-row-dot" style={{ background: getForceColor(i) }} aria-hidden />
+                <div className="pr-radar-row-main">
+                  <div className="pr-radar-row-vi">{f.name_vi}</div>
+                  <div className="pr-radar-row-en">{f.name}</div>
+                </div>
+                <div className="pr-radar-row-side">
+                  <div className="pr-radar-row-score">
+                    {f.score}
+                    <span className="pr-radar-row-score-suffix">/10</span>
+                  </div>
+                  <div className={`pr-radar-pill ${pillToneClass(f.status)}`}>
+                    {statusLabelVi(f.status)} · {trendLabelVi(f.trend)}
+                  </div>
+                </div>
+              </div>
             ))}
-          </svg>
+          </div>
         </div>
-        <div className="radar-legend">
-          {forces.map((f, i) => (
-            <div className="rl-item" key={f.name}>
-              <div className="rl-dot" style={{ background: getForceColor(i) }}></div>
-              <div className="rl-name">{f.name_vi}</div>
-              <div className="rl-score">{f.score}</div>
-              <span className={`rl-lv lv ${getLevelClass(f.status)}`}>{f.status}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      </section>
 
       {/* FORCE CARDS */}
       <div className="forces-grid a" style={{ animationDelay: '0.5s' }}>

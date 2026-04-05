@@ -1540,7 +1540,7 @@ export interface PorterForce {
   trend_reason?: string; // Lý do dự báo xu hướng
 }
 
-/** Kết quả phân tích Porter Advice - phần CMO Expert Note */
+/** Kết quả phân tích Porter Advice - phần Advice */
 export interface PorterAdvice {
   /** Chiến lược cạnh tranh được chọn */
   recommended_strategy: 'Cost Leadership' | 'Differentiation' | 'Focus/Niche';
@@ -1614,7 +1614,7 @@ export interface PorterAnalysisResult {
   verdict_description: string;
   total_threat_score: number; // Tổng điểm / 50
   forces: PorterForce[];
-  advice: PorterAdvice; // Phần CMO Expert Note
+  advice: PorterAdvice; // Phần Advice
   generated_at: string;
 }
 

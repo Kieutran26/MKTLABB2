@@ -885,7 +885,7 @@ PHẦN 3: KPI Framework & Dự báo
   • Revenue Projection: công thức × số thật từ baseline
   • 3 kịch bản: Conservative (70%) · Realistic (50%) · Ambitious (20%)
 
-PHẦN 4: CMO Expert Note
+PHẦN 4: Advice
   • 1 yếu tố sống còn quyết định thành bại
   • Top 3 rủi ro + contingency plan
   • Cơ hội đang bị bỏ ngỏ
