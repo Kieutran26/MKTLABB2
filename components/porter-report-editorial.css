@@ -15,6 +15,15 @@
   --f4: #c17f2a; /* Suppliers */
   --f5: #5c1a5c; /* Substitutes */
   --rule: rgba(15, 15, 13, 0.1);
+  /* Roadmap 30·60·90 — palette theo mock kem / viền đá */
+  --pr-roadmap-cream: #fdfbf7;
+  --pr-roadmap-border: #e0ddd5;
+  --pr-roadmap-head-bg: #f5f3ef;
+  --pr-roadmap-title: #7a756b;
+  --pr-roadmap-accent: #c17f2a;
+  --pr-roadmap-bullet-r: #8b1a1a;
+  --pr-roadmap-bullet-o: #c17f2a;
+  --pr-roadmap-bullet-g: #1a5c3a;
   --serif: 'Playfair Display', Georgia, serif;
   --sans: 'DM Sans', system-ui, sans-serif;
 
@@ -319,19 +328,24 @@
   display: grid;
   grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
   gap: 2rem 2.5rem;
-  align-items: start;
+  /* Căn giữa radar theo chiều dọc so với cột bảng bên phải */
+  align-items: center;
 }
 
 .porter-report .pr-radar-chart {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: visible;
+  /* Tránh cột grid cắt phần nhãn thò ra ngoài SVG */
+  min-width: 0;
 }
 
 .porter-report .pr-radar-svg {
   display: block;
   max-width: 100%;
   height: auto;
+  overflow: visible;
 }
 
 .porter-report .pr-radar-axis-label {
@@ -456,184 +470,302 @@
   }
 }
 
-/* FORCE CARDS */
-.porter-report .forces-grid {
+/* PHÂN TÍCH CHI TIẾT 5 LỰC — mockup ảnh 2 (lưới 3+2, thẻ trắng) */
+.porter-report .pf-forces-detail {
+  margin-bottom: 2.5rem;
+}
+
+.porter-report .pf-forces-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.porter-report .pf-forces-detail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9c3030;
+  flex-shrink: 0;
+}
+
+.porter-report .pf-forces-detail-title {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+.porter-report .pf-forces-detail-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.25rem;
 }
 
-.porter-report .forces-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 2rem;
+/* 5 cards in a 6-column grid to balance 3 on top and 2 on bottom
+   Row 1: 2+2+2 = 6 units
+   Row 2: 3+3 = 6 units */
+.pf-forces-detail-grid > .pf-fc-card:nth-child(1) { grid-column: span 2; }
+.pf-forces-detail-grid > .pf-fc-card:nth-child(2) { grid-column: span 2; }
+.pf-forces-detail-grid > .pf-fc-card:nth-child(3) { grid-column: span 2; }
+.pf-forces-detail-grid > .pf-fc-card:nth-child(4) { grid-column: span 3; }
+.pf-forces-detail-grid > .pf-fc-card:nth-child(5) { grid-column: span 3; }
+
+.porter-report .pf-fc-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 1.25rem 1.35rem;
+  box-sizing: border-box;
 }
 
-.porter-report .fc {
-  padding: 1.1rem 0;
-  overflow: hidden;
-  background: transparent;
-  border-bottom: 1px solid var(--rule);
+.porter-report .pf-fc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.porter-report .fc-top {
+.porter-report .pf-fc-cat {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  max-width: 60%;
+}
+
+.porter-report .pf-fc-scorewrap {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 0.375rem;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
-.porter-report .fc-eyebrow {
+.porter-report .pf-fc-score-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.porter-report .pf-fc-score-max {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.porter-report .pf-fc-title {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.75rem;
+  line-height: 1.25;
+}
+
+.porter-report .pf-fc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.porter-report .pf-fc-tag {
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  border: 1px solid var(--rule);
+  max-width: 100%;
+}
+
+.porter-report .pf-fc-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.porter-report .pf-fc-box {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 0.65rem 0.75rem;
+}
+
+.porter-report .pf-fc-box--muted {
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.porter-report .pf-fc-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 1rem 0 0.65rem;
+}
+
+.porter-report .pf-fc-action-label {
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-weight: 500;
-}
-
-.porter-report .fc-score {
-  font-family: var(--serif);
-  font-size: 22px;
-}
-
-.porter-report .fc-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-  margin-bottom: 0.625rem;
-  line-height: 1.3;
-}
-
-.porter-report .fc-tags {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-bottom: 0.625rem;
-}
-
-.porter-report .fc-tag {
-  font-size: 10px;
-  padding: 1px 7px;
-  border-radius: 2px;
-  background: var(--paper-2);
   color: var(--ink-3);
-  border: 0.5px solid var(--rule);
+  font-weight: 500;
+  margin-bottom: 0.35rem;
 }
 
-.porter-report .fc-body {
+.porter-report .pf-fc-action-body {
   font-size: 12px;
+  line-height: 1.65;
   color: var(--ink-2);
-  line-height: 1.7;
-  margin-bottom: 0.625rem;
+  margin: 0 0 0.65rem;
 }
 
-.porter-report .fc-action {
-  font-size: 11.5px;
-  color: var(--ink-2);
-  line-height: 1.6;
-  padding-top: 0.625rem;
-  border-top: 1px solid var(--rule);
+.porter-report .pf-fc-trend {
+  margin-top: 0.25rem;
 }
 
-.porter-report .fc-action-label {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-bottom: 2px;
-}
+@media (max-width: 900px) {
+  .porter-report .pf-forces-detail-grid {
+    grid-template-columns: 1fr;
+  }
 
-.porter-report .fc-trend {
-  font-size: 11px;
-  margin-top: 0.5rem;
-  font-weight: 500;
+  .pf-forces-detail-grid > .pf-fc-card {
+    grid-column: span 1 !important;
+    width: 100%;
+  }
 }
 
 /* STRATEGY BLOCK */
-.porter-report .strategy-block {
-  padding: 2rem 0;
+/* STRATEGY BLOCK — Layout ảnh 2 (Expert dark card) */
+.porter-report .strategy-section {
   margin-bottom: 3rem;
-  border-top: 1px solid var(--rule);
+}
+
+.porter-report .sb-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--rule);
 }
 
-.porter-report .sb-eyebrow {
-  font-size: 9px;
-  letter-spacing: 0.14em;
+.porter-report .sb-header-dot {
+  width: 12px;
+  height: 12px;
+  background: #1a5c3a; /* Green dot from image */
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.porter-report .sb-header-title {
+  font-size: 10px;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.porter-report .strategy-block {
+  background: #304f74; /* Chuyển sang màu Ink của thương hiệu */
+  color: #fff;
+  padding: 2.25rem 2.5rem;
+  border-radius: 4px;
+  margin-bottom: 0;
+}
+
+.porter-report .sb-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45); /* Làm nhãn sáng hơn để dễ đọc */
+  font-weight: 500;
+  margin-bottom: 0.625rem;
 }
 
 .porter-report .sb-badge {
   display: inline-block;
   font-size: 11px;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 2px;
-  background: var(--f3);
+  background: #1a5c3a;
   color: #fff;
   font-weight: 500;
-  margin-bottom: 0.875rem;
+  margin-bottom: 1.25rem;
 }
 
 .porter-report .sb-title {
   font-family: var(--serif);
-  font-size: 24px;
-  color: var(--ink);
-  margin-bottom: 1rem;
+  font-size: 26px;
+  color: #fff;
+  margin-bottom: 1.25rem;
   font-weight: 400;
+  line-height: 1.2;
 }
 
 .porter-report .sb-body {
-  font-size: 13px;
-  color: var(--ink-2);
+  font-size: 13.5px;
+  color: #fff; /* Tăng độ sáng cho nội dung chính */
   line-height: 1.8;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.porter-report .sb-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 2rem 0;
 }
 
 .porter-report .sb-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 1.25rem;
+  gap: 2.5rem;
 }
 
 .porter-report .sb-col-label {
   font-size: 9px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--ink-3);
-  margin-bottom: 0.375rem;
+  color: rgba(255, 255, 255, 0.4); /* Làm nhãn cột sáng hơn */
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 .porter-report .sb-col-val {
   font-family: var(--serif);
-  font-size: 16px;
-  color: var(--ink);
-  margin-bottom: 0.375rem;
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 0.625rem;
+  font-weight: 400;
 }
 
 .porter-report .sb-col-body {
-  font-size: 12px;
-  color: var(--ink-2);
-  line-height: 1.6;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.85); /* Tăng độ tương phản cho mô tả cột */
+  line-height: 1.65;
 }
 
-/* CMO */
-.porter-report .cmo-wrap {
-  border-top: 2px solid var(--ink);
+/* CMO EXPERT NOTE — Layout ảnh 2 (4 cards with markers) */
+.porter-report .cmo-section {
   padding-top: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3.5rem;
+  border-top: 2px solid var(--ink);
 }
 
 .porter-report .cmo-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .porter-report .cmo-label {
@@ -654,79 +786,136 @@
 .porter-report .cmo-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 1.25rem;
+  gap: 1.25rem;
 }
 
 .porter-report .cmo-card {
-  padding: 1rem 0;
-  background: transparent;
+  padding: 1.5rem 1.75rem;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--ink-4);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  position: relative;
 }
 
-.porter-report .cmo-card.priority {
-  border-color: var(--f3);
-  background: rgba(26, 92, 58, 0.03);
-}
-
-.porter-report .cmo-card.risk {
-  border-left: 2px solid var(--f1);
-  padding-left: 1.25rem;
-}
-
-.porter-report .cmo-card.opp {
-  border-left: 2px solid var(--f4);
-  padding-left: 1.25rem;
-}
+.porter-report .cmo-card--must { border-left-color: var(--f3); }
+.porter-report .cmo-card--pitfall { border-left-color: var(--f1); }
+.porter-report .cmo-card--opp { border-left-color: var(--f4); }
+.porter-report .cmo-card--priority { border-left-color: var(--ink); }
 
 .porter-report .cmo-num {
   font-family: var(--serif);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-4);
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
 }
 
 .porter-report .cmo-title {
-  font-size: 12px;
+  font-family: var(--serif);
+  font-size: 16px;
   font-weight: 500;
-  margin-bottom: 0.375rem;
+  color: var(--ink);
+  margin-bottom: 1rem;
   line-height: 1.4;
 }
 
+.porter-report .cmo-card--must .cmo-title { color: var(--f3); }
+.porter-report .cmo-card--pitfall .cmo-title { color: var(--f1); }
+.porter-report .cmo-card--opp .cmo-title { color: var(--f4); }
+
 .porter-report .cmo-body {
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--ink-2);
   line-height: 1.75;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.porter-report .cmo-tag-wrap {
+  margin-top: auto;
 }
 
 .porter-report .cmo-tag {
   display: inline-block;
   font-size: 10px;
-  padding: 2px 7px;
+  padding: 5px 10px;
   border-radius: 2px;
-  margin-top: 0.5rem;
   font-weight: 500;
+  background: rgba(15, 15, 13, 0.05);
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
 }
 
-/* ACTION TABLE */
-.porter-report .action-strip {
+.porter-report .cmo-card--must .cmo-tag { background: rgba(26, 92, 58, 0.08); color: var(--f3); }
+.porter-report .cmo-card--pitfall .cmo-tag { background: rgba(138, 26, 26, 0.08); color: var(--f1); }
+.porter-report .cmo-card--opp .cmo-tag { background: rgba(193, 127, 42, 0.08); color: var(--f4); }
+.porter-report .cmo-card--priority .cmo-tag { background: rgba(48, 79, 116, 0.08); color: var(--ink); }
+
+@media (max-width: 800px) {
+  .porter-report .cmo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ACTION ROADMAP — khung kem + 3 cột (mock Action priority 30·60·90) */
+.porter-report .action-roadmap-box {
   margin-bottom: 2rem;
+  background: var(--pr-roadmap-cream);
+  border: 1px solid var(--pr-roadmap-border);
+  overflow: hidden;
+}
+
+.porter-report .action-roadmap-head {
+  padding: 1rem 1.35rem 0.85rem;
+  border-bottom: 1px solid var(--pr-roadmap-border);
+  background: var(--pr-roadmap-cream);
+}
+
+.porter-report .action-roadmap-head-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.porter-report .action-roadmap-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--pr-roadmap-accent);
+}
+
+.porter-report .action-roadmap-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pr-roadmap-title);
+  line-height: 1.35;
 }
 
 .porter-report .action-head {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  background: var(--paper-2);
-  border-bottom: 1px solid var(--rule);
+  background: var(--pr-roadmap-head-bg);
+  border-bottom: 1px solid var(--pr-roadmap-border);
 }
 
 .porter-report .ah-col {
-  padding: 0.625rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-3);
+  color: var(--ink-2);
   font-weight: 500;
-  border-right: 1px solid var(--rule);
+  border-right: 1px solid var(--pr-roadmap-border);
+  line-height: 1.45;
 }
 
 .porter-report .ah-col:last-child {
@@ -739,8 +928,12 @@
 }
 
 .porter-report .ar-col {
-  padding: 1rem;
-  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.35rem 1.35rem;
+  border-right: 1px solid var(--pr-roadmap-border);
+  background: var(--pr-roadmap-cream);
+  min-height: 0;
 }
 
 .porter-report .ar-col:last-child {
@@ -749,33 +942,74 @@
 
 .porter-report .ar-item {
   display: flex;
-  gap: 7px;
-  margin-bottom: 7px;
+  gap: 10px;
+  margin-bottom: 0.65rem;
   font-size: 11.5px;
-  color: var(--ink-2);
+  color: #333333;
   line-height: 1.55;
-  align-items: baseline;
+  align-items: flex-start;
+}
+
+.porter-report .ar-item:last-of-type {
+  margin-bottom: 0;
+}
+
+.porter-report .ar-task-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.porter-report .ar-task-text strong {
+  font-weight: 600;
+  color: var(--ink-2);
 }
 
 .porter-report .ar-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   flex-shrink: 0;
-  position: relative;
-  top: 4px;
+  margin-top: 6px;
 }
 
-.porter-report .dot-r { background: var(--f1); }
+.porter-report .dot-r { background: var(--pr-roadmap-bullet-r); }
+.porter-report .dot-o { background: var(--pr-roadmap-bullet-o); }
 .porter-report .dot-w { background: var(--f4); }
-.porter-report .dot-g { background: var(--f3); }
+.porter-report .dot-g { background: var(--pr-roadmap-bullet-g); }
 
 .porter-report .ar-note {
   font-size: 11px;
-  color: var(--ink-3);
-  margin-top: 0.5rem;
+  color: #9a958c;
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(224, 221, 213, 0.85);
   font-style: italic;
-  line-height: 1.5;
+  line-height: 1.55;
+}
+
+@media (max-width: 800px) {
+  .porter-report .action-head,
+  .porter-report .action-rows {
+    grid-template-columns: 1fr;
+  }
+
+  .porter-report .ah-col {
+    border-right: none;
+    border-bottom: 1px solid var(--pr-roadmap-border);
+  }
+
+  .porter-report .ah-col:last-child {
+    border-bottom: none;
+  }
+
+  .porter-report .ar-col {
+    border-right: none;
+    border-bottom: 1px solid var(--pr-roadmap-border);
+  }
+
+  .porter-report .ar-col:last-child {
+    border-bottom: none;
+  }
 }
 
 /* VERDICT LINE */

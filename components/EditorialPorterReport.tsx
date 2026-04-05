@@ -2,6 +2,28 @@ import React from 'react';
 import { PorterAnalysisResult, PorterForce } from '../types';
 import './porter-report-editorial.css';
 
+/** "Tiêu đề: mô tả" → in đậm phần trước dấu hai chấm (giống mock roadmap). */
+function ActionRoadmapTaskLine({ task }: { task: string }) {
+  const colon = task.indexOf(':');
+  if (colon > 0 && colon < task.length - 1) {
+    const title = task.slice(0, colon).trim();
+    const body = task.slice(colon + 1).trim();
+    return (
+      <div className="ar-task-text">
+        <strong>{title}</strong>
+        {`: ${body}`}
+      </div>
+    );
+  }
+  return <div className="ar-task-text">{task}</div>;
+}
+
+const PORTER_ROADMAP_COLUMN_NOTES = [
+  'Không chạy ads cho đến khi có đủ nền tảng.',
+  'Đánh giá CPL và chọn angle chiến thắng để scale tháng 3.',
+  'Mục tiêu: lead đủ chất lượng và hoàn tất vòng đo–tối ưu trong 90 ngày.',
+] as const;
+
 interface Props {
   data: PorterAnalysisResult;
   nganh_hang?: string;
@@ -11,10 +33,12 @@ interface Props {
 const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }) => {
   const { forces, advice } = data;
 
-  // Radar Chart Logic (viewBox lớn hơn cho nhãn trục + polygon rõ)
-  const size = 240;
-  const center = size / 2;
-  const radius = (size / 2) * 0.8;
+  // Radar: tọa độ nội bộ 0..chartInner; viewBox âm để nhãn trục (Cạnh tranh, Thay thế…) không bị cắt
+  const chartInner = 240;
+  const viewPad = 52;
+  const viewBoxSize = chartInner + 2 * viewPad;
+  const center = chartInner / 2;
+  const radius = (chartInner / 2) * 0.8;
   const angleStep = (Math.PI * 2) / 5;
 
   const getPoint = (score: number, index: number, r: number) => {
@@ -77,6 +101,77 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
     if (status === 'High' || status === 'Extreme') return 'pr-radar-pill--high';
     if (status === 'Medium') return 'pr-radar-pill--med';
     return 'pr-radar-pill--low';
+  };
+
+  const forceCategoryEn = (f: PorterForce) => f.name.replace(/\s+/g, ' ').toUpperCase();
+
+  const trendLineVi = (trend: string) => {
+    if (trend === 'Increasing') return '↑ Xu hướng: Tăng';
+    if (trend === 'Decreasing') return '↓ Xu hướng: Giảm';
+    return '→ Xu hướng: Ổn định';
+  };
+
+  const getStrategyTitleVi = (strategy: string) => {
+    switch (strategy) {
+      case 'Cost Leadership': return 'Lãnh đạo chi phí — cạnh tranh nhờ quy mô';
+      case 'Differentiation': return 'Khác biệt hóa — không cạnh tranh về giá';
+      case 'Focus/Niche': return 'Tập trung trọng điểm — chiếm lĩnh phân khúc';
+      default: return strategy;
+    }
+  };
+
+  const tagSnippet = (text: string, max = 52) => {
+    const t = text.trim();
+    if (t.length <= max) return t;
+    return `${t.slice(0, max - 1)}…`;
+  };
+
+  const ForceDetailCard = ({ f, index }: { f: PorterForce; index: number }) => {
+    const tone = getForceColor(index);
+    const raw = f.determinants.filter((d) => d.trim().length > 0);
+    const boxes = raw.slice(0, 2);
+    return (
+      <article className="pf-fc-card">
+        <div className="pf-fc-head">
+          <span className="pf-fc-cat" style={{ color: tone }}>
+            {forceCategoryEn(f)}
+          </span>
+          <div className="pf-fc-scorewrap">
+            <span className="pf-fc-score-num" style={{ color: tone }}>
+              {f.score}
+            </span>
+            <span className="pf-fc-score-max">/10</span>
+          </div>
+        </div>
+        <h3 className="pf-fc-title">{f.name_vi}</h3>
+        {boxes.length > 0 && (
+          <div className="pf-fc-tags">
+            {boxes.map((d, di) => (
+              <span className="pf-fc-tag" key={di}>
+                {tagSnippet(d)}
+              </span>
+            ))}
+          </div>
+        )}
+        <div className="pf-fc-boxes">
+          {boxes.length > 0 ? (
+            boxes.map((d, di) => (
+              <div className="pf-fc-box" key={di}>
+                {d}
+              </div>
+            ))
+          ) : (
+            <div className="pf-fc-box pf-fc-box--muted">
+              {f.trend_reason?.trim() || '—'}
+            </div>
+          )}
+        </div>
+        <div className="pf-fc-divider" />
+        <div className="pf-fc-action-label">Hành động đề xuất</div>
+        <p className="pf-fc-action-body">{f.strategic_action}</p>
+        <div className={`pf-fc-trend trend ${getTrendClass(f.trend)}`}>{trendLineVi(f.trend)}</div>
+      </article>
+    );
   };
 
   return (
@@ -159,7 +254,13 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
         </div>
         <div className="pr-radar-grid">
           <div className="pr-radar-chart">
-            <svg className="pr-radar-svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+            <svg
+              className="pr-radar-svg"
+              width={chartInner}
+              height={chartInner}
+              viewBox={`-${viewPad} -${viewPad} ${viewBoxSize} ${viewBoxSize}`}
+              overflow="visible"
+            >
               {[0.2, 0.4, 0.6, 0.8, 1].map((step) => (
                 <polygon
                   key={step}
@@ -248,142 +349,151 @@ const EditorialPorterReport: React.FC<Props> = ({ data, nganh_hang, thi_truong }
         </div>
       </section>
 
-      {/* FORCE CARDS */}
-      <div className="forces-grid a" style={{ animationDelay: '0.5s' }}>
-        {forces.slice(0, 3).map((f, i) => (
-          <div className="fc" key={f.name}>
-            <div className="fc-top">
-              <div className="fc-eyebrow" style={{ color: getForceColor(i) }}>Force 0{i + 1}</div>
-              <div className="fc-score" style={{ color: getForceColor(i) }}>{f.score}</div>
-            </div>
-            <div className="fc-name">{f.name_vi}</div>
-            <div className="fc-tags">
-              {f.determinants.slice(0, 2).map((d, di) => (
-                <span className="fc-tag" key={di}>{d}</span>
-              ))}
-            </div>
-            <div className="fc-action">
-              <div className="fc-action-label">Strategic Lever</div>
-              {f.strategic_action}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* PHÂN TÍCH CHI TIẾT 5 LỰC — layout ảnh 2 (3 + 2 căn giữa) */}
+      <section className="pf-forces-detail a" style={{ animationDelay: '0.5s' }}>
+        <div className="pf-forces-detail-head">
+          <span className="pf-forces-detail-dot" aria-hidden />
+          <h2 className="pf-forces-detail-title">Phân tích chi tiết 5 lực lượng</h2>
+        </div>
+        <div className="pf-forces-detail-grid">
+          {forces.map((f, i) => (
+            <ForceDetailCard key={f.name} f={f} index={i} />
+          ))}
+        </div>
+      </section>
 
-      <div className="forces-grid-2 a" style={{ animationDelay: '0.6s' }}>
-        {forces.slice(3, 5).map((f, i) => (
-          <div className="fc" key={f.name}>
-            <div className="fc-top">
-              <div className="fc-eyebrow" style={{ color: getForceColor(i + 3) }}>Force 0{i + 4}</div>
-              <div className="fc-score" style={{ color: getForceColor(i + 3) }}>{f.score}</div>
+      {/* STRATEGY BLOCK — Layout ảnh 2 (Expert dark card) */}
+      <section className="strategy-section a" style={{ animationDelay: '0.7s' }}>
+        <div className="sb-header">
+          <div className="sb-header-dot" />
+          <h2 className="sb-header-title">CHIẾN LƯỢC CẠNH TRANH ĐỀ XUẤT</h2>
+        </div>
+        
+        <div className="strategy-block">
+          <div className="sb-eyebrow">CHIẾN LƯỢC ĐƯỢC CHỌN</div>
+          <div className="sb-badge">{advice.recommended_strategy}</div>
+          <h3 className="sb-title">{getStrategyTitleVi(advice.recommended_strategy)}</h3>
+          <p className="sb-body">{advice.strategy_rationale}</p>
+          
+          <div className="sb-divider" />
+          
+          <div className="sb-grid">
+            <div className="sb-col">
+              <div className="sb-col-label">LỰC NGUY HIỂM NHẤT</div>
+              <div className="sb-col-val">
+                {advice.biggest_threat.force_name} — {advice.biggest_threat.score}/10
+              </div>
+              <p className="sb-col-body">
+                {advice.biggest_threat.reason}. {advice.biggest_threat.consequence}
+              </p>
             </div>
-            <div className="fc-name">{f.name_vi}</div>
-            <div className="fc-tags">
-              {f.determinants.slice(0, 2).map((d, di) => (
-                <span className="fc-tag" key={di}>{d}</span>
-              ))}
+            <div className="sb-col">
+              <div className="sb-col-label">LỰC LỢI THẾ NHẤT</div>
+              <div className="sb-col-val">
+                {advice.biggest_opportunity.force_name} — {advice.biggest_opportunity.score}/10
+              </div>
+              <p className="sb-col-body">
+                {advice.biggest_opportunity.reason}. {advice.biggest_opportunity.exploitation_plan}
+              </p>
             </div>
-            <div className="fc-action">
-              <div className="fc-action-label">Strategic Lever</div>
-              {f.strategic_action}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* STRATEGY BLOCK */}
-      <section className="strategy-block a" style={{ animationDelay: '0.7s' }}>
-        <div className="sb-eyebrow">Recommended Competitive Architecture</div>
-        <div className="sb-badge">{advice.recommended_strategy}</div>
-        <h3 className="sb-title">Primary Strategic Path</h3>
-        <p className="sb-body">{advice.strategy_rationale}</p>
-        <div className="sb-grid">
-          <div>
-            <div className="sb-col-label">Leverage Point</div>
-            <div className="sb-col-val">{advice.biggest_opportunity.force_name}</div>
-            <div className="sb-col-body">{advice.biggest_opportunity.reason}</div>
-          </div>
-          <div>
-            <div className="sb-col-label">Execution Risk</div>
-            <div className="sb-col-val">Potential Pitfall</div>
-            <div className="sb-col-body">{advice.biggest_pitfall.mistake}</div>
           </div>
         </div>
       </section>
 
-      {/* CMO EXPERT NOTE */}
-      <section className="cmo-wrap a" style={{ animationDelay: '0.8s' }}>
+      {/* CMO EXPERT NOTE — Layout ảnh 2 (4 cards with markers) */}
+      <section className="cmo-section a" style={{ animationDelay: '0.8s' }}>
         <div className="cmo-header">
           <div className="cmo-label">Lời khuyên chiến lược từ CMO</div>
           <div className="cmo-sig">Expert Verdict</div>
         </div>
 
         <div className="cmo-grid">
-          <div className="cmo-card priority">
-            <div className="cmo-num">01</div>
-            <div className="cmo-title">Critical Must-Do</div>
-            <p className="cmo-body">{advice.critical_must_do.factor}. {advice.critical_must_do.why_leverage}</p>
-            <span className="cmo-tag" style={{ background: 'var(--f3)', color: 'white' }}>High Impact</span>
+          <div className="cmo-card cmo-card--must">
+            <div className="cmo-num">I.</div>
+            <div className="cmo-title">Điều quan trọng nhất phải làm đúng</div>
+            <p className="cmo-body">
+              {advice.critical_must_do.factor}. {advice.critical_must_do.why_leverage}
+            </p>
+            <div className="cmo-tag-wrap">
+              <span className="cmo-tag">Làm ngay · Không thương lượng</span>
+            </div>
           </div>
-          <div className="cmo-card risk">
-            <div className="cmo-num">02</div>
-            <div className="cmo-title">Highest Threat: {advice.biggest_threat.force_name}</div>
-            <p className="cmo-body">{advice.biggest_threat.reason}. {advice.biggest_threat.consequence}</p>
-            <span className="cmo-tag" style={{ background: 'rgba(138, 26, 26, 0.1)', color: 'var(--f1)' }}>Urgent Defense</span>
-          </div>
-        </div>
 
-        <div className="cmo-grid">
-          <div className="cmo-card opp">
-            <div className="cmo-num">03</div>
-            <div className="cmo-title">Untapped Opportunity</div>
-            <p className="cmo-body">{advice.untapped_opportunity.gap}. {advice.untapped_opportunity.how_to_capture}</p>
-            <span className="cmo-tag" style={{ background: 'rgba(193, 127, 42, 0.1)', color: 'var(--f4)' }}>Growth Potential</span>
+          <div className="cmo-card cmo-card--pitfall">
+            <div className="cmo-num">II.</div>
+            <div className="cmo-title">Cạm bẫy lớn nhất cần tránh</div>
+            <p className="cmo-body">
+              {advice.biggest_pitfall.mistake}. {advice.biggest_pitfall.example_consequence}
+            </p>
+            <div className="cmo-tag-wrap">
+              <span className="cmo-tag">Tuyệt đối tránh</span>
+            </div>
           </div>
-          <div className="cmo-card">
-            <div className="cmo-num">04</div>
-            <div className="cmo-title">Strategic Defensive</div>
-            <p className="cmo-body">{advice.biggest_threat.defensive_action}</p>
+
+          <div className="cmo-card cmo-card--opp">
+            <div className="cmo-num">III.</div>
+            <div className="cmo-title">Cơ hội đang bị bỏ ngỏ</div>
+            <p className="cmo-body">
+              {advice.untapped_opportunity.gap}. {advice.untapped_opportunity.how_to_capture}
+            </p>
+            <div className="cmo-tag-wrap">
+              <span className="cmo-tag">Cơ hội chiến lược dài hạn</span>
+            </div>
+          </div>
+
+          <div className="cmo-card cmo-card--priority">
+            <div className="cmo-num">IV.</div>
+            <div className="cmo-title">Nếu chỉ được làm 1 điều trong 30 ngày</div>
+            <p className="cmo-body">
+              {advice.action_plan.month_1[0] || 'Tập trung triển khai các hành động ưu tiên giai đoạn 1.'}
+            </p>
+            <div className="cmo-tag-wrap">
+              <span className="cmo-tag">Ưu tiên số 1</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ACTION TABLE */}
-      <div className="sh a" style={{ animationDelay: '0.9s' }}>
-        <div className="sh-dot" style={{ background: 'var(--ink)' }}></div>
-        <div className="sh-title">Implementation Roadmap (90 Days)</div>
-      </div>
-
-      <div className="action-strip a" style={{ animationDelay: '0.95s' }}>
+      {/* ACTION ROADMAP — khung kem + header chấm cam (đồng bộ mock 30·60·90) */}
+      <div className="action-roadmap-box a" style={{ animationDelay: '0.9s' }}>
+        <header className="action-roadmap-head">
+          <div className="action-roadmap-head-inner">
+            <span className="action-roadmap-dot" aria-hidden />
+            <h2 className="action-roadmap-title">Ưu tiên hành động — 30 · 60 · 90 ngày</h2>
+          </div>
+        </header>
         <div className="action-head">
-          <div className="ah-col">Month 01: Defense</div>
-          <div className="ah-col">Month 02: Attack</div>
-          <div className="ah-col">Month 03: Optimize</div>
+          <div className="ah-col">Tháng 1 — Phòng thủ & nền tảng</div>
+          <div className="ah-col">Tháng 2 — Tấn công & khác biệt hóa</div>
+          <div className="ah-col">Tháng 3 — Tối ưu & đánh giá</div>
         </div>
         <div className="action-rows">
           <div className="ar-col">
             {advice.action_plan.month_1.map((task, idx) => (
               <div className="ar-item" key={idx}>
-                <div className="ar-dot dot-r"></div>
-                <div>{task}</div>
+                <span className="ar-dot dot-r" aria-hidden />
+                <ActionRoadmapTaskLine task={task} />
               </div>
             ))}
+            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[0]}</p>
           </div>
           <div className="ar-col">
             {advice.action_plan.month_2.map((task, idx) => (
               <div className="ar-item" key={idx}>
-                <div className="ar-dot dot-w"></div>
-                <div>{task}</div>
+                <span className="ar-dot dot-o" aria-hidden />
+                <ActionRoadmapTaskLine task={task} />
               </div>
             ))}
+            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[1]}</p>
           </div>
           <div className="ar-col">
             {advice.action_plan.month_3.map((task, idx) => (
               <div className="ar-item" key={idx}>
-                <div className="ar-dot dot-g"></div>
-                <div>{task}</div>
+                <span className="ar-dot dot-g" aria-hidden />
+                <ActionRoadmapTaskLine task={task} />
               </div>
             ))}
+            <p className="ar-note">{PORTER_ROADMAP_COLUMN_NOTES[2]}</p>
           </div>
         </div>
       </div>
