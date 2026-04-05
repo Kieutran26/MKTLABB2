@@ -11,7 +11,9 @@ import {
   MessageSquare, 
   TrendingUp, 
   Pencil, 
-  Diamond 
+  Diamond,
+  Save,
+  Check
 } from 'lucide-react';
 import { generateOptimkiAnalysis } from '../services/geminiService';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
@@ -19,6 +21,7 @@ import FeatureHeader from './FeatureHeader';
 import { 
   WS_PRIMARY_CTA, 
   WS_SEGMENT_SHELL, 
+  WS_SAVE_ICON_BTN,
   wsHistoryToggleClass, 
   wsWorkspaceTabClass 
 } from './workspace-toolbar-classes';
@@ -29,6 +32,7 @@ import { StpOptimizerField } from './stp-optimizer-field';
 import { EditorialOptimkiReport } from './EditorialOptimkiReport';
 import BrandSelector from './BrandSelector';
 import BrandVaultUpsellCard from './BrandVaultUpsellCard';
+import { StrategicModelService, SavedStrategicModel } from '../services/strategicModelService';
 
 const FORM_GROUPS = [
   { id: 1, title: 'CĂN BẢN', subtitle: 'Thông tin thương hiệu' },
@@ -107,6 +111,9 @@ const OptimkiBuilder: React.FC = () => {
   const [currentGroup, setCurrentGroup] = useState(1);
   const [showHistory, setShowHistory] = useState(false);
   const [isModelSelected, setIsModelSelected] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isPromax = tier === 'promax';
   const selectedModel = watch('mo_hinh');
@@ -176,11 +183,42 @@ const OptimkiBuilder: React.FC = () => {
     }
   };
 
+  const handleSave = async () => {
+    if (!result) return;
+    setIsSaving(true);
+    try {
+      const modelToSave: SavedStrategicModel = {
+        id: crypto.randomUUID(),
+        name: `${result.brand_name} - ${result.model_type}`,
+        brandId: currentBrand?.id || 'manual',
+        productInfo: watch('mo_ta'),
+        results: { [result.model_type]: result as any },
+        createdAt: Date.now()
+      };
+      
+      const success = await StrategicModelService.saveStrategicModel(modelToSave);
+      if (success) {
+        setIsSaved(true);
+        if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+        savedTimerRef.current = setTimeout(() => setIsSaved(false), 2500);
+        toast.success('Đã lưu bản phân tích vào lịch sử.');
+      } else {
+        toast.error('Lưu thất bại.');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Có lỗi xảy ra khi lưu.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleReset = () => {
     reset(OPTIMKI_DEFAULTS);
     setResult(null);
     setCurrentGroup(1);
     setIsModelSelected(false);
+    setIsSaved(false);
   };
 
   const inputClass = "w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 focus:ring-1 focus:ring-stone-400/20";
@@ -225,7 +263,39 @@ const OptimkiBuilder: React.FC = () => {
 
       <div className="min-w-0 flex-1 w-full overflow-y-auto">
         {result ? (
-          <EditorialOptimkiReport result={result} />
+          <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
+            <div className="flex p-4 shrink-0 justify-end z-10">
+                <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 backdrop-blur-sm transition-all duration-300 shadow-sm ${
+                        isSaved
+                            ? 'border-emerald-300/80 bg-emerald-50/80'
+                            : 'border-stone-200 bg-white/80 hover:border-stone-300 hover:bg-white'
+                    }`}
+                >
+                    {isSaving ? (
+                        <Loader2 size={17} className="animate-spin text-stone-400" />
+                    ) : (
+                        <span className="relative inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center">
+                            <span className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+                                <Check size={17} strokeWidth={1.15} className="text-emerald-500" />
+                            </span>
+                            <span className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
+                                <Save size={17} strokeWidth={1.15} className="text-stone-500" />
+                            </span>
+                        </span>
+                    )}
+                    <span className={`text-[13px] font-extralight tracking-wide transition-colors duration-300 ${isSaved ? 'text-emerald-600' : 'text-stone-600'}`}>
+                        {isSaved ? 'Đã lưu' : 'Lưu'}
+                    </span>
+                </button>
+            </div>
+            <div className="flex-1 min-h-0 -mt-14 overflow-y-auto">
+              <EditorialOptimkiReport result={result} />
+            </div>
+          </div>
         ) : isGenerating ? (
           <div className="flex h-full flex-col items-center justify-center p-12 text-center space-y-6">
             <div className="relative w-20 h-20">
