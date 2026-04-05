@@ -1,0 +1,1142 @@
+/**
+ * PESTEL báo cáo — Editorial Minimalism.
+ * Toàn bộ rule nằm dưới .pestel-report để khớp HTML từ AI + tránh ảnh hưởng app.
+ * Gồm class MỚI (ki-strip, factor…) và class CŨ từ geminiService (pestel-summary, pf-tree…).
+ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+
+.pestel-report {
+  --ink: #0f0f0d;
+  --ink-2: #3a3935;
+  --ink-3: #8a887f;
+  --ink-4: #b8b6ae;
+  --paper: #faf9f6;
+  --paper-2: #f2f0eb;
+  --paper-3: #e8e5de;
+  --p-color: #1a3a5c;
+  --e-color: #1a5c3a;
+  --s-color: #c17f2a;
+  --t-color: #5c1a5c;
+  --env-color: #2a7f3a;
+  --l-color: #8a1a1a;
+  --rule: rgba(15, 15, 13, 0.1);
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+
+  /* Full-bleed giống STP Optimizer: không max-width hẹp, padding ngang rộng */
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  /* Tách phần đầu báo cáo khỏi đường viền dưới FeatureHeader */
+  padding-top: 1.75rem;
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  padding-left: calc(1.25rem + env(safe-area-inset-left, 0px));
+  padding-right: calc(1.25rem + env(safe-area-inset-right, 0px));
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) {
+  .pestel-report {
+    padding-top: 2rem;
+    padding-left: calc(2rem + env(safe-area-inset-left, 0px));
+    padding-right: calc(2rem + env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .pestel-report {
+    padding-top: 2.5rem;
+    padding-left: calc(50px + env(safe-area-inset-left, 0px));
+    padding-right: calc(50px + env(safe-area-inset-right, 0px));
+  }
+}
+
+.pestel-report * {
+  box-sizing: border-box;
+}
+
+@keyframes pestel-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pestel-report .a {
+  animation: pestel-fade-up 0.45s ease both;
+}
+
+.pestel-report .page {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+/* —— Header (mới + tương thích doc-*) —— */
+.pestel-report .doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 2rem;
+}
+
+.pestel-report .eyebrow,
+.pestel-report .doc-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.pestel-report .doc-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+.pestel-report .doc-title em {
+  font-style: italic;
+  color: var(--e-color);
+}
+
+.pestel-report .doc-tags,
+.pestel-report .doc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-end;
+}
+
+.pestel-report .tag,
+.pestel-report .doc-date,
+.pestel-report .doc-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.pestel-report .doc-date {
+  background: var(--paper-3);
+  color: var(--ink-2);
+}
+
+.pestel-report .doc-tag {
+  background: rgba(26, 92, 58, 0.12);
+  color: var(--e-color);
+}
+
+/* —— Key insights (mới: ki-*) —— */
+.pestel-report .ki-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  background: #ffffff;
+}
+
+.pestel-report .ki-col {
+  padding: 1.1rem;
+  border-right: 1px solid var(--rule);
+  background: #ffffff;
+}
+
+.pestel-report .ki-col:last-child {
+  border-right: none;
+}
+
+.pestel-report .ki-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--paper-3);
+  line-height: 1;
+  margin-bottom: 0.375rem;
+}
+
+.pestel-report .ki-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.pestel-report .ki-text {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.65;
+}
+
+/* —— Legacy: pestel-summary / ps-* (prompt AI) —— */
+.pestel-report .pestel-summary {
+  margin-bottom: 2rem;
+  background: #ffffff;
+  padding: 1.25rem 1.35rem 1.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.pestel-report .pestel-summary > .ps-label {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .ps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.pestel-report .ps-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem;
+  border-right: 1px solid var(--rule);
+  background: #ffffff;
+}
+
+.pestel-report .ps-item:last-child {
+  border-right: none;
+}
+
+.pestel-report .ps-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--paper-3);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pestel-report .ps-text {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.65;
+}
+
+/* —— Factor cards (Editorial — mẫu Phân tích 6 yếu tố) —— */
+.pestel-report .pestel-factors-intro {
+  margin-bottom: 1.25rem;
+}
+
+.pestel-report .pestel-factors-intro .sh {
+  margin-bottom: 0;
+}
+
+.pestel-report .factor {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(15, 15, 13, 0.04);
+}
+
+.pestel-report .factor-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--rule);
+  background: #ffffff;
+}
+
+.pestel-report .factor-letter {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  width: 34px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pestel-report .factor-name {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+}
+
+.pestel-report .factor-name span {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+
+.pestel-report .factor-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.pestel-report .impact-badge {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-family: var(--sans);
+}
+
+.pestel-report .timeline-badge {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  color: var(--ink-3);
+  background: #ffffff;
+  font-weight: 500;
+}
+
+.pestel-report .factor-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0;
+  background: #ffffff;
+}
+
+.pestel-report .fb-col {
+  padding: 1rem 1.05rem;
+  border-right: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.65;
+  font-family: var(--serif);
+}
+
+.pestel-report .fb-col:last-child {
+  border-right: none;
+}
+
+.pestel-report .fb-label {
+  font-family: var(--sans);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+}
+
+.pestel-report .opp-tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.pestel-report .action-item {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+  align-items: baseline;
+}
+
+.pestel-report .action-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  flex-shrink: 0;
+  position: relative;
+  top: 5px;
+}
+
+/* —— Legacy: pestel-factor-card / pf-tree —— */
+.pestel-report .pestel-factor-card {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.pestel-report .pf-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.875rem 1.1rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+.pestel-report .pf-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.pestel-report .pf-title {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.pestel-report .pf-tree {
+  padding: 0;
+}
+
+.pestel-report .tree-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 12px;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+
+.pestel-report .tree-item:last-child {
+  border-bottom: none;
+}
+
+.pestel-report .tree-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.pestel-report .tree-content {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.65;
+}
+
+.pestel-report .tree-content.font-bold {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pestel-report .tag.positive {
+  background: rgba(26, 92, 58, 0.1);
+  color: var(--e-color);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.pestel-report .tag.negative {
+  background: rgba(138, 26, 26, 0.1);
+  color: var(--l-color);
+}
+
+.pestel-report .tag.neutral {
+  background: rgba(193, 127, 42, 0.1);
+  color: var(--s-color);
+}
+
+.pestel-report .score {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-left: 8px;
+}
+
+.pestel-report .timeline-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 0.5px solid var(--rule);
+  color: var(--ink-3);
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.pestel-report .timeline-tag.short {
+  border-color: rgba(138, 26, 26, 0.35);
+  color: var(--l-color);
+}
+
+.pestel-report .timeline-tag.mid {
+  border-color: rgba(193, 127, 42, 0.4);
+  color: var(--s-color);
+}
+
+.pestel-report .timeline-tag.long {
+  border-color: rgba(26, 92, 58, 0.35);
+  color: var(--e-color);
+}
+
+/* Section head */
+.pestel-report .sh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .sh-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pestel-report .sh-title {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* Tiêu đề mục 6 yếu tố (chấm tròn + navy) */
+.pestel-report .pestel-factors-intro .sh-title {
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  color: var(--p-color);
+  font-family: var(--sans);
+}
+
+/* —— OPP / RISK (layout mới + ma trận v2 cũ) —— */
+.pestel-report .or-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 2rem;
+}
+
+.pestel-report .or-card {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 1.1rem;
+}
+
+.pestel-report .or-card.opp {
+  border-left: 3px solid var(--e-color);
+}
+
+.pestel-report .or-card.risk {
+  border-left: 3px solid var(--l-color);
+}
+
+.pestel-report .pestel-matrix-v2 {
+  margin: 2rem 0;
+}
+
+.pestel-report .pestel-matrix-v2 > .ps-label {
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--rule);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.pestel-report .pestel-matrix-v2 .or-grid {
+  align-items: stretch;
+}
+
+.pestel-report .pestel-matrix-v2 .or-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.pestel-report .or-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.pestel-report .or-label.ops {
+  color: var(--e-color);
+}
+
+.pestel-report .or-label.risks {
+  color: var(--l-color);
+}
+
+.pestel-report .or-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.pestel-report .pestel-matrix-v2 .or-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .pestel-matrix-v2 .or-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pestel-report .or-num {
+  font-family: var(--serif);
+  font-size: 13px;
+  margin-bottom: 0.375rem;
+}
+
+.pestel-report .or-num.g {
+  color: var(--e-color);
+}
+
+.pestel-report .or-num.r {
+  color: var(--l-color);
+}
+
+.pestel-report .or-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: var(--ink);
+}
+
+.pestel-report .or-title.g {
+  color: var(--e-color);
+}
+
+.pestel-report .or-title.r {
+  color: var(--l-color);
+}
+
+.pestel-report .or-body {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.7;
+  margin-bottom: 0.5rem;
+}
+
+.pestel-report .or-origin {
+  font-size: 10px;
+  color: var(--ink-3);
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.pestel-report .or-action {
+  font-size: 11px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.pestel-report .or-action-label {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 2px;
+}
+
+/* —— Matrix table —— */
+.pestel-report .pestel-matrix {
+  margin: 2rem 0;
+}
+
+.pestel-report .section-head {
+  margin-bottom: 1rem;
+}
+
+.pestel-report .section-title {
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-2);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.pestel-report .matrix-table th {
+  background: var(--paper-2);
+  padding: 0.625rem 1rem;
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .matrix-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-2);
+}
+
+.pestel-report .matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.pestel-report .prio-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.pestel-report .prio-tag.high {
+  background: var(--l-color);
+  color: #fff;
+}
+
+.pestel-report .prio-tag.med {
+  background: var(--s-color);
+  color: #fff;
+}
+
+.pestel-report .prio-tag.low {
+  background: var(--e-color);
+  color: #fff;
+}
+
+/* —— Matrix grid (layout HTML mới) —— */
+.pestel-report .matrix-wrap {
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.pestel-report .matrix-head {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .mh-col {
+  padding: 0.625rem 1rem;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  border-right: 1px solid var(--rule);
+}
+
+.pestel-report .mh-col:last-child {
+  border-right: none;
+}
+
+.pestel-report .matrix-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pestel-report .matrix-row:last-child {
+  border-bottom: none;
+}
+
+.pestel-report .mr-col {
+  padding: 0.75rem 1rem;
+  font-size: 12px;
+  color: var(--ink-2);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+}
+
+.pestel-report .mr-col:last-child {
+  border-right: none;
+}
+
+.pestel-report .mr-factor {
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.pestel-report .mr-desc {
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-top: 1px;
+}
+
+.pestel-report .level-badge {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-family: var(--sans);
+}
+
+.pestel-report .lh {
+  background: rgba(138, 26, 26, 0.1);
+  color: var(--l-color);
+}
+
+.pestel-report .lm {
+  background: rgba(193, 127, 42, 0.1);
+  color: var(--s-color);
+}
+
+.pestel-report .ll {
+  background: rgba(26, 92, 58, 0.1);
+  color: var(--e-color);
+}
+
+.pestel-report .pri-now {
+  background: var(--l-color);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.pestel-report .pri-soon {
+  background: var(--s-color);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.pestel-report .pri-later {
+  background: var(--e-color);
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+/* —— CMO: hộp tối (prompt cũ) + layout sáng (HTML mới) —— */
+.pestel-report .cmo-advice-box {
+  border-top: 2px solid var(--ink);
+  padding-top: 2rem;
+  margin-top: 2rem;
+  background: var(--paper);
+  border-radius: 0;
+}
+
+.pestel-report .cmo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+}
+
+.pestel-report .cmo-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.pestel-report .cmo-sig {
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.pestel-report .cmo-content {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.pestel-report .advice-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.pestel-report .advice-num {
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--ink-4);
+  flex-shrink: 0;
+}
+
+.pestel-report .advice-text {
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+
+.pestel-report .advice-text strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.pestel-report .cmo-wrap {
+  border-top: 2px solid var(--ink);
+  padding-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.pestel-report .cmo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+}
+
+.pestel-report .cmo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.pestel-report .cmo-num {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--ink-4);
+  margin-bottom: 0.375rem;
+}
+
+.pestel-report .cmo-title {
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 0.375rem;
+}
+
+.pestel-report .cmo-body {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
+
+.pestel-report .cmo-quote {
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.55;
+  font-style: italic;
+  padding: 1.1rem 1.5rem;
+  background: var(--paper-2);
+  border-radius: 3px;
+  border-left: 2px solid var(--ink);
+}
+
+/* —— Unknowns —— */
+.pestel-report .unknown-block {
+  border-top: 1px dashed var(--rule);
+  padding-top: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.pestel-report .unknowns-box {
+  border-top: 1px dashed var(--rule);
+  padding-top: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.pestel-report .unk-label,
+.pestel-report .uk-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.pestel-report .unk-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pestel-report .unk-item {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.6;
+  align-items: baseline;
+}
+
+.pestel-report .unk-dash {
+  flex-shrink: 0;
+  color: var(--ink-4);
+}
+
+.pestel-report .uk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pestel-report .uk-item {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+.pestel-report .uk-dash {
+  color: var(--ink-4);
+  flex-shrink: 0;
+}
+
+/* —— Footer bar —— */
+.pestel-report .footer-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.pestel-report .fb-c {
+  padding: 0.875rem 1.25rem;
+  border-right: 1px solid var(--ink);
+  text-align: center;
+}
+
+.pestel-report .fb-c:last-child {
+  border-right: none;
+}
+
+.pestel-report .fb-val {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--ink);
+  display: block;
+}
+
+.pestel-report .fb-lbl {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 3px;
+}
+
+@media (max-width: 768px) {
+  .pestel-report .factor-head {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: start;
+  }
+
+  .pestel-report .factor-badges {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .pestel-report .ki-strip,
+  .pestel-report .ps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pestel-report .ki-col,
+  .pestel-report .ps-item {
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .pestel-report .ki-col:last-child,
+  .pestel-report .ps-item:last-child {
+    border-bottom: none;
+  }
+
+  .pestel-report .factor-body {
+    grid-template-columns: 1fr;
+  }
+
+  .pestel-report .fb-col {
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .pestel-report .fb-col:last-child {
+    border-bottom: none;
+  }
+
+  .pestel-report .or-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pestel-report .cmo-content,
+  .pestel-report .cmo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pestel-report .matrix-head,
+  .pestel-report .matrix-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pestel-report .mh-col:nth-child(n + 3),
+  .pestel-report .mr-col:nth-child(n + 3) {
+    display: none;
+  }
+
+  .pestel-report .unk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pestel-report .footer-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pestel-report .doc-header {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .pestel-report .doc-meta,
+  .pestel-report .doc-tags {
+    align-items: flex-start;
+  }
+}

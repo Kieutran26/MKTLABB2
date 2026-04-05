@@ -1,0 +1,413 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --p-color:#1a3a5c;--e-color:#1a5c3a;--s-color:#c17f2a;
+  --t-color:#5c1a5c;--env-color:#2a7f3a;--l-color:#8a1a1a;
+  --rule:rgba(15,15,13,0.1);
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink)}
+.page{max-width:960px;margin:0 auto;padding:2rem 2rem 4rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeUp .45s ease both;opacity:0;animation-fill-mode:both}
+
+/* HEADER */
+.doc-header{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:1.75rem;border-bottom:1px solid var(--rule);margin-bottom:2rem}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.doc-title{font-family:var(--serif);font-size:28px;line-height:1.2;font-weight:400}
+.doc-title em{font-style:italic;color:var(--e-color)}
+.doc-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.tag{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em}
+
+/* KEY INSIGHTS STRIP */
+.ki-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.ki-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.ki-col:last-child{border-right:none}
+.ki-num{font-family:var(--serif);font-size:28px;color:var(--paper-3);line-height:1;margin-bottom:.375rem}
+.ki-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.25rem}
+.ki-text{font-size:12px;color:var(--ink-2);line-height:1.65}
+
+/* PESTEL FACTOR */
+.factor{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.factor-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:.875rem 1.1rem;border-bottom:1px solid var(--rule)}
+.factor-letter{font-family:var(--serif);font-size:22px;font-weight:400;line-height:1;width:28px}
+.factor-name{font-size:12px;font-weight:500;color:var(--ink)}
+.factor-name span{font-size:11px;font-weight:400;color:var(--ink-3);margin-left:6px}
+.factor-badges{display:flex;gap:6px;align-items:center}
+.impact-badge{font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500}
+.timeline-badge{font-size:10px;padding:2px 8px;border-radius:2px;border:0.5px solid var(--rule);color:var(--ink-3)}
+.factor-body{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0}
+.fb-col{padding:.875rem 1rem;border-right:1px solid var(--rule);font-size:12px;color:var(--ink-2);line-height:1.65}
+.fb-col:last-child{border-right:none}
+.fb-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.375rem}
+.opp-tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:2px;margin-bottom:.25rem;font-weight:500}
+.action-item{display:flex;gap:6px;margin-bottom:4px;align-items:baseline}
+.action-dot{width:3px;height:3px;border-radius:50%;background:var(--ink-3);flex-shrink:0;position:relative;top:5px}
+
+/* SEC HEAD */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
+
+/* OPP / RISK GRID */
+.or-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2rem}
+.or-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem}
+.or-card.opp{border-left:3px solid var(--e-color)}
+.or-card.risk{border-left:3px solid var(--l-color)}
+.or-num{font-family:var(--serif);font-size:13px;margin-bottom:.375rem}
+.or-num.g{color:var(--e-color)}.or-num.r{color:var(--l-color)}
+.or-title{font-size:12px;font-weight:500;margin-bottom:.375rem}
+.or-title.g{color:var(--e-color)}.or-title.r{color:var(--l-color)}
+.or-body{font-size:12px;color:var(--ink-2);line-height:1.7;margin-bottom:.5rem}
+.or-action{font-size:11px;color:var(--ink-3);line-height:1.6;padding-top:.5rem;border-top:1px solid var(--rule)}
+.or-action-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:2px}
+
+/* IMPACT MATRIX */
+.matrix-wrap{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:2rem}
+.matrix-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.mh-col{padding:.625rem 1rem;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;border-right:1px solid var(--rule)}
+.mh-col:last-child{border-right:none}
+.matrix-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;border-bottom:1px solid var(--rule)}
+.matrix-row:last-child{border-bottom:none}
+.mr-col{padding:.75rem 1rem;font-size:12px;color:var(--ink-2);border-right:1px solid var(--rule);display:flex;align-items:center}
+.mr-col:last-child{border-right:none}
+.mr-factor{font-weight:500;color:var(--ink);font-size:12px}
+.mr-desc{font-size:11px;color:var(--ink-3);margin-top:1px}
+.level-badge{font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500}
+.lh{background:rgba(138,26,26,.1);color:var(--l-color)}
+.lm{background:rgba(193,127,42,.1);color:var(--s-color)}
+.ll{background:rgba(26,92,58,.1);color:var(--e-color)}
+.pri-now{background:var(--l-color);color:#fff;font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500}
+.pri-soon{background:var(--s-color);color:#fff;font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500}
+.pri-later{background:var(--e-color);color:#fff;font-size:10px;padding:2px 8px;border-radius:2px;font-weight:500}
+
+/* CMO */
+.cmo-wrap{border-top:2px solid var(--ink);padding-top:2rem;margin-bottom:2rem}
+.cmo-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
+.cmo-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cmo-sig{font-family:var(--serif);font-size:14px;color:var(--ink-3);font-style:italic}
+.cmo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.25rem}
+.cmo-item{}
+.cmo-num{font-family:var(--serif);font-size:13px;color:var(--ink-4);margin-bottom:.375rem}
+.cmo-title{font-size:11px;font-weight:500;margin-bottom:.375rem}
+.cmo-body{font-size:12px;color:var(--ink-2);line-height:1.75}
+.cmo-quote{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.55;font-style:italic;padding:1.1rem 1.5rem;background:var(--paper-2);border-radius:3px;border-left:2px solid var(--ink)}
+
+/* UNKNOWN */
+.unknown-block{border-top:1px dashed var(--rule);padding-top:1.25rem;margin-top:1.5rem}
+.unk-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:500;margin-bottom:.75rem}
+.unk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.unk-item{display:flex;gap:8px;font-size:12px;color:var(--ink-3);line-height:1.6;align-items:baseline}
+.unk-dash{flex-shrink:0;color:var(--ink-4)}
+
+/* FOOTER */
+.footer-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-c{padding:.875rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-c:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:18px;color:var(--ink);display:block}
+.fb-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+</style>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="doc-header a">
+    <div>
+      <div class="eyebrow">PESTEL Builder · Macro Environment Scan</div>
+      <div class="doc-title">F&B × <em>TP.HCM</em></div>
+    </div>
+    <div class="doc-tags">
+      <span class="tag" style="background:var(--e-color);color:#fff">F&B / Nhà hàng</span>
+      <span class="tag" style="background:var(--p-color);color:#fff">SME</span>
+      <span class="tag" style="background:var(--paper-3);color:var(--ink-2)">Q2 · 2026</span>
+    </div>
+  </div>
+
+  <!-- KEY INSIGHTS -->
+  <div class="ki-strip a" style="animation-delay:.06s">
+    <div class="ki-col">
+      <div class="ki-num">01</div>
+      <div class="ki-label">Cơ hội lớn nhất</div>
+      <div class="ki-text">Tự gia tăng niềm tin và giá trị với người dùng, đồng thời áp dụng lối sống và sản phẩm bền vững để thu hút khách hàng hiện đại</div>
+    </div>
+    <div class="ki-col">
+      <div class="ki-num">02</div>
+      <div class="ki-label">Rủi ro cần theo dõi</div>
+      <div class="ki-text">Cạnh tranh gay gắt từ các sàn thương mại điện tử và chi phí marketing cao đòi hỏi chiến lược tối ưu hóa chi phí và tập trung vào khách hàng trung thành</div>
+    </div>
+    <div class="ki-col">
+      <div class="ki-num">03</div>
+      <div class="ki-label">Hành động ưu tiên</div>
+      <div class="ki-text">Các chính sách hỗ trợ chuyển đổi số cho SME đang tạo cơ hội tốt — cần nắm bắt ngay để tối ưu vận hành và xây dựng lợi thế cạnh tranh bền vững</div>
+    </div>
+  </div>
+
+  <!-- PESTEL FACTORS -->
+  <div class="a" style="animation-delay:.1s;margin-bottom:.75rem">
+    <div class="sh"><div class="sh-dot" style="background:var(--p-color)"></div><span class="sh-title">Phân tích 6 yếu tố PESTEL</span></div>
+  </div>
+
+  <!-- P -->
+  <div class="factor a" style="animation-delay:.12s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--p-color)">P</div>
+      <div class="factor-name">Political <span>Chính trị & Chính sách</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(26,58,92,.1);color:var(--p-color)">Tác động 7/10</span>
+        <span class="timeline-badge">Ngắn hạn 0–6 tháng</span>
+        <span class="level-badge lh">Ưu tiên CAO</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Chính phủ Việt Nam đẩy mạnh chuyển đổi số, các chính sách hỗ trợ TMĐT, kiểm soát hàng giả, vùng nhậu, thúc đẩy vệ sinh an toàn thực phẩm đều đang hoạt động.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Hỗ trợ các doanh nghiệp F&B thân thiện cho SME. Tăng niềm tin người dùng cao tác động TMĐT, ẩm thực sạch tốt — cạnh tranh không lành mạnh về giá sẽ bị siết.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · Cao</span></div>Chính sách ưu đãi SME + số hóa tạo lợi thế cho những doanh nghiệp chủ động hành động sớm.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(138,26,26,.1);color:var(--l-color)">Rủi ro · TB</span></div>Quy định an toàn thực phẩm ngày càng chặt hơn cần đầu tư tuân thủ.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Chủ động tìm hiểu và tận dụng các gói hỗ trợ chuyển đổi số cho SME tại TP.HCM</div><div class="action-item"><div class="action-dot"></div>Đảm bảo tuân thủ quy định vệ sinh ATTP — coi đây là lợi thế marketing, không chỉ là nghĩa vụ</div></div>
+    </div>
+  </div>
+
+  <!-- E -->
+  <div class="factor a" style="animation-delay:.14s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--e-color)">E</div>
+      <div class="factor-name">Economic <span>Kinh tế vĩ mô</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(26,92,58,.1);color:var(--e-color)">Tác động 8/10</span>
+        <span class="timeline-badge">Ngắn – Trung hạn</span>
+        <span class="level-badge lh">Ưu tiên CAO</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Kinh tế TP.HCM tăng trưởng ổn định, song lạm phát, chi phí thuê mặt bằng và nguyên vật liệu đầu vào vẫn là áp lực lớn với ngành F&B. Thu nhập bình quân đầu người tăng, nhu cầu ăn uống chất lượng cao đi kèm.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Chi phí vận hành tăng gây áp lực biên lợi nhuận. Tuy nhiên sức mua của tầng lớp trung lưu đô thị đang tăng — cơ hội cho F&B cao cấp hơn và trải nghiệm độc đáo.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · TB</span></div>Tầng lớp trung lưu tăng tạo nhu cầu ăn uống chất lượng cao hơn.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(138,26,26,.1);color:var(--l-color)">Rủi ro · Cao</span></div>Chi phí mặt bằng + nhân sự + nguyên liệu tăng đồng thời — bẫy chi phí nguy hiểm.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Tối ưu hóa chuỗi cung ứng và đàm phán với nhà cung cấp để kiểm soát chi phí</div><div class="action-item"><div class="action-dot"></div>Tập trung vào giá trị cảm nhận cao để bảo vệ biên lợi nhuận thay vì cạnh tranh giá</div></div>
+    </div>
+  </div>
+
+  <!-- S -->
+  <div class="factor a" style="animation-delay:.16s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--s-color)">S</div>
+      <div class="factor-name">Social <span>Xã hội & Văn hóa</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(193,127,42,.1);color:var(--s-color)">Tác động 9/10</span>
+        <span class="timeline-badge">Đang diễn ra</span>
+        <span class="level-badge lh">Ưu tiên CAO</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Tăng độ trưởng hóa, mối quan hệ xã hội online đã trở nên phổ biến. Nhu cầu về sản phẩm đặc trưng, thực phẩm sạch, ăn uống có câu chuyện, xu hướng healthy đang bùng nổ tại TP.HCM.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Đây là thời điểm chín muồi kinh doanh ẩm thực cao cấp, tập trung vào các sản phẩm có câu chuyện và giá trị văn hóa. Nội dung UGC và review trên mạng xã hội ảnh hưởng lớn đến quyết định chọn nhà hàng.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · Rất cao</span></div>Xu hướng "ăn có ý nghĩa" và trải nghiệm ẩm thực độc đáo đang nở rộ.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(193,127,42,.1);color:var(--s-color)">Rủi ro · TB</span></div>Thị hiếu thay đổi nhanh — cần liên tục cập nhật menu và trải nghiệm.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Đầu tư mạnh vào storytelling — nguồn gốc, quy trình sản xuất, giá trị văn hóa đằng sau sản phẩm</div><div class="action-item"><div class="action-dot"></div>Xây dựng chiến lược UGC và review — khuyến khích khách hàng chia sẻ trải nghiệm thật</div></div>
+    </div>
+  </div>
+
+  <!-- T -->
+  <div class="factor a" style="animation-delay:.18s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--t-color)">T</div>
+      <div class="factor-name">Technological <span>Công nghệ</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(92,26,92,.1);color:var(--t-color)">Tác động 8/10</span>
+        <span class="timeline-badge">Ngắn hạn</span>
+        <span class="level-badge lm">Ưu tiên TB–CAO</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Các nền tảng đặt đồ ăn trực tuyến (GrabFood, ShopeeFood, Be) đang thống trị kênh phân phối. AI/ML hỗ trợ cá nhân hóa đề xuất món ăn và tối ưu hóa vận hành bếp đang được áp dụng.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Cơ hội mở rộng tệp khách hàng mới qua app, cải thiện trải nghiệm và tối ưu inventory. Tuy nhiên phụ thuộc vào platform có thể bị mất margin và data khách hàng.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · Cao</span></div>Ứng dụng AI/ML để cá nhân hóa trải nghiệm và tối ưu vận hành bếp hiệu quả.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(138,26,26,.1);color:var(--l-color)">Rủi ro · TB</span></div>Phụ thuộc platform mất chủ động về data và mối quan hệ khách hàng.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Sử dụng đa nền tảng nhưng song song xây kênh trực tiếp (website, app riêng, loyalty program)</div><div class="action-item"><div class="action-dot"></div>Tích hợp POS thông minh để thu thập data khách hàng và tối ưu menu theo thời gian thực</div></div>
+    </div>
+  </div>
+
+  <!-- ENV -->
+  <div class="factor a" style="animation-delay:.20s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--env-color)">E</div>
+      <div class="factor-name">Environmental <span>Môi trường & ESG</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(42,127,58,.1);color:var(--env-color)">Tác động 5/10</span>
+        <span class="timeline-badge">Trung – Dài hạn</span>
+        <span class="level-badge lm">Ưu tiên TB</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Người tiêu dùng trẻ TP.HCM ngày càng quan tâm đến môi trường. Sử dụng bao bì tái chế, sản phẩm hữu cơ, giảm rác thải nhựa đang trở thành tiêu chí lựa chọn thương hiệu F&B.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Áp lực chuyển đổi sang vận hành xanh có chi phí đầu tư ban đầu cao. Tuy nhiên đây là cơ hội xây dựng brand story mạnh và tạo loyalty với nhóm khách hàng Gen Z và Millennial.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · TB</span></div>Định vị "F&B xanh" trở thành lợi thế khác biệt khi đối thủ chưa hành động mạnh.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(193,127,42,.1);color:var(--s-color)">Rủi ro · Thấp</span></div>Chi phí chuyển đổi cao nếu không có kế hoạch từng bước rõ ràng.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Bắt đầu từ bao bì — thay thế nhựa bằng vật liệu tái sử dụng và truyền thông rõ ràng về điều này</div><div class="action-item"><div class="action-dot"></div>Đánh giá và lên kế hoạch chuyển đổi ESG từng bước — không cần làm tất cả ngay</div></div>
+    </div>
+  </div>
+
+  <!-- L -->
+  <div class="factor a" style="animation-delay:.22s">
+    <div class="factor-head">
+      <div class="factor-letter" style="color:var(--l-color)">L</div>
+      <div class="factor-name">Legal <span>Pháp lý & Tuân thủ</span></div>
+      <div class="factor-badges">
+        <span class="impact-badge" style="background:rgba(138,26,26,.1);color:var(--l-color)">Tác động 7/10</span>
+        <span class="timeline-badge">Ngắn hạn — Ngay</span>
+        <span class="level-badge lh">Ưu tiên CAO</span>
+      </div>
+    </div>
+    <div class="factor-body">
+      <div class="fb-col"><div class="fb-label">Hiện trạng</div>Các bộ luật về quản lý TMĐT, bảo vệ người tiêu dùng, giao dịch điện tử và vệ sinh ATTP đang được siết chặt. Chính sách kiểm soát giá, marketing ảo đang được chú ý nhiều hơn tại TP.HCM.</div>
+      <div class="fb-col"><div class="fb-label">Tác động</div>Buộc doanh nghiệp phải minh bạch hơn về thông tin sản phẩm và chính sách hoàn trả. Các chiến dịch marketing "thổi phồng" có nguy cơ bị phạt và mất uy tín — cơ hội cho doanh nghiệp trung thực.</div>
+      <div class="fb-col"><div class="fb-label">Phân loại</div><div><span class="opp-tag" style="background:rgba(26,92,58,.1);color:var(--e-color)">Cơ hội · TB</span></div>Doanh nghiệp tuân thủ tốt sẽ được tin tưởng hơn khi thị trường bị siết.<div style="margin-top:6px"><span class="opp-tag" style="background:rgba(138,26,26,.1);color:var(--l-color)">Rủi ro · Cao</span></div>Vi phạm quy định ATTP hoặc quảng cáo gây hậu quả nghiêm trọng về uy tín.</div>
+      <div class="fb-col"><div class="fb-label">Hành động</div><div class="action-item"><div class="action-dot"></div>Rà soát toàn bộ tài liệu quảng cáo, chính sách bán hàng và đảm bảo tuân thủ quy định hiện hành</div><div class="action-item"><div class="action-dot"></div>Đảm bảo công khai thông tin sản phẩm minh bạch, rõ ràng và đầy đủ trên mọi kênh</div></div>
+    </div>
+  </div>
+
+  <!-- TOP 3 OPP + RISK -->
+  <div style="margin-top:2rem" class="a" style="animation-delay:.26s">
+    <div class="sh"><div class="sh-dot" style="background:var(--e-color)"></div><span class="sh-title">Top 3 Cơ hội lớn nhất & Top 3 Rủi ro nguy hiểm nhất</span></div>
+  </div>
+  <div class="or-grid a" style="animation-delay:.28s">
+    <div class="or-card opp">
+      <div class="or-num g">Cơ hội 1</div>
+      <div class="or-title g">Storytelling & Nguồn gốc sản phẩm</div>
+      <div class="or-body">Xu hướng "ăn có ý nghĩa" đang bùng nổ — khách hàng TP.HCM sẵn sàng trả thêm 20–30% cho F&B có câu chuyện thực và nguồn gốc rõ ràng. Đây là khoảng trắng lớn nhất thị trường hiện tại.</div>
+      <div class="or-action"><div class="or-action-label">Hành động trong 90 ngày</div>Xây dựng brand story xuyên suốt từ farm/nguồn nguyên liệu đến bàn ăn. Triển khai content series trên social media.</div>
+    </div>
+    <div class="or-card risk">
+      <div class="or-num r">Rủi ro 1</div>
+      <div class="or-title r">Bẫy chi phí đồng thời</div>
+      <div class="or-body">Mặt bằng + nhân sự + nguyên liệu đồng loạt tăng trong khi khách hàng vẫn kỳ vọng giá ổn định. Biên lợi nhuận F&B TP.HCM đang bị co hẹp nghiêm trọng với nhiều doanh nghiệp.</div>
+      <div class="or-action"><div class="or-action-label">Kế hoạch phòng thủ</div>Tối ưu hóa menu (giảm SKU, tăng margin/món), đàm phán lại hợp đồng thuê, xây kênh online để giảm chi phí mặt bằng.</div>
+    </div>
+    <div class="or-card opp">
+      <div class="or-num g">Cơ hội 2</div>
+      <div class="or-title g">Chính sách hỗ trợ SME chuyển đổi số</div>
+      <div class="or-body">Các gói hỗ trợ SME từ Sở Công Thương TP.HCM và chương trình chuyển đổi số quốc gia đang tạo cơ hội tiếp cận công nghệ với chi phí thấp hơn nhiều so với tự đầu tư.</div>
+      <div class="or-action"><div class="or-action-label">Hành động trong 90 ngày</div>Tìm hiểu và đăng ký các chương trình hỗ trợ từ Sở Công Thương, VCCI, và các quỹ hỗ trợ SME hiện có.</div>
+    </div>
+    <div class="or-card risk">
+      <div class="or-num r">Rủi ro 2</div>
+      <div class="or-title r">Phụ thuộc platform giao đồ ăn</div>
+      <div class="or-body">GrabFood/ShopeeFood chiếm 25–35% doanh thu nhưng lấy commission 25–30% và sở hữu toàn bộ data khách hàng. Doanh nghiệp bị "giam cầm" trong hệ sinh thái platform.</div>
+      <div class="or-action"><div class="or-action-label">Kế hoạch phòng thủ</div>Xây dựng kênh trực tiếp song song (website, Zalo OA, loyalty app) để thu thập data và giảm phụ thuộc platform trong 12 tháng.</div>
+    </div>
+    <div class="or-card opp">
+      <div class="or-num g">Cơ hội 3</div>
+      <div class="or-title g">Định vị F&B xanh — khoảng trắng</div>
+      <div class="or-body">Ít doanh nghiệp F&B SME tại TP.HCM đang làm ESG một cách bài bản. Đây là cơ hội định vị sớm trước khi xu hướng trở thành tiêu chuẩn thị trường trong 2–3 năm tới.</div>
+      <div class="or-action"><div class="or-action-label">Hành động trong 90 ngày</div>Bắt đầu từ bao bì tái chế + công khai nguồn nguyên liệu — chi phí thấp nhưng impact brand cao.</div>
+    </div>
+    <div class="or-card risk">
+      <div class="or-num r">Rủi ro 3</div>
+      <div class="or-title r">Vi phạm pháp lý ATTP hoặc quảng cáo</div>
+      <div class="or-body">Quy định ngày càng chặt, một vụ vi phạm ATTP hoặc quảng cáo sai sự thật có thể xóa sổ uy tín thương hiệu trong 24–48 giờ qua mạng xã hội — đặc biệt nguy hiểm với F&B.</div>
+      <div class="or-action"><div class="or-action-label">Kế hoạch phòng thủ</div>Audit toàn bộ quy trình bếp và marketing content. Xây dựng crisis communication plan trước khi cần dùng đến.</div>
+    </div>
+  </div>
+
+  <!-- IMPACT MATRIX -->
+  <div style="margin-top:2rem" class="a" style="animation-delay:.32s">
+    <div class="sh"><div class="sh-dot" style="background:var(--ink)"></div><span class="sh-title">Ma trận ưu tiên chiến lược</span></div>
+  </div>
+  <div class="matrix-wrap a" style="animation-delay:.34s">
+    <div class="matrix-head">
+      <div class="mh-col">Yếu tố</div>
+      <div class="mh-col">Cơ hội</div>
+      <div class="mh-col">Rủi ro</div>
+      <div class="mh-col">Timeline</div>
+      <div class="mh-col">Ưu tiên</div>
+    </div>
+    <div class="matrix-row" style="background:rgba(26,58,92,.02)">
+      <div class="mr-col"><div><div class="mr-factor">Political</div><div class="mr-desc">Chính sách SME, TMĐT, ATTP</div></div></div>
+      <div class="mr-col"><span class="level-badge ll">Cao</span></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">0–6 tháng</div>
+      <div class="mr-col"><span class="pri-now">Ngay</span></div>
+    </div>
+    <div class="matrix-row">
+      <div class="mr-col"><div><div class="mr-factor">Economic</div><div class="mr-desc">Chi phí, sức mua, tầng lớp trung lưu</div></div></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col"><span class="level-badge lh">Cao</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">Đang diễn ra</div>
+      <div class="mr-col"><span class="pri-now">Ngay</span></div>
+    </div>
+    <div class="matrix-row" style="background:rgba(193,127,42,.02)">
+      <div class="mr-col"><div><div class="mr-factor">Social</div><div class="mr-desc">Xu hướng healthy, storytelling, UGC</div></div></div>
+      <div class="mr-col"><span class="level-badge ll">Rất cao</span></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">Đang diễn ra</div>
+      <div class="mr-col"><span class="pri-now">Ngay</span></div>
+    </div>
+    <div class="matrix-row">
+      <div class="mr-col"><div><div class="mr-factor">Technological</div><div class="mr-desc">Platform, AI, POS thông minh</div></div></div>
+      <div class="mr-col"><span class="level-badge ll">Cao</span></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">0–12 tháng</div>
+      <div class="mr-col"><span class="pri-soon">6 tháng</span></div>
+    </div>
+    <div class="matrix-row" style="background:rgba(42,127,58,.02)">
+      <div class="mr-col"><div><div class="mr-factor">Environmental</div><div class="mr-desc">ESG, bao bì xanh, tiêu dùng bền vững</div></div></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col"><span class="level-badge ll">Thấp</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">12–24 tháng</div>
+      <div class="mr-col"><span class="pri-later">Dài hạn</span></div>
+    </div>
+    <div class="matrix-row">
+      <div class="mr-col"><div><div class="mr-factor">Legal</div><div class="mr-desc">Luật TMĐT, ATTP, quảng cáo</div></div></div>
+      <div class="mr-col"><span class="level-badge lm">Trung bình</span></div>
+      <div class="mr-col"><span class="level-badge lh">Cao</span></div>
+      <div class="mr-col" style="font-size:11px;color:var(--ink-3)">Ngay — 0–3 tháng</div>
+      <div class="mr-col"><span class="pri-now">Ngay</span></div>
+    </div>
+  </div>
+
+  <!-- CMO NOTE -->
+  <div class="cmo-wrap a" style="animation-delay:.38s">
+    <div class="cmo-header">
+      <span class="cmo-label">Lời khuyên từ Giám đốc Marketing (CMO)</span>
+      <span class="cmo-sig">Strategic Advisory · F&B TP.HCM</span>
+    </div>
+    <div class="cmo-grid">
+      <div class="cmo-item">
+        <div class="cmo-num">I.</div>
+        <div class="cmo-title" style="color:var(--e-color)">Nắt thắt cần giải</div>
+        <div class="cmo-body">Quản lý chi phí và cạnh tranh từ nền tảng giao đồ ăn là 2 nút thắt lớn nhất. Tập trung vào chiến lược khách hàng trung thành và xây kênh trực tiếp song song với platform để thoát khỏi vòng kim cô commission cao.</div>
+      </div>
+      <div class="cmo-item">
+        <div class="cmo-num">II.</div>
+        <div class="cmo-title" style="color:var(--s-color)">Lợi thế vô hình</div>
+        <div class="cmo-body">Xu hướng trải nghiệm ăn uống "có ý nghĩa" và "nguồn gốc rõ ràng" là thị trường ngách đang nổi lên với ít cạnh tranh. Câu chuyện thương hiệu thật sự, xuất phát từ giá trị cốt lõi của người sáng lập, là thứ platform nào cũng không thể copy.</div>
+      </div>
+      <div class="cmo-item">
+        <div class="cmo-num">III.</div>
+        <div class="cmo-title" style="color:var(--l-color)">Phòng ngừa rủi ro</div>
+        <div class="cmo-body">Một vụ vi phạm ATTP hay quảng cáo sai sự thật có thể xóa sổ thương hiệu trong 48 giờ trên mạng xã hội. Đầu tư vào tuân thủ pháp lý không phải chi phí — đó là bảo hiểm thương hiệu. Xây crisis plan trước khi cần dùng đến.</div>
+      </div>
+    </div>
+    <div class="cmo-quote">"Môi trường vĩ mô hiện tại là hỗn hợp thuận lợi — thách thức cho ngành F&B tại TP.HCM: nhiều cơ hội định vị mạnh qua storytelling và chuyển đổi số, nhưng bẫy chi phí và phụ thuộc platform là 2 rủi ro cần kiểm soát ngay từ bây giờ."</div>
+
+    <!-- UNKNOWN -->
+    <div class="unknown-block">
+      <div class="unk-label">Những gì AI không đủ dữ liệu để kết luận chắc chắn</div>
+      <div class="unk-grid">
+        <div class="unk-item"><span class="unk-dash">—</span>Số liệu tăng trưởng F&B TP.HCM chính xác Q2/2026: cần xác nhận từ báo cáo Hiệp hội F&B Việt Nam</div>
+        <div class="unk-item"><span class="unk-dash">—</span>Chính sách thuế mới với ngành dịch vụ ăn uống: cần theo dõi từ Bộ Tài chính và Tổng cục Thuế</div>
+        <div class="unk-item"><span class="unk-dash">—</span>Tỷ lệ commission thực tế từ GrabFood/ShopeeFood: thay đổi theo hợp đồng — cần xác nhận trực tiếp</div>
+        <div class="unk-item"><span class="unk-dash">—</span>Mức độ adoption ESG trong F&B SME TP.HCM: cần nghiên cứu thực địa từ VCCI hoặc khảo sát ngành</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-bar a" style="animation-delay:.42s">
+    <div class="fb-c"><span class="fb-val">6</span><div class="fb-lbl">Yếu tố phân tích</div></div>
+    <div class="fb-c"><span class="fb-val">3 · 3</span><div class="fb-lbl">Cơ hội · Rủi ro ưu tiên</div></div>
+    <div class="fb-c"><span class="fb-val">4</span><div class="fb-lbl">Ưu tiên làm ngay</div></div>
+    <div class="fb-c"><span class="fb-val">9.1</span><div class="fb-lbl">Điểm output</div></div>
+  </div>
+
+</div>

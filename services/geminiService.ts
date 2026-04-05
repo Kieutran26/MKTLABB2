@@ -3401,46 +3401,50 @@ Bạn phải sử dụng chính xác các class và cấu trúc HTML sau để t
     </div>
 </div>
 
-3. CHI TIẾT 6 YẾU TỐ (Tree-structure):
-Mỗi yếu tố trong 6 yếu tố (Political, Economic, Social, Technological, Environmental, Legal) phải có cấu trúc:
-<div class="pestel-factor-card">
-    <div class="pf-header">
-        <div class="pf-icon">[Sử dụng emoji phù hợp hoặc icon name]</div>
-        <div class="pf-title">[Tên yếu tố - Tiếng Việt]</div>
+2b. TIÊU ĐỀ MỤC — NGAY SAU pestel-summary (trước 6 thẻ factor đầu tiên), chèn đúng một khối:
+<div class='pestel-factors-intro'><div class='sh'><div class='sh-dot' style='background:var(--p-color)'></div><span class='sh-title'>Phân tích 6 yếu tố PESTEL</span></div></div>
+
+3. CHI TIẾT 6 YẾU TỐ — BẮT BUỘC dùng layout Editorial (ảnh mẫu): thẻ factor + factor-head + factor-body. TUYỆT ĐỐI KHÔNG dùng pestel-factor-card, pf-header, pf-icon, pf-tree, tree-item.
+
+Thứ tự 6 yếu tố và chữ cái trong factor-letter (Environmental vẫn dùng chữ E, phân biệt bằng màu var(--env-color)):
+1) Political — P — Tiêu đề: Political <span>Chính trị & Chính sách</span> (hoặc mô tả tương đương ngắn)
+2) Economic — E — Economic <span>Kinh tế vĩ mô</span>
+3) Social — S — Social <span>Xã hội & Văn hóa</span>
+4) Technological — T — Technological <span>Công nghệ & Số hóa</span>
+5) Environmental — E — Environmental <span>Môi trường & ESG</span> (màu var(--env-color), không nhầm với Economic)
+6) Legal — L — Legal <span>Pháp lý & Tuân thủ</span>
+
+Mỗi yếu tố là một thẻ (sao chép cấu trúc, đổi nội dung và màu inline cho đúng hàng):
+
+<div class='factor' data-pestel='Political'>
+  <div class='factor-head'>
+    <div class='factor-letter' style='color:var(--p-color)'>P</div>
+    <div class='factor-name'>Political <span>Chính trị & Chính sách</span></div>
+    <div class='factor-badges'>
+      <span class='impact-badge' style='background:rgba(26,58,92,.1);color:var(--p-color)'>Tác động [X]/10</span>
+      <span class='timeline-badge'>[Khung thời gian, VD: Ngắn hạn 0–6 tháng]</span>
+      <span class='level-badge lh'>Ưu tiên CAO</span>
     </div>
-    <div class="pf-tree">
-        <div class="tree-item">
-            <div class="tree-label">Hiện trạng</div>
-            <div class="tree-content">[Dữ liệu thực tế và các văn bản pháp luật/số liệu cụ thể]</div>
-        </div>
-        <div class="tree-item">
-            <div class="tree-label">Tác động</div>
-            <div class="tree-content">[Phân tích ảnh hưởng trực tiếp đến doanh nghiệp]</div>
-        </div>
-        <div class="tree-item">
-            <div class="tree-label">Phân loại</div>
-            <div class="tree-content">
-                <span class="tag [positive/negative/neutral]">[Tên loại]</span>
-                <span class="score">Impact: [X]/10</span>
-            </div>
-        </div>
-        <div class="tree-item">
-            <div class="tree-label">Hành động</div>
-            <div class="tree-content font-bold">[Đề xuất cụ thể cho CEO/Founder]</div>
-        </div>
-        <div class="tree-item">
-            <div class="tree-label">Timeline</div>
-            <div class="tree-content">
-                <span class="timeline-tag [short/mid/long]">[Ngắn hạn (0-6 tháng) / Trung hạn (6-18 tháng) / Dài hạn (18+ tháng)]</span>
-                [Ghi rõ yếu tố này ảnh hưởng trong khung thời gian nào để doanh nghiệp ưu tiên đúng]
-            </div>
-        </div>
-    </div>
+  </div>
+  <div class='factor-body'>
+    <div class='fb-col'><div class='fb-label'>Hiện trạng</div>[Nội dung]</div>
+    <div class='fb-col'><div class='fb-label'>Tác động</div>[Nội dung]</div>
+    <div class='fb-col'><div class='fb-label'>Phân loại</div>[opp-tag / mô tả cơ hội & rủi ro]</div>
+    <div class='fb-col'><div class='fb-label'>Hành động</div><div class='action-item'><div class='action-dot'></div>[Gợi ý 1]</div><div class='action-item'><div class='action-dot'></div>[Gợi ý 2]</div></div>
+  </div>
 </div>
 
-*Lưu ý: Mọi thẻ HTML (class, style...) đều dùng dấu nháy đơn ' (ví dụ: <div class='tree-item'>) để không xung đột với gạch kép " của JSON.*
+Bảng màu inline (factor-letter + impact-badge — áp dụng cho đúng yếu tố):
+• Political: color var(--p-color); impact-badge background rgba(26,58,92,.1)
+• Economic: var(--e-color); rgba(26,92,58,.1)
+• Social: var(--s-color); rgba(193,127,42,.1)
+• Technological: var(--t-color); rgba(92,26,92,.1)
+• Environmental: var(--env-color); rgba(42,127,58,.1)
+• Legal: var(--l-color); rgba(138,26,26,.1)
 
-</div>
+Ưu tiên (level-badge): CAO → class thêm lh; TRUNG BÌNH → lm; THẤP → ll (VD: <span class='level-badge lm'>Ưu tiên TB</span>).
+
+*Lưu ý: Mọi thẻ HTML (class, style...) trong html_report đều dùng dấu nháy đơn ' để không xung đột JSON. Không emoji trong tiêu đề factor.*
 
 4. HIỆN THỰC HÓA CHIẾN LƯỢC (Top 3 Ops & Risks):
 <div class="pestel-matrix-v2">
@@ -3539,6 +3543,7 @@ Mỗi yếu tố trong 6 yếu tố (Political, Economic, Social, Technological,
 QUAN TRỌNG — JSON HỢP LỆ (DÀNH CHO CEO):
 • Toàn bộ phản hồi là MỘT object JSON duy nhất, không markdown, không text thừa.
 • Trong html_report MỌI thuộc tính HTML đều PHẢI dùng dấu nháy đơn ' (ví dụ: <div class='card'>) thay cho dấu nháy kép.
+• Phần 6 yếu tố PESTEL trong html_report PHẢI dùng class factor / factor-head / factor-body như mục 3 (không dùng pestel-factor-card hay pf-tree).
 • Không bao giờ dùng dấu nháy kép " bên trong chuỗi giá trị JSON trừ khi nó là phân cách key-value của JSON.
 • Không chèn ký tự xuống dòng thô (raw newline) trong chuỗi JSON; dùng \\n nếu cần.
 `;
