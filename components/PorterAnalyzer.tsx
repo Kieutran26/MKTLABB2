@@ -418,20 +418,20 @@ const PorterAnalyzer: React.FC = () => {
                             )}
                         </div>
                     ) : (
-                        <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden p-0 relative`}>
-                            <div className="flex bg-stone-50/50 p-4 shrink-0 border-b border-stone-100 justify-end">
+                        <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative">
+                            <div className="flex p-4 shrink-0 justify-end z-10">
                                 <button
                                     type="button"
                                     onClick={handleSave}
-                                    className="shrink-0 rounded-xl border border-stone-200 bg-white p-2.5 transition-all hover:bg-stone-50 hover:border-stone-300"
+                                    className="shrink-0 rounded-xl border border-stone-200 bg-white/80 backdrop-blur-sm p-2.5 transition-all hover:bg-white hover:border-stone-300 shadow-sm"
                                     aria-label="Lưu kết quả"
                                 >
                                     <Save size={18} className="text-stone-600" />
                                 </button>
                             </div>
-                            <div className="flex-1 min-h-0 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto">
+                            <div className="flex-1 min-h-0 -mt-14 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto">
                                 <EditorialPorterReport 
-                                    data={analysisData} 
+                                    data={analysisData!} 
                                     nganh_hang={currentInput?.nganh_hang}
                                     thi_truong={currentInput?.thi_truong}
                                 />
