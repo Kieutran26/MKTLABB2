@@ -838,7 +838,7 @@ const STPModelGenerator: React.FC = () => {
                     <button
                         type="button"
                         onClick={() => navigate(VIEW_TO_SLUG.STP_MODEL)}
-                        className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.98]"
+                        className="flex h-10 w-[161.648px] shrink-0 items-center justify-center gap-2 rounded-full bg-stone-900 text-sm font-medium text-white shadow-sm transition-all hover:bg-stone-800 active:scale-[0.98]"
                     >
                         <Plus size={18} strokeWidth={2} />
                         Tạo kế hoạch
@@ -933,7 +933,7 @@ const STPModelGenerator: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden">
-                {!stpData && (
+                {!(stpData || isGenerating) && (
                 <div className="order-2 mx-auto h-fit w-full max-w-[1182px]">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                         <div className="ms-editorial-wrapper" style={{ padding: 0 }}>

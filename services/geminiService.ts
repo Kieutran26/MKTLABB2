@@ -3319,20 +3319,32 @@ export const generatePESTELAnalysis = async (
         }
     };
 
-    const currentScale = scaleConfig[input.businessScale] || scaleConfig['SME'];
+    const scaleKey = input.businessScale.includes('Startup') ? 'Startup' : 
+                     input.businessScale.includes('SME') ? 'SME' : 
+                     input.businessScale.includes('Enterprise') || input.businessScale.includes('Tập đoàn') ? 'Enterprise' : 
+                     input.businessScale.includes('Multinational') ? 'Multinational' : 'SME';
+
+    const currentScale = scaleConfig[scaleKey as keyof typeof scaleConfig] || scaleConfig['SME'];
 
     const systemPrompt = `### VAI TRÒ (ROLE)
 Bạn là **Senior Macroeconomist** + **Strategic Risk Analyst** với MINDSET: "NO FLUFF, ONLY ACTIONABLE FACTS".
 Bạn GHÉT những câu như "Chính phủ quan tâm", "Kinh tế phát triển", "Chính trị ổn định" - đây là THÔNG TIN RÁC.
 
 ### MISSION CRITICAL: WHAT MAKES THIS ANALYSIS VALUABLE?
-Giá trị của báo cáo PESTEL nằm ở việc chỉ ra CÁC LUẬT/QUY ĐỊNH CỤ THỂ ảnh hưởng TRỰC TIẾP đến MÔ HÌNH KINH DOANH của doanh nghiệp.
-Không ai cần biết "Chính phủ hỗ trợ doanh nghiệp" - họ cần biết "Nghị định 44/2023/NĐ-CP giảm thuế GTGT xuống 8% đến hết 2024".
+Giá trị của báo cáo PESTEL nằm ở việc chỉ ra CÁC LUẬT/QUY ĐỊNH CỤ THỂ ảnh hưởng TRỰC TIẾP đến MÔ HÌNH KINH DOANH và SẢN PHẨM của doanh nghiệp.
+Bạn phải cá nhân hóa phân tích dựa trên:
+1. Mối lo ngại lớn nhất của họ (AI phải ưu tiên phân tích sâu yếu tố này).
+2. Kế hoạch tương lai (AI phải chỉ ra các rào cản hoặc cơ hộ vĩ mô cho kế hoạch đó).
 
-### DỮ LIỆU ĐẦU VÀO
+### DỮ LIỆU ĐẦU VÀO (CONTEXT)
 - **Ngành hàng**: ${input.industry}
-- **Địa phương**: ${input.location}
+- **Thị trường**: ${input.location}
 - **Quy mô**: ${input.businessScale}
+- **Mô hình kinh doanh**: ${input.businessModel}
+- **Sản phẩm / Dịch vụ chính**: ${input.mainProductService}
+- **Mối lo ngại lớn nhất**: ${input.currentConcern}
+- **Kế hoạch 12-24 tháng tới**: ${input.futurePlan}
+- **Sự kiện / chính sách đã biết**: ${input.knownEventsPolicies || 'Không có'}
 
 ### BUSINESS SCALE: ${input.businessScale.toUpperCase()} - TRỌNG TÂM PHÂN TÍCH
 **Focus chính**: ${currentScale.focus}
@@ -3425,21 +3437,29 @@ Nếu ngành chung chung, hãy tự suy luận các rủi ro PESTEL phổ biến
         onProgress?.('📊 Đang lấy số liệu GSO, NHNN, Bộ Tài chính...');
         await new Promise(r => setTimeout(r, 500));
 
-        onProgress?.('🎯 Đang đánh dấu yếu tố ưu tiên cao...');
+        onProgress?.('🎯 Đang áp dụng context: ' + input.currentConcern.substring(0, 30) + '...');
         await new Promise(r => setTimeout(r, 500));
 
         onProgress?.('⚖️ Đang kiểm chứng tính chính xác...');
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: `Phân tích PESTEL cho ngành "${input.industry}" tại "${input.location}", quy mô "${input.businessScale}".
+            contents: `Phân tích PESTEL cho:
+- Ngành: "${input.industry}"
+- Sản phẩm: "${input.mainProductService}"
+- Mô hình: "${input.businessModel}"
+- Địa điểm: "${input.location}"
+- Quy mô: "${input.businessScale}"
+- Mối lo lớn nhất: "${input.currentConcern}"
+- Kế hoạch: "${input.futurePlan}"
+${input.knownEventsPolicies ? `- Sự kiện đã biết: "${input.knownEventsPolicies}"` : ''}
 
 ÁP DỤNG NGHIÊM NGẶT:
-1. NO FLUFF: Không "Chính phủ hỗ trợ", "Kinh tế phát triển" - CHỈ trích dẫn văn bản cụ thể
-2. HYPER-LOCAL: Ưu tiên văn bản UBND/HĐND ${input.location} bên cạnh luật Trung ương
-3. CITATION FORMAT: [Tên văn bản] + [Số hiệu/Năm] + [Điều khoản]
-4. BUSINESS SCALE ${input.businessScale}: Focus vào ${currentScale.focus}
-5. Đánh dấu is_priority = true cho yếu tố sống còn (impact_score >= 8)`,
+1. PERSONALIZED: Ưu tiên phân tích các rủi ro liên quan đến "${input.currentConcern}" và kế hoạch "${input.futurePlan}".
+2. NO FLUFF: Không "Chính phủ hỗ trợ", "Kinh tế phát triển" - CHỈ trích dẫn văn bản cụ thể.
+3. HYPER-LOCAL: Ưu tiên văn bản UBND/HĐND ${input.location} bên cạnh luật Trung ương.
+4. CITATION FORMAT: [Tên văn bản] + [Số hiệu/Năm] + [Điều khoản].
+5. Đánh dấu is_priority = true cho yếu tố sống còn (impact_score >= 8).`,
             config: {
                 systemInstruction: systemPrompt,
                 responseMimeType: "application/json",

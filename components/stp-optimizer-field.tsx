@@ -1,7 +1,7 @@
 import React from 'react';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 
-export type StpOptimizerBadge = 'required' | 'important';
+export type StpOptimizerBadge = 'required' | 'important' | 'optional';
 
 export type StpOptimizerFieldProps = {
     title: string;
@@ -45,6 +45,11 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
             {badge === 'important' && (
                 <span className="rounded bg-violet-50 px-1.5 py-px text-[8px] font-bold uppercase tracking-wide text-violet-700 ring-1 ring-violet-200/80">
                     Quan trọng
+                </span>
+            )}
+            {badge === 'optional' && (
+                <span className="rounded bg-stone-50 px-1.5 py-px text-[8px] font-semibold uppercase tracking-wide text-stone-500 ring-1 ring-stone-200/80">
+                    Tùy chọn
                 </span>
             )}
             <EditorialFieldHint title="Gợi ý" anchor="label">

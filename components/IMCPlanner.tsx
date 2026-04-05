@@ -556,7 +556,7 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={() => setViewMode('history')}
-                    className={`inline-flex size-10 shrink-0 items-center justify-center rounded-2xl transition-all ${viewMode === 'history'
+                    className={`inline-flex size-10 shrink-0 items-center justify-center rounded-full transition-all ${viewMode === 'history'
                         ? 'bg-stone-900 text-white shadow-md'
                         : 'border border-stone-200 bg-white text-stone-600 shadow-sm hover:bg-stone-50'
                         }`}
@@ -569,7 +569,7 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={handleResetForm}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    className="flex h-10 w-[161.648px] items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
                 >
                     <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                 </button>

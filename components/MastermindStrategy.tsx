@@ -269,14 +269,18 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     <button
                         type="button"
                         onClick={() => setViewMode(viewMode === 'history' ? 'create' : 'history')}
-                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl border transition-all ${viewMode === 'history' ? 'bg-stone-900 text-white shadow-md border-stone-900' : 'border-stone-200 text-stone-600 shadow-sm hover:bg-stone-50'}`}
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-full border transition-all ${viewMode === 'history' ? 'bg-stone-900 text-white shadow-md border-stone-900' : 'border-stone-200 text-stone-600 shadow-sm hover:bg-stone-50'}`}
                         title={`Lịch sử (${availableStrategies.length})`}
                         aria-label={`Lịch sử, ${availableStrategies.length} chiến lược đã lưu`}
                     >
                         <History size={18} strokeWidth={1.5} />
                     </button>
 
-                    <button onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} className="px-6 py-2.5 rounded-2xl bg-stone-950 text-white text-sm font-medium hover:bg-stone-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95">
+                    <button 
+                        type="button"
+                        onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} 
+                        className="flex h-10 w-[161.648px] items-center justify-center gap-2 rounded-full bg-stone-950 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
+                    >
                         <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                     </button>
                 </FeatureHeader>

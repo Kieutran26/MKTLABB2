@@ -1502,7 +1502,12 @@ export interface PESTELFactorGroup {
 export interface PESTELBuilderInput {
   industry: string;
   location: string;
-  businessScale: 'SME' | 'Startup' | 'Enterprise' | 'Multinational';
+  businessScale: string;
+  businessModel: string;
+  mainProductService: string;
+  currentConcern: string;
+  futurePlan: string;
+  knownEventsPolicies?: string;
 }
 
 export interface PESTELBuilderResult {
