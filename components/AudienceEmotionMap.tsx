@@ -15,6 +15,7 @@ import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 
 interface Props {
 }
@@ -151,11 +152,17 @@ const AudienceEmotionMap: React.FC<Props> = () => {
 
                 <div className={`${cardClass} overflow-y-auto p-8 space-y-6`}>
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6">
-                            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                            <h2 className="text-xl font-medium">Emotional Insights Pro</h2>
-                            <p className="text-sm text-stone-500 leading-relaxed">Kết nối cảm xúc khách hàng với thông điệp thương hiệu từ Vault để tạo ra nội dung chạm đến trái tim.</p>
-                            <button className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium flex items-center justify-center gap-2">Upgrade Pro Max <ChevronRight size={18} /></button>
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                            <BrandVaultUpsellCard
+                                title="Emotional Insights Pro"
+                                description="Kết nối cảm xúc khách hàng với thông điệp thương hiệu từ Vault để tạo ra nội dung chạm đến trái tim."
+                                benefits={[
+                                    "Phác họa hành trình cảm xúc khách hàng chuẩn xác",
+                                    "Tự động đề xuất Nội dung công kích Nỗi đau (Pain points)",
+                                    "Khám phá các 'Sự thật ngầm hiểu' (Insights) độc quyền",
+                                    "Xác định thời điểm then chốt để chuyển đổi hành vi"
+                                ]}
+                            />
                         </div>
                     ) : (
                         <>

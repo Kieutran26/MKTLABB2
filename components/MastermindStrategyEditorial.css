@@ -660,6 +660,14 @@
   max-width: 1120px;
 }
 
+/* Một cột: không có vùng khóa / DNA bên phải */
+.ms-vault-card--content-only {
+  grid-template-columns: 1fr;
+}
+.ms-vault-card--content-only .ms-vault-content {
+  border-right: none;
+}
+
 /* ── LEFT: Content ─────────────────────────────────────── */
 .ms-vault-content {
   padding: 2.5rem 3rem;
@@ -862,7 +870,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #faf9f6;
+  background: #fff;
   box-shadow:
     0 2px 10px rgba(0,0,0,0.04),
     0 6px 24px rgba(0,0,0,0.05);
@@ -939,6 +947,23 @@
   right: 16px;
   border-bottom: 1.5px solid var(--ms-ink-4);
   border-right: 1.5px solid var(--ms-ink-4);
+}
+
+@media (max-width: 768px) {
+  .ms-vault-card {
+    grid-template-columns: 1fr;
+  }
+  .ms-vault-content {
+    border-right: none;
+    border-bottom: 1px solid rgba(26, 25, 22, 0.05);
+    padding: 1.75rem 1.5rem;
+  }
+  .ms-vault-card--content-only .ms-vault-content {
+    border-bottom: none;
+  }
+  .ms-vault-visual {
+    min-height: 200px;
+  }
 }
 
 /* ── Pro Max Gate — Lời khuyên section ── */

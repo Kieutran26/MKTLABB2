@@ -13,7 +13,6 @@ import {
     Loader2,
     Sparkles,
     History,
-    ChevronRight,
     Plus,
     Diamond,
     Save,
@@ -39,6 +38,8 @@ import { PESTELService, SavedPESTEL } from '../services/pestelService';
 import { useToast } from './Toast';
 import ProMaxAdviceGate from './ProMaxAdviceGate';
 import { stripPestelCmoAdviceBox } from '../utils/stripPestelCmoAdviceBox';
+import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import './pestel-report-editorial.css';
 
 const PESTEL_ICONS: Record<string, any> = {
@@ -359,30 +360,42 @@ const PESTELBuilder: React.FC = () => {
                         </div>
                     </div>
                 ) : !(pestelData || isGenerating) ? (
-                    <div className={`${cardClass} flex flex-col transition-all duration-500 max-w-[1180px] mx-auto w-full`}>
-                        <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
-                            {FORM_TABS.map((t) => (
-                                <button
-                                    key={t.id}
-                                    type="button"
-                                    onClick={() => setFormTab(t.id)}
-                                    className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-2 py-3 text-center transition-colors ${formTab === t.id ? 'border-b-2 border-stone-900 text-stone-900' : 'border-b-2 border-transparent text-stone-400 hover:text-stone-600'}`}
-                                >
-                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{t.line}</span>
-                                    <span className="hidden text-[9px] font-medium leading-tight text-stone-500 sm:block">{t.sub}</span>
-                                </button>
-                            ))}
+                    activeTab === 'vault' && !isPromax ? (
+                        <div className="mx-auto mt-6 w-full max-w-[1180px] pb-2">
+                            <BrandVaultUpsellCard
+                                description="Quét radar PESTEL chính xác và nhất quán hơn khi AI học DNA thương hiệu từ Vault của bạn."
+                                benefits={[
+                                    'Các trụ P-E-S-T-E-L bám ngành, địa bàn và quy mô đã lưu trong Vault — giảm mơ hồ so với nhập tay rời rạc',
+                                    'AI đọc sứ mệnh, tầm nhìn và USP từ Vault để ưu tiên yếu tố vĩ mô có tác động thật với doanh nghiệp bạn',
+                                    'Tự điền bối cảnh từ thương hiệu — tạo báo cáo PESTEL nhanh, đồng bộ DNA',
+                                    'Kết quả phù hợp chiến lược và thông điệp thương hiệu bạn đang xây',
+                                ]}
+                            />
                         </div>
-
-                        <div className="overflow-y-auto p-5 md:p-6">
-                            {activeTab === 'vault' && !isPromax ? (
-                                <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6 mt-10">
-                                    <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                                    <h2 className="text-xl font-medium">PESTEL Intelligence Pro</h2>
-                                    <p className="text-sm text-stone-500 leading-relaxed">Quét radar kinh tế vĩ mô dựa trên quy mô và ngành hàng trong Vault của bạn.</p>
-                                    <button type="button" className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium flex items-center justify-center gap-2">Get Pro Max Now <ChevronRight size={18} /></button>
+                    ) : (
+                        <div className={`${cardClass} flex flex-col transition-all duration-500 max-w-[1180px] mx-auto w-full`}>
+                            {activeTab === 'vault' && isPromax && (
+                                <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4 shrink-0">
+                                    <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Nguồn Brand Vault</p>
+                                    <BrandSelector />
                                 </div>
-                            ) : (
+                            )}
+
+                            <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
+                                {FORM_TABS.map((t) => (
+                                    <button
+                                        key={t.id}
+                                        type="button"
+                                        onClick={() => setFormTab(t.id)}
+                                        className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-2 py-3 text-center transition-colors ${formTab === t.id ? 'border-b-2 border-stone-900 text-stone-900' : 'border-b-2 border-transparent text-stone-400 hover:text-stone-600'}`}
+                                    >
+                                        <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{t.line}</span>
+                                        <span className="hidden text-[9px] font-medium leading-tight text-stone-500 sm:block">{t.sub}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="overflow-y-auto p-5 md:p-6">
                                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
                                     <div className="space-y-5 px-5 md:px-6 py-5 md:py-6">
                                         <div className="flex items-center justify-between">
@@ -517,9 +530,9 @@ const PESTELBuilder: React.FC = () => {
                                         )}
                                     </div>
                                 </form>
-                            )}
+                            </div>
                         </div>
-                    </div>
+                    )
                 ) : (
                     <div className="flex h-full min-h-0 min-w-0 w-full flex-1 animate-in fade-in slide-in-from-right-4 overflow-y-auto border-0 bg-[#faf9f6] p-0 shadow-none duration-500">
                         {!pestelData ? (

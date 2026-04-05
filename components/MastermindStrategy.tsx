@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map as LucideMap, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
@@ -17,6 +17,7 @@ import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
 import { MastermindStrategy, Persona } from '../types';
 import { Toast, ToastType } from './Toast';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import BrandSelector from './BrandSelector';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { saasService } from '../services/saasService';
@@ -364,53 +365,17 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 )}
                             </div>
                         ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                            <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
-                                <div className="ms-vault-card">
-                                    <div className="ms-vault-content">
-                                        <div className="ms-vault-upper">
-                                            <div className="ms-vault-label">
-                                                <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
-                                                Brand Vault Access
-                                            </div>
-                                            <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
-                                            <p className="ms-vault-desc">
-                                                AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
-                                            </p>
-                                        </div>
-
-                                        <div className="ms-vault-benefits">
-                                            {[
-                                                "Kết nối AI DNA: Đồng bộ Persona & DNA từ Vault",
-                                                "Chiến lược đa kênh: Tối ưu nội dung toàn hệ sinh thái",
-                                                "Insight thị trường: Phân tích đối thủ & xu hướng",
-                                                "Quyền riêng tư: Bảo mật dữ liệu chiến lược tuyệt đối"
-                                            ].map((benefit, bIdx) => (
-                                                <div key={bIdx} className="ms-vault-benefit-item">
-                                                    <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
-                                                    <span>{benefit}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <button className="ms-vault-cta">
-                                            Nâng cấp Pro Max <ChevronRight size={18} />
-                                        </button>
-                                    </div>
-                                    <div className="ms-vault-visual">
-                                        <div className="ms-vault-dna">
-                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
-                                                <div 
-                                                    key={i} 
-                                                    className="ms-vault-dna-bar" 
-                                                    style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
-                                                />
-                                            ))}
-                                        </div>
-                                        <div className="ms-vault-lock-circle">
-                                            <Lock size={32} strokeWidth={1.5} />
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                                <BrandVaultUpsellCard
+                                    title="Strategic Mastermind Pro"
+                                    description="AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content 'Bách phát bách trúng'."
+                                    benefits={[
+                                        "Kết nối AI DNA: Đồng bộ Persona & DNA từ Vault",
+                                        "Chiến lược đa kênh: Tối ưu nội dung toàn hệ sinh thái",
+                                        "Insight thị trường: Phân tích đối thủ & xu hướng",
+                                        "Quyền riêng tư: Bảo mật dữ liệu chiến lược tuyệt đối"
+                                    ]}
+                                />
                             </div>
                         ) : (
                             <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden flex flex-col">
@@ -675,7 +640,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     ) : <div />}
                                     <button 
                                         onClick={step < 3 ? () => setStep(step+1) : handleGenerate} 
-                                        className="px-10 h-10 bg-stone-950 text-white rounded-full font-medium hover:bg-stone-800 transition-all flex items-center gap-2 shadow-lg shadow-stone-200/50"
+                                        className="h-10 bg-stone-950 text-white rounded-full font-medium hover:bg-stone-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-stone-200/50"
+                                        style={step < 3 ? { width: '111.109px' } : { paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                                     >
                                         {isGenerating ? <Loader2 className="animate-spin" size={18} /> : (step < 3 ? 'Kế tiếp' : 'Xây dựng chiến lược')}
                                     </button>

@@ -15,6 +15,7 @@ import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
@@ -137,11 +138,17 @@ const InsightFinder: React.FC = () => {
 
                 <div className={`${cardClass} overflow-y-auto p-8 space-y-6`}>
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6">
-                            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                            <h2 className="text-xl font-medium">Deep Insight Pro</h2>
-                            <p className="text-sm text-stone-500 leading-relaxed">Tìm thấy "điểm chạm tâm lý" đắt giá nhất bằng cách kết nối tệp khách hàng từ Vault với thuật toán Emotional Intelligence.</p>
-                            <button className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium flex items-center justify-center gap-2">Get Pro Max Access <ChevronRight size={18} /></button>
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                            <BrandVaultUpsellCard
+                                title="Deep Insight Pro"
+                                description="Tìm thấy 'điểm chạm tâm lý' đắt giá nhất bằng cách kết nối tệp khách hàng từ Vault với thuật toán Emotional Intelligence."
+                                benefits={[
+                                    "Phân tích tâm lý học chuyên sâu từ DNA thương hiệu",
+                                    "Dự báo hành vi mua hàng dựa trên bối cảnh đã lưu",
+                                    "Khám phá các 'Sự thật ngầm hiểu' (Insights) độc quyền",
+                                    "Tăng tỷ lệ chuyển đổi bằng thông điệp đúng Insight"
+                                ]}
+                            />
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

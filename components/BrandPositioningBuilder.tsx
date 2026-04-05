@@ -14,6 +14,7 @@ import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 
 const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 const inputClass = 'w-full rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-300 focus:outline-none focus:ring-2 focus:ring-stone-200/80';
@@ -125,11 +126,17 @@ const BrandPositioningBuilder: React.FC = () => {
 
                 <div className={`${cardClass} overflow-y-auto p-8 space-y-6`}>
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6">
-                            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                            <h2 className="text-xl font-medium">Positioning Identity Pro</h2>
-                            <p className="text-sm text-stone-500 leading-relaxed">Xác lập định vị độc tôn của thương hiệu dựa trên DNA và cốt lõi doanh nghiệp trong Vault.</p>
-                            <button className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium flex items-center justify-center gap-2">Get Pro Max Access <ChevronRight size={18} /></button>
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                            <BrandVaultUpsellCard
+                                title="Positioning Identity Pro"
+                                description="Xác lập định vị độc tôn của thương hiệu dựa trên DNA và cốt lõi doanh nghiệp trong Vault."
+                                benefits={[
+                                    "Khám phá Archetype (Hình mẫu) thương hiệu chuẩn mực",
+                                    "Xây dựng Positioning Statement (Tuyên ngôn định vị) sắc bén",
+                                    "Thiết lập messaging pillars nhất quán với giá trị cốt lõi",
+                                    "Tự động đồng bộ hóa nhận diện thương hiệu trên mọi điểm chạm"
+                                ]}
+                            />
                         </div>
                     ) : (
                         <div className="space-y-6">

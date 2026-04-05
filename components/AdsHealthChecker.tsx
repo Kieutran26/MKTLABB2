@@ -7,6 +7,7 @@ import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import FeatureHeader from './FeatureHeader';
 import {
     WS_SEGMENT_SHELL,
@@ -172,16 +173,17 @@ const AdsHealthChecker: React.FC<Props> = () => {
             <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: '440px 1fr' }}>
                 <div className="h-full overflow-y-auto border-r border-stone-200/80 bg-white p-6">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6">
-                            <div className="mx-auto w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                            <h2 className="text-xl font-medium text-stone-900">Health Check pro-max</h2>
-                            <p className="text-sm text-stone-500 leading-relaxed">AI sẽ tự động nạp DNA thương hiệu, tệp khách hàng từ Vault để đưa ra phân tích chính xác hơn 100% so với bản Free.</p>
-                            <button className="w-full py-3 bg-stone-900 text-white rounded-xl font-medium shadow-lg hover:scale-105 transition-transform flex items-center justify-center gap-2">Nâng cấp <ChevronRight size={18} /></button>
-                            <div className="pt-4 space-y-3">
-                                {["Tự động nhận diện Benchmark ngành", "Phác đồ điều trị cá nhân hóa", "Lưu trữ không giới hạn", "Export báo cáo PDF Pro"].map((t, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-xs text-stone-600"><Check size={14} className="text-emerald-500" /> {t}</div>
-                                ))}
-                            </div>
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                            <BrandVaultUpsellCard
+                                title="Health Check Pro Max"
+                                description="AI sẽ tự động nạp DNA thương hiệu, tệp khách hàng từ Vault để đưa ra phân tích chính xác hơn 100% so với bản Free."
+                                benefits={[
+                                    "Tự động nhận diện Benchmark ngành thực tế",
+                                    "Phác đồ điều trị chiến dịch cá nhân hóa theo Brand",
+                                    "Lưu trữ lịch sử chẩn đoán không giới hạn",
+                                    "Export báo cáo PDF chuyên nghiệp cho Client"
+                                ]}
+                            />
                         </div>
                     ) : (
                         <div className={`${cardClass} p-6 space-y-6`}>

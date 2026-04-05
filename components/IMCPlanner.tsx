@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X, ShieldCheck } from 'lucide-react';
+import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Diamond, ChevronRight, Zap, Pencil, X, ShieldCheck } from 'lucide-react';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 import { IMCService, IMCInput, PlanningMode, CampaignFocus, CalculatedMetrics, AssetChecklist, BudgetDistribution } from '../services/imcService';
 import { IMCPlan, IMCExecutionPhase } from '../types';
 import { useAuth } from './AuthContext';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
@@ -656,57 +657,16 @@ const IMCPlanner: React.FC = () => {
                             )}
                         </div>
                     ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
-                            <div className="ms-vault-card">
-                                <div className="ms-vault-content">
-                                    <div className="ms-vault-upper">
-                                        <div className="ms-vault-label">
-                                            <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
-                                            Brand Vault Access
-                                        </div>
-                                        <h3 className="ms-vault-title">Tính năng Brand Vault</h3>
-                                        <p className="ms-vault-desc">
-                                            Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn.
-                                        </p>
-                                    </div>
-
-                                    <div className="ms-vault-benefits">
-                                        {[
-                                            "Kết nối đa kênh dự trên giá trị cốt lõi",
-                                            "Phân bổ ngân sách tối ưu theo đặc thù ngành",
-                                            "Tự động viết Key Hook theo Brand Voice",
-                                            "Sẵn sàng hạng mục triển khai cho Team sản xuất"
-                                        ].map((benefit, bIdx) => (
-                                            <div key={bIdx} className="ms-vault-benefit-item">
-                                                <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
-                                                <span>{benefit}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button className="ms-vault-cta">
-                                        Nâng cấp Pro Max <ChevronRight size={18} />
-                                    </button>
-                                </div>
-                                <div className="ms-vault-visual">
-                                    <div className="ms-vault-dna">
-                                        {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
-                                            <div 
-                                                key={i} 
-                                                className="ms-vault-dna-bar" 
-                                                style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
-                                            />
-                                        ))}
-                                    </div>
-                                    <div className="ms-vault-lock-circle">
-                                        <div className="ms-vault-lock-icon">
-                                            <Lock size={32} strokeWidth={1.5} />
-                                        </div>
-                                    </div>
-                                    <div className="ms-vault-corner ms-vault-corner-tl" />
-                                    <div className="ms-vault-corner ms-vault-corner-br" />
-                                </div>
-                            </div>
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                            <BrandVaultUpsellCard
+                                description="Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn."
+                                benefits={[
+                                    "Kết nối đa kênh dựa trên giá trị cốt lõi",
+                                    "Phân bổ ngân sách tối ưu theo đặc thù ngành",
+                                    "Tự động viết Key Hook theo Brand Voice",
+                                    "Sẵn sàng hạng mục triển khai cho Team sản xuất"
+                                ]}
+                            />
                         </div>
                     ) : (
                         <div className="mx-auto w-full max-w-[1182px]">
@@ -1117,7 +1077,8 @@ const IMCPlanner: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={goWizardNext}
-                                                    className="rounded-full bg-stone-950 px-8 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-[0.98]"
+                                                    className="inline-flex items-center justify-center rounded-full bg-stone-950 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-[0.98]"
+                                                    style={{ width: '111.109px' }}
                                                 >
                                                     Kế tiếp
                                                 </button>

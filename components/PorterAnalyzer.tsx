@@ -6,7 +6,6 @@ import {
     History,
     Save,
     Diamond,
-    ChevronRight,
     Pencil,
     Plus,
     Check,
@@ -28,6 +27,7 @@ import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import { StpOptimizerField } from './stp-optimizer-field';
 import EditorialPorterReport from './EditorialPorterReport';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 
 const cardClass =
     'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
@@ -107,6 +107,8 @@ const PorterAnalyzer: React.FC = () => {
     const filledG2 = watchG2.filter(Boolean).length;
     const watchG3 = watch(['muc_tieu', 'ke_hoach']);
     const filledG3 = watchG3.filter(Boolean).length;
+
+    const isPromax = profile?.subscription_tier === 'promax' || tier === 'promax';
 
     useEffect(() => {
         const loadUser = async () => {
@@ -223,7 +225,7 @@ const PorterAnalyzer: React.FC = () => {
                         <Pencil size={14} /> Thủ công
                     </button>
                     <button type="button" onClick={() => setActiveTab('vault')} className={wsWorkspaceTabClass(activeTab === 'vault')}>
-                        <Diamond size={14} className={profile?.subscription_tier === 'promax' ? 'fill-amber-500 text-amber-500' : 'text-stone-400'} />
+                        <Diamond size={14} className={isPromax ? 'fill-amber-500 text-amber-500' : 'text-stone-400'} />
                         Brand Vault
                     </button>
                 </div>
@@ -336,213 +338,214 @@ const PorterAnalyzer: React.FC = () => {
                         </div>
                     </div>
                 ) : !analysisData ? (
-                        <div className={`${cardClass} flex flex-col overflow-hidden`}>
-                            {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                                <div className="space-y-6 p-8 text-center">
-                                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-sm">
-                                        <Diamond size={32} />
+                    activeTab === 'vault' && !isPromax ? (
+                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6">
+                            <BrandVaultUpsellCard
+                                description="Phân tích 5 lực Porter trở nên chính xác và nhất quán hơn khi AI học DNA thương hiệu từ Vault của bạn."
+                                benefits={[
+                                    'Năm lực (đối thủ, khách hàng, thay thế, nhà cung cấp, rào cản) được nhìn qua lăng kính DNA Vault — nhất quán với định vị',
+                                    'Giảm suy đoán: ngữ cảnh chiến lược và Brand Voice đã lưu thay cho mô tả chung chung',
+                                    'Tự điền bối cảnh ngành và USP từ Vault — hoàn thành form Porter nhanh hơn',
+                                    'Phân tích sẵn sàng làm nền cho quyết định cạnh tranh và thông điệp đúng bản sắc',
+                                ]}
+                            />
+                        </div>
+                    ) : (
+                        <div className={`${cardClass} flex flex-col overflow-hidden max-w-[1180px] mx-auto w-full`}>
+                            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+                                {activeTab === 'vault' && isPromax && (
+                                    <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4 shrink-0">
+                                        <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Nguồn Brand Vault</p>
+                                        <BrandSelector />
                                     </div>
-                                    <h2 className="text-xl font-medium">Porter Intensity Pro</h2>
-                                    <p className="text-sm leading-relaxed text-stone-500">
-                                        Phân tích 5 lực bám Brand Vault — nâng cấp Pro Max để đồng bộ DNA thương hiệu.
-                                    </p>
-                                    <button
-                                        type="button"
-                                        className="flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-900 py-4 font-medium text-white"
-                                    >
-                                        Access Pro Max <ChevronRight size={18} />
-                                    </button>
+                                )}
+
+                                <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
+                                    {FORM_TABS.map((t) => (
+                                        <button
+                                            key={t.id}
+                                            type="button"
+                                            onClick={() => setFormTab(t.id)}
+                                            className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-2 py-3 text-center transition-colors ${
+                                                formTab === t.id
+                                                    ? 'border-b-2 border-stone-900 text-stone-900'
+                                                    : 'border-b-2 border-transparent text-stone-400 hover:text-stone-600'
+                                            }`}
+                                        >
+                                            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{t.line}</span>
+                                            <span className="hidden text-[9px] font-medium leading-tight text-stone-500 sm:block">{t.sub}</span>
+                                        </button>
+                                    ))}
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
-                                    {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
-                                        <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4 shrink-0">
-                                            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Nguồn Brand Vault</p>
-                                            <BrandSelector />
+
+                                <div className="p-5 md:p-6">
+                                    {formTab === 1 && (
+                                        <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                                        1
+                                                    </div>
+                                                    <h2 className="text-base font-medium tracking-tight text-stone-900">Bối cảnh ngành &amp; doanh nghiệp</h2>
+                                                </div>
+                                                <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">
+                                                    Đã điền {filledG1}/5 · Bắt buộc 4
+                                                </p>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                                                <StpOptimizerField title="Ngành hàng cụ thể" badge="required">
+                                                    <input {...register('nganh_hang', { required: 'Bắt buộc' })} className={inputClass} placeholder="Ngành / vertical" />
+                                                    {errors.nganh_hang && <p className="mt-1 text-[11px] text-rose-600">{errors.nganh_hang.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Thị trường địa lý" badge="required">
+                                                    <input {...register('thi_truong', { required: 'Bắt buộc' })} className={inputClass} placeholder="Địa bàn / quốc gia" />
+                                                    {errors.thi_truong && <p className="mt-1 text-[11px] text-rose-600">{errors.thi_truong.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Vị thế hiện tại" badge="required">
+                                                    <input {...register('vi_the', { required: 'Bắt buộc' })} className={inputClass} placeholder="Vị thế của bạn" />
+                                                    {errors.vi_the && <p className="mt-1 text-[11px] text-rose-600">{errors.vi_the.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Mô hình kinh doanh" badge="important">
+                                                    <input {...register('mo_hinh')} className={inputClass} placeholder="Mô hình vận hành" />
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Sản phẩm / USP" badge="required" fullWidth>
+                                                    <textarea {...register('san_pham_usp', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Điểm mạnh & khác biệt…" />
+                                                    {errors.san_pham_usp && <p className="mt-1 text-[11px] text-rose-600">{errors.san_pham_usp.message}</p>}
+                                                </StpOptimizerField>
+                                            </div>
                                         </div>
                                     )}
 
-                                    <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
-                                        {FORM_TABS.map((t) => (
-                                            <button
-                                                key={t.id}
-                                                type="button"
-                                                onClick={() => setFormTab(t.id)}
-                                                className={`flex flex-1 flex-col items-center justify-center gap-0.5 px-2 py-3 text-center transition-colors ${
-                                                    formTab === t.id
-                                                        ? 'border-b-2 border-stone-900 text-stone-900'
-                                                        : 'border-b-2 border-transparent text-stone-400 hover:text-stone-600'
-                                                }`}
-                                            >
-                                                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{t.line}</span>
-                                                <span className="hidden text-[9px] font-medium leading-tight text-stone-500 sm:block">{t.sub}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-
-                                    <div className="p-5 md:p-6">
-                                        {formTab === 1 && (
-                                            <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
-                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                            1
-                                                        </div>
-                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Bối cảnh ngành &amp; doanh nghiệp</h2>
+                                    {formTab === 2 && (
+                                        <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                                        2
                                                     </div>
-                                                    <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">
-                                                        Đã điền {filledG1}/5 · Bắt buộc 4
-                                                    </p>
+                                                    <h2 className="text-base font-medium tracking-tight text-stone-900">Dữ liệu 5 lực lượng</h2>
                                                 </div>
-                                                <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-                                                    <StpOptimizerField title="Ngành hàng cụ thể" badge="required">
-                                                        <input {...register('nganh_hang', { required: 'Bắt buộc' })} className={inputClass} placeholder="Ngành / vertical" />
-                                                        {errors.nganh_hang && <p className="mt-1 text-[11px] text-rose-600">{errors.nganh_hang.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Thị trường địa lý" badge="required">
-                                                        <input {...register('thi_truong', { required: 'Bắt buộc' })} className={inputClass} placeholder="Địa bàn / quốc gia" />
-                                                        {errors.thi_truong && <p className="mt-1 text-[11px] text-rose-600">{errors.thi_truong.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Vị thế hiện tại" badge="required">
-                                                        <input {...register('vi_the', { required: 'Bắt buộc' })} className={inputClass} placeholder="Vị thế của bạn" />
-                                                        {errors.vi_the && <p className="mt-1 text-[11px] text-rose-600">{errors.vi_the.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Mô hình kinh doanh" badge="important">
-                                                        <input {...register('mo_hinh')} className={inputClass} placeholder="Mô hình vận hành" />
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Sản phẩm / USP" badge="required" fullWidth>
-                                                        <textarea {...register('san_pham_usp', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Điểm mạnh & khác biệt…" />
-                                                        {errors.san_pham_usp && <p className="mt-1 text-[11px] text-rose-600">{errors.san_pham_usp.message}</p>}
-                                                    </StpOptimizerField>
+                                                <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">
+                                                    Đã điền {filledG2}/5 · Bắt buộc 3
+                                                </p>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                                                <StpOptimizerField title="Đối thủ trực tiếp" badge="required">
+                                                    <textarea {...register('doi_thu', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Liệt kê đối thủ…" />
+                                                    {errors.doi_thu && <p className="mt-1 text-[11px] text-rose-600">{errors.doi_thu.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Nhà cung cấp" badge="important">
+                                                    <textarea {...register('nha_cung_cap')} className={textareaClass} placeholder="Mức độ phụ thuộc…" />
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Khách hàng" badge="required">
+                                                    <textarea {...register('khach_hang', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Hành vi & quyền lực khách hàng…" />
+                                                    {errors.khach_hang && <p className="mt-1 text-[11px] text-rose-600">{errors.khach_hang.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Sản phẩm thay thế" badge="required">
+                                                    <textarea {...register('san_pham_thay_the', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Giải pháp thay thế…" />
+                                                    {errors.san_pham_thay_the && <p className="mt-1 text-[11px] text-rose-600">{errors.san_pham_thay_the.message}</p>}
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Rào cản gia nhập" badge="important" fullWidth>
+                                                    <textarea {...register('rao_can_gia_nhap')} className={textareaClass} placeholder="Khó khăn cho người mới…" />
+                                                </StpOptimizerField>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {formTab === 3 && (
+                                        <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
+                                                        3
+                                                    </div>
+                                                    <h2 className="text-base font-medium tracking-tight text-stone-900">Mục tiêu & Kế hoạch</h2>
                                                 </div>
                                             </div>
-                                        )}
-
-                                        {formTab === 2 && (
-                                            <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
-                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                            2
-                                                        </div>
-                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Dữ liệu 5 lực lượng</h2>
-                                                    </div>
-                                                    <p className="text-[10px] font-medium uppercase tracking-wider text-stone-400 sm:pt-1">
-                                                        Đã điền {filledG2}/5 · Bắt buộc 3
-                                                    </p>
-                                                </div>
-                                                <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-                                                    <StpOptimizerField title="Đối thủ trực tiếp" badge="required">
-                                                        <textarea {...register('doi_thu', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Liệt kê đối thủ…" />
-                                                        {errors.doi_thu && <p className="mt-1 text-[11px] text-rose-600">{errors.doi_thu.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Nhà cung cấp" badge="important">
-                                                        <textarea {...register('nha_cung_cap')} className={textareaClass} placeholder="Mức độ phụ thuộc…" />
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Khách hàng" badge="required">
-                                                        <textarea {...register('khach_hang', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Hành vi & quyền lực khách hàng…" />
-                                                        {errors.khach_hang && <p className="mt-1 text-[11px] text-rose-600">{errors.khach_hang.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Sản phẩm thay thế" badge="required">
-                                                        <textarea {...register('san_pham_thay_the', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Giải pháp thay thế…" />
-                                                        {errors.san_pham_thay_the && <p className="mt-1 text-[11px] text-rose-600">{errors.san_pham_thay_the.message}</p>}
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Rào cản gia nhập" badge="important" fullWidth>
-                                                        <textarea {...register('rao_can_gia_nhap')} className={textareaClass} placeholder="Khó khăn cho người mới…" />
-                                                    </StpOptimizerField>
-                                                </div>
+                                            <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+                                                <StpOptimizerField title="Vấn đề hiện tại" fullWidth>
+                                                    <textarea {...register('muc_tieu')} className={textareaClass} placeholder="Vấn đề cần tập trung…" />
+                                                </StpOptimizerField>
+                                                <StpOptimizerField title="Kế hoạch 12 tháng" badge="required" fullWidth>
+                                                    <textarea {...register('ke_hoach', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Mục tiêu chiến lược…" />
+                                                    {errors.ke_hoach && <p className="mt-1 text-[11px] text-rose-600">{errors.ke_hoach.message}</p>}
+                                                </StpOptimizerField>
                                             </div>
-                                        )}
+                                        </div>
+                                    )}
+                                </div>
 
-                                        {formTab === 3 && (
-                                            <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
-                                                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="flex size-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-sm font-semibold text-stone-900">
-                                                            3
-                                                        </div>
-                                                        <h2 className="text-base font-medium tracking-tight text-stone-900">Mục tiêu & Kế hoạch</h2>
-                                                    </div>
-                                                </div>
-                                                <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
-                                                    <StpOptimizerField title="Vấn đề hiện tại" fullWidth>
-                                                        <textarea {...register('muc_tieu')} className={textareaClass} placeholder="Vấn đề cần tập trung…" />
-                                                    </StpOptimizerField>
-                                                    <StpOptimizerField title="Kế hoạch 12 tháng" badge="required" fullWidth>
-                                                        <textarea {...register('ke_hoach', { required: 'Bắt buộc' })} className={textareaClass} placeholder="Mục tiêu chiến lược…" />
-                                                        {errors.ke_hoach && <p className="mt-1 text-[11px] text-rose-600">{errors.ke_hoach.message}</p>}
-                                                    </StpOptimizerField>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className={`flex shrink-0 border-t border-stone-100 bg-white px-5 py-4 ${formTab === 1 ? 'justify-end' : 'justify-between'}`}>
-                                        {formTab !== 1 && (
-                                            <button type="button" onClick={() => setFormTab((formTab - 1) as any)} className="rounded-full border border-stone-200 px-6 py-2.5 text-sm font-medium text-stone-600">
-                                                Quay lại
-                                            </button>
-                                        )}
-                                        {formTab !== 3 ? (
-                                            <button type="button" onClick={() => setFormTab((formTab + 1) as any)} className="rounded-full bg-stone-950 px-6 py-2.5 text-sm font-medium text-white">
-                                                Kế tiếp
-                                            </button>
-                                        ) : (
-                                            <button type="submit" disabled={isGenerating} className="flex h-10 min-w-[240px] items-center justify-center gap-2 rounded-full bg-stone-950 px-5 text-sm font-medium text-white shadow-md disabled:opacity-50">
-                                                {isGenerating && <Loader2 size={18} className="animate-spin" />}
-                                                Phân tích Porter's Precision
-                                            </button>
-                                        )}
-                                    </div>
-                                </form>
-                            )}
+                                <div className={`flex shrink-0 border-t border-stone-100 bg-white px-5 py-4 ${formTab === 1 ? 'justify-end' : 'justify-between'}`}>
+                                    {formTab !== 1 && (
+                                        <button type="button" onClick={() => setFormTab((formTab - 1) as any)} className="rounded-full border border-stone-200 px-6 py-2.5 text-sm font-medium text-stone-600">
+                                            Quay lại
+                                        </button>
+                                    )}
+                                    {formTab !== 3 ? (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setFormTab((formTab + 1) as any)} 
+                                            className="inline-flex items-center justify-center rounded-full bg-stone-950 py-2.5 text-sm font-medium text-white transition-all hover:bg-stone-800"
+                                            style={{ width: '111.109px' }}
+                                        >
+                                            Kế tiếp
+                                        </button>
+                                    ) : (
+                                        <button type="submit" disabled={isGenerating} className="flex h-10 min-w-[240px] items-center justify-center gap-2 rounded-full bg-stone-950 px-5 text-sm font-medium text-white shadow-md disabled:opacity-50">
+                                            {isGenerating && <Loader2 size={18} className="animate-spin" />}
+                                            Phân tích Porter's Precision
+                                        </button>
+                                    )}
+                                </div>
+                            </form>
                         </div>
-                    ) : (
-                        <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
-                            <div className="flex p-4 shrink-0 justify-end z-10">
-                                <button
-                                    type="button"
-                                    onClick={handleSave}
-                                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 backdrop-blur-sm transition-all duration-300 shadow-sm ${
-                                        isSaved
-                                            ? 'border-emerald-300/80 bg-emerald-50/80'
-                                            : 'border-stone-200 bg-white/80 hover:border-stone-300 hover:bg-white'
-                                    }`}
-                                    aria-label="Lưu kết quả"
+                    )
+                ) : (
+                    <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
+                        <div className="flex p-4 shrink-0 justify-end z-10">
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                className={`flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 backdrop-blur-sm transition-all duration-300 shadow-sm ${
+                                    isSaved
+                                        ? 'border-emerald-300/80 bg-emerald-50/80'
+                                        : 'border-stone-200 bg-white/80 hover:border-stone-300 hover:bg-white'
+                                }`}
+                                aria-label="Lưu kết quả"
+                            >
+                                <span
+                                    className="relative inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center"
+                                    aria-hidden
                                 >
                                     <span
-                                        className="relative inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center"
-                                        aria-hidden
+                                        className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
                                     >
-                                        <span
-                                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
-                                        >
-                                            <Check size={17} strokeWidth={1.15} className="text-emerald-500" />
-                                        </span>
-                                        <span
-                                            className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
-                                        >
-                                            <Save size={17} strokeWidth={1.15} className="text-stone-500" />
-                                        </span>
+                                        <Check size={17} strokeWidth={1.15} className="text-emerald-500" />
                                     </span>
-                                    <span className={`text-[13px] font-extralight tracking-wide transition-colors duration-300 ${isSaved ? 'text-emerald-600' : 'text-stone-600'}`}>
-                                        {isSaved ? 'Đã lưu' : 'Lưu'}
+                                    <span
+                                        className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}
+                                    >
+                                        <Save size={17} strokeWidth={1.15} className="text-stone-500" />
                                     </span>
-                                </button>
-                            </div>
-                            <div className="flex-1 min-h-0 -mt-14 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto">
-                                <EditorialPorterReport
-                                    data={analysisData!}
-                                    nganh_hang={currentInput?.nganh_hang}
-                                    thi_truong={currentInput?.thi_truong}
-                                    subscriptionTier={
-                                        (profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? tier
-                                    }
-                                />
-                            </div>
+                                </span>
+                                <span className={`text-[13px] font-extralight tracking-wide transition-colors duration-300 ${isSaved ? 'text-emerald-600' : 'text-stone-600'}`}>
+                                    {isSaved ? 'Đã lưu' : 'Lưu'}
+                                </span>
+                            </button>
                         </div>
-                    )}
-                </div>
+                        <div className="flex-1 min-h-0 -mt-14 animate-in fade-in zoom-in-95 duration-500 overflow-y-auto">
+                            <EditorialPorterReport
+                                data={analysisData!}
+                                nganh_hang={currentInput?.nganh_hang}
+                                thi_truong={currentInput?.thi_truong}
+                                subscriptionTier={
+                                    (profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? tier
+                                }
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

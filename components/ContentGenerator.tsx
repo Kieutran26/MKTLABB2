@@ -12,6 +12,7 @@ import {
     wsWorkspaceTabClass,
 } from './workspace-toolbar-classes';
 import BrandSelector from './BrandSelector';
+import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import { saasService } from '../services/saasService';
 import { useAuth } from './AuthContext';
 
@@ -126,11 +127,17 @@ const ContentGenerator: React.FC<ContentGeneratorProps> = ({ initialData }) => {
 
           <div className={`${cardClass} overflow-y-auto p-8 space-y-8`}>
               {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                  <div className="p-8 rounded-3xl border border-stone-200 bg-stone-50/50 text-center space-y-6">
-                      <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 shadow-sm"><Diamond size={32} /></div>
-                      <h2 className="text-xl font-medium">Brand-Aware Content</h2>
-                      <p className="text-sm text-stone-500 leading-relaxed">Nâng cấp Pro Max để AI viết bài dựa trên Persona thực tế và Brand DNA của bạn từ Vault, tăng tỷ lệ chuyển đổi gấp 3 lần.</p>
-                      <button className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium hover:scale-105 transition-transform flex items-center justify-center gap-2">Mở khóa Pro Max <ChevronRight size={18} /></button>
+                  <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
+                      <BrandVaultUpsellCard
+                          title="Brand-Aware Content"
+                          description="Khám phá sức mạnh của nội dung được cá nhân hóa sâu sắc dựa trên DNA thương hiệu của bạn."
+                          benefits={[
+                              "Tự động áp dụng Brand Voice nhất quán trên mọi nền tảng",
+                              "Viết bài dựa trên Persona thực tế từ Vault của bạn",
+                              "Tăng tỷ lệ chuyển đổi gấp 3 lần bằng thông điệp đúng tệp",
+                              "Tiết kiệm 90% thời gian hiệu chỉnh văn phong thương hiệu"
+                          ]}
+                      />
                   </div>
               ) : (
                   <>
