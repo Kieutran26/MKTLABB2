@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -16,6 +16,10 @@ import {
     ChevronRight,
     Pencil,
     Plus,
+    TrendingUp,
+    TrendingDown,
+    Minus,
+    Info,
 } from 'lucide-react';
 import { PorterAnalysisInput, PorterAnalysisResult } from '../types';
 import { generatePorterAnalysis } from '../services/geminiService';
@@ -65,6 +69,26 @@ const FORCE_ICONS: Record<string, LucideIcon> = {
     'Threat of Substitutes': Shuffle,
 };
 
+const STATUS_COLORS: Record<string, string> = {
+    Low: 'text-emerald-600 bg-emerald-50',
+    Medium: 'text-amber-600 bg-amber-50',
+    High: 'text-orange-600 bg-orange-50',
+    Extreme: 'text-red-600 bg-red-50',
+};
+
+const TREND_ICONS: Record<string, { icon: LucideIcon; color: string; label: string }> = {
+    Increasing: { icon: TrendingUp, color: 'text-red-500', label: 'Tăng' },
+    Stable: { icon: Minus, color: 'text-stone-400', label: 'Ổn định' },
+    Decreasing: { icon: TrendingDown, color: 'text-emerald-500', label: 'Giảm' },
+};
+
+interface TooltipState {
+    visible: boolean;
+    content: string;
+    x: number;
+    y: number;
+}
+
 function migrateLegacyPorterInput(raw: unknown): PorterAnalysisInput {
     const o = raw as Record<string, unknown>;
     if (o && typeof o.nganh_hang === 'string') {
@@ -107,6 +131,35 @@ const PorterAnalyzer: React.FC = () => {
     const [thinkingStep, setThinkingStep] = useState<string>('');
     const [savedAnalyses, setSavedAnalyses] = useState<SavedPorterAnalysis[]>([]);
     const [showHistory, setShowHistory] = useState(false);
+    const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, content: '', x: 0, y: 0 });
+    const [expandedCard, setExpandedCard] = useState<number | null>(null);
+    const tooltipRef = useRef<HTMLDivElement>(null);
+
+    const showTooltip = (content: string, event: React.MouseEvent) => {
+        const rect = (event.target as HTMLElement).getBoundingClientRect();
+        setTooltip({
+            visible: true,
+            content,
+            x: rect.left + rect.width / 2,
+            y: rect.top - 8,
+        });
+    };
+
+    const hideTooltip = () => {
+        setTooltip({ visible: false, content: '', x: 0, y: 0 });
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
+                hideTooltip();
+            }
+        };
+        if (tooltip.visible) {
+            document.addEventListener('click', handleClickOutside);
+        }
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [tooltip.visible]);
 
     const watchG1 = watch(['nganh_hang', 'thi_truong', 'vi_the', 'mo_hinh', 'san_pham_usp']);
     const filledG1 = watchG1.filter(Boolean).length;
@@ -201,11 +254,20 @@ const PorterAnalyzer: React.FC = () => {
     };
 
     const radarData =
-        analysisData?.forces.map((force) => ({
-            force: force.name.replace('Bargaining Power of ', '').replace('Threat of ', ''),
-            score: force.score,
-            fullMark: 10,
-        })) || [];
+        analysisData?.forces.map((force) => {
+            const shortLabels: Record<string, string> = {
+                'Competitive Rivalry': 'Cạnh tranh',
+                'Threat of New Entrants': 'Đối thủ mới',
+                'Bargaining Power of Buyers': 'Người mua',
+                'Bargaining Power of Suppliers': 'Nhà cung cấp',
+                'Threat of Substitutes': 'Sp thay thế',
+            };
+            return {
+                force: shortLabels[force.name] || force.name.replace('Bargaining Power of ', '').replace('Threat of ', ''),
+                score: force.score,
+                fullMark: 10,
+            };
+        }) || [];
 
     const historyTitle = (inp: PorterAnalysisInput) =>
         inp.nganh_hang?.trim() || inp.thi_truong?.trim() || 'Phân tích Porter';
@@ -586,11 +648,83 @@ const PorterAnalyzer: React.FC = () => {
                                 </button>
                             </div>
 
+                            {/* Bảng tóm tắt 5 lực */}
+                            <div className="overflow-hidden rounded-2xl border border-stone-200">
+                                <table className="w-full text-xs">
+                                    <thead>
+                                        <tr className="bg-stone-50">
+                                            <th className="px-4 py-3 text-left font-semibold text-stone-600">Lực lượng</th>
+                                            <th className="px-3 py-3 text-center font-semibold text-stone-600">Điểm</th>
+                                            <th className="px-3 py-3 text-center font-semibold text-stone-600">Mức độ</th>
+                                            <th className="px-3 py-3 text-center font-semibold text-stone-600">Xu hướng</th>
+                                            <th className="px-4 py-3 text-left font-semibold text-stone-600">Hành động chiến lược</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-stone-100">
+                                        {analysisData.forces.map((f, i) => {
+                                            const Icon = FORCE_ICONS[f.name] || Target;
+                                            const trend = TREND_ICONS[f.trend] || TREND_ICONS['Stable'];
+                                            const TrendIcon = trend.icon;
+                                            return (
+                                                <tr key={i} className="hover:bg-stone-50/50">
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <Icon size={14} className="text-stone-400" />
+                                                            <span className="font-medium text-stone-700">{f.name_vi}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-3 py-3 text-center">
+                                                        <span
+                                                            className="text-base font-bold"
+                                                            style={{
+                                                                color: f.score > 7 ? '#ef4444' : f.score > 4 ? '#f59e0b' : '#10b981',
+                                                            }}
+                                                        >
+                                                            {f.score}
+                                                        </span>
+                                                        <span className="text-stone-300">/10</span>
+                                                    </td>
+                                                    <td className="px-3 py-3 text-center">
+                                                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${STATUS_COLORS[f.status]}`}>
+                                                            {f.status === 'Extreme' ? 'Cực đại' :
+                                                             f.status === 'High' ? 'Cao' :
+                                                             f.status === 'Medium' ? 'Trung bình' : 'Thấp'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-3 py-3 text-center">
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            <TrendIcon size={12} className={trend.color} />
+                                                            <span className={`text-[10px] ${trend.color}`}>{trend.label}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <p className="line-clamp-2 text-stone-500">{f.strategic_action}</p>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div className="h-[350px] max-w-3xl rounded-3xl border border-stone-100 bg-stone-50/20 p-8">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <RadarChart data={radarData}>
                                         <PolarGrid stroke="#e7e5e4" />
-                                        <PolarAngleAxis dataKey="force" tick={{ fontSize: 10, fill: '#666' }} />
+                                        <PolarAngleAxis
+                                            dataKey="force"
+                                            tick={{ fontSize: 11, fill: '#44403c' }}
+                                            tickFormatter={(value) => {
+                                                const labels: Record<string, string> = {
+                                                    'Competitive Rivalry': 'Cạnh tranh',
+                                                    'Threat of New Entrants': 'Đối thủ mới',
+                                                    'Bargaining Power of Buyers': 'Người mua',
+                                                    'Bargaining Power of Suppliers': 'Nhà cung cấp',
+                                                    'Threat of Substitutes': 'Thay thế',
+                                                };
+                                                return labels[value] || value;
+                                            }}
+                                        />
                                         <PolarRadiusAxis domain={[0, 10]} hide />
                                         <Radar
                                             name="Cường độ lực"
@@ -607,14 +741,25 @@ const PorterAnalyzer: React.FC = () => {
                             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
                                 {analysisData.forces.map((f, i) => {
                                     const Icon = FORCE_ICONS[f.name] || Target;
+                                    const isExpanded = expandedCard === i;
                                     return (
-                                        <div key={i} className="rounded-2xl border border-stone-100 p-6 transition-all hover:border-stone-300">
-                                            <div className="mb-4 flex items-start justify-between">
-                                                <div className="rounded-lg bg-stone-50 p-2 text-stone-900">
-                                                    <Icon size={20} />
+                                        <div
+                                            key={i}
+                                            className={`rounded-2xl border p-5 transition-all hover:border-stone-300 ${
+                                                f.score > 7 ? 'border-red-200 bg-red-50/30' :
+                                                f.score > 4 ? 'border-amber-200 bg-amber-50/30' :
+                                                'border-emerald-200 bg-emerald-50/30'
+                                            }`}
+                                        >
+                                            <div className="mb-3 flex items-start justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="rounded-lg bg-white p-2 shadow-sm">
+                                                        <Icon size={18} className="text-stone-700" />
+                                                    </div>
+                                                    <span className="text-[10px] font-medium uppercase tracking-wider text-stone-400">{f.name}</span>
                                                 </div>
                                                 <div
-                                                    className="text-xl font-bold italic"
+                                                    className="text-2xl font-bold"
                                                     style={{
                                                         color: f.score > 7 ? '#ef4444' : f.score > 4 ? '#f59e0b' : '#10b981',
                                                     }}
@@ -623,22 +768,277 @@ const PorterAnalyzer: React.FC = () => {
                                                     <span className="text-xs font-normal text-stone-300">/10</span>
                                                 </div>
                                             </div>
-                                            <h4 className="mb-2 text-sm font-bold text-stone-900">{f.name_vi}</h4>
-                                            <p className="mb-4 line-clamp-3 text-xs leading-relaxed text-stone-500">{f.strategic_action}</p>
-                                            <div className="flex flex-wrap gap-1">
+                                            <h4 className="mb-2 text-sm font-semibold text-stone-900">{f.name_vi}</h4>
+
+                                            {/* Determinants */}
+                                            <div className="mb-3 flex flex-wrap gap-1">
                                                 {f.determinants.slice(0, 3).map((d, di) => (
                                                     <span
                                                         key={di}
-                                                        className="rounded-md border border-stone-100 bg-stone-50 px-2 py-1 text-[9px] text-stone-400"
+                                                        className="rounded-md border border-stone-200 bg-white px-2 py-1 text-[9px] text-stone-500"
                                                     >
                                                         {d}
                                                     </span>
                                                 ))}
                                             </div>
+
+                                            {/* Strategic Action - với tooltip */}
+                                            <div className="relative">
+                                                <div className="flex items-start gap-1.5">
+                                                    <Info size={12} className="mt-0.5 shrink-0 text-stone-400" />
+                                                    <p
+                                                        className={`text-xs leading-relaxed text-stone-600 ${!isExpanded && 'line-clamp-2'}`}
+                                                        onMouseEnter={(e) => showTooltip(f.strategic_action, e)}
+                                                        onMouseLeave={hideTooltip}
+                                                    >
+                                                        {f.strategic_action}
+                                                    </p>
+                                                </div>
+                                                {f.strategic_action.length > 120 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setExpandedCard(isExpanded ? null : i)}
+                                                        className="mt-2 text-[10px] font-medium text-stone-400 hover:text-stone-600"
+                                                    >
+                                                        {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {/* Trend indicator */}
+                                            <div className="mt-3 flex items-center gap-1 border-t border-stone-100 pt-3">
+                                                {(() => {
+                                                    const trend = TREND_ICONS[f.trend] || TREND_ICONS['Stable'];
+                                                    const TrendIcon = trend.icon;
+                                                    return (
+                                                        <>
+                                                            <TrendIcon size={12} className={trend.color} />
+                                                            <span className={`text-[10px] ${trend.color}`}>
+                                                                Xu hướng: {trend.label}
+                                                            </span>
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {/* PHẦN ADVICE - CMO Expert Note */}
+                            {analysisData.advice && (
+                                <div className="space-y-6">
+                                    {/* Header */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+                                            <Sparkles size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-stone-900">CMO Expert Note</h3>
+                                            <p className="text-xs text-stone-500">Chiến lược & Hành động ưu tiên</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Strategy Card */}
+                                    <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5">
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <span className="text-xs font-medium uppercase tracking-wider text-amber-600">Chiến lược đề xuất</span>
+                                            <span className="rounded-full bg-amber-600 px-3 py-1 text-xs font-semibold text-white">
+                                                {analysisData.advice.recommended_strategy}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-stone-700">{analysisData.advice.strategy_rationale}</p>
+                                        {analysisData.advice.strategy_risks.length > 0 && (
+                                            <div className="mt-3 rounded-lg bg-white/60 p-3">
+                                                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">Rủi ro nếu thực thi sai</p>
+                                                <ul className="mt-1 space-y-1">
+                                                    {analysisData.advice.strategy_risks.map((risk, i) => (
+                                                        <li key={i} className="flex items-start gap-2 text-xs text-stone-600">
+                                                            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                                                            {risk}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Threat & Opportunity Grid */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        {/* Biggest Threat */}
+                                        <div className="rounded-2xl border border-red-200 bg-red-50/50 p-5">
+                                            <div className="mb-3 flex items-center gap-2">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
+                                                    <TrendingUp size={16} className="text-red-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-medium uppercase tracking-wider text-red-500">Lực nguy hiểm nhất</p>
+                                                    <p className="text-sm font-semibold text-stone-900">
+                                                        {analysisData.advice.biggest_threat.force_name} — {analysisData.advice.biggest_threat.score}/10
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 text-xs text-stone-600">
+                                                <p><span className="font-medium text-stone-700">Tại sao:</span> {analysisData.advice.biggest_threat.reason}</p>
+                                                <p><span className="font-medium text-stone-700">Hậu quả 6 tháng:</span> {analysisData.advice.biggest_threat.consequence}</p>
+                                                <p className="rounded-lg bg-white/80 p-2"><span className="font-medium text-red-600">Hành động ưu tiên:</span> {analysisData.advice.biggest_threat.defensive_action}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Biggest Opportunity */}
+                                        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
+                                            <div className="mb-3 flex items-center gap-2">
+                                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100">
+                                                    <TrendingDown size={16} className="text-emerald-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-medium uppercase tracking-wider text-emerald-500">Lực lợi thế nhất</p>
+                                                    <p className="text-sm font-semibold text-stone-900">
+                                                        {analysisData.advice.biggest_opportunity.force_name} — {analysisData.advice.biggest_opportunity.score}/10
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2 text-xs text-stone-600">
+                                                <p><span className="font-medium text-stone-700">Tại sao:</span> {analysisData.advice.biggest_opportunity.reason}</p>
+                                                <p className="rounded-lg bg-white/80 p-2"><span className="font-medium text-emerald-600">Khai thác 30-60 ngày:</span> {analysisData.advice.biggest_opportunity.exploitation_plan}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Critical & Pitfall Grid */}
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        {/* Critical Must Do */}
+                                        <div className="rounded-2xl border border-violet-200 bg-violet-50/50 p-5">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                                                    <Target size={14} />
+                                                </div>
+                                                <p className="text-xs font-semibold text-violet-700">Điều quan trọng nhất phải làm đúng</p>
+                                            </div>
+                                            <div className="space-y-2 text-xs text-stone-600">
+                                                <p><span className="font-medium text-stone-700">Yếu tố:</span> {analysisData.advice.critical_must_do.factor}</p>
+                                                <p><span className="font-medium text-stone-700">Tại sao leverage:</span> {analysisData.advice.critical_must_do.why_leverage}</p>
+                                                <p className="rounded-lg bg-white/80 p-2 text-red-600"><span className="font-medium">Nếu sai:</span> {analysisData.advice.critical_must_do.consequence_if_wrong}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Biggest Pitfall */}
+                                        <div className="rounded-2xl border border-rose-200 bg-rose-50/50 p-5">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                                                    <Info size={14} />
+                                                </div>
+                                                <p className="text-xs font-semibold text-rose-700">Cạm bẫy lớn nhất cần tránh</p>
+                                            </div>
+                                            <div className="space-y-2 text-xs text-stone-600">
+                                                <p><span className="font-medium text-stone-700">Sai lầm:</span> {analysisData.advice.biggest_pitfall.mistake}</p>
+                                                <p><span className="font-medium text-stone-700">Hậu quả:</span> {analysisData.advice.biggest_pitfall.example_consequence}</p>
+                                                <p className="rounded-lg bg-white/80 p-2 text-emerald-600"><span className="font-medium">Nên làm:</span> {analysisData.advice.biggest_pitfall.recommended_alternative}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Untappted Opportunity */}
+                                    <div className="rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 to-blue-50 p-5">
+                                        <div className="mb-2 flex items-center gap-2">
+                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-100 text-cyan-600">
+                                                <Diamond size={14} />
+                                            </div>
+                                            <p className="text-xs font-semibold text-cyan-700">Cơ hội đang bị bỏ ngỏ</p>
+                                        </div>
+                                        <div className="flex items-start gap-2 text-xs text-stone-600">
+                                            <p className="flex-1"><span className="font-medium text-stone-700">Khoảng trắng:</span> {analysisData.advice.untapped_opportunity.gap}</p>
+                                            <p className="flex-1"><span className="font-medium text-cyan-700">90 ngày:</span> {analysisData.advice.untapped_opportunity.how_to_capture}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Plan 30-60-90 */}
+                                    <div className="rounded-2xl border border-stone-200 bg-stone-50/50 p-5">
+                                        <div className="mb-4 flex items-center gap-2">
+                                            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-200 text-stone-600">
+                                                <Target size={14} />
+                                            </div>
+                                            <p className="text-sm font-semibold text-stone-900">Action Priority — 30 · 60 · 90 ngày</p>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {/* Month 1 */}
+                                            <div className="rounded-xl bg-white p-4">
+                                                <div className="mb-3 flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-amber-600">Tháng 1</span>
+                                                    <span className="text-[9px] font-medium uppercase tracking-wider text-stone-400">Phòng thủ</span>
+                                                </div>
+                                                <ul className="space-y-2">
+                                                    {analysisData.advice.action_plan.month_1.map((item, i) => (
+                                                        <li key={i} className="flex items-start gap-1.5 text-xs text-stone-600">
+                                                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            {/* Month 2 */}
+                                            <div className="rounded-xl bg-white p-4">
+                                                <div className="mb-3 flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-orange-600">Tháng 2</span>
+                                                    <span className="text-[9px] font-medium uppercase tracking-wider text-stone-400">Tấn công</span>
+                                                </div>
+                                                <ul className="space-y-2">
+                                                    {analysisData.advice.action_plan.month_2.map((item, i) => (
+                                                        <li key={i} className="flex items-start gap-1.5 text-xs text-stone-600">
+                                                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-500" />
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                            {/* Month 3 */}
+                                            <div className="rounded-xl bg-white p-4">
+                                                <div className="mb-3 flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-emerald-600">Tháng 3</span>
+                                                    <span className="text-[9px] font-medium uppercase tracking-wider text-stone-400">Tối ưu</span>
+                                                </div>
+                                                <ul className="space-y-2">
+                                                    {analysisData.advice.action_plan.month_3.map((item, i) => (
+                                                        <li key={i} className="flex items-start gap-1.5 text-xs text-stone-600">
+                                                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                                                            {item}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Unknowns */}
+                                    {analysisData.advice.unknowns.length > 0 && (
+                                        <div className="rounded-2xl border border-stone-200 bg-white p-5">
+                                            <div className="mb-3 flex items-center gap-2">
+                                                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-100 text-stone-500">
+                                                    <Info size={14} />
+                                                </div>
+                                                <p className="text-xs font-semibold text-stone-500">Những gì AI không biết (cần xác nhận thêm)</p>
+                                            </div>
+                                            <ul className="space-y-1.5">
+                                                {analysisData.advice.unknowns.map((item, i) => (
+                                                    <li key={i} className="flex items-start gap-2 text-xs text-stone-500">
+                                                        <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-stone-400" />
+                                                        {item}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+
+                                    {/* Final Verdict */}
+                                    {analysisData.advice.final_verdict && (
+                                        <div className="rounded-2xl border border-stone-800 bg-stone-900 p-6 text-center">
+                                            <p className="text-sm font-medium leading-relaxed text-white">
+                                                {analysisData.advice.final_verdict}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}

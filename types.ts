@@ -1540,6 +1540,58 @@ export interface PorterForce {
   trend_reason?: string; // Lý do dự báo xu hướng
 }
 
+/** Kết quả phân tích Porter Advice - phần CMO Expert Note */
+export interface PorterAdvice {
+  /** Chiến lược cạnh tranh được chọn */
+  recommended_strategy: 'Cost Leadership' | 'Differentiation' | 'Focus/Niche';
+  /** Lý do chọn chiến lược này */
+  strategy_rationale: string;
+  /** 2 rủi ro nếu thực thi sai */
+  strategy_risks: string[];
+  /** Lực nguy hiểm nhất */
+  biggest_threat: {
+    force_name: string;
+    score: number;
+    reason: string;
+    consequence: string;
+    defensive_action: string;
+  };
+  /** Lực lợi thế nhất */
+  biggest_opportunity: {
+    force_name: string;
+    score: number;
+    reason: string;
+    exploitation_plan: string;
+  };
+  /** Điều quan trọng nhất phải làm đúng */
+  critical_must_do: {
+    factor: string;
+    why_leverage: string;
+    consequence_if_wrong: string;
+  };
+  /** Cạm bẫy lớn nhất cần tránh */
+  biggest_pitfall: {
+    mistake: string;
+    example_consequence: string;
+    recommended_alternative: string;
+  };
+  /** Cơ hội đang bị bỏ ngỏ */
+  untapped_opportunity: {
+    gap: string;
+    how_to_capture: string;
+  };
+  /** Hành động 30-60-90 ngày */
+  action_plan: {
+    month_1: string[]; // Phòng thủ & Nền tảng
+    month_2: string[]; // Tấn công & Khác biệt hóa
+    month_3: string[]; // Tối ưu & Đánh giá
+  };
+  /** Những gì AI không biết (ít nhất 4 điều) */
+  unknowns: string[];
+  /** Câu nhận định cuối cùng */
+  final_verdict: string;
+}
+
 /** Dữ liệu form Porter's Precision — map 1:1 với prompt AI */
 export interface PorterAnalysisInput {
   nganh_hang: string;
@@ -1562,6 +1614,7 @@ export interface PorterAnalysisResult {
   verdict_description: string;
   total_threat_score: number; // Tổng điểm / 50
   forces: PorterForce[];
+  advice: PorterAdvice; // Phần CMO Expert Note
   generated_at: string;
 }
 

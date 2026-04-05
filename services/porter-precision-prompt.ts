@@ -188,43 +188,128 @@ PHẦN 5 — THREAT OF SUBSTITUTES: SẢN PHẨM THAY THẾ
 5.4 Hành động: Tạo "khoảng cách không thể thay thế" với substitute
 
 ═══════════════════════════════════════
-PHẦN 6 — TỔNG HỢP & CHIẾN LƯỢC CMO
+PHẦN 6 — TỔNG HỢP CHIẾN LƯỢC
 ═══════════════════════════════════════
 
-6.1 Industry Attractiveness Score
-    Bảng tóm tắt:
-    | Lực lượng              | Điểm /10 | Mức độ    | Xu hướng        |
-    | Competitive Rivalry    | X/10     | Cao/TB/Thấp | Tăng/Ổn/Giảm  |
-    | Threat of New Entrants | X/10     | ...       | ...             |
-    | Supplier Power         | X/10     | ...       | ...             |
-    | Buyer Power            | X/10     | ...       | ...             |
-    | Threat of Substitutes  | X/10     | ...       | ...             |
-    | TỔNG THỂ               | X/10     | Ngành [hấp dẫn/trung bình/kém hấp dẫn] |
+6.1 Industry Attractiveness Score — Bảng tóm tắt
+    Xuất ra bảng đầy đủ theo format:
+
+    | Lực lượng              | Điểm | Mức độ | Xu hướng     |
+    |------------------------|------|--------|--------------|
+    | Competitive Rivalry    | X/10 | Cao/TB | Tăng/Ổn/Giảm |
+    | Threat of New Entrants | X/10 | ...    | ...          |
+    | Supplier Power         | X/10 | ...    | ...          |
+    | Buyer Power            | X/10 | ...    | ...          |
+    | Threat of Substitutes  | X/10 | ...    | ...          |
+    | TỔNG THỂ               | X/50 | [Hấp dẫn / Moderate / Thách thức] |
+
+    Cột Xu hướng: dựa trên dữ liệu input và bối cảnh ngành
+    → "Tăng" = lực này đang mạnh lên theo thời gian
+    → "Ổn định" = không thay đổi nhiều
+    → "Giảm" = lực này đang yếu đi
 
 6.2 Lực nguy hiểm nhất & Lực lợi thế nhất
-    • Lực đe dọa NHẤT với vị thế {{vi_the}} này: [Tên lực] — Tại sao?
-    • Lực LỢI THẾ NHẤT cần khai thác: [Tên lực] — Cách khai thác?
+    Dựa HOÀN TOÀN trên điểm số vừa phân tích:
 
-6.3 Chiến lược cạnh tranh đề xuất
-    Dựa trên toàn bộ phân tích, chiến lược nào phù hợp nhất:
-    • Cost Leadership: cạnh tranh bằng chi phí thấp nhất?
-    • Differentiation: khác biệt hóa để tránh cạnh tranh trực tiếp?
-    • Focus/Niche: tập trung vào phân khúc hẹp?
-    Lý do chọn: dẫn chứng từ dữ liệu phân tích
+    ⚠️ LỰC ĐE DỌA LỚN NHẤT: [Tên lực] — [X/10]
+    • Tại sao đây là lực nguy hiểm nhất với vị thế {{vi_the}} này?
+      (Dẫn chứng cụ thể từ dữ liệu input, không nói chung chung)
+    • Hậu quả cụ thể nếu không xử lý trong 6 tháng tới
+    • Hành động phòng thủ ưu tiên số 1
 
-6.4 Lời khuyên CMO — 3 hành động ưu tiên 90 ngày
-    • Hành động 1: [Cụ thể] — nhằm đối phó với lực nguy hiểm nhất
-    • Hành động 2: [Cụ thể] — nhằm khai thác lực lợi thế nhất
-    • Hành động 3: [Cụ thể] — nhằm chuẩn bị cho {{ke_hoach}}
+    ✦ LỰC LỢI THẾ LỚN NHẤT: [Tên lực] — [X/10]
+    • Tại sao đây là lực có thể khai thác tốt nhất?
+    • Cách tận dụng cụ thể trong 30–60 ngày tới
 
-6.5 Đánh giá thẳng thắn
+6.3 Chiến lược cạnh tranh đề xuất (chọn 1, giải thích rõ)
+    Dựa trên toàn bộ điểm số 5 lực, chọn chiến lược phù hợp nhất:
+
+    □ Cost Leadership — nếu Buyer Power cao + Rivalry cao + sản phẩm dễ thay thế
+      → Cạnh tranh bằng chi phí thấp nhất để giữ thị phần
+
+    □ Differentiation — nếu có USP rõ ràng + Switching cost có thể tăng
+      → Khác biệt hóa để thoát khỏi cạnh tranh giá trực tiếp
+
+    □ Focus/Niche — nếu nguồn lực hạn chế + Rivalry tổng thể cao
+      → Tập trung phân khúc hẹp, phục vụ tốt hơn đối thủ tổng quát
+
+    Sau khi chọn: Giải thích tại sao chiến lược này phù hợp dựa trên
+    điểm số cụ thể vừa phân tích (không phải lý thuyết chung).
+    Nêu 2 rủi ro nếu thực thi sai chiến lược đã chọn.
+
+═══════════════════════════════════════
+PHẦN 7 — CMO EXPERT NOTE (BẮT BUỘC)
+═══════════════════════════════════════
+
+QUAN TRỌNG: Mọi lời khuyên phải cụ thể cho {{nganh_hang}} + {{vi_the}} này.
+NGHIÊM CẤM viết lời khuyên chung chung áp dụng được cho mọi ngành.
+
+7.1 Điều quan trọng nhất phải làm đúng
+    • 1 yếu tố cạnh tranh quyết định thành bại với vị thế {{vi_the}}
+    • Tại sao đây là leverage point cao nhất — dẫn chứng từ phân tích
+    • Nếu làm sai điều này, hậu quả cụ thể là gì?
+
+7.2 Cạm bẫy lớn nhất cần tránh
+    • Sai lầm phổ biến nhất mà {{vi_the}} hay mắc phải trong ngành này
+    • Ví dụ cụ thể về hậu quả (không cần tên doanh nghiệp thật)
+    • Thay vào đó nên làm gì
+
+7.3 Cơ hội đang bị bỏ ngỏ
+    • 1 khoảng trắng cạnh tranh mà đối thủ chưa khai thác
+    • Phải rút ra từ phân tích 5 lực — không phải ý tưởng bên ngoài
+    • Cách tận dụng cơ hội này trong 90 ngày tới
+
+7.4 Action Priority — 30 · 60 · 90 ngày
+    Tháng 1 — Phòng thủ & Nền tảng:
+    • [Việc 1]: Đối phó với lực nguy hiểm nhất đã xác định
+    • [Việc 2]: Củng cố điểm yếu trong chuỗi cung ứng/khách hàng
+    • [Việc 3]: Quick win có thể đạt trong 30 ngày
+
+    Tháng 2 — Tấn công & Khác biệt hóa:
+    • [Việc 1]: Khai thác lực lợi thế đã xác định
+    • [Việc 2]: Triển khai chiến lược cạnh tranh đã chọn
+    • [Việc 3]: Test 1 cách tiếp cận mới với phân khúc mục tiêu
+
+    Tháng 3 — Tối ưu & Đánh giá:
+    • [Việc 1]: Đánh giá lại điểm số 5 lực sau 60 ngày hành động
+    • [Việc 2]: Điều chỉnh chiến lược dựa trên kết quả thực tế
+    • [Việc 3]: Chuẩn bị cho giai đoạn tiếp theo của {{ke_hoach}}
+
+7.5 Đánh giá thẳng thắn (1 đoạn, không né tránh)
     • Môi trường cạnh tranh này THUẬN LỢI hay THÁCH THỨC cho {{ke_hoach}}?
-    • 1 điều quan trọng nhất {{vi_the}} này phải làm đúng để tồn tại và phát triển
-    • 1 rủi ro cạnh tranh mà đối thủ đang bỏ qua — cơ hội để bạn tận dụng
+    • Lý do cụ thể dựa trên tổng điểm và xu hướng các lực
+    • 1 điều duy nhất nếu làm đúng sẽ tạo ra sự khác biệt lớn nhất
 
-6.6 Những gì AI KHÔNG BIẾT (BẮT BUỘC)
-    • Liệt kê ít nhất 3 điều không thể kết luận vì thiếu dữ liệu
-    • Mỗi điều: cần xác nhận bằng nguồn/phương pháp nào
+═══════════════════════════════════════
+PHẦN 8 — NHỮNG GÌ AI KHÔNG BIẾT (BẮT BUỘC — KHÔNG ĐƯỢC BỎ QUA)
+═══════════════════════════════════════
+
+Liệt kê ít nhất 4 điều không thể kết luận chắc chắn vì thiếu dữ liệu thực tế.
+Với MỖI điều: ghi rõ cần xác nhận bằng nguồn/phương pháp nào.
+
+Format bắt buộc:
+— [Điều không biết]: Cần xác nhận từ [nguồn cụ thể]
+
+Ví dụ (điều chỉnh theo ngành thực tế):
+— Thị phần chính xác của từng đối thủ: Cần báo cáo ngành hoặc research thực địa
+— Chi phí chuyển đổi nhà cung cấp thực tế: Cần đàm phán thực địa để xác nhận con số
+— Tỷ lệ khách hàng tự tổ chức vs. đặt qua dịch vụ: Cần khảo sát 200+ khách hàng tiềm năng
+— Rào cản gia nhập thực tế: Cần phỏng vấn 2–3 người đã thử gia nhập ngành này
+
+⚠️ Mục này thể hiện tính trung thực của phân tích.
+Không được bỏ qua dù output có vẻ đã đầy đủ.
+Điểm số trong phân tích là ƯỚC TÍNH dựa trên dữ liệu input —
+không phải số liệu được xác nhận từ nghiên cứu thực địa.
+
+═══════════════════════════════════════
+KẾT THÚC OUTPUT — CÂU NHẬN ĐỊNH CUỐI
+═══════════════════════════════════════
+
+Kết thúc toàn bộ output bằng 1 câu nhận định súc tích:
+
+"Ngành {{nganh_hang}} tại {{thi_truong}} hiện đang [hấp dẫn/moderate/thách thức]
+với tổng điểm đe dọa [X/50], lực nguy hiểm nhất là [Y],
+và chiến lược cạnh tranh phù hợp nhất cho {{vi_the}} này là [Z]."
 
 ═══════════════════════════════════════
 YÊU CẦU FORMAT OUTPUT (LUẬN GIẢI)
@@ -261,6 +346,45 @@ Sau luận giải nội bộ, bạn PHẢI trả về DUY NHẤT một object JS
       "data_source": "User input"
     }
   ],
+  "advice": {
+    "recommended_strategy": "Cost Leadership | Differentiation | Focus/Niche",
+    "strategy_rationale": "string — giải thích tại sao chọn chiến lược này",
+    "strategy_risks": ["string — rủi ro 1", "string — rủi ro 2"],
+    "biggest_threat": {
+      "force_name": "string — tên lực",
+      "score": number,
+      "reason": "string — tại sao đây là lực nguy hiểm nhất",
+      "consequence": "string — hậu quả nếu không xử lý trong 6 tháng",
+      "defensive_action": "string — hành động phòng thủ ưu tiên số 1"
+    },
+    "biggest_opportunity": {
+      "force_name": "string — tên lực",
+      "score": number,
+      "reason": "string — tại sao đây là lực lợi thế nhất",
+      "exploitation_plan": "string — cách tận dụng trong 30–60 ngày"
+    },
+    "critical_must_do": {
+      "factor": "string — yếu tố quyết định thành bại",
+      "why_leverage": "string — tại sao đây là leverage point cao nhất",
+      "consequence_if_wrong": "string — nếu làm sai, hậu quả là gì"
+    },
+    "biggest_pitfall": {
+      "mistake": "string — sai lầm phổ biến nhất của {{vi_the}}",
+      "example_consequence": "string — ví dụ hậu quả cụ thể",
+      "recommended_alternative": "string — thay vào đó nên làm gì"
+    },
+    "untapped_opportunity": {
+      "gap": "string — khoảng trắng cạnh tranh đối thủ chưa khai thác",
+      "how_to_capture": "string — cách tận dụng trong 90 ngày"
+    },
+    "action_plan": {
+      "month_1": ["string — việc 1", "string — việc 2", "string — việc 3"],
+      "month_2": ["string — việc 1", "string — việc 2", "string — việc 3"],
+      "month_3": ["string — việc 1", "string — việc 2", "string — việc 3"]
+    },
+    "unknowns": ["string — điều 1", "string — điều 2", "string — điều 3", "string — điều 4"],
+    "final_verdict": "string — câu nhận định cuối cùng súc tích"
+  },
   "generated_at": "ISO-8601 string"
 }
 
@@ -272,4 +396,5 @@ forces phải có ĐÚNG 5 phần tử theo thứ tự name:
 5. Threat of Substitutes
 
 status map: score 1–3 → Low; 4–6 → Medium; 7–8 → High; 9–10 → Extreme.
-total_threat_score = tổng 5 score (5–50).`;
+total_threat_score = tổng 5 score (5–50).
+advice là BẮT BUỘC — không được thiếu hoặc null.`;
