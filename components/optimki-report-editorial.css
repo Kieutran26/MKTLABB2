@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+
+.optimki-report-container {
+  --ink: #0f0f0d;
+  --ink-2: #3a3935;
+  --ink-3: #8a887f;
+  --ink-4: #b8b6ae;
+  --paper: #faf9f6;
+  --paper-2: #f2f0eb;
+  --paper-3: #e8e5de;
+  --accent: #1a5c3a;
+  --accent-w: #c17f2a;
+  --accent-b: #1a3a5c;
+  --danger: #8a1a1a;
+  --rule: rgba(15,15,13,0.1);
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+
+  background-color: var(--paper);
+  min-height: 100vh;
+  padding: 4rem 1rem;
+}
+
+.optimki-report {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 2.5rem 4rem;
+  background-color: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  font-family: var(--sans);
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.optimki-report section,
+.optimki-report .doc-header,
+.optimki-report .suggest-box,
+.optimki-report .cmo-note,
+.optimki-report .footer-bar {
+  animation: fadeUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Layout Helpers used by AI in html_report */
+.optimki-report .doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.optimki-report .doc-header .eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  margin-bottom: 0.5rem;
+}
+
+.optimki-report .doc-header h1 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+  font-style: italic;
+  color: var(--accent);
+  margin: 0;
+}
+
+.optimki-report .doc-header .tags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.optimki-report .tag-pill {
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+/* Sections */
+.optimki-report section {
+  margin-bottom: 4rem;
+}
+
+.optimki-report .section-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.optimki-report .section-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+}
+
+.optimki-report .section-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+}
+
+/* SWOT Grid */
+.optimki-report .swot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  border: 1px solid var(--rule);
+}
+
+.optimki-report .swot-box {
+  padding: 1.5rem;
+  border: 1px solid var(--rule);
+}
+
+.optimki-report .swot-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.optimki-report .swot-box.strength .swot-label { color: var(--accent); }
+.optimki-report .swot-box.weakness .swot-label { color: var(--danger); }
+.optimki-report .swot-box.opportunity .swot-label { color: var(--accent-w); }
+.optimki-report .swot-box.threat .swot-label { color: var(--accent-b); }
+
+.optimki-report .swot-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.optimki-report .swot-content li {
+  font-size: 13px;
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.optimki-report .swot-content li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--ink-4);
+}
+
+/* Dark Block (Suggestions/CMO Note) */
+.optimki-report .dark-block {
+  background-color: var(--ink);
+  color: var(--paper);
+  padding: 1.5rem;
+  border-radius: 3px;
+  margin-bottom: 2.5rem;
+}
+
+.optimki-report .dark-block .label {
+  font-size: 9px;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 0.75rem;
+}
+
+/* SMART Target Block */
+.optimki-report .smart-target {
+  background-color: var(--ink);
+  color: var(--paper);
+  padding: 2rem;
+  border-radius: 3px;
+  text-align: center;
+}
+
+/* AIDA Steps */
+.optimki-report .aida-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.optimki-report .aida-step {
+  position: relative;
+  padding-bottom: 2.5rem;
+}
+
+.optimki-report .aida-num {
+  font-family: var(--serif);
+  font-size: 48px;
+  color: var(--ink-4);
+  position: absolute;
+  right: 0;
+  top: -10px;
+  opacity: 0.2;
+}
+
+/* Content Blocks */
+.optimki-report .paper-block {
+  background-color: var(--paper-2);
+  padding: 1.5rem;
+  border-radius: 3px;
+  margin-top: 1rem;
+}
+
+.optimki-report h2, .optimki-report h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .optimki-report {
+    padding: 1.5rem 1rem;
+  }
+  .optimki-report .swot-grid {
+    grid-template-columns: 1fr;
+  }
+}

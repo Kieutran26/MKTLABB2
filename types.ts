@@ -886,7 +886,7 @@ export interface MastermindStrategy {
   createdAt: number;
 }
 
-export type ViewState = 'HOME' | 'HOME_DASHBOARD' | 'LANDING_INTRO' | 'FEATURES_GUIDE' | 'LEARN_SELECT' | 'LEARN_SESSION' | 'VOCAB_MANAGER' | 'STARRED' | 'PLAN_CALENDAR' | 'PLAN_LIST' | 'PROMPTS' | 'TODO' | 'CONTENT_WRITER' | 'VISUAL_EMAIL' | 'KEY_VISUALS_LIST' | 'KEY_VISUALS_CREATE' | 'FRAME_VISUAL' | 'UTM_BUILDER' | 'MOCKUP_GENERATOR' | 'AB_TESTING' | 'ROAS_FORECASTER' | 'BRAND_VAULT' | 'RIVAL_RADAR' | 'PERSONA_BUILDER' | 'MINDMAP_GENERATOR' | 'SCAMPER_TOOL' | 'STRATEGIC_MODELS' | 'SMART_CALENDAR' | 'MASTERMIND_STRATEGY' | 'SMART_SALARY' | 'AUTO_BRIEF' | 'SOP_BUILDER' | 'HOOK_GENERATOR' | 'CUSTOMER_JOURNEY_MAPPER' | 'BUDGET_ALLOCATOR' | 'INSIGHT_FINDER' | 'CREATIVE_ANGLE_EXPLORER' | 'ADS_HEALTH_CHECKER' | 'BRAND_POSITIONING_BUILDER' | 'PRICING_ANALYZER' | 'AUDIENCE_EMOTION_MAP' | 'IMC_PLANNER' | 'MARKETING_KNOWLEDGE' | 'PESTEL_BUILDER' | 'PORTER_ANALYZER' | 'NEWS_AGGREGATOR' | 'TOOLKIT' | 'STP_MODEL' | 'LOGIN';
+export type ViewState = 'HOME' | 'HOME_DASHBOARD' | 'LANDING_INTRO' | 'FEATURES_GUIDE' | 'LEARN_SELECT' | 'LEARN_SESSION' | 'VOCAB_MANAGER' | 'STARRED' | 'PLAN_CALENDAR' | 'PLAN_LIST' | 'PROMPTS' | 'TODO' | 'CONTENT_WRITER' | 'VISUAL_EMAIL' | 'KEY_VISUALS_LIST' | 'KEY_VISUALS_CREATE' | 'FRAME_VISUAL' | 'UTM_BUILDER' | 'MOCKUP_GENERATOR' | 'AB_TESTING' | 'ROAS_FORECASTER' | 'BRAND_VAULT' | 'RIVAL_RADAR' | 'PERSONA_BUILDER' | 'MINDMAP_GENERATOR' | 'SCAMPER_TOOL' | 'STRATEGIC_MODELS' | 'SMART_CALENDAR' | 'MASTERMIND_STRATEGY' | 'SMART_SALARY' | 'AUTO_BRIEF' | 'SOP_BUILDER' | 'HOOK_GENERATOR' | 'CUSTOMER_JOURNEY_MAPPER' | 'BUDGET_ALLOCATOR' | 'INSIGHT_FINDER' | 'CREATIVE_ANGLE_EXPLORER' | 'ADS_HEALTH_CHECKER' | 'BRAND_POSITIONING_BUILDER' | 'PRICING_ANALYZER' | 'AUDIENCE_EMOTION_MAP' | 'IMC_PLANNER' | 'MARKETING_KNOWLEDGE' | 'PESTEL_BUILDER' | 'PORTER_ANALYZER' | 'NEWS_AGGREGATOR' | 'TOOLKIT' | 'STP_MODEL' | 'LOGIN' | 'OPTIMKI_BUILDER';
 
 // --- STP MODEL GENERATOR ---
 export interface STPInput {
@@ -1619,5 +1619,34 @@ export interface PorterAnalysisResult {
   generated_at: string;
 }
 
+// --- OPTI M.KI STRATEGIC MODEL GENERATOR ---
+export type OptimkiModelType = 'SWOT' | 'AIDA' | '4P' | '5W1H' | 'SMART' | 'tat_ca' | 'chua_chon';
+
+export interface OptimkiInput {
+  ten_thuong_hieu: string;
+  nganh_hang: string;
+  mo_ta: string;
+  diem_manh_yeu: string;
+  doi_thu: string;
+  noi_dau_khao_khat: string;
+  kenh: string;
+  muc_tieu: string;
+  so_lieu_ngan_sach: string;
+  thoi_gian_dia_diem: string;
+  mo_hinh: OptimkiModelType;
+}
+
+export interface OptimkiResult {
+  brand_name: string;
+  model_type: OptimkiModelType;
+  html_report: string;
+  suggestion?: {
+    primary_model: string;
+    reason: string;
+    combinations: string[];
+    omit: string[];
+  };
+  generated_at: string;
+}
 
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 
-export type StpOptimizerBadge = 'required' | 'important' | 'optional';
+export type StpOptimizerBadge = 'required' | 'important' | 'optional' | 'none';
 
 export type StpOptimizerFieldProps = {
-    title: string;
+    title: React.ReactNode;
     badge?: StpOptimizerBadge;
     /** Mô tả ngắn dưới tiêu đề */
     subtitle?: string;
@@ -52,6 +52,7 @@ export const StpOptimizerField: React.FC<StpOptimizerFieldProps> = ({
                     Tùy chọn
                 </span>
             )}
+            {/* badge === 'none' will render nothing */}
             <EditorialFieldHint title="Gợi ý" anchor="label">
                 <div className="space-y-2">
                     {subtitle && <p>{subtitle}</p>}

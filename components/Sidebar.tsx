@@ -195,6 +195,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const strategyItems: NavItem[] = [
+    { id: 'OPTIMKI_BUILDER', label: 'Opti M.KI Engine', icon: Sparkles, badge: 'new' },
     { id: 'MASTERMIND_STRATEGY', label: 'Mastermind Strategy', icon: Brain },
     { id: 'IMC_PLANNER', label: 'IMC Planner', icon: Target },
     { id: 'STP_MODEL', label: 'STP Model', icon: Layers },

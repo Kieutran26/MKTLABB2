@@ -4296,3 +4296,42 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
     }
 };
 
+// --- OPTI M.KI STRATEGIC MODEL GENERATOR ---
+import { OPTIMKI_SYSTEM_INSTRUCTION, buildOptimkiUserMessage } from './optimki-prompt';
+import { OptimkiInput, OptimkiResult } from '../types';
+
+export const generateOptimkiAnalysis = async (
+    input: OptimkiInput,
+    onProgress?: (step: string) => void
+): Promise<OptimkiResult | null> => {
+    try {
+        onProgress?.('🧠 Đang khởi động bộ não chiến lược...');
+        await new Promise(r => setTimeout(r, 400));
+        onProgress?.('📊 Đang quét dữ liệu ngành & đối thủ...');
+        await new Promise(r => setTimeout(r, 400));
+        onProgress?.('🎨 Đang render báo cáo Editorial...');
+
+        const userMessage = buildOptimkiUserMessage(input);
+
+        const response = await ai.models.generateContent({
+            model: GEMINI_REST_MODEL,
+            contents: userMessage,
+            config: {
+                systemInstruction: OPTIMKI_SYSTEM_INSTRUCTION,
+                responseMimeType: "application/json",
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.5,
+            },
+        });
+
+        const text = response.text || "{}";
+        const result = JSON.parse(text) as OptimkiResult;
+        
+        result.generated_at = new Date().toISOString();
+        
+        return result;
+    } catch (error) {
+        console.error("Optimki Analysis Error:", error);
+        return null;
+    }
+};

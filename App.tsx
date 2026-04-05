@@ -44,6 +44,7 @@ import MarketingKnowledge from './components/MarketingKnowledge';
 import PESTELBuilder from './components/PESTELBuilder';
 import PorterAnalyzer from './components/PorterAnalyzer';
 import STPModelGenerator from './components/STPModelGenerator';
+import OptimkiBuilder from './components/OptimkiBuilder';
 import HomePage from './components/HomePage';
 import FeaturesGuide from './components/FeaturesGuide';
 import LandingPage from './components/LandingPage/LandingPage';
@@ -283,6 +284,8 @@ function AppContent() {
         return <ToolkitPage />;
       case 'STP_MODEL':
         return <STPModelGenerator />;
+      case 'OPTIMKI_BUILDER':
+        return <OptimkiBuilder />;
       case 'LOGIN':
         return <LoginPage onBack={() => setCurrentView('HOME_DASHBOARD')} />;
 

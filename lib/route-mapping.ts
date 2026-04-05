@@ -49,7 +49,8 @@ export const VIEW_TO_SLUG: Record<ViewState, string> = {
     'NEWS_AGGREGATOR': '/marketing-news',
     'TOOLKIT': '/toolkit',
     'STP_MODEL': '/stp-model',
-    'LOGIN': '/login'
+    'LOGIN': '/login',
+    'OPTIMKI_BUILDER': '/optimki'
 };
 
 export const SLUG_TO_VIEW: Record<string, ViewState> = Object.entries(VIEW_TO_SLUG).reduce((acc, [view, slug]) => {
