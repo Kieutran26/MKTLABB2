@@ -1540,13 +1540,20 @@ export interface PorterForce {
   trend_reason?: string; // Lý do dự báo xu hướng
 }
 
+/** Dữ liệu form Porter's Precision — map 1:1 với prompt AI */
 export interface PorterAnalysisInput {
-  industry: string;
-  niche?: string;
-  location: string;
-  businessModel: 'B2B' | 'B2C' | 'B2B2C';
-  userPosition: UserPosition; // Vị thế của người dùng
-  competitors?: string[];
+  nganh_hang: string;
+  thi_truong: string;
+  vi_the: string;
+  mo_hinh: string;
+  san_pham_usp: string;
+  doi_thu: string;
+  nha_cung_cap: string;
+  khach_hang: string;
+  san_pham_thay_the: string;
+  rao_can_gia_nhap: string;
+  muc_tieu: string;
+  ke_hoach: string;
 }
 
 export interface PorterAnalysisResult {
