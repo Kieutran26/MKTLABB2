@@ -359,7 +359,7 @@ const PESTELBuilder: React.FC = () => {
                         </div>
                     </div>
                 ) : !(pestelData || isGenerating) ? (
-                    <div className={`${cardClass} flex flex-col overflow-hidden transition-all duration-500 max-w-[1180px] mx-auto w-full`}>
+                    <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden transition-all duration-500 max-w-[1180px] mx-auto w-full`}>
                         <div className="flex shrink-0 border-b border-stone-200 bg-stone-50/50">
                             {FORM_TABS.map((t) => (
                                 <button
@@ -383,8 +383,8 @@ const PESTELBuilder: React.FC = () => {
                                     <button type="button" className="w-full py-4 bg-stone-900 text-white rounded-2xl font-medium flex items-center justify-center gap-2">Get Pro Max Now <ChevronRight size={18} /></button>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 flex flex-col">
-                                    <div className="space-y-5">
+                                <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+                                    <div className="min-h-0 flex-1 overflow-y-auto space-y-5 px-5 md:px-6 py-5 md:py-6">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <div className="size-8 shrink-0 rounded-full border border-stone-200 flex items-center justify-center text-stone-600 text-sm font-medium">{formTab}</div>

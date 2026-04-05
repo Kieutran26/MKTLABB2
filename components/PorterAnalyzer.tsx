@@ -245,7 +245,7 @@ const PorterAnalyzer: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className="grid min-h-0 flex-1 gap-6 overflow-hidden p-6"
+                className="grid min-h-0 flex-1 gap-6 overflow-auto p-6"
                 style={{ gridTemplateColumns: showHistory ? '260px minmax(0,1fr)' : 'minmax(0,1fr)' }}
             >
                 {showHistory && (
@@ -269,8 +269,8 @@ const PorterAnalyzer: React.FC = () => {
                     </div>
                 )}
 
-                <div className="mx-auto flex h-full min-h-0 min-w-0 w-full max-w-[1178px] flex-col gap-6 overflow-y-auto overscroll-y-contain">
-                <div className={`${cardClass} flex flex-col overflow-hidden`}>
+                <div className="mx-auto flex min-h-0 min-w-0 w-full max-w-[1178px] flex-col">
+                <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                         <div className="space-y-6 p-8 text-center">
                             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-sm">
@@ -288,9 +288,9 @@ const PorterAnalyzer: React.FC = () => {
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col overflow-hidden">
+                        <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col overflow-hidden">
                             {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
-                                <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4">
+                                <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4 shrink-0">
                                     <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Nguồn Brand Vault</p>
                                     <BrandSelector />
                                 </div>
@@ -314,7 +314,7 @@ const PorterAnalyzer: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="p-5 md:p-6">
+                            <div className="min-h-0 flex-1 overflow-y-auto p-5 md:p-6">
                                 {formTab === 1 && (
                                     <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -551,15 +551,12 @@ const PorterAnalyzer: React.FC = () => {
                                             disabled={isGenerating}
                                             className="flex h-10 min-w-[240px] items-center justify-center gap-2 rounded-full bg-stone-950 px-5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95 disabled:opacity-50"
                                         >
-                                            {isGenerating ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
+                                            {isGenerating ? <Loader2 size={18} className="animate-spin" /> : null}
                                             Phân tích Porter&apos;s Precision
                                         </button>
                                     </>
                                 )}
                             </div>
-                            {thinkingStep ? (
-                                <p className="px-5 pb-3 text-center text-[10px] italic text-stone-400">{thinkingStep}</p>
-                            ) : null}
                         </form>
                     )}
                 </div>

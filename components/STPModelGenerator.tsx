@@ -939,7 +939,7 @@ const STPModelGenerator: React.FC = () => {
                 ) : (
                     <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden">
                 {!(stpData || isGenerating) && (
-                <div className="order-2 mx-auto h-fit w-full max-w-[1182px]">
+                <div className="order-2 mx-auto min-h-0 w-full max-w-[1182px]">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                         <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
                             <div className="ms-vault-card">
@@ -998,7 +998,7 @@ const STPModelGenerator: React.FC = () => {
                     ) : (
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className={`${cardClass} flex min-h-[360px] flex-col overflow-hidden`}
+                            className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}
                         >
                             {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
                                 <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4">
