@@ -1,4 +1,3 @@
-import { supabase } from '../lib/supabase';
 import { PorterAnalysisInput, PorterAnalysisResult } from '../types';
 
 export interface SavedPorterAnalysis {
@@ -8,74 +7,55 @@ export interface SavedPorterAnalysis {
     timestamp: number;
 }
 
+const STORAGE_KEY = 'porter_analyses';
+
 export const PorterService = {
-    // Get all saved Porter analyses
+    // Get all saved Porter analyses from localStorage
     async getAnalyses(): Promise<SavedPorterAnalysis[]> {
         try {
-            const { data, error } = await supabase
-                .from('porter_analyses')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('Error fetching Porter analyses:', error);
-                return [];
-            }
-
-            return (data || []).map(item => ({
-                id: item.id,
-                input: item.input,
-                data: item.result_data,
-                timestamp: new Date(item.created_at).getTime()
-            }));
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (!stored) return [];
+            const analyses = JSON.parse(stored) as SavedPorterAnalysis[];
+            return analyses.sort((a, b) => b.timestamp - a.timestamp);
         } catch (error) {
-            console.error('Error in getAnalyses:', error);
+            console.error('Error loading Porter analyses:', error);
             return [];
         }
     },
 
-    // Save a Porter analysis
+    // Save a Porter analysis to localStorage
     async saveAnalysis(analysis: SavedPorterAnalysis): Promise<boolean> {
         try {
-            const dbRecord = {
-                id: analysis.id,
-                input: analysis.input,
-                result_data: analysis.data,
-                created_at: new Date(analysis.timestamp).toISOString()
-            };
-
-            const { error } = await supabase
-                .from('porter_analyses')
-                .upsert(dbRecord, { onConflict: 'id' });
-
-            if (error) {
-                console.error('Error saving Porter analysis:', error);
-                return false;
+            const stored = localStorage.getItem(STORAGE_KEY);
+            const analyses: SavedPorterAnalysis[] = stored ? JSON.parse(stored) : [];
+            
+            // Check if exists, update or add
+            const existingIndex = analyses.findIndex(a => a.id === analysis.id);
+            if (existingIndex >= 0) {
+                analyses[existingIndex] = analysis;
+            } else {
+                analyses.unshift(analysis);
             }
-
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(analyses));
             return true;
         } catch (error) {
-            console.error('Error in saveAnalysis:', error);
+            console.error('Error saving Porter analysis:', error);
             return false;
         }
     },
 
-    // Delete a Porter analysis
+    // Delete a Porter analysis from localStorage
     async deleteAnalysis(id: string): Promise<boolean> {
         try {
-            const { error } = await supabase
-                .from('porter_analyses')
-                .delete()
-                .eq('id', id);
-
-            if (error) {
-                console.error('Error deleting Porter analysis:', error);
-                return false;
-            }
-
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (!stored) return true;
+            const analyses: SavedPorterAnalysis[] = JSON.parse(stored);
+            const filtered = analyses.filter(a => a.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
             return true;
         } catch (error) {
-            console.error('Error in deleteAnalysis:', error);
+            console.error('Error deleting Porter analysis:', error);
             return false;
         }
     }

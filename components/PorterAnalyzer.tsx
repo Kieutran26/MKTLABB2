@@ -165,16 +165,22 @@ const PorterAnalyzer: React.FC = () => {
     };
 
     const handleSave = async () => {
-        if (!analysisData || !currentInput) return;
+        if (!analysisData || !currentInput) {
+            toast.error('Chưa có dữ liệu để lưu');
+            return;
+        }
         const newAnalysis: SavedPorterAnalysis = {
-            id: Date.now().toString(),
+            id: crypto.randomUUID(),
             input: currentInput,
             data: analysisData,
             timestamp: Date.now(),
         };
-        if (await PorterService.saveAnalysis(newAnalysis)) {
+        const saved = await PorterService.saveAnalysis(newAnalysis);
+        if (saved) {
             await loadSavedAnalyses();
             toast.success('Đã lưu');
+        } else {
+            toast.error('Lưu thất bại');
         }
     };
 
