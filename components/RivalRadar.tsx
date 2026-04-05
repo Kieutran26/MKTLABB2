@@ -182,7 +182,7 @@ const RivalRadar: React.FC = () => {
     // ========================
     if (viewMode === 'list') {
         return (
-            <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
+            <div className="min-h-full bg-[#FCFDFC] font-sans">
                 <FeatureHeader
                     icon={Radar}
                     eyebrow="COMPETITIVE INTELLIGENCE & MARKET ANALYSIS"
@@ -201,7 +201,7 @@ const RivalRadar: React.FC = () => {
                 <div className="mx-auto max-w-7xl px-5 pt-8 md:px-8">
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {competitors.length === 0 ? (
-                            <div className={`${cardClass} col-span-full flex min-h-[320px] flex-col items-center justify-center p-12 text-center md:p-16`}>
+                            <div className={`${cardClass} col-span-full flex min-h-[200px] flex-col items-center justify-center p-12 text-center md:p-16`}>
                                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
                                     <Radar size={28} strokeWidth={1.25} className="text-stone-300" />
                                 </div>

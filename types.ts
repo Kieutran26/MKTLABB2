@@ -1051,6 +1051,7 @@ export interface BriefExecutionPhase {
 
 export interface BriefKPIs {
   estimated_reach: string;
+  success_metrics: string;
   required_content_pieces: string[];
 }
 

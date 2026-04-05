@@ -242,7 +242,7 @@ const AutoBriefGenerator: React.FC = () => {
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex min-h-full flex-col bg-[#FCFDFC] font-sans">
             <FeatureHeader
                 icon={FileText}
                 eyebrow="CAMPAIGN PLANNING"
@@ -285,12 +285,9 @@ const AutoBriefGenerator: React.FC = () => {
                 </div>
             </FeatureHeader>
 
-            <div
-                className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
-                style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,420px) 1fr' : 'minmax(0,420px) 1fr' }}
-            >
+            <div className="grid gap-4 p-4 md:p-6 md:pt-5" style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,420px) 1fr' : 'minmax(0,420px) 1fr' }}>
                 {showHistory && (
-                    <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                    <div className={`${cardClass} flex flex-col h-fit`}>
                         <div className="border-b border-stone-100 px-5 py-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
@@ -300,7 +297,7 @@ const AutoBriefGenerator: React.FC = () => {
                                 <span className="text-xs font-normal text-stone-400">{savedBriefs.length} mục</span>
                             </div>
                         </div>
-                        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
+                        <div className="space-y-2 p-4">
                             {savedBriefs.length === 0 ? (
                                 <div className="py-10 text-center text-sm font-normal text-stone-400">
                                     Chưa có Brief nào được lưu.
@@ -342,7 +339,7 @@ const AutoBriefGenerator: React.FC = () => {
                     </div>
                 )}
 
-                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+                <div className={`${cardClass} h-fit p-6 md:p-8`}>
                     <h2 className="mb-2 flex items-center gap-2 text-lg font-medium tracking-tight text-stone-900">
                         <FileText size={20} strokeWidth={1.25} className="text-stone-400" />
                         Thông tin dự án
@@ -473,9 +470,9 @@ const AutoBriefGenerator: React.FC = () => {
                     </form>
                 </div>
 
-                <div className={`${cardClass} min-h-0 overflow-y-auto p-6 md:p-8`}>
+                <div className={`${cardClass} h-fit p-6 md:p-8`}>
                     {!briefData && !isGenerating && (
-                        <div className="flex min-h-[360px] flex-col items-center justify-center text-stone-400">
+                        <div className="flex min-h-[200px] flex-col items-center justify-center text-stone-400">
                             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-stone-100 bg-stone-50/80">
                                 <FileText size={30} strokeWidth={1.25} className="text-stone-300" />
                             </div>
@@ -486,7 +483,7 @@ const AutoBriefGenerator: React.FC = () => {
                     )}
 
                     {isGenerating && (
-                        <div className="flex min-h-[360px] flex-col items-center justify-center">
+                        <div className="flex min-h-[200px] flex-col items-center justify-center">
                             <div className="relative mb-8 h-14 w-14">
                                 <div className="absolute inset-0 rounded-full border-4 border-stone-100"></div>
                                 <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-stone-800 animate-spin"></div>

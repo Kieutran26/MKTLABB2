@@ -431,7 +431,7 @@ ${riskAssessment.message}
     ];
 
     return (
-        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex min-h-full flex-col bg-[#FCFDFC] font-sans">
             {/* Header */}
             <FeatureHeader
                 icon={TrendingUp}
@@ -463,9 +463,9 @@ ${riskAssessment.message}
                 </div>
             </FeatureHeader>
 
-            <div className="flex-1 grid overflow-hidden" style={{ gridTemplateColumns: '420px 1fr' }}>
+            <div className="flex-1 grid" style={{ gridTemplateColumns: '420px 1fr' }}>
                 {/* LEFT: Input Parameters */}
-                <div className="h-full overflow-y-auto border-r border-stone-200/80 bg-white p-6">
+                <div className="border-r border-stone-200/80 bg-white p-6">
                     <div className={`${cardClass} p-6 space-y-6`}>
                         {/* NEW: Industry & Channel Selection */}
                         <div className="space-y-4">
@@ -653,7 +653,7 @@ ${riskAssessment.message}
                 </div>
 
                 {/* RIGHT: Forecast Dashboard */}
-                <div className="h-full overflow-auto bg-stone-100/60 p-6">
+                <div className="bg-stone-100/60 p-6">
                     <div className="max-w-4xl mx-auto space-y-6">
                         {/* Reality Check Warnings - NEW */}
                         {realityWarnings.length > 0 && (

@@ -553,7 +553,7 @@ const BrandVault: React.FC = () => {
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-10">
-                    <div className="max-w-4xl mx-auto space-y-8 pb-20">
+                    <div className="max-w-4xl mx-auto space-y-8">
 
                         {/* TAB: IDENTITY */}
                         {activeTab === 'identity' && (

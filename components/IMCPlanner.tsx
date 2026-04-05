@@ -717,7 +717,7 @@ const IMCPlanner: React.FC = () => {
                                         <BrandSelector />
                                     </div>
                                 )}
-                                <div className={`${cardClass} flex min-h-[360px] flex-col overflow-hidden`}>
+                                <div className={`${cardClass} flex flex-col overflow-hidden`}>
                                     <div className="flex border-b border-stone-200 bg-stone-50/50">
                                         {([1, 2, 3] as const).map((i) => (
                                             <div

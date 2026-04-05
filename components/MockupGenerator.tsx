@@ -624,7 +624,7 @@ const MockupGenerator: React.FC = () => {
                  
                  {/* LEFT SIDEBAR: EDITOR */}
                  <div className="custom-scrollbar z-10 flex w-[420px] flex-col overflow-y-auto border-r border-stone-200 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-                     <div className="p-6 pb-20 space-y-8">
+                     <div className="p-6 space-y-8">
                          
                          {/* 1. Platform Selector */}
                          <div className="grid grid-cols-5 gap-2">

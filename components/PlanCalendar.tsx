@@ -243,7 +243,7 @@ const PlanCalendar: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className={`${cardClass} relative flex min-h-[320px] flex-1 flex-col p-6`}>
+                    <div className={`${cardClass} relative flex flex-1 flex-col p-6`}>
                         <h3 className="mb-4 text-sm font-medium text-stone-900">Chi tiết Plan</h3>
                         {selectedPlan ? (
                             <div className="animate-fade-in space-y-4">

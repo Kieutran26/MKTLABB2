@@ -210,7 +210,7 @@ const KeyVisuals: React.FC<KeyVisualsProps> = ({ initialView }) => {
 
                 <div className="min-h-0 flex-1 overflow-y-auto p-6 md:p-8">
                     {projects.length === 0 ? (
-                        <div className="flex min-h-[420px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-white/60 text-center">
+                        <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-white/60 text-center">
                             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-stone-100 text-stone-300">
                                 <ImageIcon size={36} strokeWidth={1} />
                             </div>
@@ -650,7 +650,7 @@ const KeyVisuals: React.FC<KeyVisualsProps> = ({ initialView }) => {
                 <div className="min-h-0 flex-1 overflow-y-auto bg-stone-100/60 p-6 md:p-8 custom-scrollbar">
                     <div className="mx-auto max-w-5xl">
                         {currentProject.images.length === 0 ? (
-                            <div className="flex min-h-[500px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-white/60 text-center">
+                            <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-stone-200 bg-white/60 text-center">
                                 <div className="mb-4 text-stone-300">
                                     <ImageIcon size={56} strokeWidth={0.5} />
                                 </div>

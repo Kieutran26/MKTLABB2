@@ -205,7 +205,7 @@ const PersonaBuilder: React.FC = () => {
 
     if (viewMode === 'list') {
         return (
-            <div className="min-h-full bg-[#FCFDFC] font-sans pb-20">
+            <div className="min-h-full bg-[#FCFDFC] font-sans">
                 <FeatureHeader
                     icon={Users}
                     eyebrow="AUDIENCE INSIGHTS & PERSONA DESIGN"

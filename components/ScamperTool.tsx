@@ -181,7 +181,7 @@ const ScamperTool: React.FC = () => {
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex min-h-full flex-col bg-[#FCFDFC] font-sans">
             <FeatureHeader
                 icon={Lightbulb}
                 eyebrow="CREATIVE THINKING"
@@ -208,9 +208,9 @@ const ScamperTool: React.FC = () => {
                 </div>
             </FeatureHeader>
 
-            <div className="flex min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5">
+            <div className="flex flex-1 gap-4 p-4 md:p-6 md:pt-5">
                 {/* Input Form */}
-                <div className={`${cardClass} min-h-0 w-full overflow-y-auto p-6 md:p-8 lg:w-auto lg:min-w-[480px]`}>
+                <div className={`${cardClass} h-fit w-full p-6 md:p-8 lg:w-auto lg:min-w-[480px]`}>
                     <h2 className="mb-6 text-lg font-medium tracking-tight text-stone-900">Thông tin tư duy</h2>
 
                     <div className="space-y-5">
@@ -317,7 +317,7 @@ const ScamperTool: React.FC = () => {
                 </div>
 
                 {/* Results Grid */}
-                <div className="min-h-0 flex-1 overflow-y-auto">
+                <div className="flex-1">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                         {SCAMPER_METHODS.map(method => (
                             <div

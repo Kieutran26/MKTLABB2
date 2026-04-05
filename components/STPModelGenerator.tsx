@@ -852,10 +852,10 @@ const STPModelGenerator: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className={`flex min-h-0 flex-1 flex-col overflow-hidden pb-3 sm:pb-4 lg:pb-4 ${
+                className={`flex min-h-0 flex-1 flex-col pb-3 sm:pb-4 lg:pb-4 ${
                     stpData && !showHistory
-                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
-                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0 overflow-hidden'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10 overflow-y-auto'
                 }`}
             >
                 {showHistory ? (
@@ -937,7 +937,7 @@ const STPModelGenerator: React.FC = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-0 overflow-hidden">
+                    <div className="grid min-w-0 grid-cols-1 grid-rows-[minmax(0,1fr)] gap-0">
                 {!(stpData || isGenerating) && (
                 <div className="order-2 mx-auto min-h-0 w-full max-w-[1182px]">
                     {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
@@ -998,7 +998,7 @@ const STPModelGenerator: React.FC = () => {
                     ) : (
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}
+                            className={`${cardClass} flex flex-col`}
                         >
                             {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
                                 <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4">
@@ -1021,7 +1021,7 @@ const STPModelGenerator: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="min-h-0 flex-1 overflow-y-auto p-5 md:p-6">
+                            <div className="p-5 md:p-6">
                                 {formTab === 1 && (
                                     <div className="animate-in fade-in slide-in-from-right-4 space-y-5 duration-300">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

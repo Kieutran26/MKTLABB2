@@ -250,10 +250,10 @@ const PorterAnalyzer: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className={`flex min-h-0 flex-1 flex-col overflow-hidden pb-3 sm:pb-4 lg:pb-4 ${
+                className={`flex min-h-0 flex-1 flex-col pb-3 sm:pb-4 lg:pb-4 ${
                     analysisData && !showHistory
-                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
-                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0 overflow-hidden'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10 overflow-y-auto'
                 }`}
             >
                 {showHistory ? (
@@ -336,7 +336,7 @@ const PorterAnalyzer: React.FC = () => {
                         </div>
                     </div>
                 ) : !analysisData ? (
-                        <div className={`${cardClass} flex min-h-0 flex-1 flex-col overflow-hidden`}>
+                        <div className={`${cardClass} flex flex-col overflow-hidden`}>
                             {activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
                                 <div className="space-y-6 p-8 text-center">
                                     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-sm">
@@ -354,7 +354,7 @@ const PorterAnalyzer: React.FC = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
                                     {activeTab === 'vault' && profile?.subscription_tier === 'promax' && (
                                         <div className="border-b border-stone-200 bg-stone-50/50 px-5 py-4 shrink-0">
                                             <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-400">Nguồn Brand Vault</p>
@@ -380,7 +380,7 @@ const PorterAnalyzer: React.FC = () => {
                                         ))}
                                     </div>
 
-                                    <div className="min-h-0 flex-1 overflow-y-auto p-5 md:p-6">
+                                    <div className="p-5 md:p-6">
                                         {formTab === 1 && (
                                             <div className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-300">
                                                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

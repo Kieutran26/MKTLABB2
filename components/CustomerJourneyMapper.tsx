@@ -462,7 +462,7 @@ const CustomerJourneyMapper: React.FC = () => {
     };
 
     return (
-        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC] font-sans">
+        <div className="flex min-h-full flex-col bg-[#FCFDFC] font-sans">
             <Toaster position="top-center" />
 
             {validationResult && validationResult.validation_status !== 'PASS' && (
@@ -513,11 +513,11 @@ const CustomerJourneyMapper: React.FC = () => {
             </FeatureHeader>
 
             <div
-                className="grid min-h-0 flex-1 gap-4 overflow-hidden p-4 md:p-6 md:pt-5"
+                className="grid flex-1 gap-4 p-4 md:p-6 md:pt-5"
                 style={{ gridTemplateColumns: showHistory ? 'minmax(0,280px) minmax(0,400px) 1fr' : 'minmax(0,400px) 1fr' }}
             >
                 {showHistory && (
-                    <div className={`${cardClass} flex min-h-0 flex-col overflow-hidden`}>
+                    <div className={`${cardClass} flex flex-col h-fit sticky top-6`}>
                         <div className="flex items-center justify-between border-b border-stone-100 px-5 py-4">
                             <h3 className="flex items-center gap-2 text-sm font-medium tracking-tight text-stone-900">
                                 <History size={18} strokeWidth={1.25} className="text-stone-400" />
@@ -532,7 +532,7 @@ const CustomerJourneyMapper: React.FC = () => {
                                 <X size={18} strokeWidth={1.25} />
                             </button>
                         </div>
-                        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto p-4">
+                        <div className="space-y-2 p-4">
                             {savedJourneys.length === 0 ? (
                                 <div className="py-10 text-center text-sm text-stone-400">
                                     <History size={24} strokeWidth={1.25} className="mx-auto mb-2 opacity-40" />
@@ -567,7 +567,7 @@ const CustomerJourneyMapper: React.FC = () => {
                     </div>
                 )}
 
-                <div className={`${cardClass} min-h-0 overflow-y-auto border-r-0 md:border-r md:border-sky-200/40 md:pr-1`}>
+                <div className={`${cardClass} h-fit border-r-0 md:border-r md:border-sky-200/40 md:pr-1`}>
                     <div className="p-6 md:p-8">
                         <div className="mb-6">
                             <div className="mb-2 flex items-center gap-2">
@@ -700,7 +700,7 @@ const CustomerJourneyMapper: React.FC = () => {
                     </div>
                 </div>
 
-                <div className={`${cardClass} min-h-0 overflow-auto`}>
+                <div className={`${cardClass} h-fit overflow-x-auto`}>
                     <div className="p-6 md:p-8">
                         {!journeyData && !isGenerating && (
                             <div className="flex min-h-[280px] flex-col items-center justify-center text-stone-400">

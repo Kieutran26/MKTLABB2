@@ -282,7 +282,7 @@ const StrategicModelGenerator: React.FC = () => {
     };
 
     const renderSWOT = (data: any) => (
-        <div className="grid min-h-[500px] grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-emerald-100/80 bg-emerald-50/20 p-1">
                 <EditableList items={data.strengths} title="Strengths (Điểm mạnh)" accentClass="border-t-2 border-t-emerald-600/50" />
             </div>
@@ -330,7 +330,7 @@ const StrategicModelGenerator: React.FC = () => {
         ];
 
         return (
-            <div className="grid min-h-[500px] grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {pillars.map((p) => (
                     <div key={p.key} className="h-full rounded-2xl border border-stone-100 bg-stone-50/30 p-1">
                         <EditableList items={data[p.key]} title={p.title} accentClass={p.accent} icon={p.icon} />
