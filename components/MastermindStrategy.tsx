@@ -1,23 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map as LucideMap, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
 } from 'lucide-react';
 import { generateMastermindStrategy } from '../services/geminiService';
 import MastermindStrategyEditorial from './MastermindStrategyEditorial';
 import FeatureHeader from './FeatureHeader';
-import {
-    WS_PRIMARY_CTA,
-    WS_SEGMENT_SHELL,
-    wsHistoryToggleClass,
-    wsWorkspaceTabClass,
-} from './workspace-toolbar-classes';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
 import { MastermindStrategy, Persona } from '../types';
 import { Toast, ToastType } from './Toast';
-import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import BrandSelector from './BrandSelector';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { saasService } from '../services/saasService';
@@ -98,8 +91,6 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     // Results
     const [strategyResult, setStrategyResult] = useState<MastermindStrategy | null>(null);
-    const [editingMastermindTitle, setEditingMastermindTitle] = useState(false);
-    const [mastermindTitleDraft, setMastermindTitleDraft] = useState('');
 
     useEffect(() => {
         const loadUser = async () => {
@@ -202,27 +193,6 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         }
     };
 
-    const commitMastermindTitle = () => {
-        if (!strategyResult) return;
-        const t = mastermindTitleDraft.trim();
-        if (t) {
-            const updated = { ...strategyResult, name: t };
-            setStrategyResult(updated);
-            setAvailableStrategies((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
-            try {
-                const localRaw = localStorage.getItem('mktlab_mastermind_history');
-                if (localRaw) {
-                    const local: MastermindStrategy[] = JSON.parse(localRaw);
-                    const next = local.map((s) => (s.id === updated.id ? updated : s));
-                    localStorage.setItem('mktlab_mastermind_history', JSON.stringify(next));
-                }
-            } catch {
-                /* ignore */
-            }
-        }
-        setEditingMastermindTitle(false);
-    };
-
     const handleSave = async () => {
         if (!strategyResult) return;
         try {
@@ -257,26 +227,18 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     if (viewMode === 'create' || viewMode === 'history') {
         return (
-            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
+            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
                 <FeatureHeader 
                     icon={Lightbulb}
                     eyebrow="AI-POWERED STRATEGIC FRAMEWORK"
                     title="Mastermind Strategy"
                     subline="Đối thoại cùng AI → Xây dựng chiến lược đa kênh chuyên nghiệp."
                 >
-                    <div className={WS_SEGMENT_SHELL}>
-                         <button
-                             type="button"
-                             onClick={() => setActiveTab('manual')}
-                             className={wsWorkspaceTabClass(activeTab === 'manual')}
-                         >
+                    <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
+                         <button onClick={() => setActiveTab('manual')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'manual' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
                              <Pencil size={14} /> Thủ công
                          </button>
-                         <button
-                             type="button"
-                             onClick={() => setActiveTab('vault')}
-                             className={wsWorkspaceTabClass(activeTab === 'vault')}
-                         >
+                         <button onClick={() => setActiveTab('vault')} className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === 'vault' ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5' : 'text-stone-400 hover:text-stone-600'}`}>
                              <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
                          </button>
                     </div>
@@ -284,18 +246,14 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                     <button
                         type="button"
                         onClick={() => setViewMode(viewMode === 'history' ? 'create' : 'history')}
-                        className={wsHistoryToggleClass(viewMode === 'history')}
+                        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl border transition-all ${viewMode === 'history' ? 'bg-stone-900 text-white shadow-md border-stone-900' : 'border-stone-200 text-stone-600 shadow-sm hover:bg-stone-50'}`}
                         title={`Lịch sử (${availableStrategies.length})`}
                         aria-label={`Lịch sử, ${availableStrategies.length} chiến lược đã lưu`}
                     >
-                        <History size={17} strokeWidth={1.5} />
+                        <History size={18} strokeWidth={1.5} />
                     </button>
 
-                    <button 
-                        type="button"
-                        onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} 
-                        className={WS_PRIMARY_CTA}
-                    >
+                    <button onClick={() => { setStep(1); setStrategyResult(null); setViewMode('create'); }} className="px-6 py-2.5 rounded-2xl bg-stone-950 text-white text-sm font-medium hover:bg-stone-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg active:scale-95">
                         <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                     </button>
                 </FeatureHeader>
@@ -365,17 +323,53 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                 )}
                             </div>
                         ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                            <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
-                                <BrandVaultUpsellCard
-                                    title="Strategic Mastermind Pro"
-                                    description="AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content 'Bách phát bách trúng'."
-                                    benefits={[
-                                        "Kết nối AI DNA: Đồng bộ Persona & DNA từ Vault",
-                                        "Chiến lược đa kênh: Tối ưu nội dung toàn hệ sinh thái",
-                                        "Insight thị trường: Phân tích đối thủ & xu hướng",
-                                        "Quyền riêng tư: Bảo mật dữ liệu chiến lược tuyệt đối"
-                                    ]}
-                                />
+                            <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                                <div className="ms-vault-card">
+                                    <div className="ms-vault-content">
+                                        <div className="ms-vault-upper">
+                                            <div className="ms-vault-label">
+                                                <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
+                                                Brand Vault Access
+                                            </div>
+                                            <h3 className="ms-vault-title">Strategic Mastermind Pro</h3>
+                                            <p className="ms-vault-desc">
+                                                AI sẽ kết nối Persona, Thị trường và DNA thương hiệu từ Vault để tạo ra chiến lược Content "Bách phát bách trúng".
+                                            </p>
+                                        </div>
+
+                                        <div className="ms-vault-benefits">
+                                            {[
+                                                "Kết nối AI DNA: Đồng bộ Persona & DNA từ Vault",
+                                                "Chiến lược đa kênh: Tối ưu nội dung toàn hệ sinh thái",
+                                                "Insight thị trường: Phân tích đối thủ & xu hướng",
+                                                "Quyền riêng tư: Bảo mật dữ liệu chiến lược tuyệt đối"
+                                            ].map((benefit, bIdx) => (
+                                                <div key={bIdx} className="ms-vault-benefit-item">
+                                                    <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
+                                                    <span>{benefit}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <button className="ms-vault-cta">
+                                            Nâng cấp Pro Max <ChevronRight size={18} />
+                                        </button>
+                                    </div>
+                                    <div className="ms-vault-visual">
+                                        <div className="ms-vault-dna">
+                                            {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                                <div 
+                                                    key={i} 
+                                                    className="ms-vault-dna-bar" 
+                                                    style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="ms-vault-lock-circle">
+                                            <Lock size={32} strokeWidth={1.5} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden flex flex-col">
@@ -390,7 +384,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     ))}
                                 </div>
                                 
-                                <div className="flex-1 p-6">
+                                <div className="flex-1 px-8 py-6">
                                     {step === 1 && (
                                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
                                             <div className="flex flex-col gap-3 pb-1 sm:flex-row sm:items-center sm:justify-between">
@@ -405,7 +399,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                                 )}
                                             </div>
                                             {activeTab === 'manual' ? (
-                                                <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+                                                <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
                                                     <div className="flex flex-col gap-y-4">
                                                         <ImcPlannerEditorialField
                                                             title="Thương hiệu"
@@ -629,7 +623,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     )}
                                 </div>
 
-                                <div className="px-6 py-4 border-t border-stone-100 bg-stone-50/20 flex justify-between items-center shrink-0">
+                                <div className="px-8 py-4 border-t border-stone-100 bg-stone-50/20 flex justify-between items-center shrink-0">
                                     {step > 1 ? (
                                         <button 
                                             onClick={() => setStep(step-1)} 
@@ -640,8 +634,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                                     ) : <div />}
                                     <button 
                                         onClick={step < 3 ? () => setStep(step+1) : handleGenerate} 
-                                        className="h-10 bg-stone-950 text-white rounded-full font-medium hover:bg-stone-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-stone-200/50"
-                                        style={step < 3 ? { width: '111.109px' } : { paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+                                        className="px-10 h-10 bg-stone-950 text-white rounded-full font-medium hover:bg-stone-800 transition-all flex items-center gap-2 shadow-lg shadow-stone-200/50"
                                     >
                                         {isGenerating ? <Loader2 className="animate-spin" size={18} /> : (step < 3 ? 'Kế tiếp' : 'Xây dựng chiến lược')}
                                     </button>
@@ -657,59 +650,13 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     }
 
     if (viewMode === 'dashboard' && strategyResult) {
+        const { result } = strategyResult;
         return (
-            <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
-                <header className="relative z-10 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between gap-4">
-                    <div className="flex min-w-0 flex-1 items-center gap-4">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEditingMastermindTitle(false);
-                                setViewMode('create');
-                            }}
-                            className="shrink-0 rounded-full p-2 transition-colors hover:bg-stone-100"
-                            aria-label="Quay lại form"
-                        >
-                            <ArrowRight size={20} className="rotate-180" />
-                        </button>
-                        <div className="min-w-0 flex-1">
-                            {editingMastermindTitle ? (
-                                <input
-                                    autoFocus
-                                    className="w-full max-w-xl border-b border-stone-300 bg-transparent text-xl font-medium text-stone-900 outline-none focus:border-stone-500"
-                                    value={mastermindTitleDraft}
-                                    onChange={(e) => setMastermindTitleDraft(e.target.value)}
-                                    onBlur={commitMastermindTitle}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            commitMastermindTitle();
-                                        }
-                                        if (e.key === 'Escape') {
-                                            setMastermindTitleDraft(strategyResult.name);
-                                            setEditingMastermindTitle(false);
-                                        }
-                                    }}
-                                />
-                            ) : (
-                                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                    <h2 className="truncate text-xl font-medium text-stone-900">{strategyResult.name}</h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setMastermindTitleDraft(strategyResult.name);
-                                            setEditingMastermindTitle(true);
-                                        }}
-                                        className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
-                                        aria-label="Sửa tên chiến lược"
-                                        title="Sửa tên chiến lược"
-                                    >
-                                        <Pencil size={16} strokeWidth={1.75} />
-                                    </button>
-                                </div>
-                            )}
-                            <p className="mt-0.5 text-xs text-stone-400">Chiến lược tổng thể Mastermind</p>
-                        </div>
+            <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+                <header className="z-20 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setViewMode('create')} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><ArrowRight size={20} className="rotate-180" /></button>
+                        <div><h2 className="text-xl font-medium">{strategyResult.name}</h2><p className="text-xs text-stone-400 mt-0.5">Chiến lược tổng thể Mastermind</p></div>
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={handleSave} className="px-5 py-2.5 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 flex items-center gap-2"><Save size={16} /> Lưu</button>
@@ -718,10 +665,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 </header>
 
                 <div className="flex-1 overflow-y-auto">
-                    <MastermindStrategyEditorial
-                        strategy={strategyResult}
-                        subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? 'free'}
-                    />
+                    <MastermindStrategyEditorial strategy={strategyResult} />
                 </div>
 
                 

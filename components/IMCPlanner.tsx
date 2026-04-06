@@ -1,24 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Diamond, ChevronRight, Zap, Pencil, X, ShieldCheck } from 'lucide-react';
+import { Lightbulb, TrendingUp, DollarSign, Calendar, Sparkles, Check, Trash2, Target, Users, Megaphone, Globe, Plus, History, ArrowLeft, AlertTriangle, Eye, ShoppingCart, Building2, ChevronDown, ChevronUp, Package, Film, FileText, Save, Wallet, Scale, Monitor, Database, Image, Lock, Diamond, ChevronRight, Zap, Pencil, X, ShieldCheck } from 'lucide-react';
 import { ImcPlannerEditorialField } from './imc-planner-editorial-field';
 import { EditorialFieldHint } from './mastermind-editorial-field-hint';
 import { IMCService, IMCInput, PlanningMode, CampaignFocus, CalculatedMetrics, AssetChecklist, BudgetDistribution } from '../services/imcService';
 import { IMCPlan, IMCExecutionPhase } from '../types';
 import { useAuth } from './AuthContext';
-import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import { useBrand } from './BrandContext';
 import BrandSelector from './BrandSelector';
 import FeatureHeader from './FeatureHeader';
-import {
-    WS_PRIMARY_CTA,
-    WS_SEGMENT_SHELL,
-    wsHistoryToggleClass,
-    wsWorkspaceTabClass,
-} from './workspace-toolbar-classes';
 import IMCOutputEditorial from './IMCOutputEditorial';
 import { saasService } from '../services/saasService';
 import './MastermindStrategyEditorial.css';
-import './imc-planner-editorial.css';
 
 type ViewMode = 'create' | 'history' | 'detail';
 
@@ -54,8 +46,6 @@ const IMCPlanner: React.FC = () => {
     const [generating, setGenerating] = useState(false);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [editingImcProjectName, setEditingImcProjectName] = useState(false);
-    const [imcProjectNameDraft, setImcProjectNameDraft] = useState('');
     const [viewMode, setViewMode] = useState<ViewMode>('create');
     const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set());
     const { user } = useAuth();
@@ -388,18 +378,6 @@ const IMCPlanner: React.FC = () => {
         setSaving(false);
     };
 
-    const commitImcProjectName = () => {
-        if (!currentPlan) return;
-        const t = imcProjectNameDraft.trim();
-        if (t) setCurrentPlan({ ...currentPlan, campaign_name: t });
-        setEditingImcProjectName(false);
-    };
-
-    const backFromImcDetail = () => {
-        setEditingImcProjectName(false);
-        setViewMode('create');
-    };
-
     const getPhaseIcon = (phase: string) => {
         switch (phase) {
             case 'AWARE': return <Eye size={20} />;
@@ -441,113 +419,39 @@ const IMCPlanner: React.FC = () => {
 
     const cardClass = 'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 
-    const imcDetailDateLabel =
-        viewMode === 'detail' && currentPlan
-            ? new Date(currentPlan.created_at).toLocaleDateString('vi-VN')
-            : '';
-
     return (
-        <div className="flex h-full flex-col overflow-hidden bg-[#FCFDFC]">
-            {viewMode === 'detail' && currentPlan ? (
-                <header className="imc-planner-detail-gutter relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-stone-200/70 bg-[#FCFDFC] py-4">
-                    <div className="flex min-w-0 flex-1 items-center gap-4">
-                        <button
-                            type="button"
-                            onClick={backFromImcDetail}
-                            className="shrink-0 rounded-full p-2 transition-colors hover:bg-stone-100"
-                            aria-label="Quay lại form nhập liệu"
-                        >
-                            <ArrowLeft size={20} strokeWidth={1.75} className="text-stone-800" />
-                        </button>
-                        <div className="min-w-0 flex-1">
-                            {editingImcProjectName ? (
-                                <input
-                                    autoFocus
-                                    className="w-full max-w-xl border-b border-stone-300 bg-transparent text-xl font-medium text-stone-900 outline-none focus:border-stone-500"
-                                    value={imcProjectNameDraft}
-                                    onChange={(e) => setImcProjectNameDraft(e.target.value)}
-                                    onBlur={commitImcProjectName}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            commitImcProjectName();
-                                        }
-                                        if (e.key === 'Escape') {
-                                            setImcProjectNameDraft(currentPlan.campaign_name);
-                                            setEditingImcProjectName(false);
-                                        }
-                                    }}
-                                />
-                            ) : (
-                                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                                    <h2 className="truncate text-xl font-medium text-stone-900">{currentPlan.campaign_name}</h2>
-                                    <span className="shrink-0 text-base font-normal text-stone-400">– {imcDetailDateLabel}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setImcProjectNameDraft(currentPlan.campaign_name);
-                                            setEditingImcProjectName(true);
-                                        }}
-                                        className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700"
-                                        aria-label="Sửa tên dự án"
-                                        title="Sửa tên dự án"
-                                    >
-                                        <Pencil size={16} strokeWidth={1.75} />
-                                    </button>
-                                </div>
-                            )}
-                            <p className="mt-0.5 text-xs text-stone-400">Kế hoạch IMC đa kênh</p>
-                        </div>
-                    </div>
-                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                        <button
-                            type="button"
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-800 transition-colors hover:bg-stone-50 disabled:opacity-50"
-                        >
-                            <Save size={16} strokeWidth={1.75} />
-                            {saving ? 'Đang lưu…' : 'Lưu'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEditingImcProjectName(false);
-                                handleResetForm();
-                            }}
-                            className="flex items-center gap-2 rounded-full bg-stone-950 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-stone-800"
-                        >
-                            <Plus size={17} strokeWidth={2} />
-                            Tạo kế hoạch mới
-                        </button>
-                    </div>
-                </header>
-            ) : (
-                <FeatureHeader
+        <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
+            <FeatureHeader
                 icon={Target}
                 eyebrow="AI-POWERED STRATEGIC FRAMEWORK"
                 title="IMC Planner"
                 subline="3 bước nhập liệu → Kế hoạch IMC đa kênh chuyên nghiệp."
             >
                 {quota && (
-                    <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[10px] font-medium text-stone-600">
+                    <div className="flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1 text-[10px] font-medium text-stone-600 mr-2">
                         <Zap size={10} className="text-amber-500 fill-amber-500" />
                         {quota.plan_limit - quota.plan_creation_count} lượt kế hoạch
                     </div>
                 )}
 
-                <div className={WS_SEGMENT_SHELL}>
+                <div className="inline-flex gap-1 rounded-2xl border border-stone-200 bg-stone-50/30 p-1 mr-2 shadow-sm">
                     <button
                         type="button"
                         onClick={() => setActiveTab('manual')}
-                        className={wsWorkspaceTabClass(activeTab === 'manual')}
+                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'manual'
+                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
+                            : 'text-stone-400 hover:text-stone-600'
+                            }`}
                     >
                         <Pencil size={14} /> Thủ công
                     </button>
                     <button
                         type="button"
                         onClick={() => setActiveTab('vault')}
-                        className={wsWorkspaceTabClass(activeTab === 'vault')}
+                        className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all ${activeTab === 'vault'
+                            ? 'bg-white text-stone-900 shadow-sm ring-1 ring-stone-900/5'
+                            : 'text-stone-400 hover:text-stone-600'
+                            }`}
                     >
                         <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} />
                         Brand Vault
@@ -557,7 +461,10 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={() => setViewMode('history')}
-                    className={wsHistoryToggleClass(viewMode === 'history')}
+                    className={`inline-flex size-10 shrink-0 items-center justify-center rounded-2xl transition-all ${viewMode === 'history'
+                        ? 'bg-stone-900 text-white shadow-md'
+                        : 'border border-stone-200 bg-white text-stone-600 shadow-sm hover:bg-stone-50'
+                        }`}
                     title={`Lịch sử (${savedPlans.length})`}
                     aria-label={`Mở lịch sử kế hoạch IMC, ${savedPlans.length} kế hoạch đã lưu`}
                 >
@@ -567,27 +474,15 @@ const IMCPlanner: React.FC = () => {
                 <button
                     type="button"
                     onClick={handleResetForm}
-                    className={WS_PRIMARY_CTA}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-stone-950 px-6 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-95"
                 >
                     <Plus size={18} strokeWidth={2.5} /> Tạo kế hoạch
                 </button>
             </FeatureHeader>
-            )}
 
-            <div
-                className={
-                    viewMode === 'detail' && currentPlan
-                        ? 'flex-1 overflow-y-auto overflow-x-hidden p-0'
-                        : 'flex-1 overflow-y-auto px-4 py-6 lg:px-8 xl:px-10'
-                }
-            >
-                <div className="w-full max-w-none">
-                    {viewMode === 'detail' && currentPlan ? (
-                        <IMCOutputEditorial
-                            plan={currentPlan}
-                            subscriptionTier={(profile?.subscription_tier as 'free' | 'pro' | 'promax') ?? 'free'}
-                        />
-                    ) : viewMode === 'history' ? (
+            <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8 xl:px-10">
+                <div className="w-full">
+                    {viewMode === 'history' ? (
                         <div className={`${cardClass} p-6 md:p-8`}>
                             <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
                                 <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
@@ -656,17 +551,66 @@ const IMCPlanner: React.FC = () => {
                                 </div>
                             )}
                         </div>
+                    ) : viewMode === 'detail' && currentPlan ? (
+                        <IMCOutputEditorial 
+                            plan={currentPlan}
+                            onBack={handleResetForm}
+                            onSave={handleSave}
+                            saving={saving}
+                            saved={saved}
+                        />
                     ) : activeTab === 'vault' && profile?.subscription_tier !== 'promax' ? (
-                        <div className="mx-auto w-full max-w-[1180px] p-4 md:p-6 pb-12">
-                            <BrandVaultUpsellCard
-                                description="Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn."
-                                benefits={[
-                                    "Kết nối đa kênh dựa trên giá trị cốt lõi",
-                                    "Phân bổ ngân sách tối ưu theo đặc thù ngành",
-                                    "Tự động viết Key Hook theo Brand Voice",
-                                    "Sẵn sàng hạng mục triển khai cho Team sản xuất"
-                                ]}
-                            />
+                        <div className="ms-editorial-wrapper" style={{ padding: 0 }}>
+                            <div className="ms-vault-card">
+                                <div className="ms-vault-content">
+                                    <div className="ms-vault-upper">
+                                        <div className="ms-vault-label">
+                                            <Diamond size={11} strokeWidth={2.25} className="ms-vault-label-diamond" aria-hidden />
+                                            Brand Vault Access
+                                        </div>
+                                        <h3 className="ms-vault-title">Tính năng Brand Vault</h3>
+                                        <p className="ms-vault-desc">
+                                            Kế hoạch IMC sẽ chính xác hơn gấp 5 lần khi AI được học về DNA thương hiệu của bạn.
+                                        </p>
+                                    </div>
+
+                                    <div className="ms-vault-benefits">
+                                        {[
+                                            "Kết nối đa kênh dự trên giá trị cốt lõi",
+                                            "Phân bổ ngân sách tối ưu theo đặc thù ngành",
+                                            "Tự động viết Key Hook theo Brand Voice",
+                                            "Sẵn sàng hạng mục triển khai cho Team sản xuất"
+                                        ].map((benefit, bIdx) => (
+                                            <div key={bIdx} className="ms-vault-benefit-item">
+                                                <div className="ms-vault-benefit-icon"><Check size={14} strokeWidth={3} /></div>
+                                                <span>{benefit}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button className="ms-vault-cta">
+                                        Nâng cấp Pro Max <ChevronRight size={18} />
+                                    </button>
+                                </div>
+                                <div className="ms-vault-visual">
+                                    <div className="ms-vault-dna">
+                                        {[40, 70, 45, 90, 60, 80, 50, 75, 40, 65].map((h, i) => (
+                                            <div 
+                                                key={i} 
+                                                className="ms-vault-dna-bar" 
+                                                style={{ height: `${h}px`, opacity: 0.1 + (i % 3) * 0.1 }} 
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="ms-vault-lock-circle">
+                                        <div className="ms-vault-lock-icon">
+                                            <Lock size={32} strokeWidth={1.5} />
+                                        </div>
+                                    </div>
+                                    <div className="ms-vault-corner ms-vault-corner-tl" />
+                                    <div className="ms-vault-corner ms-vault-corner-br" />
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div className="mx-auto w-full max-w-[1182px]">
@@ -677,7 +621,7 @@ const IMCPlanner: React.FC = () => {
                                         <BrandSelector />
                                     </div>
                                 )}
-                                <div className={`${cardClass} flex flex-col overflow-hidden`}>
+                                <div className={`${cardClass} flex min-h-[360px] flex-col overflow-hidden`}>
                                     <div className="flex border-b border-stone-200 bg-stone-50/50">
                                         {([1, 2, 3] as const).map((i) => (
                                             <div
@@ -1077,8 +1021,7 @@ const IMCPlanner: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={goWizardNext}
-                                                    className="inline-flex items-center justify-center rounded-full bg-stone-950 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-[0.98]"
-                                                    style={{ width: '111.109px' }}
+                                                    className="rounded-full bg-stone-950 px-8 py-2.5 text-sm font-medium text-white shadow-md transition-all hover:bg-stone-800 active:scale-[0.98]"
                                                 >
                                                     Kế tiếp
                                                 </button>
@@ -1095,7 +1038,10 @@ const IMCPlanner: React.FC = () => {
                                                             Đang tính toán…
                                                         </>
                                                     ) : (
-                                                        'Lập kế hoạch IMC'
+                                                        <>
+                                                            <Sparkles size={18} strokeWidth={1.5} />
+                                                            Lập kế hoạch IMC
+                                                        </>
                                                     )}
                                                 </button>
                                             )}

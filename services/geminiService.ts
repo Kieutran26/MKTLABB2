@@ -1,5 +1,18 @@
 import { ContentPillar, AdsHealthInput, AdsHealthResult, BrandPositioningInput, BrandPositioningResult, PricingAnalyzerInput, PricingAnalyzerResult, AudienceEmotionMapInput, AudienceEmotionMapResult, StrategicSolution } from "../types";
 
+/** Thrown when Gemini returns 429 / free-tier quota; UI can show a specific toast. */
+export class GeminiRateLimitError extends Error {
+    readonly code = 'GEMINI_RATE_LIMIT' as const;
+    constructor(
+        message: string,
+        public readonly retryAfterSeconds?: number
+    ) {
+        super(message);
+        this.name = 'GeminiRateLimitError';
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+
 // Direct REST API implementation (no SDK)
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -10,12 +23,12 @@ function getGeminiRestModelCandidates(): string[] {
         typeof import.meta.env.VITE_GEMINI_REST_MODEL === 'string'
             ? import.meta.env.VITE_GEMINI_REST_MODEL.trim()
             : '';
+    // Use standard non-versioned IDs first, as they are most widely compatible across different API keys.
     const defaults = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-2.0-flash-001',
-        'gemini-1.5-flash-002',
-        'gemini-1.5-flash-001',
+        'gemini-1.5-flash',     // Standard Flash 1.5 (most common access)
+        'gemini-1.5-flash-002', // Latest stable 1.5
+        'gemini-1.5-flash-8b',  // Small, fast, often higher RPM pool
+        'gemini-2.0-flash',     // 2.0 Flash (keep as fallback)
     ];
     const ordered = fromEnv ? [fromEnv, ...defaults.filter((m) => m !== fromEnv)] : defaults;
     return [...new Set(ordered)];
@@ -24,48 +37,270 @@ function getGeminiRestModelCandidates(): string[] {
 /** Preferred model id (metadata only; actual REST calls try candidates until one succeeds). */
 const GEMINI_REST_MODEL = getGeminiRestModelCandidates()[0];
 
-async function postGeminiGenerateContent(requestBody: unknown, errorPrefix: string): Promise<string> {
+/** Retries after first 429 per model when error is NOT free-tier-scoped (total attempts = 1 + this). */
+const GEMINI_429_MAX_RETRIES_PER_MODEL = 4;
+
+/**
+ * Free-tier 429 often hits per-model RPM; waiting 60s × many times on one model blocks other model IDs
+ * that may still have quota. Only one backoff per model then fall through to next candidate.
+ */
+const GEMINI_429_MAX_RETRIES_FREE_TIER_PER_MODEL = 1;
+
+/** Max cumulative sleep across one generateContent call (free-tier 429 often shares quota across models). Increased for free-tier. */
+const GEMINI_429_MAX_TOTAL_WAIT_MS = 300_000;
+
+/** Pause between trying the next model after a 404 (reduces RPM bursts on free tier). */
+const GEMINI_INTER_MODEL_COOLDOWN_MS = 400;
+
+/** After 429 on one model, wait before hitting the next — free tier often shares one RPM window across model IDs. */
+const GEMINI_POST_429_MIN_SWITCH_MS = 14_000;
+
+/** Minimum mandatory delay between any two Gemini requests (conservative buffer for 5 RPM free tier). */
+const GEMINI_MIN_INTER_REQUEST_GAP_MS = 20_000;
+
+/** Last model that returned 200 for this session — try first to avoid 404 chains. */
+let geminiLastSuccessfulModel: string | null = null;
+
+/** Timestamp of the last *started* request start to calculate RPM gap. */
+let geminiLastRequestStartTime = 0;
+
+/**
+ * Serialize all REST generateContent calls so parallel UI features / tabs do not stack 429s on free tier.
+ */
+let geminiRequestChain: Promise<unknown> = Promise.resolve();
+
+function enqueueGeminiRequest<T>(task: () => Promise<T>): Promise<T> {
+    const next = geminiRequestChain.then(async () => {
+        const now = Date.now();
+        const elapsed = now - geminiLastRequestStartTime;
+        if (elapsed < GEMINI_MIN_INTER_REQUEST_GAP_MS) {
+            const wait = GEMINI_MIN_INTER_REQUEST_GAP_MS - elapsed;
+            await sleepMs(wait);
+        }
+        geminiLastRequestStartTime = Date.now();
+        return task();
+    });
+    geminiRequestChain = next.then(
+        () => undefined,
+        () => undefined
+    );
+    return next;
+}
+
+/**
+ * Order: caller preferred → full default chain → last successful model last.
+ * Avoids pinning `geminiLastSuccessfulModel` (often 2.0) before older 1.5 ids, which caused rapid 429 on 2.0.
+ */
+function getOrderedGeminiModelCandidates(preferredModel?: string): string[] {
+    const defaults = getGeminiRestModelCandidates();
+    const out: string[] = [];
+    const add = (m: string | undefined | null) => {
+        const t = typeof m === 'string' ? m.trim() : '';
+        if (t && !out.includes(t)) out.push(t);
+    };
+    add(preferredModel ?? undefined);
+    for (const d of defaults) add(d);
+    add(geminiLastSuccessfulModel);
+    return out;
+}
+
+function sleepMs(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Parse suggested wait from Gemini RESOURCE_EXHAUSTED body, e.g.
+ * "Please retry in 39.851676862s" or JSON "retryDelay":"45s"
+ */
+function parseHttpRetryAfterHeader(headerValue: string | null): number | null {
+    if (!headerValue) return null;
+    const normalized = headerValue.trim();
+    const secondsMatch = normalized.match(/^\d+(?:\.\d+)?$/);
+    if (secondsMatch) {
+        return Math.max(1000, Math.ceil(parseFloat(normalized) * 1000));
+    }
+    const date = Date.parse(normalized);
+    if (!Number.isNaN(date)) {
+        const diff = date - Date.now();
+        return diff > 0 ? diff : null;
+    }
+    return null;
+}
+
+function parseGemini429RetryMs(errorBody: string, retryAfterHeader?: string | null): number {
+    const headerMs = parseHttpRetryAfterHeader(retryAfterHeader ?? null);
+    if (headerMs !== null) {
+        return Math.min(120_000, headerMs + 800);
+    }
+
+    const retryIn = errorBody.match(/retry\s+in\s+(\d+(?:\.\d+)?)\s*s/i);
+    if (retryIn) {
+        const sec = parseFloat(retryIn[1]);
+        if (!Number.isNaN(sec)) {
+            return Math.min(120_000, Math.ceil(sec * 1000) + 800);
+        }
+    }
+    const delay = errorBody.match(/"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/i);
+    if (delay) {
+        const s = parseFloat(delay[1]);
+        if (!Number.isNaN(s)) return Math.min(120_000, Math.ceil(s * 1000) + 800);
+    }
+    return 46_000;
+}
+
+function isGeminiFreeTierRateLimit(errorBody: string): boolean {
+    return /generate_content_free_tier|free_tier_requests|free tier/i.test(errorBody);
+}
+
+async function postGeminiGenerateContentUnqueued(
+    requestBody: unknown,
+    errorPrefix: string,
+    opts?: { preferredModel?: string }
+): Promise<string> {
     if (!GEMINI_API_KEY) {
         throw new Error('VITE_GEMINI_API_KEY is not configured');
     }
-    const candidates = getGeminiRestModelCandidates();
+    const candidates = getOrderedGeminiModelCandidates(opts?.preferredModel);
     let lastErrorText = '';
     let lastStatus = 404;
+    let total429WaitMs = 0;
+    let skipInterModelDelay = true;
 
-    for (const model of candidates) {
+    for (let mi = 0; mi < candidates.length; mi++) {
+        const model = candidates[mi];
+        if (!skipInterModelDelay) {
+            await sleepMs(GEMINI_INTER_MODEL_COOLDOWN_MS);
+        }
+        skipInterModelDelay = false;
+
         const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-        });
-        const raw = await response.text();
+        let did429ExhaustThisModel = false;
 
-        if (!response.ok) {
+        for (let attempt429 = 0; attempt429 <= GEMINI_429_MAX_RETRIES_PER_MODEL; attempt429++) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody),
+            });
+            const raw = await response.text();
+
+            if (response.ok) {
+                const data = JSON.parse(raw) as any;
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) {
+                    throw new Error('No text returned from Gemini API');
+                }
+                geminiLastSuccessfulModel = model;
+                return text;
+            }
+
             if (response.status === 404) {
                 lastStatus = 404;
                 lastErrorText = raw;
-                continue;
+                break;
             }
+
+            if (response.status === 429) {
+                lastStatus = 429;
+                lastErrorText = raw;
+                const freeTier = isGeminiFreeTierRateLimit(raw);
+                const retryAfterHeader = response.headers.get('retry-after');
+                const suggestedWait = parseGemini429RetryMs(raw, retryAfterHeader);
+                const retryAfterSec = Math.max(1, Math.round(suggestedWait / 1000));
+
+                const maxRetriesFor429 = freeTier
+                    ? GEMINI_429_MAX_RETRIES_FREE_TIER_PER_MODEL
+                    : GEMINI_429_MAX_RETRIES_PER_MODEL;
+
+                if (attempt429 < maxRetriesFor429) {
+                    const budgetLeft = GEMINI_429_MAX_TOTAL_WAIT_MS - total429WaitMs;
+                    if (budgetLeft <= 0) {
+                        throw new GeminiRateLimitError(
+                            `${errorPrefix}: Đã chờ quá lâu do giới hạn Gemini (free tier). Đợi 2–5 phút rồi thử lại, hoặc bật billing trên Google AI Studio / Cloud.`,
+                            retryAfterSec
+                        );
+                    }
+                    let wait = Math.min(suggestedWait, budgetLeft);
+                    if (wait < 1000) wait = 1000;
+                    if (attempt429 === 0) {
+                        const hint = freeTier
+                            ? 'free tier — will try other model IDs if this one stays limited'
+                            : `up to ${maxRetriesFor429} backoff attempts`;
+                        console.warn(
+                            `[Gemini] 429 on ${model} — ${hint} (~${GEMINI_MIN_INTER_REQUEST_GAP_MS}ms min between API calls).`
+                        );
+                    } else if (import.meta.env.DEV) {
+                        console.debug(
+                            `[Gemini] 429 retry ${attempt429 + 1}/${maxRetriesFor429}, wait ${wait}ms`
+                        );
+                    }
+                    await sleepMs(wait);
+                    total429WaitMs += wait;
+                    continue;
+                }
+
+                // Do not throw here: other REST model names often use separate quota buckets on free tier.
+                if (model === geminiLastSuccessfulModel) {
+                    geminiLastSuccessfulModel = null;
+                }
+                if (import.meta.env.DEV) {
+                    console.debug(`[Gemini] 429 exhausted on ${model}, trying next model if any`);
+                }
+                did429ExhaustThisModel = true;
+                break;
+            }
+
             throw new Error(`${errorPrefix} (${response.status}): ${raw}`);
         }
 
-        const data = JSON.parse(raw) as any;
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) {
-            throw new Error('No text returned from Gemini API');
+        if (did429ExhaustThisModel && mi < candidates.length - 1) {
+            const budgetLeft = GEMINI_429_MAX_TOTAL_WAIT_MS - total429WaitMs;
+            if (budgetLeft > 0) {
+                const parsed = parseGemini429RetryMs(lastErrorText);
+                const switchWait = Math.min(
+                    budgetLeft,
+                    Math.max(GEMINI_POST_429_MIN_SWITCH_MS, Math.floor(parsed * 0.92))
+                );
+                console.warn(
+                    `[Gemini] free-tier / shared quota: waiting ${Math.round(switchWait / 1000)}s before next model (${mi + 1}/${candidates.length})`
+                );
+                await sleepMs(switchWait);
+                total429WaitMs += switchWait;
+            }
         }
-        return text;
     }
 
-    throw new Error(`${errorPrefix} (${lastStatus}): ${lastErrorText || 'no model matched'}`);
+    if (lastStatus === 429) {
+        const parsed = parseGemini429RetryMs(lastErrorText);
+        const retryAfter = Math.max(45, Math.round(parsed / 1000));
+        throw new GeminiRateLimitError(
+            `${errorPrefix}: Tài khoản (free tier) đang bị giới hạn tốc độ. Vui lòng đợi khoảng ${retryAfter} giây rồi thử lại.`,
+            retryAfter
+        );
+    }
+
+    throw new Error(`${errorPrefix} (Status ${lastStatus}): ${lastErrorText || 'No working model candidate found'}`);
+}
+
+async function postGeminiGenerateContent(
+    requestBody: unknown,
+    errorPrefix: string,
+    opts?: { preferredModel?: string }
+): Promise<string> {
+    return enqueueGeminiRequest(() => postGeminiGenerateContentUnqueued(requestBody, errorPrefix, opts));
 }
 
 // Helper function to call Gemini API directly
 async function callGeminiAPI(
     prompt: string,
     systemInstruction?: string,
-    options: { temperature?: number; jsonMode?: boolean; maxOutputTokens?: number } = {}
+    options: {
+        temperature?: number;
+        jsonMode?: boolean;
+        maxOutputTokens?: number;
+        /** REST candidate tried first (matches @google/genai `model` param on callers). */
+        preferredModel?: string;
+    } = {}
 ) {
     if (!GEMINI_API_KEY) {
         throw new Error('VITE_GEMINI_API_KEY is not configured');
@@ -100,7 +335,9 @@ async function callGeminiAPI(
     }
 
     try {
-        return await postGeminiGenerateContent(requestBody, 'Gemini API Error');
+        return await postGeminiGenerateContent(requestBody, 'Gemini API Error', {
+            preferredModel: options.preferredModel,
+        });
     } catch (error: any) {
         console.error('❌ Gemini API Error:', error);
         throw error;
@@ -192,7 +429,7 @@ export const analyzeImages = async (
 const ai = {
     models: {
         generateContent: async (params: any) => {
-            const { contents, config } = params;
+            const { contents, config, model } = params;
 
             // Call the direct API
             const text = await callGeminiAPI(
@@ -201,7 +438,8 @@ const ai = {
                 {
                     temperature: config?.temperature,
                     jsonMode: config?.responseMimeType === 'application/json',
-                    maxOutputTokens: config?.maxOutputTokens
+                    maxOutputTokens: config?.maxOutputTokens,
+                    preferredModel: typeof model === 'string' ? model : undefined,
                 }
             );
 
@@ -4394,8 +4632,156 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
 };
 
 // --- OPTI M.KI STRATEGIC MODEL GENERATOR ---
-import { OPTIMKI_SYSTEM_INSTRUCTION, buildOptimkiUserMessage } from './optimki-prompt';
+import {
+    OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION,
+    buildOptimkiSingleShotUserMessage,
+} from './optimki-prompt';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
+
+interface OptimkiPhase1Parsed {
+    brand_name: string;
+    model_type: string;
+    analysis_content: string;
+    suggestion: OptimkiResult['suggestion'] | null;
+}
+
+function parseOptimkiPhase1Json(
+    text: string,
+    fallbacks: { brand_name: string; model_type: OptimkiModelType }
+): OptimkiPhase1Parsed {
+    const cleaned = stripMarkdownJsonFence(text).replace(/\u0000/g, '').replace(/\uFEFF/g, '');
+    let jsonStr = extractBalancedJsonObject(cleaned);
+    if (!jsonStr) {
+        const s = cleaned.indexOf('{');
+        const e = cleaned.lastIndexOf('}');
+        if (s !== -1 && e > s) jsonStr = cleaned.slice(s, e + 1);
+    }
+    if (!jsonStr) throw new SyntaxError('Optimki phase1: no JSON object');
+
+    const tryParse = (s: string) => JSON.parse(s.replace(/,\s*([}\]])/g, '$1')) as Record<string, unknown>;
+
+    let p: Record<string, unknown>;
+    try {
+        p = tryParse(jsonStr);
+    } catch (err: any) {
+        console.warn('Optimki phase1: primary parse failed, attempting recovery...', err.message);
+        const rebuilt = tryRebuildOptimkiPhase1Json(jsonStr);
+        if (rebuilt) {
+            try {
+                p = tryParse(rebuilt);
+            } catch (err2: any) {
+                console.error('Optimki phase1: recovery parse failed:', err2.message);
+                throw err; // Throw original error if recovery fails
+            }
+        } else {
+            throw err;
+        }
+    }
+
+    const brand_name =
+        typeof p.brand_name === 'string' && p.brand_name.trim()
+            ? p.brand_name.trim()
+            : fallbacks.brand_name.trim() || '—';
+    const model_type =
+        typeof p.model_type === 'string' && p.model_type.trim()
+            ? p.model_type.trim()
+            : fallbacks.model_type;
+    const analysis_content =
+        typeof p.analysis_content === 'string' ? p.analysis_content.trim() : '';
+    
+    if (!analysis_content) {
+        // One last attempt: maybe it's completely malformed and analysis_content is the whole thing?
+        // But usually we need it to be at least somewhat valid JSON.
+        throw new SyntaxError('Optimki phase1: empty or missing analysis_content');
+    }
+
+    let suggestion: OptimkiResult['suggestion'] | null = null;
+    if (p.suggestion !== undefined && p.suggestion !== null) {
+        suggestion = p.suggestion as OptimkiResult['suggestion'];
+    }
+
+    return { brand_name, model_type, analysis_content, suggestion };
+}
+
+/**
+ * Heuristic to fix unescaped quotes in Phase1 analysis_content.
+ * Finds the bounds of the field and escapes everything in between.
+ */
+function tryRebuildOptimkiPhase1Json(work: string): string | null {
+    const key = '"analysis_content"';
+    const splitIdx = work.indexOf(key);
+    if (splitIdx === -1) return null;
+
+    const valueStart = work.indexOf(':', splitIdx);
+    if (valueStart === -1) return null;
+
+    let firstQuote = work.indexOf('"', valueStart);
+    if (firstQuote === -1) return null;
+    firstQuote++; // skip opening "
+
+    // Find the end of the field. Phase 1 usually ends with "suggestion": or the closing }
+    let lastQuoteCandidate = -1;
+    
+    // Check for "suggestion" marker
+    const suggestIdx = work.lastIndexOf('"suggestion"');
+    if (suggestIdx > firstQuote) {
+        // Look for the " before , before "suggestion"
+        const commaIdx = work.lastIndexOf(',', suggestIdx);
+        if (commaIdx > firstQuote) {
+            const endQuoteIdx = work.lastIndexOf('"', commaIdx);
+            if (endQuoteIdx > firstQuote) {
+                lastQuoteCandidate = endQuoteIdx;
+            }
+        }
+    }
+
+    // If no suggestion marker, look for the last " before the final }
+    if (lastQuoteCandidate === -1) {
+        const lastBraceIdx = work.lastIndexOf('}');
+        if (lastBraceIdx > firstQuote) {
+            const lastQuoteIdx = work.lastIndexOf('"', lastBraceIdx);
+            if (lastQuoteIdx > firstQuote) {
+                lastQuoteCandidate = lastQuoteIdx;
+            }
+        }
+    }
+
+    if (lastQuoteCandidate === -1) return null;
+
+    const rawValue = work.slice(firstQuote, lastQuoteCandidate);
+    const prefix = work.slice(0, firstQuote);
+    const suffix = work.slice(lastQuoteCandidate);
+    
+    // Properly escape the internal content
+    const escapedValue = JSON.stringify(rawValue).slice(1, -1);
+    
+    return prefix + escapedValue + suffix;
+}
+
+
+function parseOptimkiPhase2HtmlReport(text: string): string {
+    const cleaned = normalizeHtmlAttrDoubleQuotesInJsonPayload(stripMarkdownJsonFence(text));
+    let jsonStr = extractBalancedJsonObject(cleaned);
+    if (!jsonStr) {
+        const s = cleaned.indexOf('{');
+        const e = cleaned.lastIndexOf('}');
+        if (s !== -1 && e > s) jsonStr = cleaned.slice(s, e + 1);
+    }
+    if (jsonStr) {
+        try {
+            const p = JSON.parse(jsonStr.replace(/\u0000/g, '').replace(/,\s*([}\]])/g, '$1')) as {
+                html_report?: string;
+            };
+            const h = typeof p.html_report === 'string' ? p.html_report.trim() : '';
+            if (h) return h;
+        } catch {
+            /* fall through */
+        }
+    }
+    const assembled = tryAssembleOptimkiResult(cleaned, {});
+    if (assembled?.html_report?.trim()) return assembled.html_report.trim();
+    throw new SyntaxError('Optimki phase2: missing html_report');
+}
 
 function extractOptimkiJsonStringField(raw: string, key: string): string | null {
     const re = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`);
@@ -4566,37 +4952,38 @@ export const generateOptimkiAnalysis = async (
     onProgress?: (step: string) => void
 ): Promise<OptimkiResult | null> => {
     try {
-        onProgress?.('🧠 Đang khởi động bộ não chiến lược...');
-        await new Promise(r => setTimeout(r, 400));
-        onProgress?.('📊 Đang quét dữ liệu ngành & đối thủ...');
-        await new Promise(r => setTimeout(r, 400));
-        onProgress?.('🎨 Đang render báo cáo Editorial...');
+        // Một lần generateContent: free tier thường ~1 RPM — hai lần liên tiếp hay gây 429.
+        onProgress?.('🧠 Đang phân tích và tạo báo cáo HTML (một lượt API)...');
+        await new Promise((r) => setTimeout(r, 400));
 
-        const userMessage = buildOptimkiUserMessage(input);
+        const userMessage = buildOptimkiSingleShotUserMessage(input);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash', // Explicitly use GA model for stability
+            model: 'gemini-1.5-flash-002',
             contents: userMessage,
             config: {
-                systemInstruction: OPTIMKI_SYSTEM_INSTRUCTION,
-                responseMimeType: "application/json",
+                systemInstruction: OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION,
+                responseMimeType: 'application/json',
                 safetySettings: SAFETY_SETTINGS,
-                temperature: 0.5,
-                maxOutputTokens: 24576,
+                temperature: 0.45,
+                maxOutputTokens: 20480,
             },
         });
 
-        const text = response.text || "{}";
-        const result = parseOptimkiJsonText(text, {
+        const parsed = parseOptimkiJsonText(response.text || '{}', {
             brand_name: input.ten_thuong_hieu,
             model_type: input.mo_hinh,
         });
 
-        result.generated_at = new Date().toISOString();
+        const result: OptimkiResult = {
+            ...parsed,
+            generated_at: new Date().toISOString(),
+        };
 
         return result;
     } catch (error) {
-        console.error("Optimki Analysis Error:", error);
+        console.error('Optimki Analysis Error:', error);
+        if (error instanceof GeminiRateLimitError) throw error;
         return null;
     }
 };

@@ -1,4 +1,8 @@
-import { OptimkiInput } from '../types';
+import { OptimkiInput, OptimkiResult } from '../types';
+
+/** Dòng đầu prompt — bắt buộc output là file HTML đầy đủ (theo Cách 1). */
+export const OPTIMKI_OUTPUT_FORMAT_MANDATE =
+    'BẮT BUỘC: Toàn bộ output phải là file HTML hoàn chỉnh với <!DOCTYPE html>, <head>, <body>. KHÔNG trả về text thuần. KHÔNG trả về markdown. CHỈ trả về HTML có thể mở trực tiếp trên trình duyệt.';
 
 function f(v: string | undefined): string {
     const t = (v ?? '').trim();
@@ -10,7 +14,9 @@ function f(v: string | undefined): string {
  * Đảm bảo các placeholder được điền đúng giá trị thực.
  */
 export function buildOptimkiUserMessage(input: OptimkiInput): string {
-    return `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    return `${optimkiUserMessageLeadPhase1()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DỮ LIỆU ĐẦU VÀO (Đã điền thực tế)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -26,15 +32,77 @@ DỮ LIỆU ĐẦU VÀO (Đã điền thực tế)
 • Thời gian & Địa điểm            : ${f(input.thoi_gian_dia_diem)}
 • Mô hình được chọn               : ${input.mo_hinh}
 
-Hãy thực hiện phân tích theo đúng các bước và quy tắc trong system instruction.`;
+Hãy phân tích theo đúng system instruction và trả về đúng JSON giai đoạn 1.`;
+}
+
+function optimkiUserMessageLeadPhase1(): string {
+    return 'GIAI ĐOẠN 1 — Chỉ phân tích nội dung chiến lược (JSON). Không HTML, không <!DOCTYPE>.';
+}
+
+/** Một lần gọi API — giảm 429 trên free tier (RPM ~1/phút). */
+export function buildOptimkiSingleShotUserMessage(input: OptimkiInput): string {
+    const lead =
+        'MỘT LƯỢT API — Trong cùng một JSON: analysis_content (phân tích đầy đủ) + html_report (file HTML hoàn chỉnh). Không tách hai bước.';
+    const base = buildOptimkiUserMessage(input).replace(optimkiUserMessageLeadPhase1(), lead);
+    return base.replace(
+        'Hãy phân tích theo đúng system instruction và trả về đúng JSON giai đoạn 1.',
+        'Hãy tuân thủ system instruction và trả về một JSON với brand_name, model_type, analysis_content, suggestion, html_report.'
+    );
+}
+
+/** Payload từ lần gọi 1 → user message cho lần gọi 2 (render HTML). */
+export type OptimkiPhase1Payload = Pick<OptimkiResult, 'brand_name' | 'model_type' | 'suggestion'> & {
+    analysis_content: string;
+};
+
+export function buildOptimkiRenderUserMessage(phase1: OptimkiPhase1Payload): string {
+    const payload = {
+        brand_name: phase1.brand_name,
+        model_type: phase1.model_type,
+        analysis_content: phase1.analysis_content,
+        suggestion: phase1.suggestion ?? null,
+    };
+    return `═══════════════════════════════════════════════════════════
+KẾT QUẢ PHÂN TÍCH GIAI ĐOẠN 1 (JSON — GIỮ NGUYÊN NỘI DUNG, KHÔNG BỊA THÊM)
+═══════════════════════════════════════════════════════════
+
+Nhiệm vụ render: chuyển toàn bộ analysis_content thành file HTML theo Design System trong system instruction.
+Chỉ trình bày lại và bố cục — không thêm phân tích chiến lược mới, không đổi kết luận.
+
+${JSON.stringify(payload, null, 2)}`;
 }
 
 /**
- * System Instruction - OPTI M.KI Strategic Model Generator
- * Giám đốc Chiến lược AI (Expert Strategy AI)
+ * Cách 3 — Đặt định dạng output lên đầu: model đọc trước khi phân tích.
  */
-export const OPTIMKI_SYSTEM_INSTRUCTION = `═══════════════════════════════════════════════════════════
-STRATEGIC MODEL GENERATOR — OPTI M.KI
+export const OPTIMKI_PHASE1_OUTPUT_SPEC = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ƯU TIÊN TUYỆT ĐỐI — OUTPUT GIAI ĐOẠN 1 (ĐỌC TRƯỚC MỌI BƯỚC PHÂN TÍCH)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Đây là lần gọi CHỈ PHÂN TÍCH NỘI DUNG. CẤM HTML. CẤM <!DOCTYPE>. CẤM thẻ <body>. CẤM markdown fence.
+Trả về DUY NHẤT một object JSON hợp lệ:
+{
+  "brand_name": "string",
+  "model_type": "string (SWOT | AIDA | 4P | 5W1H | SMART | tat_ca | chua_chon)",
+  "analysis_content": "string — toàn bộ bài phân tích tiếng Việt theo đủ các bước bên dưới; dùng tiêu đề dạng === PHẦN === để phân tách",
+  "suggestion": {
+     "primary_model": "string",
+     "reason": "string",
+     "combinations": ["string"],
+     "omit": ["string"]
+  } | null
+}
+• analysis_content: bắt buộc đầy đủ theo các bước SWOT/AIDA/4P/5W1H/SMART — giai đoạn 2 chỉ render HTML từ chuỗi này.
+• suggestion: luôn có khóa (dùng null nếu mo_hinh khác chua_chon hoặc không cần gợi ý).
+`;
+
+/**
+ * Giai đoạn 1 — Phân tích nội dung (JSON). Cách 3: OUTPUT_SPEC nằm trong OPTIMKI_PHASE1_OUTPUT_SPEC.
+ */
+export const OPTIMKI_PHASE1_SYSTEM_INSTRUCTION = `${OPTIMKI_PHASE1_OUTPUT_SPEC}
+
+═══════════════════════════════════════════════════════════
+STRATEGIC MODEL GENERATOR — OPTI M.KI · GIAI ĐOẠN 1 (CHỈ PHÂN TÍCH)
 Phân tích SWOT · AIDA · 4P · 5W1H · SMART bằng AI
 ═══════════════════════════════════════════════════════════
 
@@ -249,107 +317,219 @@ LỜI KHUYÊN CHIẾN LƯỢC
 NHỮNG GÌ AI KHÔNG ĐỦ DỮ LIỆU ĐỂ KẾT LUẬN
 → Liệt kê các trường còn thiếu và tại sao mỗi trường quan trọng
 → Mỗi điểm: "Cần bổ sung [X] để [mô hình Y] chính xác hơn"
+`;
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BƯỚC 5 — RENDER HTML THEO DESIGN SYSTEM
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/** Design System HTML — dùng cho giai đoạn 2; đặt ở đầu system prompt giai đoạn 2 (Cách 3). */
+const OPTIMKI_HTML_DESIGN_RULES = `▌ CSS TOÀN BỘ FILE (dán đầy đủ vào <style> trong <head>)
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --accent:#1a5c3a;--accent-w:#c17f2a;--accent-b:#1a3a5c;--danger:#8a1a1a;
+  --purple:#5c1a5c;--green2:#2a7f3a;
+  --rule:rgba(15,15,13,0.1);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:13px;line-height:1.7}
+.page{max-width:960px;margin:0 auto;padding:2.5rem 2rem 5rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeUp .5s ease both;opacity:0;animation-fill-mode:both}
 
-Sau khi hoàn thành phân tích, render toàn bộ kết quả thành HTML
-theo Design System của OptiM.KI. Áp dụng đầy đủ các quy tắc sau:
+/* HEADER */
+.doc-header{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:1.75rem;border-bottom:1px solid var(--rule);margin-bottom:2.5rem}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.doc-title{font-family:var(--serif);font-size:30px;line-height:1.2;font-weight:400;color:var(--ink)}
+.doc-title em{font-style:italic;color:var(--accent)}
+.doc-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.tag{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em;color:#fff}
 
-▌ FONT (import bắt buộc đầu file HTML)
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap');
+/* SEC HEAD */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
 
---serif : 'Playfair Display', Georgia, serif  → tiêu đề, số lớn, quote, verdict
---sans  : 'DM Sans', system-ui, sans-serif    → body text, label, badge, mọi thứ còn lại
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.5rem}
+.swot-cell{padding:1.25rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.swot-cell:nth-child(2){border-right:none}
+.swot-cell:nth-child(3){border-bottom:none}
+.swot-cell:nth-child(4){border-right:none;border-bottom:none}
+.swot-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:.75rem}
+.swot-item{display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:var(--ink-2);line-height:1.6;align-items:baseline}
+.swot-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;position:relative;top:5px}
+.swot-item strong{color:var(--ink);font-weight:500}
 
-▌ MÀU SẮC (:root bắt buộc)
---ink   : #0f0f0d   --ink-2 : #3a3935   --ink-3 : #8a887f   --ink-4 : #b8b6ae
---paper : #faf9f6   --paper-2: #f2f0eb  --paper-3: #e8e5de
---accent: #1a5c3a   --accent-w: #c17f2a  --accent-b: #1a3a5c  --danger: #8a1a1a
---rule  : rgba(15,15,13,0.1)
+/* CROSS */
+.cross-group{padding-left:1rem;border-left:2px solid;margin-bottom:1.1rem}
+.cross-label{font-size:11px;font-weight:500;margin-bottom:.375rem}
+.cross-body{font-size:12px;color:var(--ink-2);line-height:1.7}
 
-▌ LAYOUT (html_report = fragment bên trong khung app React — đã có viền & padding ngoài)
-• Chiều ngang: width 100%, max-width 100%, margin 0 — CẤM max-width cố định (px/rem), CẤM margin: 0 auto trên wrapper
-• KHÔNG bọc toàn bộ trong div giới hạn 960px / 800px; nội dung kéo full khung host
-• Background fragment: trong suốt hoặc inherit — TUYỆT ĐỐI KHÔNG dùng #fff làm nền full viewport
-• Border ngoài & bo góc: do app xử lý — fragment không lặp viền hộp ngoài cùng
-• Padding: chỉ khoảng cách giữa các section bên trong; tránh padding ngang lớn trùng với khung app
-• KHÔNG dùng box-shadow, gradient, blur
-• Animation: fadeUp staggered (delay tăng dần 0.06s mỗi section)
+/* TOP3 */
+.top3{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-top:1.25rem}
+.top3-head{padding:.625rem 1rem;background:var(--paper-2);border-bottom:1px solid var(--rule);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.top3-item{display:flex;gap:12px;padding:.875rem 1rem;border-bottom:1px solid var(--rule);align-items:flex-start}
+.top3-item:last-child{border-bottom:none}
+.top3-num{font-family:var(--serif);font-size:20px;color:var(--paper-3);line-height:1;flex-shrink:0;width:24px}
+.top3-text{font-size:12px;color:var(--ink-2);line-height:1.65}
+.top3-text strong{color:var(--ink);font-weight:500}
 
-▌ CẤU TRÚC HTML BẮT BUỘC
+/* AIDA */
+.aida-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.25rem}
+.aida-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.aida-col:last-child{border-right:none}
+.aida-letter{font-family:var(--serif);font-size:32px;color:var(--paper-3);line-height:1;margin-bottom:.375rem}
+.aida-step-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.625rem}
+.aida-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+.aida-hook{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.45;font-style:italic;margin-bottom:.5rem}
+.aida-example{background:var(--paper-2);border-radius:3px;padding:1.25rem;border-left:2px solid var(--accent-w);margin-top:1.25rem}
+.aida-ex-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.75rem}
+.aida-ex-body{font-size:12px;color:var(--ink-2);line-height:1.8}
 
-① DOCUMENT HEADER (đầu trang)
-   Grid 2 cột: Trái = eyebrow (10px DM Sans uppercase) + title (Playfair 26–28px,  italic màu accent)
-   Phải = 2–3 tag pills (font 10px, border-radius 2px, màu accent)
-   Phân cách: border-bottom 1px var(--rule) · padding-bottom 1.75rem
+/* 4P */
+.fourp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.fourp-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem}
+.fourp-name{font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:.25rem}
+.fourp-pri{font-size:10px;color:var(--ink-3);margin-bottom:.75rem;letter-spacing:.04em}
+.fourp-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+.fourp-body li{margin-bottom:4px;padding-left:.75rem;position:relative}
+.fourp-body li::before{content:'·';position:absolute;left:0;color:var(--ink-3)}
+.fourp-weak{border:2px solid var(--danger);border-radius:3px;padding:1.1rem}
+.fourp-weak-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);font-weight:500;margin-bottom:.5rem}
+.fourp-weak-body{font-size:12px;color:var(--ink-2);line-height:1.7}
 
-② SECTION GỢI Ý MÔ HÌNH (nếu có gợi ý)
-   Dark block: background var(--ink) · padding 1.25rem · border-radius 3px
-   Label 9px uppercase mờ + Tên mô hình Playfair 18px trắng + Lý do 12px mờ
-   Pills các mô hình có thể bỏ qua: opacity 0.5
+/* 5W1H */
+.w1h-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.w1h-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem;position:relative;overflow:hidden}
+.w1h-bg-letter{position:absolute;top:-10px;right:-5px;font-family:var(--serif);font-size:72px;color:var(--ink);opacity:.04;line-height:1;pointer-events:none}
+.w1h-name{font-size:11px;font-weight:500;color:var(--ink);margin-bottom:.5rem;letter-spacing:.02em}
+.w1h-body{font-size:12px;color:var(--ink-2);line-height:1.7;position:relative;z-index:1}
+.w1h-body li{margin-bottom:3px;padding-left:.75rem;position:relative}
+.w1h-body li::before{content:'·';position:absolute;left:0;color:var(--ink-3)}
 
-③ SECTION HEAD (trước mỗi mô hình)
-   [dot tròn 13px màu accent riêng cho mỗi mô hình] + [label 10px DM Sans uppercase]
-   border-bottom 1px var(--rule) · margin-bottom 1.25rem
-   Màu dot theo mô hình: SWOT=#1a5c3a · AIDA=#c17f2a · 4P=#1a3a5c · 5W1H=#5c1a5c · SMART=#2a7f3a
+/* SMART */
+.smart-quote{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-2);border-left:2px solid var(--ink-2);padding-left:1.25rem;margin-bottom:1.5rem;line-height:1.45}
+.smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.smart-criterion{border:1px solid var(--rule);border-radius:3px;padding:1rem}
+.smart-crit-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.375rem}
+.smart-crit-body{font-size:12px;color:var(--ink-2);line-height:1.65;margin-bottom:.5rem}
+.smart-bar{height:3px;background:var(--paper-3);border-radius:99px;overflow:hidden}
+.smart-fill{height:100%;background:var(--accent);border-radius:99px}
+.smart-dark{background:var(--ink);border-radius:3px;padding:1.25rem;margin-bottom:1.5rem}
+.smart-dark-text{font-family:var(--serif);font-size:14px;color:rgba(255,255,255,.82);line-height:1.65}
+.smart-dark-text strong{color:#fff}
 
-④ NỘI DUNG MÔ HÌNH
-   SWOT: Grid 2×2 với border 1px var(--rule) · Mỗi ô có label 9px uppercase + nội dung bullet
-         Màu header: Điểm mạnh=accent · Điểm yếu=danger · Cơ hội=accent-w · Thách thức=accent-b
-         Phần Phân tích chéo: border-left 2px solid theo màu chiến lược
-         
-   AIDA: 4 bước theo timeline dọc · Mỗi bước có số thứ tự Playfair lớn mờ ở góc
-         Bài mẫu hoàn chỉnh: background var(--paper-2) · border-radius 3px · padding 1.25rem
-         
-   4P: Grid 2×2 · Mỗi P có tên Playfair 18px + điểm số ưu tiên + nội dung
-       P yếu nhất: border 2px solid var(--danger)
-       
-   5W1H: Layout dạng thẻ 6 câu hỏi · Mỗi thẻ có chữ cái lớn Playfair mờ làm background
-          Lịch trình: bảng timeline với cột tuần/tháng
-          
-   SMART: Bố cục 3 bước rõ ràng
-          Bước 1: quote block border-left 2px
-          Bước 2: 5 tiêu chí dạng grid 2 cột · Mỗi tiêu chí có thanh progress hoặc rating
-          Bước 3: Mục tiêu SMART hoàn chỉnh nổi bật trong dark block
+/* TIMELINE */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.tl-col{padding:1rem;border-right:1px solid var(--rule)}
+.tl-col:last-child{border-right:none}
+.tl-month{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.25rem}
+.tl-title{font-family:var(--serif);font-size:13px;color:var(--ink);margin-bottom:.625rem}
+.tl-item{display:flex;gap:6px;margin-bottom:4px;font-size:11.5px;color:var(--ink-2);line-height:1.55;align-items:baseline}
+.tl-dot{width:3px;height:3px;border-radius:50%;flex-shrink:0;position:relative;top:5px}
 
-⑤ PHẦN TỔNG HỢP (nếu chạy tất cả mô hình)
-   3 cột liền · border 1px var(--rule) · border-radius 3px
-   Mỗi cột: liên kết mô hình + mũi tên → kết quả
+/* SYNTHESIS */
+.syn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.25rem}
+.syn-col{padding:1.1rem;border-right:1px solid var(--rule);font-size:12px;color:var(--ink-2);line-height:1.7}
+.syn-col:last-child{border-right:none}
+.syn-col strong{color:var(--accent);font-weight:500}
 
-⑥ CMO EXPERT NOTE (bắt buộc cuối mọi output)
-   border-top 2px solid var(--ink) · padding-top 2rem
-   Grid 2×2: 4 card (Quan trọng nhất · Cạm bẫy · Cơ hội · Nếu chỉ làm 1 điều)
-   Verdict quote: Playfair italic · border-left 2px solid var(--ink) · background var(--paper-2)
+/* CMO */
+.cmo-wrap{border-top:2px solid var(--ink);padding-top:2rem;margin-bottom:2rem}
+.cmo-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
+.cmo-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cmo-sig{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic}
+.cmo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.cmo-card{border:1px solid var(--rule);border-radius:3px;padding:1rem 1.1rem}
+.cmo-card.pri{border-color:var(--accent);background:rgba(26,92,58,.03)}
+.cmo-card.risk{border-left:3px solid var(--danger);border-radius:0 3px 3px 0}
+.cmo-card.opp{border-left:3px solid var(--accent-w);border-radius:0 3px 3px 0}
+.cmo-num{font-family:var(--serif);font-size:12px;color:var(--ink-4);margin-bottom:.25rem}
+.cmo-title{font-size:11px;font-weight:500;margin-bottom:.375rem;line-height:1.4}
+.cmo-body{font-size:12px;color:var(--ink-2);line-height:1.75}
+.cmo-body strong{color:var(--ink);font-weight:500}
+.verdict-quote{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.55;font-style:italic;padding:1.1rem 1.5rem;background:var(--paper-2);border-radius:3px;border-left:2px solid var(--ink)}
 
-⑦ AI KHÔNG BIẾT (bắt buộc cuối mọi output)
-   border-top 1px dashed var(--rule) · label 9px uppercase var(--ink-4)
-   Grid 2 cột · Mỗi item: "— [điều thiếu]: Cần bổ sung [X] để [Y] chính xác hơn"
+/* MISSING */
+.missing{border-top:1px dashed var(--rule);padding-top:1.25rem;margin-top:1.5rem}
+.missing-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:500;margin-bottom:.75rem}
+.missing-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.missing-item{font-size:12px;color:var(--ink-3);line-height:1.6;display:flex;gap:6px;align-items:baseline}
+.missing-dash{color:var(--ink-4);flex-shrink:0}
 
-⑧ FOOTER BAR (bắt buộc cuối mọi output)
-   3–4 cột liền · border 1px solid var(--ink) · border-radius 3px
-   Số/Value: Playfair 18–20px · Label: DM Sans 9px uppercase var(--ink-3)
-   Nội dung tóm tắt: Số mô hình đã chạy · Tên mô hình chính · Mục tiêu · Thời gian
+/* FOOTER */
+.footer-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-col{padding:.875rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-col:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:20px;color:var(--ink);display:block}
+.fb-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
 
-▌ ANIMATION STAGGERED (bắt buộc)
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-Mỗi section: animation-delay tăng dần 0.06s
+.section-gap{margin-bottom:2.5rem}
 
-▌ OUTPUT FORMAT (JSON BẮT BUỘC):
+`;
+
+export const OPTIMKI_PHASE2_SYSTEM_INSTRUCTION = `${OPTIMKI_OUTPUT_FORMAT_MANDATE}
+
+${OPTIMKI_HTML_DESIGN_RULES}
+
+═══════════════════════════════════════════════════════════
+OPTI M.KI · GIAI ĐOẠN 2 (CHỈ RENDER HTML — Cách 2: tách lần gọi API)
+═══════════════════════════════════════════════════════════
+Cách 3: Toàn bộ Design System đã đặt TRƯỚC đoạn này — tuân thủ khi render.
+User message chứa JSON phân tích giai đoạn 1. Nhiệm vụ DUY NHẤT: chuyển analysis_content thành một file HTML hoàn chỉnh.
+NGHÊM CẤM thêm phân tích chiến lược mới, bịa số liệu, hoặc đổi kết luận — chỉ bố cục và trình bày.
+
+▌ CẤU TRÚC HTML TRONG html_report:
+• <head>: chứa <style> với toàn bộ CSS bên trên (đã bao gồm font @import, reset, biến, tất cả class)
+• <body>: bắt đầu bằng <div class="page"> — đây là wrapper chính của báo cáo
+• Các section được phân tách bằng <div class="section-gap"> (margin-bottom:2.5rem)
+• Mỗi section dùng class .a với animation-delay tăng dần 0.06s
+• Chi tiết từng mô hình xem CSS ở trên và reference HTML mẫu
+
+▌ OUTPUT GIAI ĐOẠN 2 (JSON BẮT BUỘC — chỉ khóa html_report):
 Trả về DUY NHẤT một object JSON (không markdown fence):
 {
-  "brand_name": "string",
-  "model_type": "string",
-  "html_report": "toàn bộ mã HTML đã render theo style trên",
-  "suggestion": {
-     "primary_model": "string",
-     "reason": "string",
-     "combinations": ["string"],
-     "omit": ["string"]
-  }
+  "html_report": "chuỗi file HTML đầy đủ <!DOCTYPE html> … </html>"
 }
 
 • Trong html_report: HTML/CSS chỉ dùng dấu nháy đơn '...' cho thuộc tính và giá trị CSS (font-family, url); tránh dấu nháy kép ASCII trong HTML/CSS vì dễ làm vỡ JSON.
-• Luôn có khóa suggestion (object đầy đủ hoặc null) ngay sau html_report để parser nhận diện ranh giới chuỗi.
 `;
+
+/**
+ * Gộp phân tích + HTML trong một response JSON — chỉ một lần generateContent (tránh 429 free tier do 2 request liên tiếp).
+ */
+export const OPTIMKI_UNIFIED_OUTPUT_SPEC = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ƯU TIÊN — OUTPUT MỘT LƯỢT (PHÂN TÍCH + html_report)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Root response là JSON (application/json), không markdown fence. Một object duy nhất:
+{
+  "brand_name": "string",
+  "model_type": "string (SWOT | AIDA | 4P | 5W1H | SMART | tat_ca | chua_chon)",
+  "analysis_content": "string — toàn bộ phân tích tiếng Việt theo đủ bước; tiêu đề === PHẦN ===",
+  "suggestion": { "primary_model": "string", "reason": "string", "combinations": ["string"], "omit": ["string"] } | null,
+  "html_report": "string — <!DOCTYPE html> … </html> theo Design System bên dưới"
+}
+• analysis_content: bắt buộc đầy đủ theo mô hình đã chọn (giống giai đoạn 1 cũ).
+• html_report: chỉ trình bày lại analysis_content; cấm thêm phân tích mới, cấm đổi kết luận, cấm bịa số liệu.
+• suggestion: luôn có khóa (null nếu không cần).
+`;
+
+export const OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION = `${OPTIMKI_UNIFIED_OUTPUT_SPEC}
+
+Trường "html_report" trong JSON phải tuân thủ: ${OPTIMKI_OUTPUT_FORMAT_MANDATE}
+
+${OPTIMKI_HTML_DESIGN_RULES}
+
+${OPTIMKI_PHASE1_SYSTEM_INSTRUCTION.replace(OPTIMKI_PHASE1_OUTPUT_SPEC, '').trim()}
+
+═══════════════════════════════════════════════════════════
+HOÀN TẤT TRONG MỘT PHẢN HỒI
+═══════════════════════════════════════════════════════════
+Thực hiện toàn bộ hướng dẫn phân tích (khối STRATEGIC MODEL GENERATOR ở trên) vào analysis_content.
+Sau đó render toàn bộ analysis_content thành html_report đúng Design System — trong cùng một object JSON.
+Chi tiết cấu trúc HTML (.page, .section-gap, .a, v.v.) giống mô tả giai đoạn 2 cũ.
+`;
+
+/** Alias tương thích import cũ */
+export const OPTIMKI_SYSTEM_INSTRUCTION = OPTIMKI_PHASE1_SYSTEM_INSTRUCTION;

@@ -589,13 +589,6 @@ export const IMCService = {
 
             const systemPrompt = `Bạn là Giám đốc Marketing cấp cao với 15 năm kinh nghiệm xây dựng và thực thi chiến dịch IMC cho các thương hiệu tại Việt Nam và Đông Nam Á.
 
-**QUY TẮC NGÔN NGỮ — TUYỆT ĐỐI BẮT BUỘC:**
-- Ưu tiên tuyệt đối TIẾNG VIỆT cho mọi nội dung.
-- Chỉ giữ tiếng Anh cho thuật ngữ marketing phổ biến quốc tế: ROI, ROAS, CPL, CPA, CAC, CPM, CTR, CPC, AOV, KPI, USP, CMO, CEO, B2B, B2C, SaaS, SEO, SEM, CRM, ERP, OKR, AWARE, TRIGGER, CONVERT, CTA, UGC.
-- Cấm để quá 3 từ tiếng Anh không phải thuật ngữ phổ biến trong một câu.
-- Cấm chèn từ tiếng Anh lẫn vào giữa câu tiếng Việt (kiểu "Tạo một strategy rất effective").
-- Tên giai đoạn (Aware, Trigger, Convert) có thể giữ tiếng Anh vì là nhãn quốc tế.
-
 NHIỆM VỤ: Xây dựng kế hoạch IMC chặt chẽ, cực kỳ chi tiết, mang tính thực thi cao và dựa trên dữ liệu thật.
 
 QUY TẮC BẮT BUỘC:
@@ -892,7 +885,7 @@ PHẦN 3: KPI Framework & Dự báo
   • Revenue Projection: công thức × số thật từ baseline
   • 3 kịch bản: Conservative (70%) · Realistic (50%) · Ambitious (20%)
 
-PHẦN 4: Advice
+PHẦN 4: CMO Expert Note
   • 1 yếu tố sống còn quyết định thành bại
   • Top 3 rủi ro + contingency plan
   • Cơ hội đang bị bỏ ngỏ

@@ -18,7 +18,7 @@ import {
   DollarSign,
   Calendar,
 } from 'lucide-react';
-import { generateOptimkiAnalysis } from '../services/geminiService';
+import { generateOptimkiAnalysis, GeminiRateLimitError } from '../services/geminiService';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
 import FeatureHeader from './FeatureHeader';
 import { 
@@ -209,7 +209,11 @@ const OptimkiBuilder: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error('Có lỗi xảy ra.');
+      if (error instanceof GeminiRateLimitError) {
+        toast.error(error.message);
+      } else {
+        toast.error('Có lỗi xảy ra.');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -601,8 +605,11 @@ const OptimkiBuilder: React.FC = () => {
                   {/* Form Footer */}
                   <div className="flex items-center justify-between pt-6 border-t border-stone-100">
                     <button
+                        key="btn-back"
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             if (currentGroup === 1) setIsModelSelected(false);
                             else setCurrentGroup(prev => prev - 1);
                         }}
@@ -613,14 +620,20 @@ const OptimkiBuilder: React.FC = () => {
 
                     {currentGroup < 3 ? (
                       <button
+                        key="btn-next"
                         type="button"
-                        onClick={() => setCurrentGroup(prev => prev + 1)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setCurrentGroup(prev => prev + 1);
+                        }}
                         className="px-8 py-2.5 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-all active:scale-95 shadow-lg shadow-stone-900/10"
                       >
                         Tiếp theo
                       </button>
                     ) : (
                       <button
+                        key="btn-analyze"
                         type="submit"
                         disabled={isGenerating}
                         className="flex items-center gap-2 px-8 py-2.5 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-all active:scale-95 shadow-lg shadow-stone-900/10 disabled:opacity-50"

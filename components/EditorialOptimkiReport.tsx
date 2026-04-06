@@ -17,10 +17,24 @@ function normalizeOptimkiReportHtml(html: string): string {
     .replace(/margin\s*:\s*0(?:px)?\s+auto/gi, 'margin: 0');
 }
 
+/**
+ * Model có thể trả về file HTML đầy đủ (<!DOCTYPE>…</html>).
+ * Gắn vào một div qua dangerouslySetInnerHTML thì chỉ nên inject nội dung <body>.
+ */
+function extractBodyInnerForPreview(html: string): string {
+  const t = html.trim();
+  if (!/<body[\s>]/i.test(t)) return html;
+  const m = t.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  return m ? m[1].trim() : html;
+}
+
 export const EditorialOptimkiReport: React.FC<EditorialOptimkiReportProps> = ({ result }) => {
   const [copied, setCopied] = React.useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
-  const safeHtml = useMemo(() => normalizeOptimkiReportHtml(result.html_report), [result.html_report]);
+  const safeHtml = useMemo(
+    () => normalizeOptimkiReportHtml(extractBodyInnerForPreview(result.html_report)),
+    [result.html_report]
+  );
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -36,7 +50,12 @@ export const EditorialOptimkiReport: React.FC<EditorialOptimkiReportProps> = ({ 
   };
 
   const handleExportHtml = () => {
-    const blob = new Blob([safeHtml], { type: 'text/html' });
+    const raw = result.html_report.trim();
+    const fileHtml =
+      /<!DOCTYPE/i.test(raw) || /<html[\s>]/i.test(raw)
+        ? normalizeOptimkiReportHtml(raw)
+        : `<!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>Opti M.KI</title></head><body>${normalizeOptimkiReportHtml(raw)}</body></html>`;
+    const blob = new Blob([fileHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

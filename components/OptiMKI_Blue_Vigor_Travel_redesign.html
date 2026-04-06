@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Blue Vigor Travel — Phân tích Chiến lược</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0f0d;--ink-2:#3a3935;--ink-3:#8a887f;--ink-4:#b8b6ae;
+  --paper:#faf9f6;--paper-2:#f2f0eb;--paper-3:#e8e5de;
+  --accent:#1a5c3a;--accent-w:#c17f2a;--accent-b:#1a3a5c;--danger:#8a1a1a;
+  --purple:#5c1a5c;--green2:#2a7f3a;
+  --rule:rgba(15,15,13,0.1);
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:13px;line-height:1.7}
+.page{max-width:960px;margin:0 auto;padding:2.5rem 2rem 5rem}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.a{animation:fadeUp .5s ease both;opacity:0;animation-fill-mode:both}
+
+/* HEADER */
+.doc-header{display:grid;grid-template-columns:1fr auto;align-items:start;padding-bottom:1.75rem;border-bottom:1px solid var(--rule);margin-bottom:2.5rem}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.5rem}
+.doc-title{font-family:var(--serif);font-size:30px;line-height:1.2;font-weight:400;color:var(--ink)}
+.doc-title em{font-style:italic;color:var(--accent)}
+.doc-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.tag{font-size:10px;padding:3px 10px;border-radius:2px;font-weight:500;letter-spacing:.05em;color:#fff}
+
+/* SEC HEAD */
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;padding-bottom:.625rem;border-bottom:1px solid var(--rule)}
+.sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
+
+/* SWOT */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.5rem}
+.swot-cell{padding:1.25rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.swot-cell:nth-child(2){border-right:none}
+.swot-cell:nth-child(3){border-bottom:none}
+.swot-cell:nth-child(4){border-right:none;border-bottom:none}
+.swot-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:.75rem}
+.swot-item{display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:var(--ink-2);line-height:1.6;align-items:baseline}
+.swot-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;position:relative;top:5px}
+.swot-item strong{color:var(--ink);font-weight:500}
+
+/* CROSS */
+.cross-group{padding-left:1rem;border-left:2px solid;margin-bottom:1.1rem}
+.cross-label{font-size:11px;font-weight:500;margin-bottom:.375rem}
+.cross-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+
+/* TOP3 */
+.top3{border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-top:1.25rem}
+.top3-head{padding:.625rem 1rem;background:var(--paper-2);border-bottom:1px solid var(--rule);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.top3-item{display:flex;gap:12px;padding:.875rem 1rem;border-bottom:1px solid var(--rule);align-items:flex-start}
+.top3-item:last-child{border-bottom:none}
+.top3-num{font-family:var(--serif);font-size:20px;color:var(--paper-3);line-height:1;flex-shrink:0;width:24px}
+.top3-text{font-size:12px;color:var(--ink-2);line-height:1.65}
+.top3-text strong{color:var(--ink);font-weight:500}
+
+/* AIDA */
+.aida-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.25rem}
+.aida-col{padding:1.1rem;border-right:1px solid var(--rule)}
+.aida-col:last-child{border-right:none}
+.aida-letter{font-family:var(--serif);font-size:32px;color:var(--paper-3);line-height:1;margin-bottom:.375rem}
+.aida-step-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.625rem}
+.aida-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+.aida-hook{font-family:var(--serif);font-size:13px;color:var(--ink);line-height:1.45;font-style:italic;margin-bottom:.5rem}
+
+.aida-example{background:var(--paper-2);border-radius:3px;padding:1.25rem;border-left:2px solid var(--accent-w);margin-top:1.25rem}
+.aida-ex-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.75rem}
+.aida-ex-body{font-size:12px;color:var(--ink-2);line-height:1.8}
+
+/* 4P */
+.fourp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.fourp-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem}
+.fourp-name{font-family:var(--serif);font-size:18px;color:var(--ink);margin-bottom:.25rem}
+.fourp-pri{font-size:10px;color:var(--ink-3);margin-bottom:.75rem;letter-spacing:.04em}
+.fourp-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+.fourp-body li{margin-bottom:4px;padding-left:.75rem;position:relative}
+.fourp-body li::before{content:'·';position:absolute;left:0;color:var(--ink-3)}
+.fourp-weak{border:2px solid var(--danger);border-radius:3px;padding:1.1rem}
+.fourp-weak-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--danger);font-weight:500;margin-bottom:.5rem}
+.fourp-weak-body{font-size:12px;color:var(--ink-2);line-height:1.7}
+
+/* 5W1H */
+.w1h-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.w1h-card{border:1px solid var(--rule);border-radius:3px;padding:1.1rem;position:relative;overflow:hidden}
+.w1h-bg-letter{position:absolute;top:-10px;right:-5px;font-family:var(--serif);font-size:72px;color:var(--ink);opacity:.04;line-height:1;pointer-events:none}
+.w1h-name{font-size:11px;font-weight:500;color:var(--ink);margin-bottom:.5rem;letter-spacing:.02em}
+.w1h-body{font-size:12px;color:var(--ink-2);line-height:1.7;position:relative;z-index:1}
+.w1h-body li{margin-bottom:3px;padding-left:.75rem;position:relative}
+.w1h-body li::before{content:'·';position:absolute;left:0;color:var(--ink-3)}
+
+/* SMART */
+.smart-quote{font-family:var(--serif);font-size:18px;font-style:italic;color:var(--ink-2);border-left:2px solid var(--ink-2);padding-left:1.25rem;margin-bottom:1.5rem;line-height:1.45}
+.smart-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.smart-criterion{border:1px solid var(--rule);border-radius:3px;padding:1rem}
+.smart-crit-label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;margin-bottom:.375rem}
+.smart-crit-body{font-size:12px;color:var(--ink-2);line-height:1.65;margin-bottom:.5rem}
+.smart-bar{height:3px;background:var(--paper-3);border-radius:99px;overflow:hidden}
+.smart-fill{height:100%;background:var(--accent);border-radius:99px}
+.smart-dark{background:var(--ink);border-radius:3px;padding:1.25rem;margin-bottom:1.5rem}
+.smart-dark-text{font-family:var(--serif);font-size:14px;color:rgba(255,255,255,.82);line-height:1.65}
+.smart-dark-text strong{color:#fff}
+
+/* TIMELINE */
+.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.tl-col{padding:1rem;border-right:1px solid var(--rule)}
+.tl-col:last-child{border-right:none}
+.tl-month{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-bottom:.25rem}
+.tl-title{font-family:var(--serif);font-size:13px;color:var(--ink);margin-bottom:.625rem}
+.tl-item{display:flex;gap:6px;margin-bottom:4px;font-size:11.5px;color:var(--ink-2);line-height:1.55;align-items:baseline}
+.tl-dot{width:3px;height:3px;border-radius:50%;flex-shrink:0;position:relative;top:5px}
+
+/* SYNTHESIS */
+.syn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.25rem}
+.syn-col{padding:1.1rem;border-right:1px solid var(--rule);font-size:12px;color:var(--ink-2);line-height:1.7}
+.syn-col:last-child{border-right:none}
+.syn-col strong{color:var(--accent);font-weight:500}
+
+/* CMO */
+.cmo-wrap{border-top:2px solid var(--ink);padding-top:2rem;margin-bottom:2rem}
+.cmo-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem}
+.cmo-label{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.cmo-sig{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic}
+.cmo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
+.cmo-card{border:1px solid var(--rule);border-radius:3px;padding:1rem 1.1rem}
+.cmo-card.pri{border-color:var(--accent);background:rgba(26,92,58,.03)}
+.cmo-card.risk{border-left:3px solid var(--danger);border-radius:0 3px 3px 0}
+.cmo-card.opp{border-left:3px solid var(--accent-w);border-radius:0 3px 3px 0}
+.cmo-num{font-family:var(--serif);font-size:12px;color:var(--ink-4);margin-bottom:.25rem}
+.cmo-title{font-size:11px;font-weight:500;margin-bottom:.375rem;line-height:1.4}
+.cmo-body{font-size:12px;color:var(--ink-2);line-height:1.75}
+.cmo-body strong{color:var(--ink);font-weight:500}
+.verdict-quote{font-family:var(--serif);font-size:15px;color:var(--ink);line-height:1.55;font-style:italic;padding:1.1rem 1.5rem;background:var(--paper-2);border-radius:3px;border-left:2px solid var(--ink)}
+
+/* MISSING */
+.missing{border-top:1px dashed var(--rule);padding-top:1.25rem;margin-top:1.5rem}
+.missing-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4);font-weight:500;margin-bottom:.75rem}
+.missing-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.missing-item{font-size:12px;color:var(--ink-3);line-height:1.6;display:flex;gap:6px;align-items:baseline}
+.missing-dash{color:var(--ink-4);flex-shrink:0}
+
+/* FOOTER */
+.footer-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--ink);border-radius:3px;overflow:hidden;margin-top:2rem}
+.fb-col{padding:.875rem 1.25rem;border-right:1px solid var(--ink);text-align:center}
+.fb-col:last-child{border-right:none}
+.fb-val{font-family:var(--serif);font-size:20px;color:var(--ink);display:block}
+.fb-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+
+.section-gap{margin-bottom:2.5rem}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="doc-header a" style="animation-delay:.0s">
+  <div>
+    <div class="eyebrow">Phân tích chiến lược toàn diện · 5 mô hình</div>
+    <div class="doc-title">Blue Vigor Travel × <em>Chiến lược 2026</em></div>
+  </div>
+  <div class="doc-tags">
+    <span class="tag" style="background:var(--accent)">Du lịch cao cấp</span>
+    <span class="tag" style="background:var(--accent-w)">Có điều dưỡng</span>
+    <span class="tag" style="background:var(--accent-b)">Q2/2026</span>
+  </div>
+</div>
+
+<!-- SWOT -->
+<div class="section-gap a" style="animation-delay:.06s">
+  <div class="sh"><div class="sh-dot" style="background:var(--accent)"></div><span class="sh-title">Mô hình 1 — Phân tích SWOT</span></div>
+
+  <div class="swot-grid">
+    <div class="swot-cell">
+      <div class="swot-label" style="color:var(--accent)">Điểm mạnh</div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent)"></div><span><strong>Tour chất lượng cao</strong> — trải nghiệm tuyệt vời, giảm thiểu rủi ro và sự cố không mong muốn</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent)"></div><span><strong>Không shopping bắt buộc</strong> — tập trung vào trải nghiệm điểm đến, loại bỏ phiền toái và áp lực mua sắm</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent)"></div><span><strong>Có điều dưỡng đi theo</strong> — điểm khác biệt độc đáo, giải quyết nỗi lo sức khỏe, an toàn tối đa</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent)"></div><span><strong>USP rõ ràng</strong> — lợi thế cạnh tranh vượt trội so với tour đại trà, thu hút phân khúc cao cấp</span></div>
+    </div>
+    <div class="swot-cell">
+      <div class="swot-label" style="color:var(--danger)">Điểm yếu</div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--danger)"></div><span><strong>Công ty mới</strong> — thiếu uy tín và lịch sử, khó xây dựng niềm tin ban đầu, doanh số thấp</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--danger)"></div><span><strong>Nguồn lực hạn chế</strong> — nhân sự, tài chính, công nghệ yếu, khó mở rộng và duy trì chất lượng đồng đều</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--danger)"></div><span><strong>Nhận diện thương hiệu thấp</strong> — tốn nhiều chi phí và thời gian tiếp cận thị trường, hiệu quả ban đầu thấp</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--danger)"></div><span><strong>Phụ thuộc điều dưỡng</strong> — rủi ro nếu nhân sự không ổn định, ảnh hưởng trực tiếp trải nghiệm khách</span></div>
+    </div>
+    <div class="swot-cell">
+      <div class="swot-label" style="color:var(--accent-w)">Cơ hội</div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-w)"></div><span><strong>Nhu cầu du lịch sức khỏe tăng</strong> — thị trường dịch chuyển sang tour giá trị cao, tập trung sức khỏe</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-w)"></div><span><strong>Ít cạnh tranh trực tiếp</strong> — đối thủ đại trà không thể đáp ứng nhu cầu chuyên biệt này</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-w)"></div><span><strong>Xu hướng du lịch cá nhân hóa</strong> — khách tìm sự riêng tư, thoải mái, phù hợp mô hình cao cấp</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-w)"></div><span><strong>Đối thủ đại trà thiếu dịch vụ điều dưỡng</strong> — khoảng trống thị trường rõ ràng để khai thác</span></div>
+    </div>
+    <div class="swot-cell">
+      <div class="swot-label" style="color:var(--accent-b)">Thách thức</div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-b)"></div><span><strong>Cạnh tranh giá từ đối thủ đại trà</strong> — khách có thể ngần ngại chi trả cao nếu chưa thấy giá trị rõ</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-b)"></div><span><strong>Xây dựng niềm tin chậm</strong> — cần thời gian và bằng chứng xã hội để thuyết phục khách hàng</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-b)"></div><span><strong>Duy trì chất lượng điều dưỡng</strong> — yêu cầu cao về chuyên môn, khó đồng đều khi nguồn lực yếu</span></div>
+      <div class="swot-item"><div class="swot-dot" style="background:var(--accent-b)"></div><span><strong>Biến động kinh tế và dịch bệnh</strong> — ngành du lịch nhạy cảm với các yếu tố bên ngoài</span></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem">
+    <div class="cross-group" style="border-color:var(--accent)">
+      <div class="cross-label" style="color:var(--accent)">SO — Mạnh × Cơ hội</div>
+      <div class="cross-body">Khai thác "điều dưỡng đi theo" nhắm vào xu hướng du lịch sức khỏe đang tăng. Dùng "không shopping" đáp ứng nhu cầu du lịch cá nhân hóa, khác biệt hoàn toàn với tour đại trà.</div>
+    </div>
+    <div class="cross-group" style="border-color:var(--accent-b)">
+      <div class="cross-label" style="color:var(--accent-b)">ST — Mạnh × Thách thức</div>
+      <div class="cross-body">Nhấn mạnh USP "điều dưỡng + không shopping" để biện minh mức giá cao hơn. Tập trung chất lượng dịch vụ độc đáo để xây dựng niềm tin nhanh chóng dù là công ty mới.</div>
+    </div>
+    <div class="cross-group" style="border-color:var(--accent-w)">
+      <div class="cross-label" style="color:var(--accent-w)">WO — Yếu × Cơ hội</div>
+      <div class="cross-body">Tìm đối tác chiến lược (phòng khám, bệnh viện) để cung cấp điều dưỡng, tận dụng cơ hội thị trường sức khỏe. Tăng truyền thông về giá trị độc đáo để nhanh chóng tăng nhận diện.</div>
+    </div>
+    <div class="cross-group" style="border-color:var(--danger)">
+      <div class="cross-label" style="color:var(--danger)">WT — Yếu × Thách thức</div>
+      <div class="cross-body">Xây dựng quy trình kiểm soát chất lượng điều dưỡng chặt chẽ ngay từ đầu để giảm thiểu rủi ro khi nguồn lực còn yếu gặp thách thức về duy trì chất lượng.</div>
+    </div>
+  </div>
+
+  <div class="top3">
+    <div class="top3-head">Top 3 việc cần làm ngay</div>
+    <div class="top3-item"><div class="top3-num">1</div><div class="top3-text"><strong>Xây dựng nội dung truyền thông tập trung</strong> — phát triển thông điệp và hình ảnh nhấn mạnh rõ ràng USP "có điều dưỡng" và "không shopping" trên Facebook và website</div></div>
+    <div class="top3-item"><div class="top3-num">2</div><div class="top3-text"><strong>Tìm kiếm đối tác điều dưỡng uy tín</strong> — chuẩn hóa đội ngũ qua hợp tác với tổ chức y tế có tiếng để đảm bảo chất lượng dịch vụ nhất quán</div></div>
+    <div class="top3-item"><div class="top3-num">3</div><div class="top3-text"><strong>Thu thập phản hồi khách hàng đầu tiên</strong> — chủ động xin đánh giá và lời chứng thực để tạo bằng chứng xã hội, xây dựng niềm tin cho thương hiệu mới</div></div>
+  </div>
+</div>
+
+<!-- AIDA -->
+<div class="section-gap a" style="animation-delay:.12s">
+  <div class="sh"><div class="sh-dot" style="background:var(--accent-w)"></div><span class="sh-title">Mô hình 2 — Mô hình AIDA</span></div>
+
+  <div class="aida-steps">
+    <div class="aida-col">
+      <div class="aida-letter" style="color:rgba(26,92,58,.15)">A</div>
+      <div class="aida-step-label" style="color:var(--accent)">Thu hút sự chú ý</div>
+      <div class="aida-hook">"Bạn sợ mệt khi đi du lịch? Blue Vigor Travel mang đến trải nghiệm nghỉ dưỡng trọn vẹn, có điều dưỡng đồng hành!"</div>
+      <div class="aida-body">Câu hỏi trực tiếp chạm nỗi đau "sợ mệt", đưa ra giải pháp độc đáo ngay lập tức, khiến người dùng dừng lại khi lướt màn hình.</div>
+    </div>
+    <div class="aida-col">
+      <div class="aida-letter" style="color:rgba(193,127,42,.15)">I</div>
+      <div class="aida-step-label" style="color:var(--accent-w)">Giữ mối quan tâm</div>
+      <div class="aida-body">Kể chuyện về hành trình thực tế — hình ảnh khách thư thái tận hưởng, không shopping, có điều dưỡng chăm sóc. Mô tả cụ thể: kiểm tra sức khỏe định kỳ, tư vấn chế độ ăn, hỗ trợ y tế khẩn cấp.</div>
+    </div>
+    <div class="aida-col">
+      <div class="aida-letter" style="color:rgba(26,58,92,.15)">D</div>
+      <div class="aida-step-label" style="color:var(--accent-b)">Kích thích mong muốn</div>
+      <div class="aida-body">Nhấn mạnh đây là đầu tư cho sức khỏe và tinh thần, không chỉ chuyến đi. Dùng video và lời chứng thực chân thật từ khách đã trải nghiệm, mời KOL sức khỏe chia sẻ cảm nhận thực.</div>
+    </div>
+    <div class="aida-col">
+      <div class="aida-letter" style="color:rgba(138,26,26,.12)">A</div>
+      <div class="aida-step-label" style="color:var(--danger)">Kêu gọi hành động</div>
+      <div class="aida-body">"Khám phá tour độc quyền ngay hôm nay!" · "Đăng ký tư vấn miễn phí 1–1 để lên kế hoạch chuyến đi!" · "Chỉ còn X suất cho tour Quý 2/2026. Đặt chỗ ngay!"</div>
+    </div>
+  </div>
+
+  <div class="aida-example">
+    <div class="aida-ex-label">Bài viết Facebook mẫu — đầy đủ 4 bước AIDA</div>
+    <div class="aida-ex-body">
+      <p style="margin-bottom:.625rem"><strong>👋 Bạn sợ mệt khi đi du lịch? Chán cảnh shopping ép buộc?</strong></p>
+      <p style="margin-bottom:.625rem">Blue Vigor Travel hiểu nỗi lo của bạn! Chúng tôi tin du lịch là để tận hưởng trọn vẹn, không vướng bận. Đó là lý do chúng tôi mang đến tour chất lượng cao với điều dưỡng chuyên nghiệp đồng hành — và hoàn toàn không có shopping bắt buộc.</p>
+      <p style="margin-bottom:.625rem">✨ <strong>Hãy tưởng tượng:</strong> Bạn đang thưởng thức cảnh đẹp hùng vĩ, khám phá văn hóa độc đáo... mà không cần lo sức khỏe hay áp lực mua sắm.</p>
+      <p style="margin-bottom:.625rem"><em>"Chuyến đi thực sự tuyệt vời, tôi cảm thấy khỏe khoắn và được chăm sóc chu đáo từng chút." — Chị Mai, khách hàng tour Đà Lạt.</em></p>
+      <p>👉 <strong>Khám phá tour độc quyền ngay hôm nay để nhận ưu đãi đặc biệt Quý 2/2026!</strong> 🔗 [Link website]</p>
+    </div>
+  </div>
+</div>
+
+<!-- 4P -->
+<div class="section-gap a" style="animation-delay:.18s">
+  <div class="sh"><div class="sh-dot" style="background:var(--accent-b)"></div><span class="sh-title">Mô hình 3 — Marketing Mix 4P</span></div>
+
+  <div class="fourp-grid">
+    <div class="fourp-card">
+      <div class="fourp-name" style="color:var(--accent)">Sản phẩm</div>
+      <div class="fourp-pri">Ưu tiên 5/5 · Quan trọng nhất</div>
+      <ul class="fourp-body">
+        <li>Nhấn mạnh 3 giá trị cốt lõi: <strong>tour chất lượng cao · không shopping · có điều dưỡng</strong></li>
+        <li>Khác biệt với đối thủ: không lịch dày đặc, không shopping, có chăm sóc sức khỏe chuyên biệt</li>
+        <li>Đề xuất cải tiến: phát triển gói tour chuyên biệt (tour phục hồi sau bệnh, tour thiền định, tour người cao tuổi có bệnh nền)</li>
+      </ul>
+    </div>
+    <div class="fourp-card">
+      <div class="fourp-name" style="color:var(--accent-w)">Giá cả</div>
+      <div class="fourp-pri">Ưu tiên 4/5 · Định giá theo giá trị</div>
+      <ul class="fourp-body">
+        <li>Định vị phân khúc giá cao cấp — biện minh bởi USP điều dưỡng và không shopping</li>
+        <li>Chiến lược: <strong>Value-based pricing</strong> — giá cao được bào chữa bởi an tâm về sức khỏe, không phiền toái</li>
+        <li>Tuyệt đối không cạnh tranh giá với tour đại trà — sẽ làm mất giá trị thương hiệu</li>
+      </ul>
+    </div>
+    <div class="fourp-card">
+      <div class="fourp-name" style="color:var(--purple)">Phân phối</div>
+      <div class="fourp-pri">Ưu tiên 3/5 · Cần mở rộng</div>
+      <ul class="fourp-body">
+        <li>Kênh hiện có (Facebook, website) tốt cho nhận diện nhưng chưa đủ để xây niềm tin sâu cho sản phẩm giá cao</li>
+        <li>Nên mở thêm: hợp tác phòng khám, bệnh viện, câu lạc bộ người cao tuổi, đại lý du lịch cao cấp</li>
+        <li>Tối ưu trải nghiệm mua: quy trình đặt tour đơn giản, tư vấn tận tình qua điện thoại/Zalo</li>
+      </ul>
+    </div>
+    <div class="fourp-card">
+      <div class="fourp-name" style="color:var(--danger)">Truyền thông</div>
+      <div class="fourp-pri">Ưu tiên 4/5 · Ngân sách 217 triệu</div>
+      <ul class="fourp-body">
+        <li><strong>Facebook Ads/Google Ads:</strong> nhắm đối tượng du lịch cao cấp, chăm sóc sức khỏe, tập trung thông điệp USP</li>
+        <li><strong>SEO website:</strong> từ khóa "tour du lịch có điều dưỡng", "du lịch không shopping", "tour nghỉ dưỡng cao cấp"</li>
+        <li><strong>KOL/micro-influencer:</strong> chuyên gia y tế, người có ảnh hưởng trong cộng đồng người lớn tuổi</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="fourp-weak">
+    <div class="fourp-weak-label">P yếu nhất cần cải thiện trước — Phân phối (Place)</div>
+    <div class="fourp-weak-body">
+      Mặc dù có kênh online, nhưng để sản phẩm giá trị cao tiếp cận đúng đối tượng và xây niềm tin, việc mở rộng kênh phân phối offline và đối tác là rất quan trọng.<br><br>
+      <strong>2 bước hành động ngay:</strong> (1) Nghiên cứu và lập danh sách đối tác tiềm năng — phòng khám, trung tâm dưỡng lão, đại lý cao cấp. (2) Xây dựng tài liệu giới thiệu đối tác với chính sách hợp tác hấp dẫn.
+    </div>
+  </div>
+</div>
+
+<!-- 5W1H -->
+<div class="section-gap a" style="animation-delay:.24s">
+  <div class="sh"><div class="sh-dot" style="background:var(--purple)"></div><span class="sh-title">Mô hình 4 — Phương pháp 5W1H · Kế hoạch tăng nhận diện thương hiệu</span></div>
+
+  <div class="w1h-grid">
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">W</div>
+      <div class="w1h-name">LÀM GÌ?</div>
+      <ul class="w1h-body">
+        <li>Triển khai chiến dịch truyền thông đa kênh tập trung vào 3 USP độc đáo</li>
+        <li>Kết quả đầu ra: tăng lượt tiếp cận, tương tác Facebook, truy cập website, số yêu cầu tư vấn</li>
+        <li>Không nên làm: cạnh tranh giá hoặc chạy quảng cáo đại trà không nhắm đúng đối tượng</li>
+      </ul>
+    </div>
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">W</div>
+      <div class="w1h-name">TẠI SAO?</div>
+      <ul class="w1h-body">
+        <li>Công ty mới cần tạo nhận diện trước — không có nhận diện thì doanh số không thể đến</li>
+        <li>Truyền thông sẽ giới thiệu giải pháp "điều dưỡng + không shopping" trực tiếp giải quyết nỗi lo khách hàng</li>
+        <li>Bỏ qua bước này sẽ mất cơ hội trong thị trường du lịch cao cấp đang tăng trưởng</li>
+      </ul>
+    </div>
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">W</div>
+      <div class="w1h-name">AI THỰC HIỆN?</div>
+      <ul class="w1h-body">
+        <li>Trưởng phòng Marketing (hoặc chủ doanh nghiệp) chịu trách nhiệm chính</li>
+        <li>Đối tượng nhận: người lớn tuổi, người quan tâm sức khỏe, tìm kiếm du lịch thư giãn cao cấp</li>
+        <li>Cần phối hợp: đội sản xuất nội dung, chuyên gia quảng cáo, KOL, đối tác y tế/điều dưỡng</li>
+      </ul>
+    </div>
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">W</div>
+      <div class="w1h-name">Ở ĐÂU?</div>
+      <ul class="w1h-body">
+        <li>Giai đoạn đầu: tập trung tối ưu Facebook và website (kênh hiện có) để tăng nhận diện</li>
+        <li>Giai đoạn sau: mở rộng offline — sự kiện sức khỏe, hội thảo, hợp tác phòng khám và bệnh viện</li>
+      </ul>
+    </div>
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">W</div>
+      <div class="w1h-name">KHI NÀO?</div>
+      <ul class="w1h-body">
+        <li><strong>Tháng 4:</strong> Lên kế hoạch, sản xuất nội dung, thiết lập quảng cáo</li>
+        <li><strong>Tháng 5:</strong> Triển khai chiến dịch và quảng cáo chính thức</li>
+        <li><strong>Tháng 6:</strong> Đánh giá, tối ưu và báo cáo kết quả toàn quý</li>
+        <li>Mốc kiểm tra: cuối tháng 4 và cuối tháng 5</li>
+      </ul>
+    </div>
+    <div class="w1h-card">
+      <div class="w1h-bg-letter">H</div>
+      <div class="w1h-name">THỰC HIỆN NHƯ THẾ NÀO?</div>
+      <ul class="w1h-body">
+        <li>Nghiên cứu hành vi online của khách hàng mục tiêu → phát triển bộ nhận diện nhất quán → sản xuất nội dung đa dạng → thiết lập và tối ưu quảng cáo → theo dõi và điều chỉnh</li>
+        <li>Công cụ: Facebook Business Suite, Google Analytics, Canva/Adobe, CRM cơ bản</li>
+        <li>Đo lường: lượt tiếp cận, tương tác, truy cập website, số leads</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SMART -->
+<div class="section-gap a" style="animation-delay:.30s">
+  <div class="sh"><div class="sh-dot" style="background:var(--green2)"></div><span class="sh-title">Mô hình 5 — Mục tiêu SMART</span></div>
+
+  <div class="smart-quote">"Tăng độ nhận diện thương hiệu"</div>
+
+  <div class="smart-grid">
+    <div class="smart-criterion">
+      <div class="smart-crit-label" style="color:var(--accent)">Cụ thể (Specific)</div>
+      <div class="smart-crit-body">Mơ hồ ở: "độ nhận diện" là khái niệm rộng, khó định lượng. Phiên bản cụ thể hóa: Blue Vigor Travel sẽ tăng lượt tiếp cận và tương tác với nội dung thương hiệu trên Facebook và website.</div>
+      <div class="smart-bar"><div class="smart-fill" style="width:75%"></div></div>
+    </div>
+    <div class="smart-criterion">
+      <div class="smart-crit-label" style="color:var(--accent-w)">Đo lường được (Measurable)</div>
+      <div class="smart-crit-body">Chỉ số: lượt tiếp cận Facebook · lượt tương tác · lượt truy cập website. Cần số liệu hiện tại — không có điểm xuất phát thì mục tiêu chỉ là con số tùy tiện.</div>
+      <div class="smart-bar"><div class="smart-fill" style="width:0%;background:var(--danger)"></div></div>
+    </div>
+    <div class="smart-criterion">
+      <div class="smart-crit-label" style="color:var(--accent-b)">Khả thi (Achievable)</div>
+      <div class="smart-crit-body">Ngân sách 217 triệu khá thực tế để triển khai chiến dịch digital tập trung. Tăng 2–3 lần lượt tiếp cận và tương tác trong 3 tháng là khả thi nếu đầu tư đúng đắn.</div>
+      <div class="smart-bar"><div class="smart-fill" style="width:80%"></div></div>
+    </div>
+    <div class="smart-criterion">
+      <div class="smart-crit-label" style="color:var(--purple)">Liên quan (Relevant)</div>
+      <div class="smart-crit-body">Đối với công ty mới, tăng nhận diện là bước nền tảng để tiếp cận khách hàng, xây niềm tin và thúc đẩy doanh số. Hoàn toàn phù hợp ở giai đoạn khởi đầu này.</div>
+      <div class="smart-bar"><div class="smart-fill" style="width:95%"></div></div>
+    </div>
+    <div class="smart-criterion" style="grid-column:1/-1">
+      <div class="smart-crit-label" style="color:var(--green2)">Có thời hạn (Time-bound)</div>
+      <div class="smart-crit-body">Deadline: Quý 2/2026 (tháng 4–6). Mốc kiểm tra giữa kỳ: cuối tháng 4 và cuối tháng 5. Thời hạn 3 tháng là đủ thực tế để thấy kết quả đầu tiên.</div>
+      <div class="smart-bar"><div class="smart-fill" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <div class="smart-dark">
+    <div class="smart-dark-text">"Blue Vigor Travel sẽ tăng lượt tiếp cận trên Facebook từ <strong>[cần bổ sung baseline]</strong> lên <strong>[mục tiêu cụ thể]</strong> và lượt truy cập website từ <strong>[cần bổ sung baseline]</strong> lên <strong>[mục tiêu cụ thể]</strong> — được đo bằng Facebook Insights và Google Analytics vào cuối Quý 2/2026 — thông qua chiến dịch quảng cáo tập trung vào USP và tối ưu nội dung trên các kênh chính."</div>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-col">
+      <div class="tl-month">Tháng 4/2026</div>
+      <div class="tl-title">Chuẩn bị & Lên kế hoạch</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--danger)"></div>Nghiên cứu hành vi và sở thích khách hàng mục tiêu</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--danger)"></div>Lên kế hoạch nội dung Facebook và website tập trung USP</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--danger)"></div>Thiết kế mẫu quảng cáo hình ảnh, video, copywriting</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--danger)"></div>Thiết lập chiến dịch Facebook Ads nhắm mục tiêu chi tiết</div>
+    </div>
+    <div class="tl-col">
+      <div class="tl-month">Tháng 5/2026</div>
+      <div class="tl-title">Triển khai & Tối ưu ban đầu</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent-w)"></div>Chính thức khởi chạy các chiến dịch quảng cáo Facebook</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent-w)"></div>Đăng tải nội dung thường xuyên, tương tác khách hàng</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent-w)"></div>Theo dõi chỉ số lượt tiếp cận, tương tác hàng tuần</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent-w)"></div>A/B testing, điều chỉnh đối tượng và ngân sách</div>
+    </div>
+    <div class="tl-col">
+      <div class="tl-month">Tháng 6/2026</div>
+      <div class="tl-title">Đánh giá & Báo cáo</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div>Đánh giá tổng thể hiệu suất so với mục tiêu đề ra</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div>Tiếp tục tối ưu các chiến dịch hiệu quả nhất</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div>Thu thập phản hồi khách hàng, phân tích xu hướng</div>
+      <div class="tl-item"><div class="tl-dot" style="background:var(--accent)"></div>Lập báo cáo cuối kỳ, đề xuất chiến dịch tiếp theo</div>
+    </div>
+  </div>
+</div>
+
+<!-- TỔNG HỢP -->
+<div class="section-gap a" style="animation-delay:.36s">
+  <div class="sh"><div class="sh-dot" style="background:var(--ink-2)"></div><span class="sh-title">Tổng hợp liên kết 5 mô hình</span></div>
+  <div class="syn-grid">
+    <div class="syn-col"><strong>SWOT</strong> chỉ ra điểm mạnh "điều dưỡng đi kèm" và "không shopping" → <strong>AIDA</strong> nên khai thác những điểm này trong câu mở đầu và nội dung để thu hút sự chú ý và tạo mong muốn mạnh mẽ nhất.</div>
+    <div class="syn-col"><strong>4P</strong> xác định Facebook và website là kênh truyền thông và phân phối chính → <strong>5W1H</strong> lên lịch và chi tiết hóa toàn bộ hoạt động triển khai quảng cáo và nội dung trên các kênh này theo từng tháng.</div>
+    <div class="syn-col"><strong>SMART</strong> đặt mục tiêu "tăng nhận diện thương hiệu" một cách cụ thể và đo lường được → Cả 5 mô hình đều phục vụ mục tiêu này: xác định lợi thế, cách tiếp cận, kênh triển khai và kế hoạch hành động chi tiết.</div>
+  </div>
+
+  <div class="top3" style="margin-top:0">
+    <div class="top3-head">3 việc ưu tiên tổng thể từ toàn bộ 5 mô hình</div>
+    <div class="top3-item"><div class="top3-num">1</div><div class="top3-text"><strong>Chuẩn hóa và truyền thông mạnh mẽ USP</strong> — tập trung làm nổi bật "tour du lịch chất lượng cao, có điều dưỡng, không shopping" để định vị Blue Vigor Travel khác biệt và thu hút đúng đối tượng</div></div>
+    <div class="top3-item"><div class="top3-num">2</div><div class="top3-text"><strong>Đẩy mạnh truyền thông số trên Facebook và website</strong> — dành ngân sách và nguồn lực cho chiến dịch nội dung chất lượng cao, nhắm mục tiêu chi tiết để tăng nhận diện hiệu quả nhất trong Quý 2/2026</div></div>
+    <div class="top3-item"><div class="top3-num">3</div><div class="top3-text"><strong>Xây dựng bằng chứng xã hội và niềm tin</strong> — chủ động thu thập lời chứng thực từ khách đầu tiên và hợp tác đối tác uy tín, đặc biệt quan trọng với công ty mới</div></div>
+  </div>
+</div>
+
+<!-- CMO NOTE -->
+<div class="cmo-wrap a" style="animation-delay:.42s">
+  <div class="cmo-header">
+    <span class="cmo-label">Lời khuyên từ Giám đốc Marketing (CMO)</span>
+    <span class="cmo-sig">Strategic Advisory · Blue Vigor Travel</span>
+  </div>
+  <div class="cmo-grid">
+    <div class="cmo-card pri">
+      <div class="cmo-num">I.</div>
+      <div class="cmo-title" style="color:var(--accent)">Điều quan trọng nhất phải làm đúng</div>
+      <div class="cmo-body">Tập trung định vị thương hiệu rõ ràng dựa trên USP độc đáo: <strong>tour du lịch có điều dưỡng đi kèm và không shopping ép buộc</strong>. Đây là lợi thế cạnh tranh cốt lõi giúp Blue Vigor Travel nổi bật giữa thị trường du lịch đại trà đang bão hòa.</div>
+    </div>
+    <div class="cmo-card risk">
+      <div class="cmo-num">II.</div>
+      <div class="cmo-title" style="color:var(--danger)">Cạm bẫy lớn nhất cần tránh</div>
+      <div class="cmo-body">Cố gắng cạnh tranh về giá với các công ty tour đại trà. Điều này sẽ làm mất đi giá trị cao cấp và sự khác biệt của Blue Vigor Travel — khiến khách hàng không còn nhận thấy sự đặc biệt của dịch vụ điều dưỡng.</div>
+    </div>
+    <div class="cmo-card opp">
+      <div class="cmo-num">III.</div>
+      <div class="cmo-title" style="color:var(--accent-w)">Cơ hội đang bị bỏ ngỏ</div>
+      <div class="cmo-body">Khai thác mạnh hơn các kênh offline tiềm năng. Hợp tác với phòng khám, bệnh viện, tổ chức sự kiện sức khỏe giúp Blue Vigor Travel tiếp cận trực tiếp tệp khách hàng có nhu cầu chăm sóc sức khỏe và khả năng chi trả cao.</div>
+    </div>
+    <div class="cmo-card">
+      <div class="cmo-num">IV.</div>
+      <div class="cmo-title">Nếu chỉ được làm 1 điều</div>
+      <div class="cmo-body">Đầu tư vào <strong>kể câu chuyện về sự an tâm và tận hưởng trọn vẹn</strong> thông qua hình ảnh và lời chứng thực chân thực từ khách hàng đã trải nghiệm. Đây là thứ xây dựng niềm tin nhanh nhất cho thương hiệu mới.</div>
+    </div>
+  </div>
+  <div class="verdict-quote">"Blue Vigor Travel đang nắm giữ một viên ngọc quý. Hãy mài giũa nó bằng sự tập trung vào giá trị độc đáo và truyền thông nhất quán, thay vì chạy theo số đông."</div>
+
+  <div class="missing">
+    <div class="missing-label">Những gì AI không đủ dữ liệu để kết luận</div>
+    <div class="missing-grid">
+      <div class="missing-item"><span class="missing-dash">—</span>Số liệu baseline (reach, engagement, website traffic): cần bổ sung để phân tích SMART chính xác — thiếu điểm xuất phát thì target chỉ là con số tùy tiện</div>
+      <div class="missing-item"><span class="missing-dash">—</span>Chi tiết về "nguồn lực yếu": cần làm rõ nhân sự, tài chính, công nghệ cụ thể bao nhiêu để phân tích SWOT và 5W1H sâu hơn về cách khắc phục</div>
+      <div class="missing-item"><span class="missing-dash">—</span>Mức giá tour hiện tại và giá đối thủ: cần để phân tích chiến lược giá trong 4P có giá trị thực tế thay vì chỉ đề xuất định hướng chung</div>
+      <div class="missing-item"><span class="missing-dash">—</span>Hiệu quả các hoạt động marketing đã chạy (nếu có): cần để tránh lặp lại sai lầm và nhân đôi những gì đã hiệu quả</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer-bar a" style="animation-delay:.48s">
+  <div class="fb-col"><span class="fb-val">5</span><div class="fb-lbl">Mô hình đã chạy</div></div>
+  <div class="fb-col"><span class="fb-val">Toàn diện</span><div class="fb-lbl">Chế độ phân tích</div></div>
+  <div class="fb-col"><span class="fb-val">Nhận diện</span><div class="fb-lbl">Mục tiêu trọng tâm</div></div>
+  <div class="fb-col"><span class="fb-val">Q2/2026</span><div class="fb-lbl">Thời gian thực hiện</div></div>
+</div>
+
+</div>
+</body>
+</html>
