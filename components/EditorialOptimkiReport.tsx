@@ -7,8 +7,47 @@ interface EditorialOptimkiReportProps {
   result: OptimkiResult;
 }
 
+/** 
+ * Design System v3 - Absolute No-Bold Policy
+ * Cascades through all heading levels and utility classes to ensure a uniform 400 weight.
+ */
+const OPTIMKI_DESIGN_V3_INJECTION = `
+<style data-optimki-v3>
+  :root {
+    --ink: #0f0f0d; --ink-2: #3a3935; --paper: #faf9f6; 
+    --accent: #1a5c3a; --danger: #8a1a1a; --accent-w: #c17f2a; --accent-b: #1a3a5c;
+    --rule: rgba(15,15,13,0.1);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+  .page { padding: 1.5rem 100px 6rem !important; }
+  .swot-item { display: flex; gap: 10px; margin-bottom: 12px !important; font-size: 12.5px !important; line-height: 1.65 !important; align-items: baseline !important; }
+  .swot-dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+  * { font-weight: 400 !important; }
+  h1, h2, h3, h4, h5, h6, strong, b, .doc-title, .sh-title, .fb-val, .tag { font-weight: 400 !important; }
+</style>
+`;
+
 function normalizeOptimkiReportHtml(html: string): string {
-  return html;
+  let processed = html;
+
+  // 1. Inject the new CSS (V3) into <head>
+  if (/<\/head>/i.test(processed)) {
+    processed = processed.replace(/<\/head>/i, `${OPTIMKI_DESIGN_V3_INJECTION}</head>`);
+  } else {
+    processed = `${OPTIMKI_DESIGN_V3_INJECTION}${processed}`;
+  }
+
+  // 2. Retroactively fix SWOT punctuation (Colon to Dash)
+  processed = processed.replace(
+    /(<strong>[^<]+<\/strong>)\s*[:：]/gi,
+    '$1 —'
+  ).replace(
+    /(<strong>[^<]+):<\/strong>/gi,
+    '$1</strong> —'
+  );
+
+  return processed;
 }
 
 /**
