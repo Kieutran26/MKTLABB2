@@ -4,6 +4,9 @@ import { Resend } from 'resend';
 import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { ApifyClient } from 'apify-client';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -16,14 +19,95 @@ const BASE_URL = process.env.VITE_BASE_URL || `http://localhost:${PORT}`;
 app.use(cors());
 app.use(express.json());
 
-// Initialize Resend
-const resend = new Resend(process.env.VITE_RESEND_API_KEY);
+// Initialize Resend (Safe)
+let resend = null;
+if (process.env.VITE_RESEND_API_KEY) {
+    resend = new Resend(process.env.VITE_RESEND_API_KEY);
+    console.log('✅ Resend initialized successfully.');
+} else {
+    console.warn('⚠️ VITE_RESEND_API_KEY is missing. Email features will be disabled.');
+}
 
-// Initialize Supabase
-const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY
-);
+// Initialize Supabase (Safe)
+let supabase = null;
+if (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY) {
+    supabase = createClient(
+        process.env.VITE_SUPABASE_URL,
+        process.env.VITE_SUPABASE_ANON_KEY
+    );
+    console.log('✅ Supabase initialized successfully.');
+} else {
+    console.warn('⚠️ Supabase credentials missing. Database features will be disabled.');
+}
+
+// ================== CLAUDE (ANTHROPIC) PROXY ENDPOINTS ==================
+
+// Test endpoint to verify connectivity from browser
+app.get('/api/claude/test', (req, res) => {
+    const apiKey = process.env.VITE_ANTHROPIC_API_KEY;
+    console.log('🔍 Claude Test Requested. Key configured:', !!(apiKey && apiKey.length > 5));
+    res.json({
+        status: 'online',
+        server_time: new Date().toISOString(),
+        api_key_configured: !!(apiKey && apiKey.length > 5),
+        message: 'Claude Proxy is ready and listening.'
+    });
+});
+
+app.post('/api/claude/generate', async (req, res) => {
+    const { model, system, messages, max_tokens, temperature } = req.body;
+    const apiKey = process.env.VITE_ANTHROPIC_API_KEY;
+
+    const logFile = path.resolve('server-ai.log');
+    const log = (msg) => {
+        try {
+            const entry = `[${new Date().toISOString()}] ${msg}\n`;
+            console.log(entry.trim());
+            fs.appendFileSync(logFile, entry);
+        } catch (e) {}
+    };
+
+    if (!apiKey || apiKey.length < 5) {
+        log('❌ VITE_ANTHROPIC_API_KEY missing or invalid in .env.local');
+        return res.status(500).json({ 
+            error: 'Anthropic API Key not configured on server', 
+            instruction: 'Please add VITE_ANTHROPIC_API_KEY to your .env.local and restart the server.' 
+        });
+    }
+
+    try {
+        log(`🚀 Incoming Claude Request: model=${model || 'claude-3-5-sonnet-latest'}`);
+        
+        const response = await axios.post('https://api.anthropic.com/v1/messages', {
+            model: model || 'claude-3-5-sonnet-latest',
+            max_tokens: max_tokens || 8192,
+            temperature: temperature || 0.7,
+            system: system,
+            messages: messages
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+            },
+            timeout: 60000 // 60 seconds timeout
+        });
+
+        log(`✅ Claude Response Received (${response.status})`);
+        res.json(response.data);
+    } catch (error) {
+        const status = error.response?.status || 500;
+        const errorData = error.response?.data || { message: error.message };
+        log(`❌ Claude API Error (${status}): ${JSON.stringify(errorData)}`);
+        
+        // ALWAYS return JSON
+        res.status(status).json({
+            error: 'Claude Proxy Error',
+            details: errorData,
+            status: status
+        });
+    }
+});
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -456,6 +540,74 @@ app.post('/api/analyze-facebook', async (req, res) => {
         res.status(500).json({
             error: 'Internal server error',
             message: error.message
+        });
+    }
+});
+
+// ================== CLAUDE (ANTHROPIC) PROXY ENDPOINT ==================
+
+// Test endpoint to verify connectivity from browser
+app.get('/api/claude/test', (req, res) => {
+    const apiKey = process.env.VITE_ANTHROPIC_API_KEY;
+    res.json({
+        status: 'online',
+        server_time: new Date().toISOString(),
+        api_key_configured: !!(apiKey && apiKey.length > 5),
+        message: 'Claude Proxy is ready and listening.'
+    });
+});
+
+app.post('/api/claude/generate', async (req, res) => {
+    const { model, system, messages, max_tokens, temperature } = req.body;
+    const apiKey = process.env.VITE_ANTHROPIC_API_KEY;
+
+    const logFile = path.resolve('server-ai.log');
+    const log = (msg) => {
+        try {
+            const entry = `[${new Date().toISOString()}] ${msg}\n`;
+            console.log(entry.trim());
+            fs.appendFileSync(logFile, entry);
+        } catch (e) {}
+    };
+
+    if (!apiKey || apiKey.length < 5) {
+        log('❌ VITE_ANTHROPIC_API_KEY missing or invalid in .env.local');
+        return res.status(500).json({ 
+            error: 'Anthropic API Key not configured on server', 
+            instruction: 'Please add VITE_ANTHROPIC_API_KEY to your .env.local and restart the server.' 
+        });
+    }
+
+    try {
+        log(`🚀 Incoming Claude Request: model=${model || 'claude-3-5-sonnet-latest'}`);
+        
+        const response = await axios.post('https://api.anthropic.com/v1/messages', {
+            model: model || 'claude-3-5-sonnet-latest',
+            max_tokens: max_tokens || 8192,
+            temperature: temperature || 0.7,
+            system: system,
+            messages: messages
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+            },
+            timeout: 60000 // 60 seconds timeout
+        });
+
+        log(`✅ Claude Response Received (${response.status})`);
+        res.json(response.data);
+    } catch (error) {
+        const status = error.response?.status || 500;
+        const errorData = error.response?.data || { message: error.message };
+        log(`❌ Claude API Error (${status}): ${JSON.stringify(errorData)}`);
+        
+        // ALWAYS return JSON
+        res.status(status).json({
+            error: 'Claude Proxy Error',
+            details: errorData,
+            status: status
         });
     }
 });

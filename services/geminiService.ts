@@ -1,4 +1,5 @@
 import { ContentPillar, AdsHealthInput, AdsHealthResult, BrandPositioningInput, BrandPositioningResult, PricingAnalyzerInput, PricingAnalyzerResult, AudienceEmotionMapInput, AudienceEmotionMapResult, StrategicSolution } from "../types";
+import { callClaudeAPI } from "./anthropicService";
 
 /** Thrown when Gemini returns 429 / free-tier quota; UI can show a specific toast. */
 export class GeminiRateLimitError extends Error {
@@ -23,12 +24,12 @@ function getGeminiRestModelCandidates(): string[] {
         typeof import.meta.env.VITE_GEMINI_REST_MODEL === 'string'
             ? import.meta.env.VITE_GEMINI_REST_MODEL.trim()
             : '';
-    // v1beta hỗ trợ responseMimeType — dùng model mới có versioned suffix
+    // v1beta REST: generationConfig dùng response_mime_type (snake_case), không phải responseMimeType
     const defaults = [
-        'gemini-2.0-flash-001',      // 2.0 Flash stable — khuyên dùng với billing
-        'gemini-2.0-flash-lite-001', // 2.0 Flash Lite stable
-        'gemini-1.5-flash-002',      // 1.5 Flash stable fallback
-        'gemini-1.5-flash-001',      // 1.5 Flash cũ hơn
+        'gemini-2.5-flash',        // 2.5 Flash (Xác nhận khả dụng cho Key này)
+        'gemini-2.5-pro',          // 2.5 Pro
+        'gemini-2.0-flash',        // 2.0 Flash
+        'gemini-1.5-flash',        // 1.5 Flash stable
     ];
     const ordered = fromEnv ? [fromEnv, ...defaults.filter((m) => m !== fromEnv)] : defaults;
     return [...new Set(ordered)];
@@ -46,17 +47,19 @@ const GEMINI_429_MAX_RETRIES_PER_MODEL = 4;
  */
 const GEMINI_429_MAX_RETRIES_FREE_TIER_PER_MODEL = 1;
 
-/** Max cumulative sleep across one generateContent call (free-tier 429 often shares quota across models). Increased for free-tier. */
-const GEMINI_429_MAX_TOTAL_WAIT_MS = 300_000;
+// List of model candidates in priority order
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+
+// Reduced wait for Paid Tier 1 (2000 RPM)
+const GEMINI_POST_429_MIN_SWITCH_MS = 500;
+const GEMINI_429_MAX_RETRY_COUNT = 3;
+const GEMINI_429_MAX_TOTAL_WAIT_MS = 10000;
 
 /** Pause between trying the next model after a 404 (reduces RPM bursts on free tier). */
 const GEMINI_INTER_MODEL_COOLDOWN_MS = 400;
 
-/** After 429 on one model, wait before hitting the next — free tier often shares one RPM window across model IDs. */
-const GEMINI_POST_429_MIN_SWITCH_MS = 14_000;
-
-/** Minimum mandatory delay between any two Gemini requests (conservative buffer for 5 RPM free tier). */
-const GEMINI_MIN_INTER_REQUEST_GAP_MS = 20_000;
+/** Minimum mandatory delay between any two Gemini requests (Disabled for Paid Tier). */
+const GEMINI_MIN_INTER_REQUEST_GAP_MS = 0;
 
 /** Last model that returned 200 for this session — try first to avoid 404 chains. */
 let geminiLastSuccessfulModel: string | null = null;
@@ -186,9 +189,20 @@ async function postGeminiGenerateContentUnqueued(
 
             if (response.ok) {
                 const data = JSON.parse(raw) as any;
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const parts = data.candidates?.[0]?.content?.parts;
+                let text = '';
+                if (Array.isArray(parts)) {
+                    for (const p of parts) {
+                        if (p && typeof p.text === 'string') text += p.text;
+                    }
+                }
+                text = text.trim();
                 if (!text) {
-                    throw new Error('No text returned from Gemini API');
+                    const fr = data.candidates?.[0]?.finishReason;
+                    const br = data.promptFeedback?.blockReason;
+                    throw new Error(
+                        `No text returned from Gemini API (finishReason=${fr ?? 'n/a'}, blockReason=${br ?? 'n/a'})`
+                    );
                 }
                 geminiLastSuccessfulModel = model;
                 return text;
@@ -197,7 +211,8 @@ async function postGeminiGenerateContentUnqueued(
             if (response.status === 404) {
                 lastStatus = 404;
                 lastErrorText = raw;
-                break;
+                // Important: Continue to next candidate instead of breaking
+                continue;
             }
 
             if (response.status === 429) {
@@ -259,10 +274,10 @@ async function postGeminiGenerateContentUnqueued(
                 const parsed = parseGemini429RetryMs(lastErrorText);
                 const switchWait = Math.min(
                     budgetLeft,
-                    Math.max(GEMINI_POST_429_MIN_SWITCH_MS, Math.floor(parsed * 0.92))
+                    Math.max(GEMINI_POST_429_MIN_SWITCH_MS, Math.floor(parsed * 0.5))
                 );
                 console.warn(
-                    `[Gemini] free-tier / shared quota: waiting ${Math.round(switchWait / 1000)}s before next model (${mi + 1}/${candidates.length})`
+                    `[Gemini] Paid Tier: quickly trying next model (${mi + 1}/${candidates.length})...`
                 );
                 await sleepMs(switchWait);
                 total429WaitMs += switchWait;
@@ -271,12 +286,29 @@ async function postGeminiGenerateContentUnqueued(
     }
 
     if (lastStatus === 429) {
-        const parsed = parseGemini429RetryMs(lastErrorText);
-        const retryAfter = Math.max(45, Math.round(parsed / 1000));
         throw new GeminiRateLimitError(
-            `${errorPrefix}: Tài khoản (free tier) đang bị giới hạn tốc độ. Vui lòng đợi khoảng ${retryAfter} giây rồi thử lại.`,
-            retryAfter
+            `${errorPrefix}: Giới hạn tốc độ tạm thời. Vui lòng thử lại sau vài giây.`,
+            2
         );
+    }
+
+    // --- FINAL FALLBACK: Anthropic Claude ---
+    const ANTHROPIC_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+    if (ANTHROPIC_KEY && ANTHROPIC_KEY.length > 5) {
+        console.warn(`[AI Strategy] Gemini Exhausted after ${candidates.length} candidates. Falling back to Claude...`);
+        try {
+            // Re-construct system instruction if possible from common patterns
+            const system = (requestBody as any)?.systemInstruction?.parts?.[0]?.text;
+            const prompt = (requestBody as any)?.contents?.[0]?.parts?.[0]?.text || "No prompt found";
+
+            return await callClaudeAPI(prompt, {
+                systemInstruction: system,
+                temperature: 0.7
+            });
+        } catch (claudeError: any) {
+            console.error("❌ Claude Fallback also failed:", claudeError);
+            // Fall through to throw original error
+        }
     }
 
     throw new Error(`${errorPrefix} (Status ${lastStatus}): ${lastErrorText || 'No working model candidate found'}`);
@@ -329,9 +361,9 @@ async function callGeminiAPI(
         }
     };
 
-    // Add JSON mode if requested
+    // Add JSON mode if requested (REST proto JSON uses snake_case here)
     if (options.jsonMode) {
-        requestBody.generationConfig.responseMimeType = 'application/json';
+        requestBody.generationConfig.response_mime_type = 'application/json';
     }
 
     try {
@@ -446,7 +478,9 @@ const ai = {
                     ],
                     generationConfig: {
                         temperature: config?.temperature ?? 0.7,
-                        ...(config?.responseMimeType ? { responseMimeType: config.responseMimeType } : {}),
+                        ...(config?.responseMimeType
+                            ? { response_mime_type: config.responseMimeType }
+                            : {}),
                         ...(config?.maxOutputTokens ? { maxOutputTokens: config.maxOutputTokens } : {}),
                     },
                 };
@@ -519,7 +553,7 @@ IMPORTANT: Return ONLY the translated text.Do not add any explanations, notes, p
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: text,
             config: {
                 systemInstruction: systemPrompt,
@@ -563,7 +597,7 @@ export const generateMultiPlatformContent = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: prompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -734,7 +768,7 @@ export const generateKeyVisual = async (
         const requests = [];
         for (let i = 0; i < params.numberOfImages; i++) {
             requests.push(ai.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+                model: 'gemini-2.0-flash-001',
                 contents: { parts: promptParts },
                 config: {
                     imageConfig: {
@@ -780,7 +814,7 @@ export const generateStoryboardFrame = async (
     // Use Gemini 2.5 Flash Image directly
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image',
+            model: 'gemini-2.0-flash-001',
             contents: prompt,
             config: {
                 imageConfig: { aspectRatio: '16:9' },
@@ -893,7 +927,7 @@ ${hasGoal ? `
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Create mindmap for: "${inputData.topic}" ${hasGoal ? `with goal: "${inputData.goal}"` : ''}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -948,7 +982,7 @@ export const brainstormNodeDetails = async (nodeLabel: string, rootContext?: str
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: rootContext ? `Generate ideas for project: "${rootContext}". Focus ONLY on this aspect: "${nodeLabel}".` : `Deep dive topic: "${nodeLabel}"`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1089,7 +1123,7 @@ ${method ? `### FOCUS ONLY ON: ${method.toUpperCase()}` : '### Generate ideas fo
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate SCAMPER ideas for: "${inputData.topic}" to solve: "${inputData.problem}"`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1150,7 +1184,7 @@ Product / Service: ${productInfo}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate ${modelType} model`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1208,7 +1242,7 @@ Product / Service: ${productInfo}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate ALL models`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1247,7 +1281,7 @@ Context: ${context}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Suggest Pillars`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1311,7 +1345,7 @@ export const generateContentCalendar = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: isShuffle ? "Hãy tạo một phương án lịch nội dung HOÀN TOÀN MỚI, khác biệt so với các đề xuất thông thường dựa trên yêu cầu trên." : "Hãy lập kế hoạch lịch nội dung cho tháng này dựa trên yêu cầu trên.",
             config: {
                 systemInstruction: systemPrompt,
@@ -1494,7 +1528,7 @@ Hãy viết báo cáo cực kỳ giá trị, đúng thực tế và ngôn từ "
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate Deep Mastermind Strategy Report`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1687,7 +1721,7 @@ ${goalAdjustment}
         }
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate comprehensive Creative Brief with Budget Reality Check for: ${input.productBrand}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1819,7 +1853,7 @@ ${isRoutine ? `
         }
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Generate comprehensive SOP with Lean Management framework for: ${input.processName}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1997,7 +2031,7 @@ Nhớ:
         onProgress?.('Áp dụng The Hook Matrix...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2187,7 +2221,7 @@ YÊU CẦU BẮT BUỘC:
         onProgress?.('Xây dựng 5-Stage Psychological Battle Plan...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2285,7 +2319,7 @@ Output: {"validation_status": "PASS", "reason_code": "VALID", "message_to_user":
 Hãy thực hiện Sanity Check và trả về JSON validation result.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2407,7 +2441,7 @@ Rationale PHẢI cụ thể: "Với ngành ${input.industry} và mục tiêu ${k
         onProgress?.('Tính toán phân bổ tối ưu...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2641,7 +2675,7 @@ QUY TẮC VÀNG:
         onProgress?.('Đang tìm Friction và Tension...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2780,7 +2814,7 @@ Trả về JSON với ${count} concept cards. Mỗi card có cấu trúc:
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -3152,7 +3186,7 @@ ${JSON.stringify(benchmark, null, 2)}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -3268,7 +3302,7 @@ CHỈ TRẢ VỀ JSON, KHÔNG CÓ TEXT THÊM.`;
         onProgress?.('Đang xây dựng Brand Canvas...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash-001',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -3423,7 +3457,7 @@ TRẢ VỀ JSON (chỉ JSON, không markdown):
 }`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash-001',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -3522,7 +3556,7 @@ OUTPUT JSON FORMAT (STRICT JSON, NO MARKDOWN):
 }`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-2.0-flash-001',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -3560,6 +3594,11 @@ function stripMarkdownJsonFence(input: string): string {
         s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '');
     }
     return s.trim();
+}
+
+/** Some models emit fullwidth braces; REST JSON mode should not, but parse defensively. */
+function normalizeJsonObjectAsciiBraces(input: string): string {
+    return input.replace(/\uFF5B/g, '{').replace(/\uFF5D/g, '}');
 }
 
 /**
@@ -4110,7 +4149,7 @@ export const generatePorterAnalysis = async (
         const userMessage = buildPorterPrecisionUserMessage(input);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: userMessage,
             config: {
                 systemInstruction: PORTER_PRECISION_SYSTEM_INSTRUCTION,
@@ -4405,7 +4444,7 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
 
     try {
         const sanityResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: 'Validate this STP input',
             config: {
                 systemInstruction: sanityPrompt,
@@ -4636,7 +4675,7 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
 • Positioning statement cuối cùng phải thật súc tích, 1 câu duy nhất.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.0-flash-001',
             contents: `Phân tích STP cho "${input.productBrand}" trong ngành "${input.industry}"`,
             config: {
                 systemInstruction: stpPrompt,
@@ -4907,11 +4946,189 @@ function tryAssembleOptimkiResult(
     }
 }
 
+/** Entire body is a JSON string whose value is a `{...` payload (some proxies/models double-encode). */
+function unwrapJsonStringContainingOptimkiObject(s: string): string {
+    const t = s.trim();
+    if (t.length < 4) return s;
+    if (t.startsWith('"') && t.endsWith('"')) {
+        try {
+            const once = JSON.parse(t);
+            if (typeof once === 'string') {
+                const inner = once.trim();
+                if (inner.startsWith('{')) return inner;
+            }
+        } catch {
+            /* ignore */
+        }
+    }
+    return s;
+}
+
+/** Scan JSON string value starting at first character after the opening `"`. */
+function scanOptimkiJsonStringValue(work: string, bodyStart: number): { text: string; endQuote: number } {
+    let i = bodyStart;
+    let out = '';
+    while (i < work.length) {
+        const ch = work[i];
+        if (ch === '\\') {
+            if (i + 1 >= work.length) break;
+            const n = work[i + 1];
+            i += 2;
+            switch (n) {
+                case 'n':
+                    out += '\n';
+                    break;
+                case 'r':
+                    out += '\r';
+                    break;
+                case 't':
+                    out += '\t';
+                    break;
+                case 'b':
+                    out += '\b';
+                    break;
+                case 'f':
+                    out += '\f';
+                    break;
+                case '"':
+                    out += '"';
+                    break;
+                case '\\':
+                    out += '\\';
+                    break;
+                case '/':
+                    out += '/';
+                    break;
+                case 'u': {
+                    const hex = work.slice(i, i + 4);
+                    if (hex.length === 4 && /^[0-9a-fA-F]+$/.test(hex)) {
+                        out += String.fromCharCode(parseInt(hex, 16));
+                        i += 4;
+                    } else {
+                        out += 'u';
+                    }
+                    break;
+                }
+                default:
+                    out += n;
+            }
+            continue;
+        }
+        if (ch === '"') {
+            return { text: out, endQuote: i };
+        }
+        out += ch;
+        i++;
+    }
+    return { text: out, endQuote: -1 };
+}
+
+function escapeHtmlTextForOptimkiFallback(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function buildOptimkiFallbackHtmlReportFromAnalysis(analysis: string, brandName: string): string {
+    const body = escapeHtmlTextForOptimkiFallback(analysis.trim() || '(Không có nội dung phân tích.)');
+    const title = escapeHtmlTextForOptimkiFallback(brandName.trim() || 'Báo cáo');
+    return (
+        `<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/>` +
+        `<title>${title}</title><style>body{font-family:system-ui,sans-serif;max-width:52rem;margin:2rem auto;line-height:1.65;padding:0 1rem}` +
+        `.note{color:#666;font-size:0.9rem;margin-bottom:1.5rem}pre{white-space:pre-wrap;word-break:break-word}</style></head><body>` +
+        `<h1>Báo cáo Opti M.KI</h1><p class='note'>Phản hồi model bị cắt cụt hoặc thiếu html_report — hiển thị bản phân tích văn bản đã nhận được.</p>` +
+        `<pre>${body}</pre></body></html>`
+    );
+}
+
+function ensureOptimkiHtmlShell(html: string): string {
+    const h = html.trim();
+    if (!h) return '';
+    if (/<!DOCTYPE/i.test(h) || /<html[\s>]/i.test(h)) {
+        if (!/<\/html>/i.test(h)) return `${h}\n</body></html>`;
+        return h;
+    }
+    return `<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'/></head><body>${h}</body></html>`;
+}
+
+/**
+ * Recover single-shot Optimki when JSON is truncated (no final `}`) or unbalanced
+ * but `analysis_content` (and optionally partial `html_report`) is present.
+ */
+function tryRecoverOptimkiTruncatedSingleShot(
+    work: string,
+    fallbacks?: { brand_name?: string; model_type?: OptimkiModelType }
+): OptimkiResult | null {
+    const acMatch = work.match(/"analysis_content"\s*:\s*"/);
+    if (!acMatch || acMatch.index === undefined) return null;
+    const bodyStart = acMatch.index + acMatch[0].length;
+    const scanned = scanOptimkiJsonStringValue(work, bodyStart);
+    if (!scanned.text.trim() && scanned.endQuote === -1) return null;
+
+    const brand_name =
+        extractOptimkiJsonStringField(work, 'brand_name')?.trim() ||
+        fallbacks?.brand_name?.trim() ||
+        '—';
+    const model_type = (extractOptimkiJsonStringField(work, 'model_type')?.trim() ||
+        fallbacks?.model_type ||
+        'chua_chon') as OptimkiModelType;
+
+    let html_report = '';
+    if (scanned.endQuote !== -1) {
+        const tail = work.slice(scanned.endQuote + 1);
+        const hrMatch = tail.match(/"html_report"\s*:\s*"/);
+        if (hrMatch && hrMatch.index !== undefined) {
+            const hs = scanned.endQuote + 1 + hrMatch.index + hrMatch[0].length;
+            const htmlScanned = scanOptimkiJsonStringValue(work, hs);
+            if (htmlScanned.text.trim()) {
+                html_report = ensureOptimkiHtmlShell(htmlScanned.text.trim());
+            }
+        }
+    }
+
+    if (!html_report.trim()) {
+        html_report = buildOptimkiFallbackHtmlReportFromAnalysis(scanned.text, brand_name);
+    }
+
+    if (!html_report.trim()) return null;
+
+    return {
+        brand_name,
+        model_type,
+        html_report,
+    } as OptimkiResult;
+}
+
+function finalizeOptimkiParsedObject(
+    o: unknown,
+    fallbacks?: { brand_name?: string; model_type?: OptimkiModelType }
+): OptimkiResult | null {
+    if (!o || typeof o !== 'object') return null;
+    const p = o as Record<string, unknown>;
+    const brand_name =
+        typeof p.brand_name === 'string' && p.brand_name.trim()
+            ? p.brand_name.trim()
+            : (fallbacks?.brand_name ?? '—').trim() || '—';
+    const rawMt = typeof p.model_type === 'string' ? p.model_type.trim() : '';
+    const model_type = (rawMt || fallbacks?.model_type || 'chua_chon') as OptimkiModelType;
+    let html_report = typeof p.html_report === 'string' ? p.html_report.trim() : '';
+    const ac = typeof p.analysis_content === 'string' ? p.analysis_content.trim() : '';
+    if (!html_report && ac) {
+        html_report = buildOptimkiFallbackHtmlReportFromAnalysis(ac, brand_name);
+    }
+    if (html_report) html_report = ensureOptimkiHtmlShell(html_report);
+    if (!html_report.trim()) return null;
+    const base = { brand_name, model_type, html_report };
+    if (p.suggestion != null && typeof p.suggestion === 'object') {
+        return { ...base, suggestion: p.suggestion as OptimkiResult['suggestion'] } as OptimkiResult;
+    }
+    return base as OptimkiResult;
+}
+
 function parseOptimkiJsonText(
     text: string,
     fallbacks?: { brand_name?: string; model_type?: OptimkiModelType }
 ): OptimkiResult {
-    const cleaned = stripMarkdownJsonFence(text);
+    let cleaned = normalizeJsonObjectAsciiBraces(stripMarkdownJsonFence(text));
+    cleaned = unwrapJsonStringContainingOptimkiObject(cleaned);
     const normalized = normalizeHtmlAttrDoubleQuotesInJsonPayload(cleaned);
 
     let jsonStr = extractBalancedJsonObject(normalized);
@@ -4921,13 +5138,27 @@ function parseOptimkiJsonText(
         if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
             jsonStr = normalized.slice(startIdx, endIdx + 1);
         } else {
-            throw new SyntaxError('Optimki: no JSON object found in model output');
+            const recovered =
+                tryRecoverOptimkiTruncatedSingleShot(normalized, fallbacks) ??
+                tryRecoverOptimkiTruncatedSingleShot(cleaned, fallbacks);
+            if (recovered) return recovered;
+            const preview = normalized.slice(0, 280).replace(/\s+/g, ' ').trim();
+            throw new SyntaxError(
+                `Optimki: no JSON object found in model output (chars=${normalized.length}` +
+                    (preview ? `, head=${JSON.stringify(preview)}` : '') +
+                    ')'
+            );
         }
     }
 
     jsonStr = jsonStr.replace(/\u0000/g, '').replace(/\uFEFF/g, '');
 
-    const tryParse = (s: string) => JSON.parse(s) as OptimkiResult;
+    const tryParse = (s: string) => {
+        const obj = JSON.parse(s) as unknown;
+        const fin = finalizeOptimkiParsedObject(obj, fallbacks);
+        if (!fin) throw new SyntaxError('Optimki: parsed JSON missing html_report');
+        return fin;
+    };
 
     const bases = [
         jsonStr,
@@ -4976,6 +5207,11 @@ function parseOptimkiJsonText(
     const splicedClean = tryAssembleOptimkiResult(cleaned, fallbacks);
     if (splicedClean) return splicedClean;
 
+    const lateRecover =
+        tryRecoverOptimkiTruncatedSingleShot(normalized, fallbacks) ??
+        tryRecoverOptimkiTruncatedSingleShot(cleaned, fallbacks);
+    if (lateRecover) return lateRecover;
+
     throw new SyntaxError('Optimki: JSON.parse failed after all recovery attempts');
 }
 
@@ -4991,18 +5227,20 @@ export const generateOptimkiAnalysis = async (
         const userMessage = buildOptimkiSingleShotUserMessage(input);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            // 2.5 Flash: higher practical output ceiling than 2.0 for analysis_content + html_report
+            model: 'gemini-2.5-flash',
             contents: userMessage,
             config: {
                 systemInstruction: OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION,
                 responseMimeType: 'application/json',
                 safetySettings: SAFETY_SETTINGS,
                 temperature: 0.45,
-                maxOutputTokens: 20480,
+                maxOutputTokens: 32768,
             },
         });
 
-        const parsed = parseOptimkiJsonText(response.text || '{}', {
+        const rawOut = (response.text ?? '').trim();
+        const parsed = parseOptimkiJsonText(rawOut.length ? rawOut : '{}', {
             brand_name: input.ten_thuong_hieu,
             model_type: input.mo_hinh,
         });
