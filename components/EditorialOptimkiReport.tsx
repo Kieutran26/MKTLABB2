@@ -7,14 +7,8 @@ interface EditorialOptimkiReportProps {
   result: OptimkiResult;
 }
 
-/** Legacy system prompt asked for max-width:960px; rewrite so host frame can use full width */
 function normalizeOptimkiReportHtml(html: string): string {
-  return html
-    .replace(/max-width\s*:\s*960px/gi, 'max-width: 100%')
-    .replace(/max-width\s*:\s*920px/gi, 'max-width: 100%')
-    .replace(/max-width\s*:\s*900px/gi, 'max-width: 100%')
-    .replace(/max-width\s*:\s*800px/gi, 'max-width: 100%')
-    .replace(/margin\s*:\s*0(?:px)?\s+auto/gi, 'margin: 0');
+  return html;
 }
 
 /**
