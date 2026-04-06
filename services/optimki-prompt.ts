@@ -146,8 +146,9 @@ body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:
 .swot-cell.weakness .swot-dot{background:var(--danger)}
 .swot-cell.opportunity .swot-dot{background:var(--accent-w)}
 .swot-cell.threat .swot-dot{background:var(--accent-b)}
-.swot-item strong{color:var(--ink);font-weight:400}
+.swot-item strong{color:var(--ink);font-weight:600}
 *{font-weight:400}
+strong{font-weight:600}
 
 /* CROSS */
 .cross-group{padding-left:1rem;border-left:2px solid;margin-bottom:1.1rem}

@@ -8,11 +8,11 @@ interface EditorialOptimkiReportProps {
 }
 
 /** 
- * Design System v3 - Absolute No-Bold Policy
- * Cascades through all heading levels and utility classes to ensure a uniform 400 weight.
+ * Design System v4 - Selective Bold Policy
+ * Bolds SWOT item titles (strong) for emphasis while keeping headings minimal (400).
  */
-const OPTIMKI_DESIGN_V3_INJECTION = `
-<style data-optimki-v3>
+const OPTIMKI_DESIGN_V4_INJECTION = `
+<style data-optimki-v4>
   :root {
     --ink: #0f0f0d; --ink-2: #3a3935; --paper: #faf9f6; 
     --accent: #1a5c3a; --danger: #8a1a1a; --accent-w: #c17f2a; --accent-b: #1a3a5c;
@@ -23,19 +23,26 @@ const OPTIMKI_DESIGN_V3_INJECTION = `
   .page { padding: 1.5rem 100px 6rem !important; }
   .swot-item { display: flex; gap: 10px; margin-bottom: 12px !important; font-size: 12.5px !important; line-height: 1.65 !important; align-items: baseline !important; }
   .swot-dot { width: 6px !important; height: 6px !important; border-radius: 50% !important; flex-shrink: 0 !important; }
+  
+  /* Reset all first */
   * { font-weight: 400 !important; }
-  h1, h2, h3, h4, h5, h6, strong, b, .doc-title, .sh-title, .fb-val, .tag { font-weight: 400 !important; }
+  
+  /* Selectively Bold titles as requested */
+  strong, b { font-weight: 600 !important; }
+  
+  /* Ensure headings stay elegant and non-bold */
+  h1, h2, h3, h4, h5, h6, .doc-title, .sh-title, .fb-val, .tag { font-weight: 400 !important; }
 </style>
 `;
 
 function normalizeOptimkiReportHtml(html: string): string {
   let processed = html;
 
-  // 1. Inject the new CSS (V3) into <head>
+  // 1. Inject the new CSS (V4) into <head>
   if (/<\/head>/i.test(processed)) {
-    processed = processed.replace(/<\/head>/i, `${OPTIMKI_DESIGN_V3_INJECTION}</head>`);
+    processed = processed.replace(/<\/head>/i, `${OPTIMKI_DESIGN_V4_INJECTION}</head>`);
   } else {
-    processed = `${OPTIMKI_DESIGN_V3_INJECTION}${processed}`;
+    processed = `${OPTIMKI_DESIGN_V4_INJECTION}${processed}`;
   }
 
   // 2. Retroactively fix SWOT punctuation (Colon to Dash)
