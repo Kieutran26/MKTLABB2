@@ -23,12 +23,12 @@ function getGeminiRestModelCandidates(): string[] {
         typeof import.meta.env.VITE_GEMINI_REST_MODEL === 'string'
             ? import.meta.env.VITE_GEMINI_REST_MODEL.trim()
             : '';
-    // Use standard non-versioned IDs first, as they are most widely compatible across different API keys.
+    // v1beta hỗ trợ responseMimeType — dùng model mới có versioned suffix
     const defaults = [
-        'gemini-1.5-flash',     // Standard Flash 1.5 (most common access)
-        'gemini-1.5-flash-002', // Latest stable 1.5
-        'gemini-1.5-flash-8b',  // Small, fast, often higher RPM pool
-        'gemini-2.0-flash',     // 2.0 Flash (keep as fallback)
+        'gemini-2.0-flash-001',      // 2.0 Flash stable — khuyên dùng với billing
+        'gemini-2.0-flash-lite-001', // 2.0 Flash Lite stable
+        'gemini-1.5-flash-002',      // 1.5 Flash stable fallback
+        'gemini-1.5-flash-001',      // 1.5 Flash cũ hơn
     ];
     const ordered = fromEnv ? [fromEnv, ...defaults.filter((m) => m !== fromEnv)] : defaults;
     return [...new Set(ordered)];
@@ -431,7 +431,39 @@ const ai = {
         generateContent: async (params: any) => {
             const { contents, config, model } = params;
 
-            // Call the direct API
+            // FIX: contents có thể là string hoặc object (array of parts từ @google/genai format)
+            // Nếu là object/array, cần build requestBody trực tiếp thay vì qua callGeminiAPI
+            if (typeof contents !== 'string') {
+                // contents là object format của @google/genai SDK — dùng trực tiếp với REST API
+                const normalizedContents = Array.isArray(contents) ? contents : [contents];
+                const requestBody: any = {
+                    contents: normalizedContents,
+                    safetySettings: config?.safetySettings ?? [
+                        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+                        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+                    ],
+                    generationConfig: {
+                        temperature: config?.temperature ?? 0.7,
+                        ...(config?.responseMimeType ? { responseMimeType: config.responseMimeType } : {}),
+                        ...(config?.maxOutputTokens ? { maxOutputTokens: config.maxOutputTokens } : {}),
+                    },
+                };
+                if (config?.systemInstruction) {
+                    requestBody.systemInstruction = { parts: [{ text: config.systemInstruction }] };
+                }
+                const text = await postGeminiGenerateContent(requestBody, 'Gemini API Error', {
+                    preferredModel: typeof model === 'string' ? model : undefined,
+                });
+                return {
+                    text,
+                    candidates: [{ content: { parts: [{ text }] } }],
+                    usageMetadata: {}
+                };
+            }
+
+            // contents là string thông thường
             const text = await callGeminiAPI(
                 contents,
                 config?.systemInstruction,
@@ -3538,7 +3570,7 @@ function stripMarkdownJsonFence(input: string): string {
 function lastIndexOfSubstr(s: string, pat: string, fromIndex: number): number {
     let last = -1;
     let pos = fromIndex;
-    for (;;) {
+    for (; ;) {
         const idx = s.indexOf(pat, pos);
         if (idx === -1) break;
         last = idx;
@@ -4047,7 +4079,7 @@ Hãy tạo báo cáo PESTEL chuyên sâu, sắc sảo và đầy đủ theo cấ
         // Add metadata if missing
         result.generated_at = new Date().toISOString();
         result.data_freshness = "Cập nhật Q2/2026";
-        
+
         return result;
     } catch (error) {
         console.error("PESTEL Analysis Error:", error);
@@ -4216,20 +4248,20 @@ function normalizeSTPResult(raw: Record<string, unknown>): STPResult {
     const st = raw.strategy as STPResult["strategy"] | undefined;
     const strategy: STPResult["strategy"] | undefined = st
         ? {
-              top_insights: Array.isArray(st.top_insights) ? st.top_insights.map(String) : [],
-              strategic_risks: Array.isArray(st.strategic_risks)
-                  ? st.strategic_risks.map((r) => ({
-                        issue: String((r as { issue?: string }).issue ?? ""),
-                        mitigation: String((r as { mitigation?: string }).mitigation ?? ""),
-                    }))
-                  : [],
-              opportunities: Array.isArray(st.opportunities)
-                  ? st.opportunities.map(String)
-                  : [],
-              ai_knowledge_gaps: Array.isArray(st.ai_knowledge_gaps)
-                  ? st.ai_knowledge_gaps.map(String)
-                  : [],
-          }
+            top_insights: Array.isArray(st.top_insights) ? st.top_insights.map(String) : [],
+            strategic_risks: Array.isArray(st.strategic_risks)
+                ? st.strategic_risks.map((r) => ({
+                    issue: String((r as { issue?: string }).issue ?? ""),
+                    mitigation: String((r as { mitigation?: string }).mitigation ?? ""),
+                }))
+                : [],
+            opportunities: Array.isArray(st.opportunities)
+                ? st.opportunities.map(String)
+                : [],
+            ai_knowledge_gaps: Array.isArray(st.ai_knowledge_gaps)
+                ? st.ai_knowledge_gaps.map(String)
+                : [],
+        }
         : undefined;
 
     // ── CMO ADVICE ────────────────────────────────────────────────────────────
@@ -4303,8 +4335,8 @@ function normalizeSTPResult(raw: Record<string, unknown>): STPResult {
         raw.validationStatus === "FAIL" || raw.validationStatus === "WARNING"
             ? raw.validationStatus
             : raw.validationStatus === "PASS"
-              ? "PASS"
-              : "PASS";
+                ? "PASS"
+                : "PASS";
 
     return {
         validationStatus,
@@ -4688,7 +4720,7 @@ function parseOptimkiPhase1Json(
             : fallbacks.model_type;
     const analysis_content =
         typeof p.analysis_content === 'string' ? p.analysis_content.trim() : '';
-    
+
     if (!analysis_content) {
         // One last attempt: maybe it's completely malformed and analysis_content is the whole thing?
         // But usually we need it to be at least somewhat valid JSON.
@@ -4721,7 +4753,7 @@ function tryRebuildOptimkiPhase1Json(work: string): string | null {
 
     // Find the end of the field. Phase 1 usually ends with "suggestion": or the closing }
     let lastQuoteCandidate = -1;
-    
+
     // Check for "suggestion" marker
     const suggestIdx = work.lastIndexOf('"suggestion"');
     if (suggestIdx > firstQuote) {
@@ -4751,10 +4783,10 @@ function tryRebuildOptimkiPhase1Json(work: string): string | null {
     const rawValue = work.slice(firstQuote, lastQuoteCandidate);
     const prefix = work.slice(0, firstQuote);
     const suffix = work.slice(lastQuoteCandidate);
-    
+
     // Properly escape the internal content
     const escapedValue = JSON.stringify(rawValue).slice(1, -1);
-    
+
     return prefix + escapedValue + suffix;
 }
 
@@ -4959,7 +4991,7 @@ export const generateOptimkiAnalysis = async (
         const userMessage = buildOptimkiSingleShotUserMessage(input);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-1.5-flash-002',
+            model: 'gemini-2.0-flash-001',
             contents: userMessage,
             config: {
                 systemInstruction: OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION,
