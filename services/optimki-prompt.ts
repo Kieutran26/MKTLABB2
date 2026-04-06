@@ -129,24 +129,39 @@ body{background:var(--paper);font-family:var(--sans);color:var(--ink);font-size:
 .sh-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
 .sh-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:500;color:var(--ink-2)}
 
-/* SWOT */
-.swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:1.5rem}
-.swot-cell{padding:1.25rem;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.swot-cell:nth-child(2){border-right:none}
-.swot-cell:nth-child(3){border-bottom:none}
-.swot-cell:nth-child(4){border-right:none;border-bottom:none}
-.swot-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:1rem}
+/* SWOT — ma trận 2×2: nền kem, viền đậm, thanh màu trên cùng, chữ S/W/O/T mờ, icon tròn đặc + ký hiệu trắng */
+.swot-grid{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,auto);gap:0;border:1px solid rgba(15,15,13,.38);border-radius:4px;overflow:hidden;margin-bottom:1.5rem;background:#f8f6f1}
+.swot-cell{padding:1.35rem 1.2rem 1.45rem;border-right:1px solid rgba(15,15,13,.32);border-bottom:1px solid rgba(15,15,13,.32);position:relative;background:#f8f6f1}
+.swot-cell.strength{border-top:4px solid var(--accent)}
+.swot-cell.weakness{border-top:4px solid #7a1f24;border-right:none}
+.swot-cell.opportunity{border-top:4px solid #c9a227}
+.swot-cell.threat{border-top:4px solid #1a3a5c;border-right:none}
+.swot-cell:nth-child(3),.swot-cell:nth-child(4){border-bottom:none}
+.swot-letter{position:absolute;top:.75rem;right:1rem;font-family:var(--serif);font-size:4.85rem;line-height:1;opacity:.1;color:var(--ink);pointer-events:none;z-index:0}
+.swot-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;font-family:var(--sans);margin-bottom:1.05rem;display:block;position:relative;z-index:1;writing-mode:horizontal-tb;text-orientation:mixed}
 .swot-cell.strength .swot-label{color:var(--accent)}
-.swot-cell.weakness .swot-label{color:var(--danger)}
-.swot-cell.opportunity .swot-label{color:var(--accent-w)}
+.swot-cell.weakness .swot-label{color:#7a1f24}
+.swot-cell.opportunity .swot-label{color:#a67c00}
 .swot-cell.threat .swot-label{color:var(--accent-b)}
-.swot-item{display:flex;gap:10px;margin-bottom:12px;font-size:12.5px;color:var(--ink-2);line-height:1.65;align-items:baseline}
-.swot-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;position:relative;top:4px}
-.swot-cell.strength .swot-dot{background:var(--accent)}
-.swot-cell.weakness .swot-dot{background:var(--danger)}
-.swot-cell.opportunity .swot-dot{background:var(--accent-w)}
-.swot-cell.threat .swot-dot{background:var(--accent-b)}
+.swot-item{display:flex;gap:11px;margin-bottom:.95rem;font-size:12.5px;line-height:1.62;align-items:flex-start;position:relative;z-index:1}
+.swot-item:last-child{margin-bottom:0}
+.swot-item>span{color:var(--ink-2)}
+.swot-icon{width:18px;height:18px;min-width:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;line-height:1;color:#fff;position:relative;top:2px;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.swot-cell.strength .swot-icon{background:var(--accent)}
+.swot-cell.weakness .swot-icon{background:#7a1f24}
+.swot-cell.opportunity .swot-icon{background:#b8860b}
+.swot-cell.threat .swot-icon{background:#1a3a5c}
 .swot-item strong{color:var(--ink);font-weight:600}
+/* Bản cũ chỉ có .swot-dot: hiển thị như icon tròn */
+.swot-item>.swot-dot{display:flex!important;align-items:center!important;justify-content:center!important;width:18px!important;height:18px!important;min-width:18px!important;border-radius:50%!important;position:relative!important;top:2px!important;flex-shrink:0!important;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.swot-cell.strength .swot-dot,.swot-cell:nth-child(1) .swot-dot{background:var(--accent)!important}
+.swot-cell.weakness .swot-dot,.swot-cell:nth-child(2) .swot-dot{background:#7a1f24!important}
+.swot-cell.opportunity .swot-dot,.swot-cell:nth-child(3) .swot-dot{background:#b8860b!important}
+.swot-cell.threat .swot-dot,.swot-cell:nth-child(4) .swot-dot{background:#1a3a5c!important}
+.swot-cell.strength .swot-dot::after,.swot-cell:nth-child(1) .swot-dot::after{content:'✓';color:#fff;font-size:9px;font-weight:700;line-height:1}
+.swot-cell.weakness .swot-dot::after,.swot-cell:nth-child(2) .swot-dot::after{content:'✕';color:#fff;font-size:8px;font-weight:700;line-height:1}
+.swot-cell.opportunity .swot-dot::after,.swot-cell:nth-child(3) .swot-dot::after{content:'+';color:#fff;font-size:11px;font-weight:700;line-height:1}
+.swot-cell.threat .swot-dot::after,.swot-cell:nth-child(4) .swot-dot::after{content:'!';color:#fff;font-size:10px;font-weight:700;line-height:1}
 *{font-weight:400}
 strong{font-weight:600}
 
@@ -327,18 +342,37 @@ MÔ HÌNH 1 — PHÂN TÍCH SWOT
 
 1. MA TRẬN SWOT ĐẦY ĐỦ (Dùng dấu '—' để phân tách header bold)
 
-ĐIỂM MẠNH
+BẮT BUỘC GIAO DIỆN:
+• <div class='swot-grid'> phải có đúng 4 <div class='swot-cell'> theo thứ tự: strength → weakness → opportunity → threat (lưới 2×2: hàng 1 S|W, hàng 2 O|T).
+• TUYỆT ĐỐI KHÔNG chỉ render 2 ô (S+W); KHÔNG dùng chữ nhãn dọc (writing-mode vertical).
+• Mỗi cell có <div class='swot-letter'>S</div> (hoặc W/O/T) + <span class='swot-label'>STRENGTHS • ĐIỂM MẠNH</span> (song ngữ, chữ ngang, in hoa, dấu ·).
+
+Cấu trúc mỗi cell:
+<div class='swot-cell [strength/weakness/opportunity/threat]'>
+  <div class='swot-letter'>[S/W/O/T]</div>
+  <span class='swot-label'>[Category Name] • [Vietnamese Focus]</span>
+  ... swot-items ...
+</div>
+
+Cấu trúc mỗi item:
+<div class='swot-item'>
+  <div class='swot-icon'>[✓/✕/+/!]</div>
+  <span><strong>[Header]</strong> — [Nội dung giải thích]</span>
+</div>
+
+Nội dung phân tích:
+STRENGTHS • ĐIỂM MẠNH (Icon ✓)
 → 4–5 điểm từ {{diem_manh_yeu}} · Format: <strong>[Header]</strong> — [Nội dung giải thích]
 ⚠️ Nếu {{diem_manh_yeu}} trống → phân tích từ {{mo_ta}}, dùng header bold + ' — '
 
-ĐIỂM YẾU
+WEAKNESSES • ĐIỂM YẾU (Icon ✕)
 → 4–5 điểm từ dữ liệu · Format: <strong>[Header]</strong> — [Nội dung giải thích]
 ⚠️ Nếu {{diem_manh_yeu}} trống → ghi rõ đang thiếu dữ liệu thực tế
 
-CƠ HỘI
+OPPORTUNITIES • CƠ HỘI (Icon +)
 → 4–5 cơ hội · Format: <strong>[Header]</strong> — [Nội dung giải thích]
 
-THÁCH THỨC
+THREATS • THÁCH THỨC (Icon !)
 → 4–5 thách thức · Format: <strong>[Header]</strong> — [Nội dung giải thích]
 
 2. PHÂN TÍCH CHÉO
@@ -489,7 +523,7 @@ Render toàn bộ analysis_content thành html_report theo đúng Blueprint dư�
 
 1. HEADER: <div class='doc-header a' style='animation-delay:.0s'>...</div>
 2. MỖI SECTION: <div class='section-gap a' style='animation-delay:[Tăng dần 0.06s]s'>...</div>
-3. SWOT GRID: <div class='swot-grid'> (4 swot-cell: class 'strength', 'weakness', 'opportunity', 'threat') </div>
+3. SWOT GRID: <div class='swot-grid'> đúng 4 swot-cell theo thứ tự strength, weakness, opportunity, threat (2×2); mỗi cell có swot-letter + swot-label ngang kiểu 'STRENGTHS • ĐIỂM MẠNH'; item dùng swot-icon (✓/✕/+/!) hoặc swot-dot (CSS sẽ style). </div>
 4. CROSS ANALYSIS: <div style='display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem'> (4 cross-group) </div>
 5. AIDA STEPS: <div class='aida-steps'> (4 aida-col) </div>
 6. 4P GRID: <div class='fourp-grid'> (4 fourp-card) </div> + <div class='fourp-weak'>...</div>

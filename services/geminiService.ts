@@ -58,6 +58,9 @@ const GEMINI_429_MAX_TOTAL_WAIT_MS = 10000;
 /** Pause between trying the next model after a 404 (reduces RPM bursts on free tier). */
 const GEMINI_INTER_MODEL_COOLDOWN_MS = 400;
 
+/** 503/502/504 — Google báo "high demand"; retry trước khi báo lỗi. */
+const GEMINI_BUSY_MAX_RETRIES = 5;
+
 /** Minimum mandatory delay between any two Gemini requests (Disabled for Paid Tier). */
 const GEMINI_MIN_INTER_REQUEST_GAP_MS = 0;
 
@@ -180,12 +183,32 @@ async function postGeminiGenerateContentUnqueued(
         let did429ExhaustThisModel = false;
 
         for (let attempt429 = 0; attempt429 <= GEMINI_429_MAX_RETRIES_PER_MODEL; attempt429++) {
-            const response = await fetch(url, {
+            let response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
-            const raw = await response.text();
+            let raw = await response.text();
+
+            let busyRetry = 0;
+            while (
+                !response.ok &&
+                (response.status === 503 || response.status === 502 || response.status === 504) &&
+                busyRetry < GEMINI_BUSY_MAX_RETRIES
+            ) {
+                busyRetry++;
+                const waitMs = Math.min(25_000, 2_500 * busyRetry);
+                console.warn(
+                    `[Gemini] ${response.status} UNAVAILABLE — chờ ${waitMs}ms rồi thử lại (${busyRetry}/${GEMINI_BUSY_MAX_RETRIES}) [${model}]`
+                );
+                await sleepMs(waitMs);
+                response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                });
+                raw = await response.text();
+            }
 
             if (response.ok) {
                 const data = JSON.parse(raw) as any;
