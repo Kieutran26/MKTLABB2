@@ -3309,6 +3309,16 @@ function lastIndexOfSubstr(s: string, pat: string, fromIndex: number): number {
     return last;
 }
 
+/** Index of the closing `"` of `html_report` when it is the last property (no `suggestion`). */
+function closeOptimkiHtmlReportQuote(s: string, bodyStart: number): number {
+    const t = s.trimEnd();
+    if (!t.endsWith('}')) return -1;
+    let k = t.length - 1;
+    while (k >= 0 && /\s/.test(t[k])) k--;
+    if (k < bodyStart || t[k] !== '"') return -1;
+    return k;
+}
+
 /**
  * Model often outputs HTML with class="..." inside JSON string → breaks JSON.parse.
  * Convert attribute pairs to single quotes (full open+close) where safe.
@@ -3316,6 +3326,11 @@ function lastIndexOfSubstr(s: string, pat: string, fromIndex: number): number {
 function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
     const patchHtmlSlice = (mid: string): string => {
         let out = mid;
+        // Curly quotes inside HTML/CSS confuse recovery heuristics
+        out = out.replace(/[\u201c\u201d]/g, "'");
+        // CSS url("...") and font-family: "..." break the JSON string boundary
+        out = out.replace(/url\(\s*"([^"]*)"\s*\)/gi, "url('$1')");
+        out = out.replace(/font-family\s*:\s*"([^"]*)"/gi, "font-family: '$1'");
         // Convert name="value" to name='value' for common HTML attributes
         // This prevents these quotes from being interpreted as the end of the JSON string
         out = out.replace(
@@ -3324,6 +3339,8 @@ function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
         );
         // Handle remaining generic attribute patterns
         out = out.replace(/([a-zA-Z0-9-]+)="([^"]*)"/g, "$1='$2'");
+        // Loose CSS: property: "value" (before ; or })
+        out = out.replace(/:\s*"([^"]*)"\s*(?=[;}])/g, ": '$1'");
         return out;
     };
 
@@ -3346,6 +3363,10 @@ function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
         '", "suggestion": {',
         '","suggestion": {',
         '", "suggestion":{',
+        '","suggestion":null',
+        '", "suggestion": null',
+        '","suggestion": null',
+        '", "suggestion":null',
     ];
     const pestelEnds = [
         '","pestel_factors":[',
@@ -3353,16 +3374,16 @@ function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
         '","pestel_factors" :[',
         '", "pestel_factors" : [',
     ];
-    const markerList = s.includes('"pestel_factors"') ? pestelEnds : optimkiEnds;
+    const isPestelPayload = s.includes('"pestel_factors"');
+    const markerList = isPestelPayload ? pestelEnds : optimkiEnds;
     let lastQuoteCandidate = -1;
     for (const pat of markerList) {
-        const idx = s.indexOf(pat, firstQuote);
-        if (idx !== -1) {
-            lastQuoteCandidate = idx;
-            break;
+        const li = lastIndexOfSubstr(s, pat, firstQuote);
+        if (li !== -1 && (lastQuoteCandidate === -1 || li > lastQuoteCandidate)) {
+            lastQuoteCandidate = li;
         }
     }
-    // If payload has both keys (rare), prefer the last occurrence of the chosen list's first pattern
+    // If payload has both keys (rare), widen search
     if (lastQuoteCandidate === -1 && s.includes('"pestel_factors"') && s.includes('"suggestion"')) {
         for (const pat of [...pestelEnds, ...optimkiEnds]) {
             const li = lastIndexOfSubstr(s, pat, firstQuote);
@@ -3370,6 +3391,11 @@ function normalizeHtmlAttrDoubleQuotesInJsonPayload(s: string): string {
                 lastQuoteCandidate = li;
             }
         }
+    }
+    // Optimki: model often omits `suggestion` → no delimiter; close is final `"` before `}`
+    if (lastQuoteCandidate === -1 && !isPestelPayload && !/"suggestion"\s*:/i.test(s)) {
+        const closeIdx = closeOptimkiHtmlReportQuote(s, firstQuote);
+        if (closeIdx !== -1) lastQuoteCandidate = closeIdx;
     }
 
     if (lastQuoteCandidate === -1) {
@@ -3421,6 +3447,13 @@ const OPTIMKI_HTML_END_MARKERS = [
     '", "suggestion": {',
     '","suggestion": {',
     '", "suggestion":{',
+    '","suggestion":null',
+    '", "suggestion": null',
+    '","suggestion": null',
+    '", "suggestion":null',
+    '",\n  "suggestion": {',
+    '",\n"suggestion":{',
+    '",\r\n  "suggestion": {',
 ];
 
 /**
@@ -3437,6 +3470,10 @@ function tryRebuildStrategicJsonAroundHtmlReport(work: string, endProperty?: str
     for (const pat of markers) {
         const li = lastIndexOfSubstr(work, pat, bodyStart);
         if (li !== -1 && (j === -1 || li > j)) j = li;
+    }
+    if (j === -1 && !endProperty && !/"suggestion"\s*:/i.test(work)) {
+        const closeIdx = closeOptimkiHtmlReportQuote(work, bodyStart);
+        if (closeIdx !== -1) j = closeIdx;
     }
     if (j === -1) return null;
 
@@ -4358,9 +4395,104 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
 
 // --- OPTI M.KI STRATEGIC MODEL GENERATOR ---
 import { OPTIMKI_SYSTEM_INSTRUCTION, buildOptimkiUserMessage } from './optimki-prompt';
-import { OptimkiInput, OptimkiResult } from '../types';
+import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
 
-function parseOptimkiJsonText(text: string): OptimkiResult {
+function extractOptimkiJsonStringField(raw: string, key: string): string | null {
+    const re = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`);
+    const m = raw.match(re);
+    if (!m) return null;
+    try {
+        return JSON.parse('"' + m[1] + '"');
+    } catch {
+        return null;
+    }
+}
+
+/** First index of closing `"` of html_report when inner text uses valid JSON escapes. */
+function findOptimkiHtmlReportJsonStringEnd(work: string, bodyStart: number): number {
+    let escape = false;
+    for (let i = bodyStart; i < work.length; i++) {
+        const ch = work[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (ch === '\\') {
+            escape = true;
+            continue;
+        }
+        if (ch !== '"') continue;
+        const tail = work.slice(i + 1);
+        if (/^[\s,}]/.test(tail) || /^[\s]*,[\s]*"suggestion"\s*:/.test(tail)) return i;
+    }
+    return -1;
+}
+
+function extractOptimkiHtmlSliceBounds(work: string): { bodyStart: number; j: number } | null {
+    const hdr = work.match(/"html_report"\s*:\s*"/);
+    if (!hdr || hdr.index === undefined) return null;
+    const bodyStart = hdr.index + hdr[0].length;
+    let j = -1;
+    for (const pat of OPTIMKI_HTML_END_MARKERS) {
+        const li = lastIndexOfSubstr(work, pat, bodyStart);
+        if (li !== -1 && (j === -1 || li > j)) j = li;
+    }
+    if (j === -1 && !/"suggestion"\s*:/i.test(work)) {
+        const c = closeOptimkiHtmlReportQuote(work, bodyStart);
+        if (c !== -1) j = c;
+    }
+    if (j === -1) {
+        const li = work.lastIndexOf('","suggestion"');
+        if (li > bodyStart) j = li;
+    }
+    if (j === -1) {
+        const qi = findOptimkiHtmlReportJsonStringEnd(work, bodyStart);
+        if (qi !== -1) j = qi;
+    }
+    if (j === -1) return null;
+    return { bodyStart, j };
+}
+
+/**
+ * Rebuild a valid JSON object from fragments when the model output is not parseable as a whole
+ * (common with huge html_report + stray quotes in HTML/CSS).
+ */
+function tryAssembleOptimkiResult(
+    work: string,
+    fallbacks?: { brand_name?: string; model_type?: OptimkiModelType }
+): OptimkiResult | null {
+    const bounds = extractOptimkiHtmlSliceBounds(work);
+    if (!bounds) return null;
+    const { bodyStart, j } = bounds;
+    const htmlRaw = work.slice(bodyStart, j);
+    if (!htmlRaw.trim()) return null;
+
+    let brand_name = extractOptimkiJsonStringField(work, 'brand_name');
+    let model_type = extractOptimkiJsonStringField(work, 'model_type');
+    if (!brand_name) brand_name = (fallbacks?.brand_name ?? '').trim() || '—';
+    if (!model_type) model_type = (fallbacks?.model_type ?? 'chua_chon') as string;
+
+    const rest = work.slice(j);
+    if (!rest.startsWith('"')) return null;
+    const middle = `"brand_name":${JSON.stringify(brand_name)},"model_type":${JSON.stringify(model_type)},"html_report":${JSON.stringify(htmlRaw)}`;
+    const jsonText = `{${middle}${rest.slice(1)}`;
+    try {
+        const parsed = JSON.parse(jsonText) as OptimkiResult;
+        if (typeof parsed.html_report !== 'string' || !parsed.html_report.trim()) return null;
+        return parsed;
+    } catch {
+        try {
+            return JSON.parse(`{${middle}}`) as OptimkiResult;
+        } catch {
+            return null;
+        }
+    }
+}
+
+function parseOptimkiJsonText(
+    text: string,
+    fallbacks?: { brand_name?: string; model_type?: OptimkiModelType }
+): OptimkiResult {
     const cleaned = stripMarkdownJsonFence(text);
     const normalized = normalizeHtmlAttrDoubleQuotesInJsonPayload(cleaned);
 
@@ -4421,6 +4553,11 @@ function parseOptimkiJsonText(text: string): OptimkiResult {
         }
     }
 
+    const splicedNorm = tryAssembleOptimkiResult(normalized, fallbacks);
+    if (splicedNorm) return splicedNorm;
+    const splicedClean = tryAssembleOptimkiResult(cleaned, fallbacks);
+    if (splicedClean) return splicedClean;
+
     throw new SyntaxError('Optimki: JSON.parse failed after all recovery attempts');
 }
 
@@ -4445,12 +4582,15 @@ export const generateOptimkiAnalysis = async (
                 responseMimeType: "application/json",
                 safetySettings: SAFETY_SETTINGS,
                 temperature: 0.5,
-                maxOutputTokens: 16384,
+                maxOutputTokens: 24576,
             },
         });
 
         const text = response.text || "{}";
-        const result = parseOptimkiJsonText(text);
+        const result = parseOptimkiJsonText(text, {
+            brand_name: input.ten_thuong_hieu,
+            model_type: input.mo_hinh,
+        });
 
         result.generated_at = new Date().toISOString();
 

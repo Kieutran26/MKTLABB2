@@ -349,4 +349,7 @@ Trả về DUY NHẤT một object JSON (không markdown fence):
      "omit": ["string"]
   }
 }
+
+• Trong html_report: HTML/CSS chỉ dùng dấu nháy đơn '...' cho thuộc tính và giá trị CSS (font-family, url); tránh dấu nháy kép ASCII trong HTML/CSS vì dễ làm vỡ JSON.
+• Luôn có khóa suggestion (object đầy đủ hoặc null) ngay sau html_report để parser nhận diện ranh giới chuỗi.
 `;

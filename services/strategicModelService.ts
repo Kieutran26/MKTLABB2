@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { StrategicModelData } from './geminiService';
+import type { OptimkiModelType, OptimkiResult } from '../types';
 
 export interface SavedStrategicModel {
     id: string;
@@ -8,6 +9,51 @@ export interface SavedStrategicModel {
     productInfo: string;
     results: Record<string, StrategicModelData | null>; // SWOT, AIDA, 4P, 5W1H, SMART
     createdAt: number;
+}
+
+/** One saved Opti M.KI report for history grid (IMC-style cards). */
+export interface SavedOptimkiHistoryItem {
+    id: string;
+    name: string;
+    brandId: string | null;
+    ten_thuong_hieu: string;
+    nganh_hang: string;
+    budgetHint: string;
+    timelineHint: string;
+    result: OptimkiResult;
+    createdAt: number;
+}
+
+function pickOptimkiResultFromOutput(output: unknown): OptimkiResult | null {
+    if (!output || typeof output !== 'object') return null;
+    
+    // Check if it's already a direct OptimkiResult (legacy or clean save)
+    const direct = output as Record<string, unknown>;
+    if (
+        typeof direct.html_report === 'string' &&
+        typeof direct.brand_name === 'string'
+    ) {
+        return direct as unknown as OptimkiResult;
+    }
+
+    // Check if it's wrapped in a modelType key (standard save)
+    for (const v of Object.values(output as Record<string, unknown>)) {
+        if (
+            v &&
+            typeof v === 'object' &&
+            typeof (v as { html_report?: unknown }).html_report === 'string' &&
+            typeof (v as { brand_name?: unknown }).brand_name === 'string'
+        ) {
+            return v as OptimkiResult;
+        }
+    }
+    return null;
+}
+
+function trimMeta(s: string, max = 28): string {
+    const t = s.trim();
+    if (!t) return '—';
+    return t.length > max ? `${t.slice(0, max)}…` : t;
 }
 
 export const StrategicModelService = {
@@ -89,5 +135,100 @@ export const StrategicModelService = {
             console.error('Error in deleteStrategicModel:', error);
             return false;
         }
-    }
+    },
+
+    /** History for Opti M.KI: OPTIMKI rows + legacy STRATEGIC_GROUP saves that contain `html_report`. */
+    async getOptimkiHistory(): Promise<SavedOptimkiHistoryItem[]> {
+        try {
+            const { data, error } = await supabase
+                .from('marketing_plans')
+                .select('*')
+                .in('type', ['OPTIMKI', 'STRATEGIC_GROUP'])
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching Opti M.KI history:', error);
+                return [];
+            }
+
+            const rows: SavedOptimkiHistoryItem[] = [];
+
+            for (const item of data || []) {
+                const result = pickOptimkiResultFromOutput(item.generated_output);
+                if (!result) continue;
+
+                const input = (item.input_data || {}) as Record<string, unknown>;
+                const ten =
+                    (typeof input.ten_thuong_hieu === 'string' && input.ten_thuong_hieu) ||
+                    result.brand_name ||
+                    '';
+                const nganh =
+                    (typeof input.nganh_hang === 'string' && input.nganh_hang) || '';
+                const budgetRaw =
+                    typeof input.so_lieu_ngan_sach === 'string' ? input.so_lieu_ngan_sach : '';
+                const timeRaw =
+                    typeof input.thoi_gian_dia_diem === 'string' ? input.thoi_gian_dia_diem : '';
+
+                rows.push({
+                    id: item.id,
+                    name: item.name || `${result.brand_name} · ${result.model_type}`,
+                    brandId: item.brand_id ?? null,
+                    ten_thuong_hieu: ten,
+                    nganh_hang: nganh,
+                    budgetHint: trimMeta(budgetRaw, 14),
+                    timelineHint: trimMeta(timeRaw, 22),
+                    result,
+                    createdAt: new Date(item.created_at).getTime(),
+                });
+            }
+
+            return rows;
+        } catch (error) {
+            console.error('Error in getOptimkiHistory:', error);
+            return [];
+        }
+    },
+
+    async saveOptimkiPlan(params: {
+        id: string;
+        name: string;
+        brandId: string;
+        modelType: OptimkiModelType;
+        result: OptimkiResult;
+        inputSnapshot: {
+            ten_thuong_hieu: string;
+            nganh_hang: string;
+            so_lieu_ngan_sach: string;
+            thoi_gian_dia_diem: string;
+            mo_ta: string;
+        };
+        createdAt: number;
+    }): Promise<boolean> {
+        try {
+            const dbModel = {
+                id: params.id.length > 36 ? undefined : params.id,
+                name: params.name,
+                brand_id:
+                    params.brandId === 'manual' || params.brandId === 'unknown'
+                        ? null
+                        : params.brandId,
+                type: 'OPTIMKI',
+                input_data: params.inputSnapshot,
+                generated_output: { [params.modelType]: params.result },
+                created_at: new Date(params.createdAt).toISOString(),
+            };
+
+            const { error } = await supabase.from('marketing_plans').upsert(dbModel);
+
+            if (error) {
+                console.error('Error saving Opti M.KI plan:', error);
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error in saveOptimkiPlan:', error);
+            return false;
+        }
+    },
 };

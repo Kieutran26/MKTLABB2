@@ -13,7 +13,10 @@ import {
   Pencil, 
   Diamond,
   Save,
-  Check
+  Check,
+  Trash2,
+  DollarSign,
+  Calendar,
 } from 'lucide-react';
 import { generateOptimkiAnalysis } from '../services/geminiService';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
@@ -32,7 +35,7 @@ import { StpOptimizerField } from './stp-optimizer-field';
 import { EditorialOptimkiReport } from './EditorialOptimkiReport';
 import BrandSelector from './BrandSelector';
 import BrandVaultUpsellCard from './BrandVaultUpsellCard';
-import { StrategicModelService, SavedStrategicModel } from '../services/strategicModelService';
+import { StrategicModelService, SavedOptimkiHistoryItem } from '../services/strategicModelService';
 
 const FORM_GROUPS = [
   { id: 1, title: 'CĂN BẢN', subtitle: 'Thông tin thương hiệu' },
@@ -95,6 +98,9 @@ const FIELD_PRIORITIES: Record<OptimkiModelType, Record<string, 'core' | 'recomm
   chua_chon: {}
 };
 
+const cardClass =
+  'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
+
 const OptimkiBuilder: React.FC = () => {
   const { tier } = useAuth();
   const toast = useToast();
@@ -109,14 +115,40 @@ const OptimkiBuilder: React.FC = () => {
   const [thinkingStep, setThinkingStep] = useState('');
   const [activeTab, setActiveTab] = useState<'manual' | 'vault'>('manual');
   const [currentGroup, setCurrentGroup] = useState(1);
-  const [showHistory, setShowHistory] = useState(false);
   const [isModelSelected, setIsModelSelected] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [workspaceMode, setWorkspaceMode] = useState<'main' | 'history'>('main');
+  useEffect(() => {
+    console.log('OptimkiBuilder: workspaceMode changed to:', workspaceMode);
+  }, [workspaceMode]);
+
+  const [savedOptimki, setSavedOptimki] = useState<SavedOptimkiHistoryItem[]>([]);
+  const [loadingOptimkiHistory, setLoadingOptimkiHistory] = useState(false);
+
   const isPromax = tier === 'promax';
   const selectedModel = watch('mo_hinh');
+  const formValues = watch();
+
+  const refreshOptimkiHistory = React.useCallback(async () => {
+    console.log('OptimkiBuilder: refreshing history...');
+    setLoadingOptimkiHistory(true);
+    try {
+      const rows = await StrategicModelService.getOptimkiHistory();
+      console.log('OptimkiBuilder: fetched history rows:', rows.length);
+      setSavedOptimki(rows);
+    } catch (err) {
+      console.error('OptimkiBuilder: failed to refresh history:', err);
+    } finally {
+      setLoadingOptimkiHistory(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshOptimkiHistory();
+  }, [refreshOptimkiHistory]);
 
   const modelOptions: { value: OptimkiModelType; title: string; subtitle: string; icon: any }[] = [
     { value: 'tat_ca', title: 'Tất cả mô hình', subtitle: 'Phân tích tổng thể Blueprint chiến lược (SWOT, AIDA, 4P, 5W1H, SMART).', icon: Sparkles },
@@ -187,21 +219,28 @@ const OptimkiBuilder: React.FC = () => {
     if (!result) return;
     setIsSaving(true);
     try {
-      const modelToSave: SavedStrategicModel = {
+      const createdAt = Date.now();
+      const success = await StrategicModelService.saveOptimkiPlan({
         id: crypto.randomUUID(),
         name: `${result.brand_name} - ${result.model_type}`,
         brandId: currentBrand?.id || 'manual',
-        productInfo: watch('mo_ta'),
-        results: { [result.model_type]: result as any },
-        createdAt: Date.now()
-      };
-      
-      const success = await StrategicModelService.saveStrategicModel(modelToSave);
+        modelType: result.model_type,
+        result,
+        inputSnapshot: {
+          ten_thuong_hieu: formValues.ten_thuong_hieu,
+          nganh_hang: formValues.nganh_hang,
+          so_lieu_ngan_sach: formValues.so_lieu_ngan_sach,
+          thoi_gian_dia_diem: formValues.thoi_gian_dia_diem,
+          mo_ta: formValues.mo_ta,
+        },
+        createdAt,
+      });
       if (success) {
         setIsSaved(true);
         if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
         savedTimerRef.current = setTimeout(() => setIsSaved(false), 2500);
         toast.success('Đã lưu bản phân tích vào lịch sử.');
+        void refreshOptimkiHistory();
       } else {
         toast.error('Lưu thất bại.');
       }
@@ -219,6 +258,26 @@ const OptimkiBuilder: React.FC = () => {
     setCurrentGroup(1);
     setIsModelSelected(false);
     setIsSaved(false);
+    setWorkspaceMode('main');
+  };
+
+  const handleLoadOptimkiHistory = (row: SavedOptimkiHistoryItem) => {
+    setResult(row.result);
+    setWorkspaceMode('main');
+    setIsModelSelected(true);
+    setValue('mo_hinh', row.result.model_type);
+    toast.success('Đã mở bản phân tích từ lịch sử.');
+  };
+
+  const handleDeleteOptimki = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const ok = await StrategicModelService.deleteStrategicModel(id);
+    if (ok) {
+      toast.success('Đã xóa.');
+      void refreshOptimkiHistory();
+    } else {
+      toast.error('Không xóa được.');
+    }
   };
 
   const inputClass = "w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-[13px] text-stone-900 outline-none transition-all placeholder:text-stone-300 focus:border-stone-400 focus:ring-1 focus:ring-stone-400/20";
@@ -249,8 +308,16 @@ const OptimkiBuilder: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setShowHistory(!showHistory)}
-            className={wsHistoryToggleClass(showHistory)}
+            type="button"
+            onClick={() => {
+              const nextMode = workspaceMode === 'history' ? 'main' : 'history';
+              setWorkspaceMode(nextMode);
+              if (nextMode === 'history') {
+                void refreshOptimkiHistory();
+              }
+            }}
+            className={wsHistoryToggleClass(workspaceMode === 'history')}
+            title={`Lịch sử (${savedOptimki.length})`}
           >
             <History size={17} strokeWidth={1.5} />
           </button>
@@ -261,8 +328,81 @@ const OptimkiBuilder: React.FC = () => {
         </div>
       </FeatureHeader>
 
-      <div className="min-w-0 flex-1 w-full overflow-y-auto">
-        {result ? (
+      <div
+        id="optimki-workspace-root"
+        className={`min-w-0 flex-1 w-full overflow-y-auto ${
+          workspaceMode === 'history' ? 'px-4 py-6 lg:px-8 xl:px-10' : ''
+        }`}
+      >
+        {workspaceMode === 'history' ? (
+          <div className={`${cardClass} p-6 md:p-8`}>
+            <h2 className="mb-8 flex items-center gap-2 font-sans text-lg font-medium tracking-tight text-stone-900">
+              <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
+              Lịch sử chiến lược ({savedOptimki.length})
+            </h2>
+            {loadingOptimkiHistory ? (
+              <div className="py-16 text-center">
+                <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-800" />
+              </div>
+            ) : savedOptimki.length === 0 ? (
+              <div className="py-16 text-center">
+                <Sparkles size={40} strokeWidth={1.25} className="mx-auto mb-4 text-stone-300" />
+                <p className="text-base font-normal text-stone-600">Chưa có chiến lược nào</p>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-stone-800"
+                >
+                  <Plus size={17} strokeWidth={1.25} /> Tạo mới
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {savedOptimki.map((row) => (
+                  <div
+                    key={row.id}
+                    role="button"
+                    tabIndex={0}
+                    className="cursor-pointer rounded-2xl border border-stone-200/90 p-5 transition-all hover:border-stone-300 hover:bg-stone-50/50"
+                    onClick={() => handleLoadOptimkiHistory(row)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleLoadOptimkiHistory(row)}
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="line-clamp-1 font-medium text-stone-900">{row.name}</h3>
+                        <p className="mt-1 text-sm font-normal text-stone-500">
+                          {row.ten_thuong_hieu || row.result.brand_name} •{' '}
+                          {row.nganh_hang || '—'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteOptimki(e, row.id)}
+                        className="shrink-0 rounded-lg p-2 text-stone-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                        aria-label="Xóa khỏi lịch sử"
+                      >
+                        <Trash2 size={16} strokeWidth={1.25} />
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs font-normal text-stone-500">
+                      <span className="flex items-center gap-1">
+                        <DollarSign size={12} strokeWidth={1.25} />
+                        {row.budgetHint}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} strokeWidth={1.25} />
+                        {row.timelineHint}
+                      </span>
+                    </div>
+                    <div className="mt-3 border-t border-stone-100 pt-3 text-xs font-normal text-stone-400">
+                      {new Date(row.createdAt).toLocaleDateString('vi-VN')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : result ? (
           <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
             <div className="flex p-4 shrink-0 justify-end z-10">
                 <button
@@ -368,7 +508,15 @@ const OptimkiBuilder: React.FC = () => {
                   ))}
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="p-6 lg:p-8 space-y-8">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (currentGroup === 3) {
+                      void handleSubmit(onSubmit)(e);
+                    }
+                  }}
+                  className="p-6 lg:p-8 space-y-8"
+                >
                   {activeTab === 'vault' && isPromax && (
                     <div className="mb-8 p-4 bg-stone-50 rounded-2xl border border-stone-100">
                       <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3 ml-1">Đang sử dụng dữ liệu từ</div>
