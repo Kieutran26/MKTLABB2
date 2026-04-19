@@ -14,9 +14,59 @@ export class GeminiRateLimitError extends Error {
     }
 }
 
+/** 401/403 — API key sai, dự án bị khóa, hoặc Google từ chối truy cập (PERMISSION_DENIED). */
+export class GeminiPermissionDeniedError extends Error {
+    readonly code = 'GEMINI_PERMISSION_DENIED' as const;
+    constructor(message: string) {
+        super(message);
+        this.name = 'GeminiPermissionDeniedError';
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+
 // Direct REST API implementation (no SDK)
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+/**
+ * ALWAYS call Google API directly — browser test confirmed ?key= query param works (200 OK).
+ * Vite proxy was returning 404. Direct fetch with ?key= avoids CORS preflight issues.
+ */
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+
+/** Chuẩn hóa key từ .env — tránh 400 API_KEY_INVALID do CRLF, khoảng trắng, hoặc dấu ngoặc thừa. */
+function sanitizeGoogleApiKey(raw: unknown): string {
+    if (raw == null) return '';
+    let s = String(raw)
+        .replace(/^\uFEFF/, '')
+        .replace(/\u200B/g, '')
+        .trim();
+    if (
+        (s.startsWith('"') && s.endsWith('"')) ||
+        (s.startsWith("'") && s.endsWith("'"))
+    ) {
+        s = s.slice(1, -1).trim();
+    }
+    return s;
+}
+
+/** Key Gemini: ưu tiên VITE_GEMINI_API_KEY, sau đó GEMINI_API_KEY (xem vite.config envPrefix). */
+function getGeminiApiKey(): string {
+    const env = import.meta.env as ImportMetaEnv & { GEMINI_API_KEY?: string };
+    return sanitizeGoogleApiKey(env.VITE_GEMINI_API_KEY ?? env.GEMINI_API_KEY);
+}
+
+const GEMINI_API_KEY = getGeminiApiKey();
+
+type GeminiRateLimitProfile = 'free' | 'paid';
+
+function getGeminiRateLimitProfile(): GeminiRateLimitProfile {
+    const raw =
+        typeof import.meta.env.VITE_GEMINI_RATE_LIMIT_PROFILE === 'string'
+            ? import.meta.env.VITE_GEMINI_RATE_LIMIT_PROFILE.trim().toLowerCase()
+            : '';
+    return raw === 'paid' ? 'paid' : 'free';
+}
+
+const GEMINI_RATE_LIMIT_PROFILE = getGeminiRateLimitProfile();
+const GEMINI_IS_PAID_PROFILE = GEMINI_RATE_LIMIT_PROFILE === 'paid';
 
 /** Ordered candidates for v1beta REST `generateContent` (unversioned 1.5 ids often 404 on newer keys). Override with VITE_GEMINI_REST_MODEL. */
 function getGeminiRestModelCandidates(): string[] {
@@ -25,11 +75,9 @@ function getGeminiRestModelCandidates(): string[] {
             ? import.meta.env.VITE_GEMINI_REST_MODEL.trim()
             : '';
     // v1beta REST: generationConfig dùng response_mime_type (snake_case), không phải responseMimeType
+    // 2.0/1.5 trước: khi tầng 2.5 bị 503 (quá tải), model cũ hơn thường vẫn phản hồi.
     const defaults = [
-        'gemini-2.5-flash',        // 2.5 Flash (Xác nhận khả dụng cho Key này)
-        'gemini-2.5-pro',          // 2.5 Pro
-        'gemini-2.0-flash',        // 2.0 Flash
-        'gemini-1.5-flash',        // 1.5 Flash stable
+        'gemini-2.5-flash'
     ];
     const ordered = fromEnv ? [fromEnv, ...defaults.filter((m) => m !== fromEnv)] : defaults;
     return [...new Set(ordered)];
@@ -48,27 +96,30 @@ const GEMINI_429_MAX_RETRIES_PER_MODEL = 4;
 const GEMINI_429_MAX_RETRIES_FREE_TIER_PER_MODEL = 1;
 
 // List of model candidates in priority order
-const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+const GEMINI_MODELS = ['gemini-2.5-flash'];
 
-// Reduced wait for Paid Tier 1 (2000 RPM)
-const GEMINI_POST_429_MIN_SWITCH_MS = 500;
+// Paid tier can recover aggressively; free tier needs calmer pacing.
+const GEMINI_POST_429_MIN_SWITCH_MS = GEMINI_IS_PAID_PROFILE ? 500 : 1500;
 const GEMINI_429_MAX_RETRY_COUNT = 3;
-const GEMINI_429_MAX_TOTAL_WAIT_MS = 10000;
+const GEMINI_429_MAX_TOTAL_WAIT_MS = GEMINI_IS_PAID_PROFILE ? 10000 : 150000;
 
 /** Pause between trying the next model after a 404 (reduces RPM bursts on free tier). */
 const GEMINI_INTER_MODEL_COOLDOWN_MS = 400;
 
-/** 503/502/504 — Google báo "high demand"; retry trước khi báo lỗi. */
-const GEMINI_BUSY_MAX_RETRIES = 5;
+/** 503/502/504 — Google báo "high demand"; ít lần hơn để chuyển model / Claude nhanh hơn. */
+const GEMINI_BUSY_MAX_RETRIES = 3;
 
-/** Minimum mandatory delay between any two Gemini requests (Disabled for Paid Tier). */
-const GEMINI_MIN_INTER_REQUEST_GAP_MS = 0;
+/** Free tier is roughly 1 RPM on many keys; paid tier can disable pacing via env profile. */
+const GEMINI_MIN_INTER_REQUEST_GAP_MS = GEMINI_IS_PAID_PROFILE ? 0 : 65000;
 
 /** Last model that returned 200 for this session — try first to avoid 404 chains. */
 let geminiLastSuccessfulModel: string | null = null;
 
 /** Timestamp of the last *started* request start to calculate RPM gap. */
 let geminiLastRequestStartTime = 0;
+
+/** Global cooldown derived from Gemini retry-after hints/shared throttling. */
+let geminiCooldownUntil = 0;
 
 /**
  * Serialize all REST generateContent calls so parallel UI features / tabs do not stack 429s on free tier.
@@ -78,9 +129,15 @@ let geminiRequestChain: Promise<unknown> = Promise.resolve();
 function enqueueGeminiRequest<T>(task: () => Promise<T>): Promise<T> {
     const next = geminiRequestChain.then(async () => {
         const now = Date.now();
-        const elapsed = now - geminiLastRequestStartTime;
-        if (elapsed < GEMINI_MIN_INTER_REQUEST_GAP_MS) {
-            const wait = GEMINI_MIN_INTER_REQUEST_GAP_MS - elapsed;
+        const nextAllowedAt = Math.max(
+            geminiCooldownUntil,
+            geminiLastRequestStartTime + GEMINI_MIN_INTER_REQUEST_GAP_MS
+        );
+        const wait = nextAllowedAt - now;
+        if (wait > 0) {
+            if (import.meta.env.DEV) {
+                console.debug(`[Gemini] queue waiting ${wait}ms before next request`);
+            }
             await sleepMs(wait);
         }
         geminiLastRequestStartTime = Date.now();
@@ -158,12 +215,66 @@ function isGeminiFreeTierRateLimit(errorBody: string): boolean {
     return /generate_content_free_tier|free_tier_requests|free tier/i.test(errorBody);
 }
 
+/**
+ * Gemini 401/403 (PERMISSION_DENIED, key sai, dự án bị chặn) — gọi Claude với cùng system + user nếu có VITE_ANTHROPIC_API_KEY.
+ * Giúp Opti M.KI "Render lại HTML" và các flow khác vẫn chạy khi Google từ chối.
+ */
+async function tryClaudeFallbackAfterGeminiAuthDenied(
+    requestBody: unknown,
+    logPrefix: string
+): Promise<string | null> {
+    const key = import.meta.env.VITE_ANTHROPIC_API_KEY;
+    if (typeof key !== 'string' || key.length < 6) return null;
+
+    const b = requestBody as {
+        contents?: { parts?: { text?: string }[] }[];
+        systemInstruction?: { parts?: { text?: string }[] };
+        generationConfig?: { temperature?: number; maxOutputTokens?: number };
+    };
+    const block = Array.isArray(b.contents) ? b.contents[0] : undefined;
+    const parts = block?.parts;
+    if (!Array.isArray(parts)) return null;
+    const userText = parts
+        .map((p) => (typeof p?.text === 'string' ? p.text : ''))
+        .join('\n')
+        .trim();
+    if (!userText) return null;
+
+    const systemText = b.systemInstruction?.parts?.[0]?.text;
+    const temp = typeof b.generationConfig?.temperature === 'number' ? b.generationConfig.temperature : 0.35;
+    const desired = b.generationConfig?.maxOutputTokens;
+    const maxTokens =
+        typeof desired === 'number' && desired > 0 ? Math.min(desired, 8192) : 8192;
+
+    try {
+        console.warn(`[${logPrefix}] Gemini 401/403 — dùng Claude fallback.`);
+        const suffix =
+            '\n\n[Bắt buộc] Trả về duy nhất một object JSON hợp lệ, không bọc markdown, không text ngoài JSON.';
+        const text = await callClaudeAPI(userText + suffix, {
+            systemInstruction: typeof systemText === 'string' ? systemText : undefined,
+            temperature: temp,
+            maxTokens,
+        });
+        let trimmed = text.trim();
+        if (trimmed.startsWith('```')) {
+            trimmed = trimmed
+                .replace(/^```(?:json)?\s*/i, '')
+                .replace(/\s*```\s*$/i, '')
+                .trim();
+        }
+        return trimmed.length > 0 ? trimmed : null;
+    } catch (e) {
+        console.error('[Gemini→Claude auth fallback] failed:', e);
+        return null;
+    }
+}
+
 async function postGeminiGenerateContentUnqueued(
     requestBody: unknown,
     errorPrefix: string,
     opts?: { preferredModel?: string }
 ): Promise<string> {
-    if (!GEMINI_API_KEY) {
+    if (import.meta.env.PROD && !GEMINI_API_KEY) {
         throw new Error('VITE_GEMINI_API_KEY is not configured');
     }
     const candidates = getOrderedGeminiModelCandidates(opts?.preferredModel);
@@ -179,16 +290,45 @@ async function postGeminiGenerateContentUnqueued(
         }
         skipInterModelDelay = false;
 
+        // ?key= query param — browser test xác nhận cách này hoạt động (200 OK).
+        // KHÔNG dùng header x-goog-api-key (gây CORS preflight timeout).
+        // KHÔNG dùng Vite proxy (trả 404).
         const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+        const geminiHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        const geminiFetchInit: RequestInit = {
+            method: 'POST',
+            headers: geminiHeaders,
+            body: JSON.stringify(requestBody),
+        };
         let did429ExhaustThisModel = false;
 
         for (let attempt429 = 0; attempt429 <= GEMINI_429_MAX_RETRIES_PER_MODEL; attempt429++) {
-            let response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestBody),
-            });
-            let raw = await response.text();
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 120000); // 120s timeout (khớp với proxy timeout)
+
+            let response: Response;
+            let raw = '';
+            
+            try {
+                response = await fetch(url, {
+                    ...geminiFetchInit,
+                    signal: controller.signal
+                });
+                raw = await response.text();
+            } catch (err: any) {
+                if (err.name === 'AbortError') {
+                    console.error(`[Gemini] Request timed out on ${model} (120s)`);
+                } else {
+                    console.error(`[Gemini] Network error on ${model}:`, err);
+                }
+                
+                // If it's a network error and we have more candidates, try the next model immediately
+                if (mi < candidates.length - 1) break;
+                
+                throw new Error(`${errorPrefix}: Lỗi kết nối mạng (Network Error) hoặc server không phản hồi. Vui lòng kiểm tra internet hoặc restart server.`);
+            } finally {
+                clearTimeout(timeoutId);
+            }
 
             let busyRetry = 0;
             while (
@@ -197,17 +337,23 @@ async function postGeminiGenerateContentUnqueued(
                 busyRetry < GEMINI_BUSY_MAX_RETRIES
             ) {
                 busyRetry++;
-                const waitMs = Math.min(25_000, 2_500 * busyRetry);
+                const waitMs = Math.min(12_000, 1_500 * busyRetry);
                 console.warn(
                     `[Gemini] ${response.status} UNAVAILABLE — chờ ${waitMs}ms rồi thử lại (${busyRetry}/${GEMINI_BUSY_MAX_RETRIES}) [${model}]`
                 );
                 await sleepMs(waitMs);
-                response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody),
-                });
-                raw = await response.text();
+                
+                const retryController = new AbortController();
+                const rTimeoutId = setTimeout(() => retryController.abort(), 60000);
+                try {
+                    response = await fetch(url, { ...geminiFetchInit, signal: retryController.signal });
+                    raw = await response.text();
+                } catch (retryErr) {
+                    console.error(`[Gemini] Network error during busy retry on ${model}:`, retryErr);
+                    break; 
+                } finally {
+                    clearTimeout(rTimeoutId);
+                }
             }
 
             if (response.ok) {
@@ -234,8 +380,8 @@ async function postGeminiGenerateContentUnqueued(
             if (response.status === 404) {
                 lastStatus = 404;
                 lastErrorText = raw;
-                // Important: Continue to next candidate instead of breaking
-                continue;
+                // Thoát vòng attempt429 để vòng for (mi) thử model kế tiếp (continue ở đây sẽ lặp vô hạn cùng model).
+                break;
             }
 
             if (response.status === 429) {
@@ -245,6 +391,9 @@ async function postGeminiGenerateContentUnqueued(
                 const retryAfterHeader = response.headers.get('retry-after');
                 const suggestedWait = parseGemini429RetryMs(raw, retryAfterHeader);
                 const retryAfterSec = Math.max(1, Math.round(suggestedWait / 1000));
+                if (freeTier) {
+                    geminiCooldownUntil = Math.max(geminiCooldownUntil, Date.now() + suggestedWait);
+                }
 
                 const maxRetriesFor429 = freeTier
                     ? GEMINI_429_MAX_RETRIES_FREE_TIER_PER_MODEL
@@ -288,6 +437,65 @@ async function postGeminiGenerateContentUnqueued(
                 break;
             }
 
+            if (response.status === 403 || response.status === 401) {
+                const viaClaude = await tryClaudeFallbackAfterGeminiAuthDenied(requestBody, errorPrefix);
+                if (viaClaude) {
+                    return viaClaude;
+                }
+                let apiMessage = '';
+                try {
+                    const j = JSON.parse(raw) as { error?: { message?: string; status?: string } };
+                    apiMessage = (j.error?.message ?? '').trim();
+                } catch {
+                    /* ignore */
+                }
+                const title = `Gemini từ chối truy cập (${response.status})`;
+                const detail = apiMessage ? `Thông tin từ Google: "${apiMessage}"\n\n` : '';
+                const ak = import.meta.env.VITE_ANTHROPIC_API_KEY;
+                const hasAnthropic = typeof ak === 'string' && ak.trim().length > 6;
+                const hintFallback = hasAnthropic
+                    ? 'Ứng dụng đã thử tự động chuyển sang Claude nhưng vẫn thất bại — hãy kiểm tra API key Anthropic.'
+                    : 'Mẹo: Bạn có thể thêm **VITE_ANTHROPIC_API_KEY** vào `.env.local` để làm phương án dự phòng (fallback) khi Gemini bị lỗi.';
+
+                const hintVi =
+                    '### Hướng dẫn xử lý lỗi 403:\n' +
+                    '1. **Kiểm tra API Key**: Truy cập [Google AI Studio Cache](https://aistudio.google.com/app/apikey), đảm bảo Key vẫn "Active".\n' +
+                    '2. **Bật Generative Language API**: Đảm bảo API đã được "Enable" trong Google Cloud Console cho Project này.\n' +
+                    '3. **Vấn đề Billing/Vùng**: Nếu thông báo là "project has been denied access", có thể bạn cần thiết lập Billing hoặc Google đang hạn chế dự án của bạn (thử tạo Project mới).\n' +
+                    '4. **Khởi động lại**: Sau khi sửa `.env.local`, bạn phải **tắt hẳn terminal (Ctrl+C)** và chạy lại `npm run dev`.\n\n' +
+                    hintFallback;
+                throw new GeminiPermissionDeniedError(`${title}\n${detail}${hintVi}`);
+            }
+
+            if (response.status === 400 && /API_KEY_INVALID|API Key not found/i.test(raw)) {
+                const devHint = import.meta.env.DEV
+                    ? 'Dev: request đi qua proxy `/gemini-api` — key đọc từ .env/.env.local khi **khởi động** Vite; sửa file rồi **restart** `npm run dev`. '
+                    : '';
+                throw new Error(
+                    `${errorPrefix}: Google báo API key không hợp lệ hoặc không nhận được. ${devHint}` +
+                        'Kiểm tra VITE_GEMINI_API_KEY trong .env hoặc .env.local (cùng thư mục package.json), không thừa khoảng trắng/ngoặc. ' +
+                        'Nếu dùng .env.local, nó ghi đè .env. Production: set biến môi trường rồi build lại.'
+                );
+            }
+
+            // 502/503/504 sau khi đã retry: chuyển model khác, hoặc (model cuối) break để chạy Claude fallback — tránh throw trước khối fallback.
+            if (response.status === 503 || response.status === 502 || response.status === 504) {
+                lastStatus = response.status;
+                lastErrorText = raw;
+                const hasNext = mi < candidates.length - 1;
+                if (hasNext) {
+                    console.warn(
+                        `[Gemini] ${response.status} trên ${model} sau ${GEMINI_BUSY_MAX_RETRIES} lần chờ — chuyển sang model khác (${mi + 2}/${candidates.length}).`
+                    );
+                    await sleepMs(GEMINI_INTER_MODEL_COOLDOWN_MS);
+                } else {
+                    console.warn(
+                        `[Gemini] ${response.status} trên ${model} (hết chuỗi model) — sẽ thử Claude nếu có VITE_ANTHROPIC_API_KEY.`
+                    );
+                }
+                break;
+            }
+
             throw new Error(`${errorPrefix} (${response.status}): ${raw}`);
         }
 
@@ -300,7 +508,7 @@ async function postGeminiGenerateContentUnqueued(
                     Math.max(GEMINI_POST_429_MIN_SWITCH_MS, Math.floor(parsed * 0.5))
                 );
                 console.warn(
-                    `[Gemini] Paid Tier: quickly trying next model (${mi + 1}/${candidates.length})...`
+                    `[Gemini] trying next model (${mi + 1}/${candidates.length}) after ${switchWait}ms cooldown...`
                 );
                 await sleepMs(switchWait);
                 total429WaitMs += switchWait;
@@ -308,10 +516,23 @@ async function postGeminiGenerateContentUnqueued(
         }
     }
 
-    if (lastStatus === 429) {
+    if (false && lastStatus === 429) {
         throw new GeminiRateLimitError(
             `${errorPrefix}: Giới hạn tốc độ tạm thời. Vui lòng thử lại sau vài giây.`,
             2
+        );
+    }
+
+    if (lastStatus === 429) {
+        const retryAfterMs = Math.max(
+            2000,
+            geminiCooldownUntil > Date.now()
+                ? geminiCooldownUntil - Date.now()
+                : parseGemini429RetryMs(lastErrorText)
+        );
+        throw new GeminiRateLimitError(
+            `${errorPrefix}: Gemini đang giới hạn tốc độ. Vui lòng thử lại sau khoảng ${Math.max(1, Math.ceil(retryAfterMs / 1000))} giây.`,
+            Math.max(1, Math.ceil(retryAfterMs / 1000))
         );
     }
 
@@ -357,19 +578,13 @@ async function callGeminiAPI(
         preferredModel?: string;
     } = {}
 ) {
-    if (!GEMINI_API_KEY) {
+    if (!GEMINI_API_KEY && !import.meta.env.DEV) {
         throw new Error('VITE_GEMINI_API_KEY is not configured');
     }
 
-    // Build the request body
+    // Build the request body — tách systemInstruction (REST) để 401/403 có thể gọi Claude fallback đúng system + user.
     const requestBody: any = {
-        contents: [{
-            parts: [{
-                text: systemInstruction
-                    ? `${systemInstruction}\n\n${prompt}`
-                    : prompt
-            }]
-        }],
+        contents: [{ parts: [{ text: prompt }] }],
         safetySettings: [
             { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
             { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
@@ -383,6 +598,9 @@ async function callGeminiAPI(
                 : {})
         }
     };
+    if (systemInstruction?.trim()) {
+        requestBody.systemInstruction = { parts: [{ text: systemInstruction }] };
+    }
 
     // Add JSON mode if requested (REST proto JSON uses snake_case here)
     if (options.jsonMode) {
@@ -402,7 +620,7 @@ async function callGeminiAPI(
 
 // Helper for Vision API (Text + Image)
 async function callGeminiVisionAPI(prompt: string, base64Data: string, mimeType: string) {
-    if (!GEMINI_API_KEY) throw new Error('VITE_GEMINI_API_KEY is not configured');
+    if (!GEMINI_API_KEY && !import.meta.env.DEV) throw new Error('VITE_GEMINI_API_KEY is not configured');
 
     const requestBody = {
         contents: [{
@@ -435,7 +653,7 @@ async function callGeminiVisionAPI(prompt: string, base64Data: string, mimeType:
 
 // Helper for Multi-Image Vision API
 async function callGeminiMultiImageAPI(prompt: string, images: { base64: string; mimeType: string }[]) {
-    if (!GEMINI_API_KEY) throw new Error('VITE_GEMINI_API_KEY is not configured');
+    if (!GEMINI_API_KEY && !import.meta.env.DEV) throw new Error('VITE_GEMINI_API_KEY is not configured');
 
     const parts: any[] = [{ text: prompt }];
 
@@ -576,7 +794,7 @@ IMPORTANT: Return ONLY the translated text.Do not add any explanations, notes, p
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: text,
             config: {
                 systemInstruction: systemPrompt,
@@ -620,7 +838,7 @@ export const generateMultiPlatformContent = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -791,7 +1009,7 @@ export const generateKeyVisual = async (
         const requests = [];
         for (let i = 0; i < params.numberOfImages; i++) {
             requests.push(ai.models.generateContent({
-                model: 'gemini-2.0-flash-001',
+                model: 'gemini-2.5-flash',
                 contents: { parts: promptParts },
                 config: {
                     imageConfig: {
@@ -837,7 +1055,7 @@ export const generateStoryboardFrame = async (
     // Use Gemini 2.5 Flash Image directly
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
                 imageConfig: { aspectRatio: '16:9' },
@@ -950,7 +1168,7 @@ ${hasGoal ? `
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Create mindmap for: "${inputData.topic}" ${hasGoal ? `with goal: "${inputData.goal}"` : ''}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1005,7 +1223,7 @@ export const brainstormNodeDetails = async (nodeLabel: string, rootContext?: str
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: rootContext ? `Generate ideas for project: "${rootContext}". Focus ONLY on this aspect: "${nodeLabel}".` : `Deep dive topic: "${nodeLabel}"`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1146,7 +1364,7 @@ ${method ? `### FOCUS ONLY ON: ${method.toUpperCase()}` : '### Generate ideas fo
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate SCAMPER ideas for: "${inputData.topic}" to solve: "${inputData.problem}"`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1207,7 +1425,7 @@ Product / Service: ${productInfo}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate ${modelType} model`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1265,7 +1483,7 @@ Product / Service: ${productInfo}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate ALL models`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1304,7 +1522,7 @@ Context: ${context}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Suggest Pillars`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1368,7 +1586,7 @@ export const generateContentCalendar = async (
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: isShuffle ? "Hãy tạo một phương án lịch nội dung HOÀN TOÀN MỚI, khác biệt so với các đề xuất thông thường dựa trên yêu cầu trên." : "Hãy lập kế hoạch lịch nội dung cho tháng này dựa trên yêu cầu trên.",
             config: {
                 systemInstruction: systemPrompt,
@@ -1551,7 +1769,7 @@ Hãy viết báo cáo cực kỳ giá trị, đúng thực tế và ngôn từ "
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate Deep Mastermind Strategy Report`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1744,7 +1962,7 @@ ${goalAdjustment}
         }
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate comprehensive Creative Brief with Budget Reality Check for: ${input.productBrand}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -1876,7 +2094,7 @@ ${isRoutine ? `
         }
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Generate comprehensive SOP with Lean Management framework for: ${input.processName}`,
             config: {
                 systemInstruction: systemPrompt,
@@ -2054,7 +2272,7 @@ Nhớ:
         onProgress?.('Áp dụng The Hook Matrix...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2244,7 +2462,7 @@ YÊU CẦU BẮT BUỘC:
         onProgress?.('Xây dựng 5-Stage Psychological Battle Plan...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2342,7 +2560,7 @@ Output: {"validation_status": "PASS", "reason_code": "VALID", "message_to_user":
 Hãy thực hiện Sanity Check và trả về JSON validation result.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2464,7 +2682,7 @@ Rationale PHẢI cụ thể: "Với ngành ${input.industry} và mục tiêu ${k
         onProgress?.('Tính toán phân bổ tối ưu...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2698,7 +2916,7 @@ QUY TẮC VÀNG:
         onProgress?.('Đang tìm Friction và Tension...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -2837,7 +3055,7 @@ Trả về JSON với ${count} concept cards. Mỗi card có cấu trúc:
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -3209,7 +3427,7 @@ ${JSON.stringify(benchmark, null, 2)}
 
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userPrompt,
             config: {
                 systemInstruction: systemPrompt,
@@ -3325,7 +3543,7 @@ CHỈ TRẢ VỀ JSON, KHÔNG CÓ TEXT THÊM.`;
         onProgress?.('Đang xây dựng Brand Canvas...');
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -3480,7 +3698,7 @@ TRẢ VỀ JSON (chỉ JSON, không markdown):
 }`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -3579,7 +3797,7 @@ OUTPUT JSON FORMAT (STRICT JSON, NO MARKDOWN):
 }`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: [{ role: 'user', parts: [{ text: systemPrompt }] }],
             config: {
                 safetySettings: SAFETY_SETTINGS,
@@ -4172,7 +4390,7 @@ export const generatePorterAnalysis = async (
         const userMessage = buildPorterPrecisionUserMessage(input);
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: userMessage,
             config: {
                 systemInstruction: PORTER_PRECISION_SYSTEM_INSTRUCTION,
@@ -4467,7 +4685,7 @@ Bạn là một Senior Marketing Auditor có nhiệm vụ kiểm tra tính hợp
 
     try {
         const sanityResponse = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: 'Validate this STP input',
             config: {
                 systemInstruction: sanityPrompt,
@@ -4698,7 +4916,7 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
 • Positioning statement cuối cùng phải thật súc tích, 1 câu duy nhất.`;
 
         const response = await ai.models.generateContent({
-            model: 'gemini-2.0-flash-001',
+            model: 'gemini-2.5-flash',
             contents: `Phân tích STP cho "${input.productBrand}" trong ngành "${input.industry}"`,
             config: {
                 systemInstruction: stpPrompt,
@@ -4727,8 +4945,11 @@ theo công thức: "Dành cho [target], [thương hiệu] là [category] duy nh�
 
 // --- OPTI M.KI STRATEGIC MODEL GENERATOR ---
 import {
+    OPTIMKI_HTML_DESIGN_RULES,
     OPTIMKI_SINGLE_SHOT_SYSTEM_INSTRUCTION,
+    OPTIMKI_PHASE2_SYSTEM_INSTRUCTION,
     buildOptimkiSingleShotUserMessage,
+    buildOptimkiRenderUserMessage,
 } from './optimki-prompt';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
 
@@ -5050,16 +5271,93 @@ function escapeHtmlTextForOptimkiFallback(s: string): string {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/** Bold **markdown** segments after HTML escape (no nested **). */
+function applyOptimkiFallbackInlineBold(escaped: string): string {
+    return escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
+/**
+ * Split analysis text into sections by lines like === TITLE === (BlueVigor-style fallback).
+ */
+function buildOptimkiFallbackSectionsHtml(escapedPlain: string): string {
+    const text = escapedPlain.trim() || '(Không có nội dung phân tích.)';
+    const withBold = applyOptimkiFallbackInlineBold(text);
+    const chunks = withBold.split(/\n(?=={2,}\s*.+?\s*={2,})/);
+    let secNum = 1;
+    let html = '';
+    for (const chunk of chunks) {
+        const trimmed = chunk.trim();
+        if (!trimmed) continue;
+        const m = trimmed.match(/^(={2,})\s*(.+?)\s*\1\s*\n?([\s\S]*)$/);
+        if (m) {
+            const sectionTitle = m[2].trim();
+            const body = m[3].trim();
+            const num = String(secNum++).padStart(2, '0');
+            html +=
+                `<div class='section a'>` +
+                `<div class='sec-head'>` +
+                `<div class='sec-num'>${num}</div>` +
+                `<div class='sec-info'>` +
+                `<div class='sec-label'>Phần phân tích</div>` +
+                `<div class='sec-title'>${sectionTitle}</div>` +
+                `</div></div>` +
+                `<div class='fallback-prose'>${optimkiFallbackParagraphs(body)}</div>` +
+                `</div>`;
+        } else {
+            html +=
+                `<div class='section a'>` +
+                `<div class='fallback-prose'>${optimkiFallbackParagraphs(trimmed)}</div>` +
+                `</div>`;
+        }
+    }
+    return html;
+}
+
+function optimkiFallbackParagraphs(block: string): string {
+    if (!block.trim()) return '';
+    const parts = block.split(/\n\n+/);
+    return parts
+        .map((p) => {
+            const t = p.trim().replace(/\n/g, '<br/>');
+            return t ? `<p>${t}</p>` : '';
+        })
+        .filter(Boolean)
+        .join('');
+}
+
 function buildOptimkiFallbackHtmlReportFromAnalysis(analysis: string, brandName: string): string {
-    const body = escapeHtmlTextForOptimkiFallback(analysis.trim() || '(Không có nội dung phân tích.)');
+    const raw = analysis.trim() || '(Không có nội dung phân tích.)';
+    const escaped = escapeHtmlTextForOptimkiFallback(raw);
     const title = escapeHtmlTextForOptimkiFallback(brandName.trim() || 'Báo cáo');
-    return (
-        `<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/>` +
-        `<title>${title}</title><style>body{font-family:system-ui,sans-serif;max-width:52rem;margin:2rem auto;line-height:1.65;padding:0 1rem}` +
-        `.note{color:#666;font-size:0.9rem;margin-bottom:1.5rem}pre{white-space:pre-wrap;word-break:break-word}</style></head><body>` +
-        `<h1>Báo cáo Opti M.KI</h1><p class='note'>Phản hồi model bị cắt cụt hoặc thiếu html_report — hiển thị bản phân tích văn bản đã nhận được.</p>` +
-        `<pre>${body}</pre></body></html>`
-    );
+    const sectionsHtml = buildOptimkiFallbackSectionsHtml(escaped);
+    const fallbackExtraCss = `
+.fallback-prose p{font-size:12.5px;color:var(--grey-2);line-height:1.75;margin-bottom:1rem}
+.fallback-prose p:last-child{margin-bottom:0}
+.fallback-prose strong{color:var(--black);font-weight:500}
+`;
+    return `<!DOCTYPE html><html lang='vi'><head><meta charset='UTF-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/>
+<title>${title}</title>
+<style>
+${fallbackExtraCss}
+</style></head><body>
+<div class='page'>
+<div class='masthead a'>
+<div>
+<div class='masthead-kicker'>Opti M.KI · Strategic Model</div>
+<div class='masthead-title'>${title}<em> — Báo cáo phân tích</em></div>
+</div>
+<div class='masthead-meta'>
+<span>Bản xem trước</span>
+<strong>Phân tích văn bản</strong>
+</div>
+</div>
+<div class='missing-block'>
+<div class='missing-label'>Ghi chú hệ thống</div>
+<p style='font-size:12px;color:var(--grey-2);line-height:1.65'>Phản hồi model bị cắt cụt hoặc thiếu <strong>html_report</strong> — hiển thị nội dung đã nhận với bố cục editorial. Chạy lại phân tích hoặc dùng chế độ hai bước để có báo cáo HTML đầy đủ từ model.</p>
+</div>
+${sectionsHtml}
+</div>
+</body></html>`;
 }
 
 function ensureOptimkiHtmlShell(html: string): string {
@@ -5116,7 +5414,8 @@ function tryRecoverOptimkiTruncatedSingleShot(
     return {
         brand_name,
         model_type,
-        html_report,
+        html_report, analysis_content: scanned.text,
+        generated_at: new Date().toISOString(),
     } as OptimkiResult;
 }
 
@@ -5139,11 +5438,17 @@ function finalizeOptimkiParsedObject(
     }
     if (html_report) html_report = ensureOptimkiHtmlShell(html_report);
     if (!html_report.trim()) return null;
-    const base = { brand_name, model_type, html_report };
+    const base: OptimkiResult = {
+        brand_name,
+        model_type,
+        html_report,
+        generated_at: new Date().toISOString(),
+    };
+    if (ac) base.analysis_content = ac;
     if (p.suggestion != null && typeof p.suggestion === 'object') {
         return { ...base, suggestion: p.suggestion as OptimkiResult['suggestion'] } as OptimkiResult;
     }
-    return base as OptimkiResult;
+    return base;
 }
 
 function parseOptimkiJsonText(
@@ -5250,7 +5555,7 @@ export const generateOptimkiAnalysis = async (
         const userMessage = buildOptimkiSingleShotUserMessage(input);
 
         const response = await ai.models.generateContent({
-            // 2.5 Flash: higher practical output ceiling than 2.0 for analysis_content + html_report
+            // 2.0 Flash: standard high-speed analysis model
             model: 'gemini-2.5-flash',
             contents: userMessage,
             config: {
@@ -5277,6 +5582,53 @@ export const generateOptimkiAnalysis = async (
     } catch (error) {
         console.error('Optimki Analysis Error:', error);
         if (error instanceof GeminiRateLimitError) throw error;
+        if (error instanceof GeminiPermissionDeniedError) throw error;
+        return null;
+    }
+};
+
+/** Render HTML báo cáo Opti M.KI từ kết quả phase 1 (analysis_content đã có sẵn). */
+export const renderOptimkiHtml = async (
+    payload: Pick<OptimkiResult, 'brand_name' | 'model_type' | 'suggestion'> & { analysis_content: string },
+    onProgress?: (step: string) => void
+): Promise<OptimkiResult | null> => {
+    try {
+        onProgress?.('🎨 Đang render báo cáo HTML từ nội dung phân tích...');
+        await new Promise((r) => setTimeout(r, 400));
+
+        const userMessage = buildOptimkiRenderUserMessage(payload);
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: userMessage,
+            config: {
+                systemInstruction: OPTIMKI_PHASE2_SYSTEM_INSTRUCTION,
+                responseMimeType: 'application/json',
+                safetySettings: SAFETY_SETTINGS,
+                temperature: 0.35,
+                maxOutputTokens: 32768,
+            },
+        });
+
+        const rawOut = (response.text ?? '').trim();
+        if (!rawOut) return null;
+
+        const parsed = parseOptimkiJsonText(rawOut, {
+            brand_name: payload.brand_name,
+            model_type: payload.model_type,
+        });
+
+        return {
+            brand_name: parsed.brand_name || payload.brand_name,
+            model_type: parsed.model_type || payload.model_type,
+            analysis_content: payload.analysis_content,
+            html_report: parsed.html_report,
+            suggestion: parsed.suggestion ?? payload.suggestion,
+            generated_at: new Date().toISOString(),
+        };
+    } catch (error) {
+        console.error('Optimki HTML Render Error:', error);
+        if (error instanceof GeminiRateLimitError) throw error;
+        if (error instanceof GeminiPermissionDeniedError) throw error;
         return null;
     }
 };

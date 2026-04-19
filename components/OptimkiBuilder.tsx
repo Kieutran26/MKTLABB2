@@ -18,7 +18,12 @@ import {
   DollarSign,
   Calendar,
 } from 'lucide-react';
-import { generateOptimkiAnalysis, GeminiRateLimitError } from '../services/geminiService';
+import {
+  generateOptimkiAnalysis,
+  renderOptimkiHtml,
+  GeminiRateLimitError,
+  GeminiPermissionDeniedError,
+} from '../services/geminiService';
 import { OptimkiInput, OptimkiResult, OptimkiModelType } from '../types';
 import FeatureHeader from './FeatureHeader';
 import { 
@@ -101,6 +106,32 @@ const FIELD_PRIORITIES: Record<OptimkiModelType, Record<string, 'core' | 'recomm
 const cardClass =
   'rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]';
 
+function toastGeminiErr(
+  toast: ReturnType<typeof useToast>,
+  err: unknown,
+  fallbackTitle: string
+) {
+  if (err instanceof GeminiPermissionDeniedError) {
+    const parts = err.message.split('\n');
+    const title = parts[0]?.trim() || 'Gemini từ chối truy cập';
+    const body = parts.slice(1).join('\n').trim();
+    if (body) toast.error(title, body);
+    else toast.error(title);
+    return;
+  }
+  if (err instanceof GeminiRateLimitError) {
+    toast.error(err.message);
+    return;
+  }
+  if (err instanceof Error && err.message) {
+    toast.error(
+      err.message.length > 220 ? `${err.message.slice(0, 217)}…` : err.message
+    );
+    return;
+  }
+  toast.error(fallbackTitle);
+}
+
 const OptimkiBuilder: React.FC = () => {
   const { tier } = useAuth();
   const toast = useToast();
@@ -118,6 +149,8 @@ const OptimkiBuilder: React.FC = () => {
   const [isModelSelected, setIsModelSelected] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isRendering, setIsRendering] = useState(false);
+  const [renderStep, setRenderStep] = useState('');
   const savedTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [workspaceMode, setWorkspaceMode] = useState<'main' | 'history'>('main');
@@ -209,11 +242,7 @@ const OptimkiBuilder: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-      if (error instanceof GeminiRateLimitError) {
-        toast.error(error.message);
-      } else {
-        toast.error('Có lỗi xảy ra.');
-      }
+      toastGeminiErr(toast, error, 'Có lỗi xảy ra.');
     } finally {
       setIsGenerating(false);
     }
@@ -256,8 +285,29 @@ const OptimkiBuilder: React.FC = () => {
     }
   };
 
+  const handleReRenderHtml = async (
+    payload: Pick<OptimkiResult, 'brand_name' | 'model_type' | 'suggestion'> & { analysis_content: string }
+  ) => {
+    setIsRendering(true);
+    setRenderStep('🎨 Đang render báo cáo HTML...');
+    try {
+      const rendered_ = await renderOptimkiHtml(payload, setRenderStep);
+      if (rendered_) {
+        setResult(rendered_);
+        toast.success('Đã render lại báo cáo HTML.');
+      } else {
+        toast.error('Không render được HTML. Kiểm tra API hoặc thử lại.');
+      }
+    } catch (err) {
+      console.error(err);
+      toastGeminiErr(toast, err, 'Lỗi khi render lại HTML.');
+    } finally {
+      setIsRendering(false);
+      setRenderStep('');
+    }
+  };
+
   const handleReset = () => {
-    reset(OPTIMKI_DEFAULTS);
     setResult(null);
     setCurrentGroup(1);
     setIsModelSelected(false);
@@ -437,7 +487,12 @@ const OptimkiBuilder: React.FC = () => {
                 </button>
             </div>
             <div className="flex-1 min-h-0 -mt-14 overflow-y-auto">
-              <EditorialOptimkiReport result={result} />
+              <EditorialOptimkiReport
+                result={result}
+                onRenderHtml={handleReRenderHtml}
+                isRendering={isRendering}
+                renderStep={renderStep}
+              />
             </div>
           </div>
         ) : isGenerating ? (

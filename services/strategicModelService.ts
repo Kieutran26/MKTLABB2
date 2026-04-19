@@ -137,8 +137,24 @@ export const StrategicModelService = {
         }
     },
 
-    /** History for Opti M.KI: OPTIMKI rows + legacy STRATEGIC_GROUP saves that contain `html_report`. */
+    /** History for Opti M.KI: OPTIMKI rows + legacy STRATEGIC_GROUP saves + LOCAL FALLBACK. */
     async getOptimkiHistory(): Promise<SavedOptimkiHistoryItem[]> {
+        const rows: SavedOptimkiHistoryItem[] = [];
+
+        // 1. Fetch from LocalStorage (Fallback)
+        try {
+            const localRaw = localStorage.getItem('mkt_optimki_history');
+            if (localRaw) {
+                const localItems = JSON.parse(localRaw);
+                if (Array.isArray(localItems)) {
+                    rows.push(...localItems);
+                }
+            }
+        } catch (e) {
+            console.error('Error reading local history:', e);
+        }
+
+        // 2. Fetch from Supabase (Cloud)
         try {
             const { data, error } = await supabase
                 .from('marketing_plans')
@@ -147,46 +163,46 @@ export const StrategicModelService = {
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error('Error fetching Opti M.KI history:', error);
-                return [];
+                console.warn('[Supabase] Could not fetch cloud history:', error.message);
+            } else if (data) {
+                for (const item of data) {
+                    // Skip if already in local (prevent duplicates if synced)
+                    if (rows.some(r => r.id === item.id)) continue;
+
+                    const result = pickOptimkiResultFromOutput(item.generated_output);
+                    if (!result) continue;
+
+                    const input = (item.input_data || {}) as Record<string, unknown>;
+                    const ten =
+                        (typeof input.ten_thuong_hieu === 'string' && input.ten_thuong_hieu) ||
+                        result.brand_name ||
+                        '';
+                    const nganh =
+                        (typeof input.nganh_hang === 'string' && input.nganh_hang) || '';
+                    const budgetRaw =
+                        typeof input.so_lieu_ngan_sach === 'string' ? input.so_lieu_ngan_sach : '';
+                    const timeRaw =
+                        typeof input.thoi_gian_dia_diem === 'string' ? input.thoi_gian_dia_diem : '';
+
+                    rows.push({
+                        id: item.id,
+                        name: item.name || `${result.brand_name} · ${result.model_type}`,
+                        brandId: item.brand_id ?? null,
+                        ten_thuong_hieu: ten,
+                        nganh_hang: nganh,
+                        budgetHint: trimMeta(budgetRaw, 14),
+                        timelineHint: trimMeta(timeRaw, 22),
+                        result,
+                        createdAt: new Date(item.created_at).getTime(),
+                    });
+                }
             }
-
-            const rows: SavedOptimkiHistoryItem[] = [];
-
-            for (const item of data || []) {
-                const result = pickOptimkiResultFromOutput(item.generated_output);
-                if (!result) continue;
-
-                const input = (item.input_data || {}) as Record<string, unknown>;
-                const ten =
-                    (typeof input.ten_thuong_hieu === 'string' && input.ten_thuong_hieu) ||
-                    result.brand_name ||
-                    '';
-                const nganh =
-                    (typeof input.nganh_hang === 'string' && input.nganh_hang) || '';
-                const budgetRaw =
-                    typeof input.so_lieu_ngan_sach === 'string' ? input.so_lieu_ngan_sach : '';
-                const timeRaw =
-                    typeof input.thoi_gian_dia_diem === 'string' ? input.thoi_gian_dia_diem : '';
-
-                rows.push({
-                    id: item.id,
-                    name: item.name || `${result.brand_name} · ${result.model_type}`,
-                    brandId: item.brand_id ?? null,
-                    ten_thuong_hieu: ten,
-                    nganh_hang: nganh,
-                    budgetHint: trimMeta(budgetRaw, 14),
-                    timelineHint: trimMeta(timeRaw, 22),
-                    result,
-                    createdAt: new Date(item.created_at).getTime(),
-                });
-            }
-
-            return rows;
         } catch (error) {
-            console.error('Error in getOptimkiHistory:', error);
-            return [];
+            console.error('Connection error fetching cloud history:', error);
         }
+
+        // Sort combined history by newest first
+        return rows.sort((a, b) => b.createdAt - a.createdAt);
     },
 
     async saveOptimkiPlan(params: {
@@ -204,10 +220,39 @@ export const StrategicModelService = {
         };
         createdAt: number;
     }): Promise<boolean> {
+        const localItem: SavedOptimkiHistoryItem = {
+            id: params.id,
+            name: params.name,
+            brandId: params.brandId,
+            ten_thuong_hieu: params.inputSnapshot.ten_thuong_hieu,
+            nganh_hang: params.inputSnapshot.nganh_hang,
+            budgetHint: trimMeta(params.inputSnapshot.so_lieu_ngan_sach, 14),
+            timelineHint: trimMeta(params.inputSnapshot.thoi_gian_dia_diem, 22),
+            result: params.result,
+            createdAt: params.createdAt
+        };
+
+        // Helper to save locally
+        const saveLocally = () => {
+            try {
+                const existing = JSON.parse(localStorage.getItem('mkt_optimki_history') || '[]');
+                localStorage.setItem('mkt_optimki_history', JSON.stringify([localItem, ...existing].slice(0, 50)));
+                console.log('✅ Opti M.KI saved to LocalStorage (Fallback)');
+                return true;
+            } catch (e) {
+                console.error('Failed to save to LocalStorage:', e);
+                return false;
+            }
+        };
+
         try {
+            // Get current user for RLS
+            const { data: { user } } = await supabase.auth.getUser();
+
             const dbModel = {
                 id: params.id.length > 36 ? undefined : params.id,
                 name: params.name,
+                user_id: user?.id || null, // Critical for RLS
                 brand_id:
                     params.brandId === 'manual' || params.brandId === 'unknown'
                         ? null
@@ -221,14 +266,16 @@ export const StrategicModelService = {
             const { error } = await supabase.from('marketing_plans').upsert(dbModel);
 
             if (error) {
-                console.error('Error saving Opti M.KI plan:', error);
-                return false;
+                console.error('Error saving Opti M.KI plan to Supabase:', error);
+                // If it's a network error or RLS error, use fallback
+                return saveLocally();
             }
 
             return true;
-        } catch (error) {
-            console.error('Error in saveOptimkiPlan:', error);
-            return false;
+        } catch (error: any) {
+            console.error('Critical save error (likely network):', error);
+            // On hard network failure (Failed to fetch), use fallback
+            return saveLocally();
         }
     },
 };

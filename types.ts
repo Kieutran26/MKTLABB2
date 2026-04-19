@@ -1639,6 +1639,8 @@ export interface OptimkiInput {
 export interface OptimkiResult {
   brand_name: string;
   model_type: OptimkiModelType;
+  /** Văn bản phân tích thô — dùng để render lại HTML khi cần. */
+  analysis_content?: string;
   html_report: string;
   suggestion?: {
     primary_model: string;

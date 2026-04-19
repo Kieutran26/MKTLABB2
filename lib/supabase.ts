@@ -22,13 +22,29 @@ export const supabase: SupabaseClient = createClient(
     isSupabaseConfigured ? supabaseAnonKey : PLACEHOLDER_ANON_KEY
 );
 
-// Helper function to check connection
-export const checkSupabaseConnection = async (): Promise<boolean> => {
+// Helper function to check connection with detailed error reporting
+export const checkSupabaseConnection = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!isSupabaseConfigured) return { success: false, error: 'Supabase credentials missing.' };
+    
     try {
-        const { error } = await supabase.from('brands').select('count').limit(1);
-        return !error;
-    } catch {
-        return false;
+        // First try a raw fetch to check DNS/Reachability
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 5000);
+        
+        try {
+            const resp = await fetch(supabaseUrl, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+            clearTimeout(tid);
+        } catch (fetchErr: any) {
+            clearTimeout(tid);
+            if (fetchErr.name === 'AbortError') return { success: false, error: 'Connection timed out (DNS/Network issue).' };
+            return { success: false, error: `Network error: ${fetchErr.message}. Verify VITE_SUPABASE_URL in .env.local` };
+        }
+
+        const { error } = await supabase.from('brands').select('count', { count: 'exact', head: true }).limit(1);
+        if (error) return { success: false, error: error.message };
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message || 'Unknown connection error' };
     }
 };
 
