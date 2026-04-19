@@ -855,9 +855,9 @@ const STPModelGenerator: React.FC = () => {
             <div
                 className={`flex min-h-0 flex-1 flex-col pb-3 sm:pb-4 lg:pb-4 ${
                     stpData && !showHistory
-                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0 overflow-hidden'
-                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10 overflow-y-auto'
-                }`}
+                        ? 'px-0 pt-0 sm:pt-0 lg:pt-0'
+                        : 'px-4 pt-5 sm:pt-6 lg:px-8 lg:pt-7 xl:px-10'
+                } overflow-y-auto`}
             >
                 {showHistory ? (
                     <div className="flex-1 overflow-y-auto px-0 pb-2">
