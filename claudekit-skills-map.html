@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClaudeKit Skills Map - Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            gray: {
+              50: '#f9fafb',
+              100: '#f3f4f6',
+              200: '#e5e7eb',
+              800: '#1f2937',
+              900: '#111827',
+            },
+            brand: {
+              50: '#eff6ff',
+              500: '#3b82f6',
+              600: '#2563eb',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .material-symbols-outlined {
+      font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const agentsData = [
+  {
+    "name": "Analytics Analyst",
+    "call": "@analytics-analyst",
+    "group": "Marketing Kit",
+    "type": "Campaign",
+    "title": "Tôi là chuyên gia phân tích tiếp thị có chuyên môn về phân tích dữ liệu, báo cáo và tạo thông tin chi tiết.",
+    "tasks": [
+      "Sử dụng tác nhân này để báo cáo hiệu suất và hiểu biết tiếp thị.",
+      "Điều này bao gồm báo cáo hiệu suất chiến dịch.",
+      "Phân tích lưu lượng truy cập."
+    ]
+  },
+  {
+    "name": "Attraction Specialist",
+    "call": "@attraction-specialist",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là nhà tiếp thị tăng trưởng cấp cao chuyên về chiến lược nội dung đầu kênh (TOFU), tạo khách hàng tiềm năng và thông tin cạnh tranh.",
+    "tasks": [
+      "Sử dụng tác nhân này để tạo khách hàng tiềm năng.",
+      "Nội dung đầu kênh và thông tin về đối thủ cạnh tranh.",
+      "Điều này bao gồm nghiên cứu từ khóa."
+    ]
+  },
+  {
+    "name": "Brainstormer",
+    "call": "@brainstormer",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là **Cố vấn cấp CTO** thách thức các giả định và các lựa chọn hiển thị mà người dùng chưa xem xét.",
+    "tasks": [
+      "Được cấu hình để hoạt động tự động trong môi trường.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Campaign Debugger",
+    "call": "@campaign-debugger",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là nhà phân tích tiếp thị cấp cao có chuyên môn sâu về gỡ lỗi chiến dịch, phân tích phân tích và tối ưu hóa hiệu suất.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần điều tra các vấn đề tiếp thị.",
+      "Phân tích hành vi chiến dịch.",
+      "Chẩn đoán các vấn đề về hiệu suất."
+    ]
+  },
+  {
+    "name": "Campaign Manager",
+    "call": "@campaign-manager",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là người quản lý chiến dịch tiếp thị cấp cao có chuyên môn về điều phối chiến dịch đa kênh, theo dõi hiệu suất và phối hợp nhóm.",
+    "tasks": [
+      "Sử dụng tác nhân này để điều phối chiến dịch trên các kênh.",
+      "Điều này bao gồm lập kế hoạch chiến dịch đa kênh.",
+      "Theo dõi hiệu suất."
+    ]
+  },
+  {
+    "name": "Code Reviewer",
+    "call": "@code-reviewer",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là kỹ sư phần mềm cao cấp với hơn 15 năm kinh nghiệm chuyên đánh giá chất lượng mã toàn diện và thực thi các phương pháp hay nhất.",
+    "tasks": [
+      "Hãy sử dụng tác nhân này khi bạn cần xem xét mã toàn diện và đánh giá chất lượng.",
+      "Điều này bao gồm: sau khi triển khai các tính năng mới hoặc tái cấu trúc mã hiện có, trước khi hợp nhất các yêu cầu kéo hoặc triển khai vào sản xuất, khi điều tra các vấn đề về chất lượng mã hoặc nợ kỹ thuật, khi bạn cần đánh giá lỗ hổng bảo mật hoặc khi tối ưu hóa các tắc nghẽn hiệu suất.",
+      "Vì mã mới đã được viết, hãy sử dụng công cụ Tác vụ để khởi chạy tác nhân đánh giá mã nhằm thực hiện đánh giá chất lượng toàn diện."
+    ]
+  },
+  {
+    "name": "Code Simplifier",
+    "call": "@code-simplifier",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là trình đơn giản hóa mã.",
+    "tasks": [
+      "Đơn giản hóa và tinh chỉnh mã để đảm bảo sự rõ ràng.",
+      "Nhất quán và khả năng bảo trì trong khi vẫn duy trì tất cả chức năng.",
+      "Tập trung vào mã được sửa đổi gần đây trừ khi có hướng dẫn khác."
+    ]
+  },
+  {
+    "name": "Community Manager",
+    "call": "@community-manager",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là quản lý cộng đồng cấp cao có chuyên môn trong việc xây dựng và nuôi dưỡng cộng đồng trực tuyến.",
+    "tasks": [
+      "Sử dụng tác nhân này để kiểm duyệt Discord/Slack và tương tác với cộng đồng.",
+      "Điều này bao gồm phân tích cảm tính.",
+      "Soạn thảo phản hồi."
+    ]
+  },
+  {
+    "name": "Content Creator",
+    "call": "@content-creator",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là người tạo nội dung tiếp thị cấp cao có chuyên môn về nhiều định dạng nội dung.",
+    "tasks": [
+      "Sử dụng tác nhân này để tạo nội dung tiếp thị.",
+      "Điều này bao gồm các bài đăng trên blog.",
+      "Bài đăng trên mạng xã hội."
+    ]
+  },
+  {
+    "name": "Content Reviewer",
+    "call": "@content-reviewer",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là nhà chiến lược nội dung cấp cao với hơn 15 năm kinh nghiệm chuyên đánh giá chất lượng nội dung toàn diện và thực thi các phương pháp tiếp thị tốt nhất.",
+    "tasks": [
+      "Hãy sử dụng tác nhân này khi bạn cần xem xét nội dung toàn diện và đánh giá chất lượng.",
+      "Điều này bao gồm: sau khi tạo nội dung tiếp thị, bản sao hoặc chiến dịch, trước khi xuất bản lên các kênh sản xuất, khi điều tra các vấn đề về chất lượng nội dung hoặc sự không nhất quán về thương hiệu, khi bạn cần đánh giá SEO và tối ưu hóa chuyển đổi hoặc khi tối ưu hóa hiệu suất nội dung.",
+      "Vì nội dung mới đã được viết nên hãy sử dụng công cụ Tác vụ để khởi chạy tác nhân đánh giá nội dung nhằm thực hiện đánh giá chất lượng toàn diện."
+    ]
+  },
+  {
+    "name": "Continuity Specialist",
+    "call": "@continuity-specialist",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là nhà chiến lược giữ chân khách hàng chuyên về tiếp thị vòng đời, ngăn chặn tình trạng rời bỏ và tối ưu hóa sự tương tác của khách hàng.",
+    "tasks": [
+      "Sử dụng đại lý này cho các chiến lược giữ chân và tương tác với khách hàng.",
+      "Điều này bao gồm phát hiện rủi ro rời bỏ.",
+      "Chiến dịch tương tác lại."
+    ]
+  },
+  {
+    "name": "Copywriter",
+    "call": "@copywriter",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là đặc vụ AI: Người viết quảng cáo.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần tạo bản sao có khả năng chuyển đổi cao, hướng đến tương tác cho tài liệu tiếp thị, bài đăng trên mạng xã hội, trang đích, chiến dịch email, mô tả sản phẩm hoặc bất kỳ nội dung nào cần thu hút sự chú ý và thúc đẩy hành động.",
+      "Bạn có thể viết tiêu đề chính và tiêu đề phụ cho trang đích không? .",
+      "Người dùng cần bản sao tiếp thị có khả năng chuyển đổi, vì vậy hãy ủy quyền cho đại lý người viết quảng cáo để tạo ra các tiêu đề thu hút sự chú ý."
+    ]
+  },
+  {
+    "name": "Database Admin",
+    "call": "@database-admin",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là quản trị viên cơ sở dữ liệu cấp cao và chuyên gia tối ưu hóa hiệu suất có chuyên môn sâu về hệ thống cơ sở dữ liệu quan hệ và NoSQL.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần làm việc với các hệ thống cơ sở dữ liệu, bao gồm truy vấn để phân tích dữ liệu, chẩn đoán tắc nghẽn hiệu suất, tối ưu hóa cấu trúc cơ sở dữ liệu, quản lý chỉ mục, triển khai chiến lược sao lưu và khôi phục, thiết lập sao chép, định cấu hình giám sát, quản lý quyền của người dùng hoặc khi bạn cần đánh giá tình trạng cơ sở dữ liệu toàn diện và đề xuất tối ưu hóa.",
+      "Tác nhân này phải tham gia thực hiện mọi nhiệm vụ liên quan đến cơ sở dữ liệu đòi hỏi chuyên môn kỹ thuật sâu về quản trị và tối ưu hóa cơ sở dữ liệu.",
+      "Vì người dùng đang gặp phải các vấn đề về hiệu suất có thể liên quan đến cơ sở dữ liệu, hãy sử dụng công cụ Tác vụ để khởi chạy tác nhân quản trị viên cơ sở dữ liệu nhằm chẩn đoán và đưa ra đề xuất tối ưu hóa."
+    ]
+  },
+  {
+    "name": "Debugger",
+    "call": "@debugger",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là kỹ sư phần mềm cao cấp có chuyên môn sâu về gỡ lỗi, phân tích hệ thống và tối ưu hóa hiệu suất.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần điều tra sự cố.",
+      "Phân tích hành vi hệ thống.",
+      "Chẩn đoán sự cố hiệu suất."
+    ]
+  },
+  {
+    "name": "Docs Manager",
+    "call": "@docs-manager",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là chuyên gia tài liệu kỹ thuật cao cấp có chuyên môn sâu trong việc tạo, duy trì và tổ chức tài liệu dành cho nhà phát triển cho các dự án phần mềm phức tạp.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần quản lý tài liệu kỹ thuật.",
+      "Thiết lập các tiêu chuẩn triển khai.",
+      "Phân tích và cập nhật tài liệu hiện có dựa trên những thay đổi về mã."
+    ]
+  },
+  {
+    "name": "Email Wizard",
+    "call": "@email-wizard",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là nhà chiến lược tiếp thị qua email cấp cao có chuyên môn sâu về điều phối, tự động hóa và tối ưu hóa chuyển đổi chiến dịch email.",
+    "tasks": [
+      "Sử dụng tác nhân này để điều phối và tối ưu hóa chiến dịch email.",
+      "Điều này bao gồm các mẫu trình tự.",
+      "Cá nhân hóa nội dung động."
+    ]
+  },
+  {
+    "name": "Fullstack Developer",
+    "call": "@fullstack-developer",
+    "group": "Engineer Kit",
+    "type": "Backend",
+    "title": "Tôi là nhà phát triển fullstack cấp cao thực hiện các giai đoạn triển khai từ các kế hoạch song song với ranh giới quyền sở hữu tệp nghiêm ngặt.",
+    "tasks": [
+      "Thực hiện các giai đoạn thực hiện từ các kế hoạch song song.",
+      "Xử lý các tác vụ phụ trợ (Node.js, API, cơ sở dữ liệu), giao diện người dùng (React, TypeScript) và cơ sở hạ tầng.",
+      "Được thiết kế để thực thi song song với ranh giới quyền sở hữu tệp nghiêm ngặt."
+    ]
+  },
+  {
+    "name": "Funnel Architect",
+    "call": "@funnel-architect",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là nhà chiến lược kênh cấp cao có chuyên môn sâu về tối ưu hóa tỷ lệ chuyển đổi, kiến ​​trúc kênh và thiết kế ưu đãi.",
+    "tasks": [
+      "Sử dụng tác nhân này để thiết kế kênh và tối ưu hóa chuyển đổi.",
+      "Điều này bao gồm thiết kế giai đoạn kênh.",
+      "Phân tích tỷ lệ chuyển đổi."
+    ]
+  },
+  {
+    "name": "Git Manager",
+    "call": "@git-manager",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là chuyên gia vận hành Git.",
+    "tasks": [
+      "Giai đoạn.",
+      "Cam kết và đẩy mã thay đổi với các cam kết thông thường.",
+      "Sử dụng khi người dùng nói cam kết."
+    ]
+  },
+  {
+    "name": "Journal Writer",
+    "call": "@journal-writer",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là nhà văn tạp chí kỹ thuật cực kỳ trung thực, người ghi lại thực tế thô sơ của những thách thức phát triển phần mềm.",
+    "tasks": [
+      "Tôi đã thử tăng kích thước nhóm và giá trị thời gian chờ nhưng nó vẫn xảy ra ngẫu nhiên.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Lead Qualifier",
+    "call": "@lead-qualifier",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là chuyên gia chứng nhận lãnh đạo có chuyên môn về phân tích hành vi, chấm điểm khách hàng tiềm năng và dự đoán mức độ sẵn sàng bán hàng.",
+    "tasks": [
+      "Sử dụng tác nhân này để phát hiện ý định.",
+      "Ghi điểm khách hàng tiềm năng và phân tích hành vi.",
+      "Điều này bao gồm nhận dạng mô hình tương tác."
+    ]
+  },
+  {
+    "name": "Mcp Manager",
+    "call": "@mcp-manager",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là đại lý AI: Trình quản lý Mcp.",
+    "tasks": [
+      "Quản lý tích hợp máy chủ MCP (Giao thức bối cảnh mô hình) - khám phá các công cụ/lời nhắc/tài nguyên, phân tích mức độ liên quan của các tác vụ và thực thi các khả năng MCP.",
+      "Sử dụng khi cần làm việc với máy chủ MCP, khám phá các công cụ MCP có sẵn, lọc các khả năng MCP cho các tác vụ cụ thể, thực thi các công cụ MCP theo chương trình hoặc triển khai chức năng máy khách MCP.",
+      "Giữ bối cảnh chính sạch sẽ bằng cách xử lý khám phá MCP trong bối cảnh tác nhân phụ."
+    ]
+  },
+  {
+    "name": "Planner",
+    "call": "@planner",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là người lập kế hoạch.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần nghiên cứu.",
+      "Phân tích và tạo kế hoạch triển khai toàn diện cho các tính năng mới.",
+      "Kiến ​​trúc hệ thống hoặc giải pháp kỹ thuật phức tạp."
+    ]
+  },
+  {
+    "name": "Project Manager",
+    "call": "@project-manager",
+    "group": "Engineer Kit",
+    "type": "Backend",
+    "title": "Tôi là giám đốc dự án cấp cao và Người điều phối hệ thống có chuyên môn sâu về dự án.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần giám sát và điều phối dự án toàn diện.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Researcher",
+    "call": "@researcher",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là đặc vụ AI: Nhà nghiên cứu.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần tiến hành nghiên cứu toàn diện về các chủ đề phát triển phần mềm, bao gồm điều tra công nghệ mới, tìm tài liệu, khám phá các phương pháp hay nhất hoặc thu thập thông tin về plugin, gói và dự án nguồn mở.",
+      "Tác nhân này xuất sắc trong việc tổng hợp thông tin từ nhiều nguồn bao gồm tìm kiếm, nội dung trang web, video YouTube và tài liệu kỹ thuật để tạo báo cáo nghiên cứu chi tiết.",
+      "Điều này đòi hỏi phải nghiên cứu kỹ lưỡng về các biện pháp bảo mật, vì vậy hãy sử dụng tác nhân nghiên cứu để thu thập thông tin từ các nguồn đáng tin cậy và tạo bản tóm tắt chi tiết."
+    ]
+  },
+  {
+    "name": "Sale Enabler",
+    "call": "@sale-enabler",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là chuyên gia hỗ trợ bán hàng có chuyên môn trong việc tạo tài sản thế chấp bán hàng thuyết phục, tài liệu quảng cáo chiêu hàng và nội dung tăng tốc giao dịch.",
+    "tasks": [
+      "Sử dụng đại lý này để làm tài sản thế chấp bán hàng và tăng tốc giao dịch.",
+      "Điều này bao gồm việc tạo quảng cáo chiêu hàng được cá nhân hóa.",
+      "Hướng dẫn xử lý phản đối."
+    ]
+  },
+  {
+    "name": "Scout External",
+    "call": "@scout-external",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là người điều phối và tổng hợp, không phải người tìm kiếm.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần nhanh chóng xác định vị trí các tệp có liên quan trên một cơ sở mã lớn để hoàn thành một tác vụ cụ thể bằng các công cụ tác nhân bên ngoài (Gemini, OpenCode, v.v.).",
+      "Bạn có thể giúp tôi tìm tất cả các tập tin có liên quan? .",
+      "Người dùng cần xác định vị trí các tệp tích hợp thanh toán."
+    ]
+  },
+  {
+    "name": "Scout",
+    "call": "@scout",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là công cụ tìm kiếm nhanh và tập trung.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần nhanh chóng xác định vị trí các tệp có liên quan trên một cơ sở mã lớn để hoàn thành một tác vụ cụ thể.",
+      "Bạn có thể giúp tôi tìm tất cả các tập tin có liên quan? .",
+      "Người dùng cần xác định vị trí các tệp tích hợp thanh toán."
+    ]
+  },
+  {
+    "name": "Seo Specialist",
+    "call": "@seo-specialist",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là chuyên gia SEO cấp cao có chuyên môn về SEO kỹ thuật, tối ưu hóa nội dung và chiến lược tìm kiếm.",
+    "tasks": [
+      "Sử dụng tác nhân này để kiểm tra và tối ưu hóa SEO.",
+      "Điều này bao gồm kiểm tra kỹ thuật SEO.",
+      "Tối ưu hóa nội dung."
+    ]
+  },
+  {
+    "name": "Social Media Manager",
+    "call": "@social-media-manager",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi là nhà chiến lược truyền thông xã hội cấp cao có chuyên môn về chiến lược nội dung đa nền tảng, sự tham gia của cộng đồng và phân tích xã hội.",
+    "tasks": [
+      "Sử dụng tác nhân này để lập lịch và phân tích phương tiện truyền thông xã hội.",
+      "Điều này bao gồm tạo bài đăng đa nền tảng.",
+      "Quản lý lịch nội dung."
+    ]
+  },
+  {
+    "name": "Tester",
+    "call": "@tester",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là kỹ sư QA cao cấp chuyên kiểm tra toàn diện và đảm bảo chất lượng.",
+    "tasks": [
+      "Sử dụng tác nhân này khi bạn cần xác thực chất lượng mã thông qua thử nghiệm.",
+      "Bao gồm chạy thử nghiệm đơn vị và tích hợp.",
+      "Phân tích phạm vi thử nghiệm."
+    ]
+  },
+  {
+    "name": "Ui Ux Designer",
+    "call": "@ui-ux-designer",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi là nhà thiết kế ui ux.",
+    "tasks": [
+      "Sử dụng tác nhân này khi người dùng cần công việc thiết kế UI/UX bao gồm thiết kế giao diện.",
+      "Wireframe.",
+      "Hệ thống thiết kế."
+    ]
+  },
+  {
+    "name": "Upsell Maximizer",
+    "call": "@upsell-maximizer",
+    "group": "Engineer Kit",
+    "type": "Frontend",
+    "title": "Tôi là nhà chiến lược mở rộng doanh thu chuyên về bán thêm, bán kèm và tối ưu hóa giá.",
+    "tasks": [
+      "Sử dụng tác nhân này để mở rộng doanh thu và đề xuất sản phẩm.",
+      "Điều này bao gồm xác định cơ hội bán thêm.",
+      "Logic đề xuất sản phẩm."
+    ]
+  },
+  {
+    "name": "Ab Test Setup",
+    "call": "/ckm:ab-test-setup",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp thiết lập thử nghiệm a/b.",
+    "tasks": [
+      "Khi người dùng muốn lập kế hoạch, thiết kế hoặc triển khai thử nghiệm hoặc thử nghiệm A/B.",
+      "Cũng sử dụng khi người dùng đề cập đến thử nghiệm A/B, thử nghiệm phân tách, thử nghiệm, kiểm tra sự thay đổi này, sao chép biến thể, thử nghiệm đa biến hoặc giả thuyết.",
+      "Để theo dõi việc triển khai, hãy xem theo dõi phân tích."
+    ]
+  },
+  {
+    "name": "Ads Management",
+    "call": "/ckm:ads-management",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp quản lý quảng cáo.",
+    "tasks": [
+      "Kích hoạt cho các chiến dịch quảng cáo trả phí trên Google Ads.",
+      "Meta Ads.",
+      "LinkedIn Ads."
+    ]
+  },
+  {
+    "name": "Affiliate Marketing",
+    "call": "/ckm:affiliate-marketing",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp tiếp thị liên kết.",
+    "tasks": [
+      "Xây dựng các chương trình liên kết SaaS có khả năng chuyển đổi cao với hoa hồng 20-40%, quan hệ đối tác KOL/KOC và ngăn chặn gian lận.",
+      "Bao gồm việc lựa chọn nền tảng (PartnerStack, FirstPromoter, Rewardful), cơ cấu hoa hồng (định kỳ so với một lần, theo cấp độ), chiến lược tiếp cận người ảnh hưởng, tuân thủ FTC/GDPR, quản lý rủi ro và nghiên cứu trường hợp (Dropbox 3900%, người dùng PayPal 100M).",
+      "Sử dụng để thiết kế các chương trình liên kết, tuyển dụng đối tác, tối ưu hóa tỷ lệ chuyển đổi, ngăn chặn gian lận hoặc tăng doanh thu giới thiệu."
+    ]
+  },
+  {
+    "name": "Agent Browser",
+    "call": "/ck:agent-browser",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng trình duyệt tác nhân.",
+    "tasks": [
+      "CLI tự động hóa trình duyệt được tối ưu hóa bằng AI với ảnh chụp nhanh hiệu quả theo ngữ cảnh.",
+      "Sử dụng cho các phiên tự trị kéo dài.",
+      "Quy trình làm việc tự xác minh."
+    ]
+  },
+  {
+    "name": "Ai Artist",
+    "call": "/ck:ai-artist",
+    "group": "Engineer Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp ai artist - tạo hình ảnh quả chuối nano.",
+    "tasks": [
+      "Tạo hình ảnh thông qua Nano Banana với 129 lời nhắc được tuyển chọn.",
+      "Cuộc phỏng vấn xác thực bắt buộc sẽ tinh chỉnh phong cách/tâm trạng/màu sắc (sử dụng --skip để bỏ qua).",
+      "3 chế độ: tìm kiếm, sáng tạo, hoang dã."
+    ]
+  },
+  {
+    "name": "Ai Multimodal",
+    "call": "/ck:ai-multimodal",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp ai đa phương thức.",
+    "tasks": [
+      "Phân tích hình ảnh/âm thanh/video bằng API Gemini (tầm nhìn tốt hơn Codex).",
+      "Tạo hình ảnh (Imagen 4, Nano Banana 2, MiniMax), video (Veo 3, Hailuo), lời nói (MiniMax TTS), âm nhạc (MiniMax).",
+      "Sử dụng để phân tích tầm nhìn, sao chép, OCR, trích xuất thiết kế, AI đa phương thức."
+    ]
+  },
+  {
+    "name": "Analytics",
+    "call": "/ckm:analytics",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp phân tích tiếp thị.",
+    "tasks": [
+      "Kích hoạt để phân tích tiếp thị.",
+      "Theo dõi KPI.",
+      "Bảng thông tin báo cáo."
+    ]
+  },
+  {
+    "name": "Analyze",
+    "call": "/ckm:analyze",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # phân tích các loại.",
+    "tasks": [
+      "💡💡 Phân tích và báo cáo hiệu suất.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Ask",
+    "call": "/ck:ask",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # bối cảnh.",
+    "tasks": [
+      "💡 Giải đáp các thắc mắc về kỹ thuật và kiến ​​trúc.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Assets Organizing",
+    "call": "/ckm:assets-organizing",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp tổ chức tài sản.",
+    "tasks": [
+      "Sắp xếp tất cả kết quả đầu ra từ các lệnh gạch chéo và tác nhân phụ trong nội dung/thư mục theo chủ đề.",
+      "Định dạng ngày và phần mở rộng.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Backend Development",
+    "call": "/ck:backend-development",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kỹ năng phát triển backend.",
+    "tasks": [
+      "Xây dựng hệ thống phụ trợ mạnh mẽ với các công nghệ hiện đại (Node.",
+      "Framework (NestJS.",
+      "FastAPI."
+    ]
+  },
+  {
+    "name": "Banner Design",
+    "call": "/ckm:banner-design",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp thiết kế banner - hệ thống banner sáng tạo đa dạng.",
+    "tasks": [
+      "Thiết kế biểu ngữ cho phương tiện truyền thông xã hội, quảng cáo, trang web nổi bật, nội dung sáng tạo và bản in.",
+      "Nhiều tùy chọn chỉ đạo nghệ thuật với hình ảnh do AI tạo ra.",
+      "Hành động: thiết kế, tạo, tạo banner."
+    ]
+  },
+  {
+    "name": "Better Auth",
+    "call": "/ck:better-auth",
+    "group": "Engineer Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp kỹ năng xác thực tốt hơn.",
+    "tasks": [
+      "Triển khai xác thực và ủy quyền với Better Auth - khung xác thực TypeScript không phụ thuộc vào khung.",
+      "Các tính năng bao gồm xác thực email/mật khẩu có xác minh, nhà cung cấp OAuth (Google, GitHub, Discord, v.v.), xác thực hai yếu tố (TOTP, SMS), mật mã/hỗ trợ WebAuthn, quản lý phiên, kiểm soát truy cập dựa trên vai trò (RBAC), giới hạn tốc độ và bộ điều hợp cơ sở dữ liệu.",
+      "Sử dụng khi thêm xác thực vào ứng dụng, triển khai luồng OAuth, thiết lập 2FA/MFA, quản lý phiên người dùng, định cấu hình quy tắc ủy quyền hoặc xây dựng hệ thống xác thực an toàn cho ứng dụng web."
+    ]
+  },
+  {
+    "name": "Bootstrap",
+    "call": "/ck:bootstrap",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp bootstrap - giàn giáo dự án mới.",
+    "tasks": [
+      "Khởi động các dự án mới bằng nghiên cứu.",
+      "Công nghệ.",
+      "Thiết kế."
+    ]
+  },
+  {
+    "name": "Brainstorm",
+    "call": "/ck:brainstorm",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng động não.",
+    "tasks": [
+      "Động não các giải pháp bằng phân tích đánh đổi và sự trung thực tàn bạo.",
+      "Sử dụng để lên ý tưởng.",
+      "Quyết định kiến ​​trúc."
+    ]
+  },
+  {
+    "name": "Brand",
+    "call": "/ckm:brand",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp thương hiệu.",
+    "tasks": [
+      "Tiếng nói thương hiệu.",
+      "Nhận dạng hình ảnh.",
+      "Khung thông điệp."
+    ]
+  },
+  {
+    "name": "Campaign",
+    "call": "/ckm:campaign",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp chiến dịch.",
+    "tasks": [
+      "Lập kế hoạch.",
+      "Thực hiện.",
+      "Tối ưu hóa chiến dịch tiếp thị."
+    ]
+  },
+  {
+    "name": "Chrome Devtools",
+    "call": "/ck:chrome-devtools",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng tác nhân chrome devtools.",
+    "tasks": [
+      "Tự động hóa trình duyệt.",
+      "Gỡ lỗi và phân tích hiệu suất bằng cách sử dụng tập lệnh Puppeteer CLI.",
+      "Sử dụng để tự động hóa trình duyệt."
+    ]
+  },
+  {
+    "name": "Cip Design",
+    "call": "/ckm:cip-design",
+    "group": "Marketing Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp để tạo hình ảnh gemini nano banana.",
+    "tasks": [
+      "Thiết kế Chương trình nhận diện doanh nghiệp với 50 sản phẩm, 20 phong cách, 20 ngành nghề.",
+      "Tạo mô hình CIP bằng Gemini Nano Banana (Flash/Pro).",
+      "Hành động: thiết kế, tạo, tạo nhận diện thương hiệu."
+    ]
+  },
+  {
+    "name": "Autoresearch",
+    "call": "/ck:autoresearch",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp ck:autoresearch — vòng tối ưu hóa tự động.",
+    "tasks": [
+      "Vòng lặp tối ưu hóa lặp lại tự động - chạy N lần lặp theo số liệu cơ học.",
+      "Tìm hiểu từ lịch sử git.",
+      "Tự động giữ/hủy các thay đổi."
+    ]
+  },
+  {
+    "name": "Debug",
+    "call": "/ck:debug",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp gỡ lỗi & điều tra hệ thống.",
+    "tasks": [
+      "Gỡ lỗi một cách có hệ thống với phân tích nguyên nhân gốc rễ trước khi sửa lỗi.",
+      "Sử dụng cho các lỗi.",
+      "Lỗi kiểm tra."
+    ]
+  },
+  {
+    "name": "Loop",
+    "call": "/ck:loop",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp ck:loop — vòng lặp tối ưu hóa tự động.",
+    "tasks": [
+      "Vòng lặp tối ưu hóa lặp lại tự động - chạy N lần lặp theo số liệu cơ học.",
+      "Tìm hiểu từ lịch sử git.",
+      "Tự động giữ/hủy các thay đổi."
+    ]
+  },
+  {
+    "name": "Plan",
+    "call": "/ck:plan",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp lập kế hoạch.",
+    "tasks": [
+      "Lập kế hoạch triển khai.",
+      "Thiết kế kiến ​​trúc.",
+      "Tạo lộ trình kỹ thuật với các giai đoạn chi tiết."
+    ]
+  },
+  {
+    "name": "Predict",
+    "call": "/ck:predict",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp ck:predict — phân tích trước nhiều người.",
+    "tasks": [
+      "5 chuyên gia tranh luận đề xuất thay đổi trước khi thực hiện.",
+      "Phát hiện sớm các vấn đề về kiến ​​trúc, bảo mật, hiệu suất và UX.",
+      "Sử dụng trước các tính năng chính hoặc những thay đổi có tính rủi ro."
+    ]
+  },
+  {
+    "name": "Scenario",
+    "call": "/ck:scenario",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp ck:scenario — edge case & scenario explorer.",
+    "tasks": [
+      "Tạo các trường hợp đặc biệt và kịch bản thử nghiệm toàn diện bằng cách phân tách các tính năng trên 12 chiều.",
+      "Sử dụng trước khi triển khai hoặc thử nghiệm để sớm phát hiện vấn đề.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Security",
+    "call": "/ck:security",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp ck:security — kiểm tra bảo mật.",
+    "tasks": [
+      "Kiểm tra bảo mật dựa trên STRIDE + OWASP với tính năng tự động sửa lỗi tùy chọn.",
+      "Quét mã để tìm lỗ hổng.",
+      "Phân loại theo mức độ nghiêm trọng và có thể sửa các phát hiện một cách lặp đi lặp lại bằng cách sử dụng mẫu ck:autoresearch."
+    ]
+  },
+  {
+    "name": "Storage",
+    "call": "/ckm:storage",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # lệnh phụ.",
+    "tasks": [
+      "Hoạt động lưu trữ S3 - tải lên.",
+      "Đồng bộ hóa.",
+      "Liệt kê."
+    ]
+  },
+  {
+    "name": "Codex",
+    "call": "/ckm:Codex",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp codex.",
+    "tasks": [
+      "Kích hoạt khi người dùng hỏi về cài đặt Codex.",
+      "Lệnh gạch chéo (/plan.",
+      "/content."
+    ]
+  },
+  {
+    "name": "Code Review",
+    "call": "/ck:code-review",
+    "group": "Engineer Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp đánh giá mã.",
+    "tasks": [
+      "Sử dụng khi nhận được phản hồi đánh giá mã (đặc biệt nếu không rõ ràng hoặc có vấn đề về mặt kỹ thuật), khi hoàn thành các nhiệm vụ hoặc tính năng chính cần xem xét trước khi tiếp tục hoặc trước khi đưa ra bất kỳ tuyên bố hoàn thành/thành công nào.",
+      "Bao gồm ba phương pháp thực hành - nhận phản hồi với độ chính xác kỹ thuật đối với thỏa thuận thực hiện, yêu cầu đánh giá thông qua đại diện phụ của người đánh giá mã và cổng xác minh yêu cầu bằng chứng trước bất kỳ tuyên bố trạng thái nào.",
+      "Cần thiết cho việc phát triển theo hướng tác nhân phụ, kéo các yêu cầu và ngăn chặn các xác nhận quyền sở hữu hoàn thành sai."
+    ]
+  },
+  {
+    "name": "Coding Level",
+    "call": "/ck:coding-level",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp cấp độ mã hóa.",
+    "tasks": [
+      "Đặt cấp độ trải nghiệm mã hóa để có giải thích và định dạng đầu ra phù hợp.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Competitor",
+    "call": "/ckm:competitor",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp đối thủ.",
+    "tasks": [
+      "Phân tích cạnh tranh.",
+      "Các trang thay thế.",
+      "So sánh."
+    ]
+  },
+  {
+    "name": "Content Hub",
+    "call": "/ckm:content-hub",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp trung tâm nội dung.",
+    "tasks": [
+      "Thư viện nội dung dựa trên trình duyệt để quản lý nội dung tiếp thị.",
+      "Lưới trực quan với bộ lọc/tìm kiếm, thanh bên ngữ cảnh thương hiệu và các hành động (xem trước, chỉnh sửa, tạo).",
+      "Tệp kê khai sẵn sàng cho R2 để đồng bộ hóa đám mây trong tương lai."
+    ]
+  },
+  {
+    "name": "Content Marketing",
+    "call": "/ckm:content-marketing",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp tiếp thị nội dung.",
+    "tasks": [
+      "Kích hoạt chiến lược nội dung.",
+      "Lịch biên tập.",
+      "Lập bản đồ trụ cột nội dung."
+    ]
+  },
+  {
+    "name": "Context Engineering",
+    "call": "/ck:context-engineering",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ thuật bối cảnh.",
+    "tasks": [
+      "Cung cấp khả năng thực thi lệnh chuyên sâu.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Cook",
+    "call": "/ck:cook",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp cook - triển khai tính năng thông minh.",
+    "tasks": [
+      "LUÔN kích hoạt kỹ năng này trước khi triển khai MỌI tính năng.",
+      "Kế hoạch hoặc bản sửa lỗi.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Copywriting",
+    "call": "/ck:copywriting",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp viết quảng cáo.",
+    "tasks": [
+      "Công thức viết quảng cáo chuyển đổi.",
+      "Mẫu tiêu đề.",
+      "Mẫu sao chép email."
+    ]
+  },
+  {
+    "name": "Creativity",
+    "call": "/ckm:creativity",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp creativity pro max - trí tuệ định hướng sáng tạo.",
+    "tasks": [
+      "Trí tuệ định hướng sáng tạo.",
+      "55 phong cách, 18 nền tảng, 12 kiểu lồng tiếng, 17 thể loại âm nhạc, 30 danh mục chiến dịch.",
+      "Hành động: tạo, thiết kế, lập kế hoạch, chỉ đạo, các chiến dịch sáng tạo ngắn gọn."
+    ]
+  },
+  {
+    "name": "Dashboard",
+    "call": "/ckm:dashboard",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp lệnh: /bảng điều khiển.",
+    "tasks": [
+      "Khởi chạy và quản lý Bảng điều khiển tiếp thị.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Databases",
+    "call": "/ck:databases",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng cơ sở dữ liệu.",
+    "tasks": [
+      "Làm việc với MongoDB (cơ sở dữ liệu tài liệu.",
+      "Tài liệu BSON.",
+      "Quy trình tổng hợp."
+    ]
+  },
+  {
+    "name": "Debugging",
+    "call": "/ckm:debugging",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp gỡ lỗi.",
+    "tasks": [
+      "Khung gỡ lỗi có hệ thống đảm bảo điều tra nguyên nhân gốc rễ trước khi sửa lỗi.",
+      "Bao gồm quy trình gỡ lỗi bốn giai đoạn, theo dõi ngăn xếp cuộc gọi ngược, xác thực nhiều lớp và các giao thức xác minh.",
+      "Sử dụng khi gặp lỗi, kiểm tra thất bại, hành vi không mong muốn, vấn đề về hiệu suất hoặc trước khi xác nhận công việc đã hoàn thành."
+    ]
+  },
+  {
+    "name": "Deploy",
+    "call": "/ck:deploy",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp triển khai kỹ năng.",
+    "tasks": [
+      "Triển khai dự án lên bất kỳ nền tảng nào với tính năng tự động phát hiện.",
+      "Sử dụng khi người dùng nói triển khai, xuất bản, vận chuyển, đưa vào hoạt động, đẩy mạnh sản xuất, lưu trữ ứng dụng này hoặc đề cập đến bất kỳ nền tảng lưu trữ nào (Vercel, Netlify, Cloudflare, Railway, Fly.io, Render, Heroku, TOSE, Github Pages, AWS, GCP, Digital Ocean, Vultr, Coolify, Dokploy).",
+      "Tự động phát hiện mục tiêu triển khai từ tệp cấu hình và tài liệu/deployment.md."
+    ]
+  },
+  {
+    "name": "Design",
+    "call": "/ckm:design",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp thiết kế.",
+    "tasks": [
+      "Kỹ năng thiết kế toàn diện: nhận diện thương hiệu, mã thông báo thiết kế, kiểu dáng giao diện người dùng, tạo logo (55 kiểu, Gemini AI), chương trình nhận dạng công ty (50 sản phẩm phân phối, mô hình CIP), bản trình bày HTML (Chart.js), thiết kế biểu ngữ (22 kiểu, xã hội/quảng cáo/web/in), thiết kế biểu tượng (15 kiểu, SVG, Gemini 3.1 Pro), ảnh xã hội (HTML→ảnh chụp màn hình, đa nền tảng).",
+      "Hành động: thiết kế logo, tạo CIP, tạo mockup, xây dựng slide, thiết kế banner, tạo biểu tượng, tạo ảnh xã hội, hình ảnh mạng xã hội, nhận diện thương hiệu, hệ thống thiết kế.",
+      "Nền tảng: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads."
+    ]
+  },
+  {
+    "name": "Design System",
+    "call": "/ckm:design-system",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp thiết kế hệ thống.",
+    "tasks": [
+      "Kiến trúc mã thông báo, thông số kỹ thuật thành phần và tạo slide.",
+      "Mã thông báo ba lớp (nguyên thủy→ngữ nghĩa→thành phần), biến CSS, tỷ lệ khoảng cách/kiểu chữ, thông số thành phần, tạo slide chiến lược.",
+      "Sử dụng cho mã thông báo thiết kế, thiết kế có hệ thống, bài thuyết trình phù hợp với thương hiệu."
+    ]
+  },
+  {
+    "name": "Devops",
+    "call": "/ck:devops",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng devops.",
+    "tasks": [
+      "Triển khai và quản lý cơ sở hạ tầng đám mây trên Cloudflare (Workers.",
+      "Đối tượng bền.",
+      "Kết xuất trình duyệt)."
+    ]
+  },
+  {
+    "name": "Docs",
+    "call": "/ck:docs",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # lệnh phụ.",
+    "tasks": [
+      "Khởi tạo.",
+      "Cập nhật và tóm tắt tài liệu dự án.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Docs Seeker",
+    "call": "/ck:docs-seeker",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp khám phá tài liệu thông qua tập lệnh.",
+    "tasks": [
+      "Tìm kiếm tài liệu kỹ thuật bằng cách sử dụng các tập lệnh thực thi để phát hiện loại truy vấn.",
+      "Tìm nạp từ các nguồn llms.",
+      "Txt (context7."
+    ]
+  },
+  {
+    "name": "Elevenlabs",
+    "call": "/ckm:elevenlabs",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp elevenlabs.",
+    "tasks": [
+      "Tạo giọng nói.",
+      "Sao chép giọng nói.",
+      "Tạo hiệu ứng âm thanh và âm nhạc bằng API ElevenLabs."
+    ]
+  },
+  {
+    "name": "Email",
+    "call": "/ckm:email",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp email.",
+    "tasks": [
+      "Chiến dịch email.",
+      "Bản tin.",
+      "Trình tự nhỏ giọt."
+    ]
+  },
+  {
+    "name": "Find Skills",
+    "call": "/ck:find-skills",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp tìm kỹ năng.",
+    "tasks": [
+      "Giúp người dùng khám phá và cài đặt các kỹ năng của tác nhân khi họ đặt các câu hỏi như tôi làm X như thế nào.",
+      "Tìm kỹ năng cho X.",
+      "Có kỹ năng nào có thể."
+    ]
+  },
+  {
+    "name": "Fix",
+    "call": "/ck:fix",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp sửa chữa.",
+    "tasks": [
+      "Sửa lỗi, lỗi kiểm tra, sự cố CI/CD bằng định tuyến thông minh.",
+      "Sử dụng khi báo cáo lỗi, lỗi gõ, lỗi nhật ký, sự cố giao diện người dùng, sự cố mã.",
+      "Tự động phân loại độ phức tạp và kích hoạt các kỹ năng liên quan."
+    ]
+  },
+  {
+    "name": "Form Cro",
+    "call": "/ckm:form-cro",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp mẫu cro.",
+    "tasks": [
+      "Khi người dùng muốn tối ưu hóa bất kỳ biểu mẫu nào KHÔNG phải là đăng ký/đăng ký - bao gồm biểu mẫu thu thập khách hàng tiềm năng, biểu mẫu liên hệ, biểu mẫu yêu cầu demo, biểu mẫu đăng ký, biểu mẫu khảo sát hoặc biểu mẫu thanh toán.",
+      "Cũng sử dụng khi người dùng đề cập đến việc tối ưu hóa biểu mẫu, chuyển đổi biểu mẫu khách hàng tiềm năng, sự khác biệt giữa biểu mẫu, trường biểu mẫu, tỷ lệ hoàn thành biểu mẫu hoặc biểu mẫu liên hệ.",
+      "Để biết các biểu mẫu đăng ký/đăng ký, hãy xem signup-flow-cro."
+    ]
+  },
+  {
+    "name": "Free Tool Strategy",
+    "call": "/ckm:free-tool-strategy",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp chiến lược công cụ miễn phí (kỹ thuật như tiếp thị).",
+    "tasks": [
+      "Khi người dùng muốn lập kế hoạch, đánh giá hoặc xây dựng một công cụ miễn phí cho mục đích tiếp thị - tạo khách hàng tiềm năng, giá trị SEO hoặc nhận thức về thương hiệu.",
+      "Cũng sử dụng khi người dùng đề cập đến kỹ thuật như tiếp thị, công cụ miễn phí, công cụ tiếp thị, máy tính, công cụ tạo, công cụ tương tác, công cụ tạo khách hàng tiềm năng, xây dựng công cụ dành cho khách hàng tiềm năng hoặc tài nguyên miễn phí.",
+      "Kỹ năng này là cầu nối giữa kỹ thuật và tiếp thị - hữu ích cho người sáng lập và nhà tiếp thị kỹ thuật."
+    ]
+  },
+  {
+    "name": "Frontend Design",
+    "call": "/ck:frontend-design",
+    "group": "Engineer Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp # lựa chọn quy trình làm việc.",
+    "tasks": [
+      "Tạo giao diện lối vào bóng bẩy từ các thiết kế/ảnh chụp màn hình/video.",
+      "Sử dụng cho các thành phần web.",
+      "Trải nghiệm 3D."
+    ]
+  },
+  {
+    "name": "Frontend Development",
+    "call": "/ck:frontend-development",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp hướng dẫn phát triển frontend.",
+    "tasks": [
+      "Hướng dẫn phát triển giao diện người dùng cho ứng dụng React/TypeScript.",
+      "Các mẫu hiện đại bao gồm Hồi hộp, tải từng phần, useSuspenseQuery, tổ chức tệp với thư mục tính năng, kiểu MUI v7, Bộ định tuyến TanStack, tối ưu hóa hiệu suất và các phương pháp hay nhất về TypeScript.",
+      "Sử dụng khi tạo thành phần, trang, tính năng, tìm nạp dữ liệu, tạo kiểu, định tuyến hoặc làm việc với mã giao diện người dùng."
+    ]
+  },
+  {
+    "name": "Funnel",
+    "call": "/ckm:funnel",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # hành động.",
+    "tasks": [
+      "💡💡 Thiết kế và tối ưu hóa kênh.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Gamification Marketing",
+    "call": "/ckm:gamification-marketing",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp tiếp thị gamification.",
+    "tasks": [
+      "Thiết kế các chiến dịch tiếp thị được ứng dụng trò chơi bằng cách sử dụng điểm, huy hiệu, bảng xếp hạng, chuỗi, thử thách.",
+      "Sử dụng cho các chương trình khách hàng thân thiết, chiến dịch giới thiệu, quy trình giới thiệu, tăng cường mức độ tương tác, trò chơi qua email.",
+      "Cung cấp lựa chọn cơ học, căn chỉnh tâm lý, tài liệu chiến lược, mẫu, KPI."
+    ]
+  },
+  {
+    "name": "Git",
+    "call": "/ck:git",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp thao tác git.",
+    "tasks": [
+      "Hoạt động Git với các cam kết thông thường.",
+      "Sử dụng để dàn dựng, cam kết, thúc đẩy, PR, sáp nhập.",
+      "Tự động phân chia cam kết theo loại/phạm vi."
+    ]
+  },
+  {
+    "name": "Gkg",
+    "call": "/ck:gkg",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp sơ đồ tri thức gitlab (gkg).",
+    "tasks": [
+      "Phân tích mã ngữ nghĩa với Sơ đồ tri thức GitLab.",
+      "Sử dụng để định nghĩa, tìm cách sử dụng, phân tích tác động, trực quan hóa kiến ​​trúc.",
+      "Hỗ trợ Ruby, Java, Kotlin, Python, TypeScript/JavaScript."
+    ]
+  },
+  {
+    "name": "Google Adk Python",
+    "call": "/ck:google-adk-python",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng python google adk.",
+    "tasks": [
+      "Xây dựng tác nhân AI với Google ADK Python.",
+      "Hệ thống đa tác nhân.",
+      "Tích hợp công cụ."
+    ]
+  },
+  {
+    "name": "Hub",
+    "call": "/ckm:hub",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # cách sử dụng.",
+    "tasks": [
+      "Mở Trung tâm nội dung + Bảng thông tin tiếp thị.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Init",
+    "call": "/ckm:init",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp # sứ mệnh của bạn.",
+    "tasks": [
+      "💡💡💡💡 Khởi động dự án marketing.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Journal",
+    "call": "/ck:journal",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # phát hiện phong cách viết.",
+    "tasks": [
+      "💡 Viết nhật ký.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Kanban",
+    "call": "/ck:kanban",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # cách sử dụng.",
+    "tasks": [
+      "Ban điều phối đại lý AI (Sắp có).",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Kit Builder",
+    "call": "/ckm:kit-builder",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp người xây dựng bộ dụng cụ.",
+    "tasks": [
+      "Xây dựng các thành phần tiếp thị của ClaudeKit - kỹ năng, tác nhân, lệnh, quy trình làm việc.",
+      "Sử dụng khi tạo tự động hóa mới, mở rộng khả năng tiếp thị hoặc hiểu cấu trúc bộ công cụ.",
+      "Bao gồm các mẫu."
+    ]
+  },
+  {
+    "name": "Launch Strategy",
+    "call": "/ckm:launch-strategy",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp chiến lược khởi động.",
+    "tasks": [
+      "Khi người dùng muốn lên kế hoạch ra mắt sản phẩm, thông báo tính năng hoặc chiến lược phát hành.",
+      "Cũng sử dụng khi người dùng đề cập đến việc ra mắt, Săn sản phẩm, phát hành tính năng, thông báo, đưa ra thị trường, ra mắt phiên bản beta, quyền truy cập sớm, danh sách chờ hoặc cập nhật sản phẩm.",
+      "Kỹ năng này bao gồm việc ra mắt theo từng giai đoạn, chiến lược kênh và động lực ra mắt liên tục."
+    ]
+  },
+  {
+    "name": "Llms",
+    "call": "/ck:llms",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp trình tạo llms.txt.",
+    "tasks": [
+      "Tạo tệp llms.txt từ tài liệu hoặc quét cơ sở mã.",
+      "Tuân theo thông số llmstxt.org.",
+      "Sử dụng cho các chỉ mục trang web thân thiện với LLM, tóm tắt tài liệu, tối ưu hóa ngữ cảnh AI."
+    ]
+  },
+  {
+    "name": "Logo Design",
+    "call": "/ckm:logo-design",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp thiết kế logo - trí tuệ logo được hỗ trợ bởi ai.",
+    "tasks": [
+      "Thiết kế logo thông minh với 55 kiểu dáng, 30 bảng màu, 25 ngành nghề.",
+      "Tạo logo với mô hình Gemini Nano Banana, tìm kiếm kiểu dáng/màu sắc/ngành nghề.",
+      "Hành động: thiết kế, tạo, tạo logo."
+    ]
+  },
+  {
+    "name": "Markdown Novel Viewer",
+    "call": "/ck:markdown-novel-viewer",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp markdown-novel-viewer.",
+    "tasks": [
+      "Xem các tệp đánh dấu với trải nghiệm đọc bình tĩnh.",
+      "Giống như đọc sách.",
+      "Máy chủ HTTP nền để hiển thị đánh dấu."
+    ]
+  },
+  {
+    "name": "Marketing Dashboard",
+    "call": "/ckm:marketing-dashboard",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp bảng điều khiển tiếp thị.",
+    "tasks": [
+      "Trung tâm chỉ huy tiếp thị đầu tiên tại địa phương dành cho các doanh nhân độc lập.",
+      "Quản lý chiến dịch.",
+      "Nội dung và tài sản bằng tính năng tự động hóa Codex AI."
+    ]
+  },
+  {
+    "name": "Marketing Ideas",
+    "call": "/ckm:marketing-ideas",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp ý tưởng tiếp thị cho saas.",
+    "tasks": [
+      "Khi người dùng cần ý tưởng tiếp thị, nguồn cảm hứng hoặc chiến lược cho sản phẩm phần mềm hoặc SaaS của họ.",
+      "Cũng sử dụng khi người dùng hỏi ý tưởng tiếp thị, ý tưởng tăng trưởng, cách tiếp thị, chiến lược tiếp thị, chiến thuật tiếp thị, cách quảng bá hoặc ý tưởng để phát triển.",
+      "Kỹ năng này cung cấp 140 phương pháp tiếp thị đã được chứng minh, được sắp xếp theo danh mục."
+    ]
+  },
+  {
+    "name": "Marketing Planning",
+    "call": "/ckm:marketing-planning",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp lập kế hoạch tiếp thị.",
+    "tasks": [
+      "Lập kế hoạch chiến lược tiếp thị.",
+      "Chiến dịch.",
+      "Lịch nội dung và sáng kiến ​​bằng cách sử dụng các khuôn khổ đã được chứng minh (RACE."
+    ]
+  },
+  {
+    "name": "Marketing Psychology",
+    "call": "/ckm:marketing-psychology",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp tâm lý tiếp thị & mô hình tư duy.",
+    "tasks": [
+      "Khi người dùng muốn áp dụng các nguyên tắc tâm lý, mô hình tinh thần hoặc khoa học hành vi vào tiếp thị.",
+      "Cũng sử dụng khi người dùng đề cập đến tâm lý học, mô hình tinh thần, thành kiến ​​nhận thức, thuyết phục, khoa học hành vi, lý do mọi người mua hàng, ra quyết định hoặc hành vi của người tiêu dùng.",
+      "Kỹ năng này cung cấp hơn 70 mô hình tinh thần được tổ chức cho ứng dụng tiếp thị."
+    ]
+  },
+  {
+    "name": "Marketing Research",
+    "call": "/ckm:marketing-research",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp nghiên cứu tiếp thị.",
+    "tasks": [
+      "Nghiên cứu xu hướng thị trường.",
+      "Đối thủ cạnh tranh.",
+      "Thông tin chi tiết về khán giả và các phương pháp tiếp thị tốt nhất."
+    ]
+  },
+  {
+    "name": "Mcp Builder",
+    "call": "/ck:mcp-builder",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp hướng dẫn phát triển máy chủ mcp.",
+    "tasks": [
+      "Hướng dẫn tạo máy chủ MCP (Giao thức bối cảnh mô hình) chất lượng cao cho phép LLM tương tác với các dịch vụ bên ngoài thông qua các công cụ được thiết kế tốt.",
+      "Sử dụng khi xây dựng máy chủ MCP để tích hợp các API hoặc dịch vụ bên ngoài.",
+      "Cho dù bằng Python (FastMCP) hay Node/TypeScript (MCP SDK)."
+    ]
+  },
+  {
+    "name": "Mcp Management",
+    "call": "/ck:mcp-management",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp quản lý mcp.",
+    "tasks": [
+      "Quản lý máy chủ Giao thức bối cảnh mô hình (MCP) - khám phá, phân tích và thực thi các công cụ/lời nhắc/tài nguyên từ máy chủ MCP đã định cấu hình.",
+      "Sử dụng khi làm việc với tích hợp MCP, cần khám phá các khả năng MCP sẵn có, lọc các công cụ MCP cho các tác vụ cụ thể, thực thi các công cụ MCP theo chương trình, truy cập lời nhắc/tài nguyên MCP hoặc triển khai chức năng máy khách MCP.",
+      "Hỗ trợ lựa chọn công cụ thông minh, quản lý nhiều máy chủ và khám phá khả năng hiệu quả theo ngữ cảnh."
+    ]
+  },
+  {
+    "name": "Media Processing",
+    "call": "/ck:media-processing",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng xử lý phương tiện.",
+    "tasks": [
+      "Xử lý các tệp đa phương tiện bằng FFmpeg (mã hóa video/âm thanh, chuyển đổi, phát trực tuyến, lọc, tăng tốc phần cứng), ImageMagick (thao tác hình ảnh, chuyển đổi định dạng, xử lý hàng loạt, hiệu ứng, bố cục) và RMBG (xóa nền do AI cung cấp).",
+      "Sử dụng khi chuyển đổi định dạng phương tiện, mã hóa video bằng codec cụ thể (H.264, H.265, VP9), thay đổi kích thước/cắt xén hình ảnh, xóa nền khỏi hình ảnh, trích xuất âm thanh từ video, áp dụng bộ lọc và hiệu ứng, tối ưu hóa kích thước tệp, tạo tệp kê khai phát trực tuyến (HLS/DASH), tạo hình thu nhỏ, xử lý hàng loạt hình ảnh, tạo hình ảnh tổng hợp hoặc triển khai quy trình xử lý phương tiện.",
+      "Hỗ trợ hơn 100 định dạng, tăng tốc phần cứng (NVENC, QSV) và các sơ đồ lọc phức tạp."
+    ]
+  },
+  {
+    "name": "Mermaidjs V11",
+    "call": "/ck:mermaidjs-v11",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp nàng tiên cá.js v11.",
+    "tasks": [
+      "Tạo sơ đồ và hình ảnh trực quan bằng cú pháp Nàng tiên cá v11.",
+      "Sử dụng khi tạo lưu đồ, sơ đồ trình tự, sơ đồ lớp, sơ đồ trạng thái, sơ đồ ER, biểu đồ Gantt, hành trình của người dùng, dòng thời gian, sơ đồ kiến ​​trúc hoặc bất kỳ loại nào trong số hơn 24 loại sơ đồ.",
+      "Hỗ trợ tích hợp API JavaScript, hiển thị CLI thành SVG/PNG/PDF, các tính năng theo chủ đề, cấu hình và khả năng truy cập."
+    ]
+  },
+  {
+    "name": "Mintlify",
+    "call": "/ck:mintlify",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp trình tạo tài liệu mintlify.",
+    "tasks": [
+      "Xây dựng và triển khai các trang tài liệu với Mintlify.",
+      "Sử dụng khi tạo tài liệu API, cổng thông tin dành cho nhà phát triển hoặc cơ sở kiến ​​thức.",
+      "Bao gồm cấu hình docs.json, các thành phần MDX (Thẻ, Bước, Tab, Accordions, CodeGroup, Chú thích, Nàng tiên cá, Chế độ xem, Ô, Cây, Huy hiệu, Biểu ngữ, Màu sắc, Chú giải công cụ, Bảng điều khiển), giao diện trang, cấu trúc điều hướng (tab, neo, thả xuống, sản phẩm, phiên bản, ngôn ngữ), chủ đề (7 chủ đề), tích hợp OpenAPI/AsyncAPI, tính năng AI (llms.txt, MCP, Skill.md), triển khai (GitHub, GitLab, Các lệnh Vercel, Cloudflare, AWS) và CLI để phát triển và xác thực cục bộ."
+    ]
+  },
+  {
+    "name": "Mobile Development",
+    "call": "/ck:mobile-development",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kỹ năng phát triển di động.",
+    "tasks": [
+      "Xây dựng ứng dụng di động với React Native.",
+      "Flutter.",
+      "Swift/SwiftUI."
+    ]
+  },
+  {
+    "name": "Onboarding Cro",
+    "call": "/ckm:onboarding-cro",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp giới thiệu cro.",
+    "tasks": [
+      "Khi người dùng muốn tối ưu hóa quá trình tham gia sau khi đăng ký, kích hoạt người dùng, trải nghiệm lần chạy đầu tiên hoặc thời gian tạo ra giá trị.",
+      "Cũng sử dụng khi người dùng đề cập đến quy trình giới thiệu, tỷ lệ kích hoạt, kích hoạt của người dùng, trải nghiệm lần chạy đầu tiên, trạng thái trống, danh sách kiểm tra giới thiệu, khoảnh khắc aha hoặc trải nghiệm người dùng mới.",
+      "Để tối ưu hóa đăng ký/đăng ký, hãy xem signup-flow-cro."
+    ]
+  },
+  {
+    "name": "Paid Ads",
+    "call": "/ckm:paid-ads",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp quảng cáo trả phí.",
+    "tasks": [
+      "Khi người dùng muốn trợ giúp về các chiến dịch quảng cáo trả phí trên Google Ads, Meta (Facebook/Instagram), LinkedIn, Twitter/X hoặc các nền tảng quảng cáo khác.",
+      "Cũng sử dụng khi người dùng đề cập đến PPC, phương tiện trả phí, bản sao quảng cáo, nội dung quảng cáo, ROAS, CPA, chiến dịch quảng cáo, nhắm mục tiêu lại hoặc nhắm mục tiêu theo đối tượng.",
+      "Kỹ năng này bao gồm chiến lược chiến dịch, tạo quảng cáo, nhắm mục tiêu theo đối tượng và tối ưu hóa."
+    ]
+  },
+  {
+    "name": "Payment Integration",
+    "call": "/ck:payment-integration",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp tích hợp thanh toán.",
+    "tasks": [
+      "Tích hợp thanh toán với SePay ( VietQR).",
+      "Polar (đăng ký SaaS).",
+      "Stripe (thanh toán toàn cầu)."
+    ]
+  },
+  {
+    "name": "Persona",
+    "call": "/ckm:persona",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # hành động.",
+    "tasks": [
+      "💡💡 Quản lý nhân cách khách hàng.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Plan",
+    "call": "/ck:plan",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # nhiệm vụ của bạn.",
+    "tasks": [
+      "💡💡💡 Tạo kế hoạch thông minh với khả năng cải tiến nhanh chóng.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Plans Kanban",
+    "call": "/ck:plans-kanban",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kế hoạch-kanban.",
+    "tasks": [
+      "Lập kế hoạch máy chủ bảng điều khiển với tính năng theo dõi tiến độ và trực quan hóa dòng thời gian.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Play",
+    "call": "/ckm:play",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp chơi — người biên soạn playbook tiếp thị.",
+    "tasks": [
+      "Cung cấp khả năng thực thi lệnh chuyên sâu.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Preview",
+    "call": "/ck:preview",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # cách sử dụng.",
+    "tasks": [
+      "Đường dẫn đến tệp đánh dấu.",
+      "Thư mục kế hoạch hoặc bộ sưu tập kế hoạch.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Pricing Strategy",
+    "call": "/ckm:pricing-strategy",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp chiến lược định giá.",
+    "tasks": [
+      "Khi người dùng muốn được trợ giúp về các quyết định về giá, cách đóng gói hoặc chiến lược kiếm tiền.",
+      "Cũng sử dụng khi người dùng đề cập đến giá cả, bậc giá, freemium, dùng thử miễn phí, đóng gói, tăng giá, thước đo giá trị, Van Westendorp, mức độ sẵn sàng trả tiền hoặc kiếm tiền.",
+      "Kỹ năng này bao gồm nghiên cứu về giá, cấu trúc cấp bậc và chiến lược đóng gói."
+    ]
+  },
+  {
+    "name": "Problem Solving",
+    "call": "/ck:problem-solving",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kỹ thuật giải quyết vấn đề.",
+    "tasks": [
+      "Áp dụng các kỹ thuật giải quyết vấn đề có hệ thống cho các vòng xoắn ốc phức tạp (các tầng đơn giản hóa).",
+      "Các khối đổi mới (tư duy về vùng va chạm).",
+      "Các mô hình lặp lại (nhận dạng siêu mẫu)."
+    ]
+  },
+  {
+    "name": "Project Management",
+    "call": "/ck:project-management",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp quản lý dự án.",
+    "tasks": [
+      "Theo dõi tiến độ.",
+      "Cập nhật trạng thái kế hoạch.",
+      "Quản lý Nhiệm vụ Codex."
+    ]
+  },
+  {
+    "name": "Project Organization",
+    "call": "/ck:project-organization",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp tổ chức dự án.",
+    "tasks": [
+      "Sắp xếp các tập tin.",
+      "Thư mục và cấu trúc nội dung trong bất kỳ dự án nào.",
+      "Sử dụng khi tạo tệp."
+    ]
+  },
+  {
+    "name": "React Best Practices",
+    "call": "/ck:react-best-practices",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp các phương pháp hay nhất về vercel react.",
+    "tasks": [
+      "Nguyên tắc tối ưu hóa hiệu suất của React và Next.js từ Vercel Engineering.",
+      "Kỹ năng này nên được sử dụng khi viết, đánh giá hoặc tái cấu trúc mã React/Next.js để đảm bảo các mẫu hiệu suất tối ưu.",
+      "Kích hoạt các tác vụ liên quan đến thành phần React, trang Next.js, tìm nạp dữ liệu, tối ưu hóa gói hoặc cải thiện hiệu suất."
+    ]
+  },
+  {
+    "name": "Referral Program Building",
+    "call": "/ckm:referral-program-building",
+    "group": "Marketing Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp xây dựng chương trình giới thiệu.",
+    "tasks": [
+      "Xây dựng các chương trình giới thiệu cho SaaS/sản phẩm kỹ thuật số.",
+      "Bao gồm các cấu trúc phần thưởng (hai mặt, theo tầng, nhiều bước), lựa chọn nền tảng (Rewardful, LimitCandy, Viral Loops, FirstPromoter), triển khai kỹ thuật (theo dõi, phân bổ, mẫu API), ngăn chặn gian lận, mẫu email và số liệu KPI.",
+      "Sử dụng để thiết kế các vòng tăng trưởng lan truyền, triển khai các tính năng giới thiệu bạn bè hoặc tối ưu hóa hệ thống giới thiệu hiện có."
+    ]
+  },
+  {
+    "name": "Remotion",
+    "call": "/ck:remotion",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp # khi nào nên sử dụng.",
+    "tasks": [
+      "Các phương pháp hay nhất cho Remotion - Tạo video trong React.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Repomix",
+    "call": "/ck:repomix",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng repomix.",
+    "tasks": [
+      "Đóng gói toàn bộ kho mã thành các tệp thân thiện với AI bằng cách sử dụng Repomix.",
+      "Các khả năng bao gồm cơ sở mã gói với các mẫu bao gồm/loại trừ có thể tùy chỉnh, tạo nhiều định dạng đầu ra (XML, Markdown, văn bản thuần túy), bảo toàn cấu trúc và ngữ cảnh tệp, tối ưu hóa mức tiêu thụ AI bằng tính năng đếm mã thông báo, lọc theo loại tệp và thư mục, thêm tiêu đề và tóm tắt tùy chỉnh.",
+      "Sử dụng khi đóng gói cơ sở mã để phân tích AI, tạo ảnh chụp nhanh kho lưu trữ cho ngữ cảnh LLM, phân tích thư viện của bên thứ ba, chuẩn bị kiểm tra bảo mật, tạo bối cảnh tài liệu hoặc đánh giá các cơ sở mã không quen thuộc."
+    ]
+  },
+  {
+    "name": "Research",
+    "call": "/ck:research",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp nghiên cứu.",
+    "tasks": [
+      "Nghiên cứu các giải pháp kỹ thuật.",
+      "Phân tích kiến ​​trúc.",
+      "Thu thập yêu cầu một cách kỹ lưỡng."
+    ]
+  },
+  {
+    "name": "Retro",
+    "call": "/ck:retro",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kỹ năng cổ điển.",
+    "tasks": [
+      "Hồi tưởng chạy nước rút dựa trên dữ liệu.",
+      "Thu thập các số liệu git (cam kết, LỘC, điểm phát sóng, tỷ lệ rời bỏ), tính toán các chỉ số tình trạng có nguồn gốc và tạo báo cáo HTML hoặc đánh dấu có cấu trúc.",
+      "Sử dụng sau các lần chạy nước rút, đăng ký hàng tuần hoặc bất kỳ giai đoạn xem xét nào."
+    ]
+  },
+  {
+    "name": "Scout",
+    "call": "/ck:scout",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp trinh sát.",
+    "tasks": [
+      "Tìm kiếm cơ sở mã nhanh bằng cách sử dụng các tác nhân song song.",
+      "Sử dụng để khám phá tệp, thu thập ngữ cảnh nhiệm vụ, tìm kiếm nhanh trên các thư mục.",
+      "Hỗ trợ các tác nhân nội bộ (Khám phá) và bên ngoài (Gemini/OpenCode)."
+    ]
+  },
+  {
+    "name": "Security Scan",
+    "call": "/ck:security-scan",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp quét bảo mật.",
+    "tasks": [
+      "Quét cơ sở mã để tìm các lỗ hổng bảo mật.",
+      "Bí mật được mã hóa cứng.",
+      "Các vấn đề phụ thuộc và mẫu OWASP."
+    ]
+  },
+  {
+    "name": "Seo",
+    "call": "/ckm:seo",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp seo.",
+    "tasks": [
+      "Kiểm tra SEO.",
+      "Nghiên cứu từ khóa (API ReviewWeb.",
+      "Tối ưu hóa trên trang."
+    ]
+  },
+  {
+    "name": "Sequential Thinking",
+    "call": "/ck:sequential-thinking",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp tư duy tuần tự.",
+    "tasks": [
+      "Áp dụng cách giải quyết vấn đề có cấu trúc.",
+      "Phản ánh cho các nhiệm vụ phức tạp yêu cầu phân tích nhiều bước.",
+      "Khả năng sửa đổi và xác minh giả thuyết."
+    ]
+  },
+  {
+    "name": "Shader",
+    "call": "/ck:shader",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp trình tạo mảnh vỡ glsl.",
+    "tasks": [
+      "Viết trình đổ bóng phân đoạn GLSL cho đồ họa thủ tục.",
+      "Chủ đề: hình dạng (SDF), mẫu, nhiễu (Perlin/simplex/mobile), fBm, màu sắc (HSB/RGB), ma trận, độ dốc, hình động.",
+      "Sử dụng cho nghệ thuật tổng quát, kết cấu, hiệu ứng hình ảnh, trình đổ bóng WebGL, Three.js."
+    ]
+  },
+  {
+    "name": "Ship",
+    "call": "/ck:ship",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp tàu: đường ống tàu thống nhất.",
+    "tasks": [
+      "Ship pipe: hợp nhất chính, kiểm tra, đánh giá, cam kết, đẩy, PR.",
+      "Lệnh đơn từ nhánh tính năng đến URL PR.",
+      "Sử dụng để vận chuyển các bản phát hành chính thức tới các bản phát hành chính/chính hoặc beta tới các nhánh dev/beta."
+    ]
+  },
+  {
+    "name": "Shopify",
+    "call": "/ck:shopify",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp phát triển shopify.",
+    "tasks": [
+      "Xây dựng các ứng dụng, tiện ích mở rộng và chủ đề của Shopify bằng cách sử dụng API GraphQL/REST, Shopify CLI, các thành phần giao diện người dùng Polaris và tạo khuôn mẫu Liquid.",
+      "Các khả năng bao gồm phát triển ứng dụng với xác thực OAuth, tiện ích mở rộng giao diện người dùng thanh toán để tùy chỉnh luồng thanh toán, tiện ích mở rộng giao diện người dùng quản trị viên để tích hợp bảng điều khiển, tiện ích mở rộng POS cho bán lẻ, phát triển chủ đề với Liquid, quản lý webhook, tích hợp API thanh toán, quản lý sản phẩm/đơn hàng/khách hàng.",
+      "Sử dụng khi xây dựng ứng dụng Shopify, triển khai các tùy chỉnh thanh toán, tạo giao diện quản trị, phát triển chủ đề, tích hợp xử lý thanh toán, quản lý dữ liệu cửa hàng qua API hoặc mở rộng chức năng Shopify."
+    ]
+  },
+  {
+    "name": "Skill Creator",
+    "call": "/ck:skill-creator",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp người tạo kỹ năng.",
+    "tasks": [
+      "Tạo hoặc cập nhật các kỹ năng Codex được tối ưu hóa cho điểm chuẩn Skillmark.",
+      "Sử dụng cho các kỹ năng mới.",
+      "Kịch bản kỹ năng."
+    ]
+  },
+  {
+    "name": "Slides",
+    "call": "/ckm:slides",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp slide.",
+    "tasks": [
+      "Tạo bản trình bày HTML chiến lược với Chart.",
+      "Mã thông báo thiết kế.",
+      "Bố cục đáp ứng."
+    ]
+  },
+  {
+    "name": "Social",
+    "call": "/ckm:social",
+    "group": "Marketing Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp xã hội.",
+    "tasks": [
+      "Tạo nội dung truyền thông xã hội.",
+      "Lên lịch.",
+      "Tích hợp API cho X/Twitter."
+    ]
+  },
+  {
+    "name": "Stitch",
+    "call": "/ck:stitch",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp google stitch - thế hệ thiết kế ai.",
+    "tasks": [
+      "Thế hệ thiết kế AI với Google Stitch.",
+      "Tạo các thiết kế giao diện người dùng từ lời nhắc văn bản, xuất Tailwind/HTML/DESIGN.md, điều phối quy trình thiết kế thành mã.",
+      "Sử dụng để tạo mẫu nhanh, tạo giao diện người dùng, khám phá thiết kế."
+    ]
+  },
+  {
+    "name": "Storage",
+    "call": "/ckm:storage",
+    "group": "Marketing Kit",
+    "type": "Social",
+    "title": "Tôi cung cấp kỹ năng lưu trữ.",
+    "tasks": [
+      "Tích hợp lưu trữ đối tượng tương thích với S3 cho tài sản tiếp thị.",
+      "Hoạt động với Cloudflare R2.",
+      "Backblaze B2."
+    ]
+  },
+  {
+    "name": "Tanstack",
+    "call": "/ck:tanstack",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp tanstack.",
+    "tasks": [
+      "Xây dựng với TanStack Start (khung React toàn ngăn xếp).",
+      "TanStack Form (quản lý biểu mẫu không đầu) và TanStack AI (truyền phát/trò chuyện AI).",
+      "Sử dụng khi tạo dự án TanStack."
+    ]
+  },
+  {
+    "name": "Team",
+    "call": "/ck:team",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp nhóm đặc vụ - công cụ điều phối bản địa ck.",
+    "tasks": [
+      "Điều phối các Nhóm đại lý để cộng tác song song nhiều phiên.",
+      "Sử dụng để nghiên cứu.",
+      "Triển khai."
+    ]
+  },
+  {
+    "name": "Template Skill",
+    "call": "/ck:template-skill",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp chèn hướng dẫn bên dưới.",
+    "tasks": [
+      "Thay thế bằng mô tả về kỹ năng và khi nào Codex nên sử dụng nó.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Test",
+    "call": "/ck:test",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kiểm tra.",
+    "tasks": [
+      "Kiểm tra quy trình làm việc của ClaudeKit.",
+      "Chạy thử nghiệm giao diện người dùng trên trang web.",
+      "Xác thực các lệnh/đại lý/kỹ năng tiếp thị bằng xác minh từng bước."
+    ]
+  },
+  {
+    "name": "Threejs",
+    "call": "/ck:threejs",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp phát triển three.js.",
+    "tasks": [
+      "Xây dựng ứng dụng web 3D với Three.",
+      "Js (WebGL/WebGPU).",
+      "556 có thể tìm kiếm được Hành động: tạo cảnh 3D."
+    ]
+  },
+  {
+    "name": "Ui Styling",
+    "call": "/ck:ui-styling",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp kỹ năng tạo kiểu giao diện người dùng.",
+    "tasks": [
+      "Tạo giao diện người dùng đẹp.",
+      "Dễ tiếp cận với các thành phần shadcn/ui (được xây dựng trên Radix UI + Tailwind).",
+      "Kiểu dáng ưu tiên tiện ích CSS của Tailwind và thiết kế hình ảnh dựa trên canvas."
+    ]
+  },
+  {
+    "name": "Ui Ux Pro Max",
+    "call": "/ck:ui-ux-pro-max",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp ui/ux pro max - design intelligence.",
+    "tasks": [
+      "Thiết kế UI/UX thông minh cho web và di động.",
+      "Bao gồm hơn 50 kiểu, 161 bảng màu, 57 cặp phông chữ, 161 loại sản phẩm, 99 hướng dẫn UX và 25 loại biểu đồ trên 10 ngăn xếp (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui và HTML/CSS).",
+      "Hành động: lập kế hoạch, xây dựng, tạo, thiết kế, triển khai, xem xét, sửa chữa, cải tiến, tối ưu hóa, nâng cao, tái cấu trúc và kiểm tra mã UI/UX."
+    ]
+  },
+  {
+    "name": "Use Mcp",
+    "call": "/ck:use-mcp",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp # các bước thực hiện.",
+    "tasks": [
+      "Sử dụng các công cụ của máy chủ Giao thức bối cảnh mô hình (MCP).",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Video",
+    "call": "/ckm:video",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp video.",
+    "tasks": [
+      "Chiến lược tiếp thị video.",
+      "Viết kịch bản.",
+      "Bảng phân cảnh."
+    ]
+  },
+  {
+    "name": "Watzup",
+    "call": "/ck:watzup",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp ck:watzup.",
+    "tasks": [
+      "💡 Xem lại những thay đổi gần đây và kết thúc công việc.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Web Design Guidelines",
+    "call": "/ck:web-design-guidelines",
+    "group": "Engineer Kit",
+    "type": "Content",
+    "title": "Tôi cung cấp nguyên tắc giao diện web.",
+    "tasks": [
+      "Xem lại mã giao diện người dùng để tuân thủ Nguyên tắc giao diện web.",
+      "Sử dụng khi được yêu cầu xem lại giao diện người dùng của tôi.",
+      "Kiểm tra khả năng truy cập."
+    ]
+  },
+  {
+    "name": "Web Frameworks",
+    "call": "/ck:web-frameworks",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp nhóm kỹ năng web frameworks.",
+    "tasks": [
+      "Xây dựng các ứng dụng web đầy đủ hiện đại với Next.",
+      "Js (Bộ định tuyến ứng dụng.",
+      "Thành phần máy chủ."
+    ]
+  },
+  {
+    "name": "Web Testing",
+    "call": "/ck:web-testing",
+    "group": "Engineer Kit",
+    "type": "Analytics",
+    "title": "Tôi cung cấp kỹ năng kiểm tra web.",
+    "tasks": [
+      "Kiểm tra web với Playwright, Vitest, k6.",
+      "Thử nghiệm E2E/đơn vị/tích hợp/tải/bảo mật/trực quan/a11y.",
+      "Sử dụng để tự động hóa thử nghiệm, không ổn định, Core Web Vitals, cử chỉ trên thiết bị di động, nhiều trình duyệt."
+    ]
+  },
+  {
+    "name": "Worktree",
+    "call": "/ck:worktree",
+    "group": "Engineer Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp #quy trình làm việc.",
+    "tasks": [
+      "Tạo cây công việc git biệt lập để phát triển song song.",
+      "Hỗ trợ quy trình tự động hóa.",
+      "Nâng cao hiệu suất công việc."
+    ]
+  },
+  {
+    "name": "Write",
+    "call": "/ckm:write",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp # lệnh phụ.",
+    "tasks": [
+      "Viết bản sao sáng tạo.",
+      "Bài đăng trên blog.",
+      "Nội dung CRO."
+    ]
+  },
+  {
+    "name": "Youtube",
+    "call": "/ckm:youtube",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp youtube.",
+    "tasks": [
+      "Chuyển đổi video YouTube thành bài đăng trên blog.",
+      "Đồ họa thông tin.",
+      "Nội dung xã hội."
+    ]
+  },
+  {
+    "name": "Youtube Thumbnail Design",
+    "call": "/ckm:youtube-thumbnail-design",
+    "group": "Marketing Kit",
+    "type": "SEO",
+    "title": "Tôi cung cấp thiết kế hình thu nhỏ của youtube - hình thu nhỏ được tối ưu hóa cho ctr.",
+    "tasks": [
+      "Thiết kế hình thu nhỏ của YouTube với 17 kiểu, hướng dẫn dành riêng cho từng thị trường và tối ưu hóa CTR.",
+      "Tạo hình thu nhỏ hoàn chỉnh có văn bản bằng Gemini Nano Banana Pro (hiển thị văn bản 4K).",
+      "Hành động: thiết kế, tạo, tạo hình thu nhỏ."
+    ]
+  }
+];
+
+    const AgentCard = ({ agent, getIconForType }) => {
+      const [copied, setCopied] = React.useState(false);
+
+      const handleCopy = () => {
+        navigator.clipboard.writeText(agent.call);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <div className="bg-white rounded-xl p-5 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all group flex flex-col h-full relative cursor-default">
+          <div className="flex items-start justify-between mb-3">
+            <div className={`text-xs font-medium px-2 py-1 rounded flex items-center w-max ${
+              agent.group === 'Marketing Kit' 
+                ? 'bg-rose-50 text-rose-600' 
+                : 'bg-blue-50 text-blue-600'
+            }`}>
+              {getIconForType(agent.type)}
+              {agent.type}
+            </div>
+          </div>
+
+          <h3 className="font-semibold text-gray-900 text-lg mb-1">{agent.name}</h3>
+          <p className="text-sm font-semibold text-gray-400 mb-3 block truncate" title={agent.call}>
+            <span className={`inline-block px-1.5 py-0.5 rounded text-xs ${agent.call.startsWith('@') ? 'bg-amber-100/50 text-amber-700' : 'bg-gray-100 text-gray-700'} font-mono`}>
+              {agent.call}
+            </span>
+          </p>
+
+          <div className="mb-4 flex-1">
+            <div className="mb-3">
+              <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-1">Tôi là ai?</p>
+              <p className="text-sm text-gray-800 font-medium border-l-2 border-blue-200 pl-2">
+                {agent.title}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold mb-2">Tôi giúp gì cho bạn?</p>
+              <ul className="text-sm text-gray-500 space-y-1.5">
+                {agent.tasks.map((task, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="material-symbols-outlined text-green-500 shrink-0 mt-0.5" style={{fontSize: '16px'}}>check_circle</span>
+                    <span className="leading-tight">{task}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <button 
+            className={`w-full mt-auto text-xs font-medium tracking-wide py-2 rounded-lg transition-colors border flex items-center justify-center gap-1.5 ${
+              copied 
+              ? 'bg-green-50 border-green-200 text-green-600 opacity-100' 
+              : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border-gray-100 opacity-60 group-hover:opacity-100'
+            }`}
+            onClick={handleCopy}
+          >
+             {copied ? (
+               <>
+                 <span className="material-symbols-outlined" style={{fontSize: '16px'}}>check</span> Đã copy!
+               </>
+             ) : (
+               <>
+                 <span className="material-symbols-outlined" style={{fontSize: '16px'}}>content_copy</span> Copy Lệnh
+               </>
+             )}
+          </button>
+        </div>
+      );
+    };
+
+    const SkillDashboard = () => {
+      const [searchQuery, setSearchQuery] = React.useState('');
+      const [activeGroup, setActiveGroup] = React.useState('All');
+      const [activeTab, setActiveTab] = React.useState('All');
+
+      const [problemQuery, setProblemQuery] = React.useState('');
+      const [suggestedAgent, setSuggestedAgent] = React.useState(null);
+      const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+      const [hasSearched, setHasSearched] = React.useState(false);
+
+      const handleSuggest = () => {
+        if (!problemQuery.trim()) {
+          setSuggestedAgent(null);
+          setHasSearched(false);
+          return;
+        }
+        setIsAnalyzing(true);
+        
+        setTimeout(() => {
+          const query = problemQuery.toLowerCase().trim();
+          const words = query.split(/\s+/).filter(w => w.length > 2);
+          
+          let bestMatch = null;
+          let maxScore = 0;
+
+          agentsData.forEach(agent => {
+            let score = 0;
+            const tData = (agent.title + " " + agent.tasks.join(" ") + " " + agent.name + " " + agent.type).toLowerCase();
+            
+            words.forEach(w => {
+              if (tData.includes(w)) {
+                const count = (tData.split(w).length - 1);
+                score += count * (agent.title.toLowerCase().includes(w) ? 2 : 1);
+              }
+            });
+            
+            if (score > maxScore) {
+              maxScore = score;
+              bestMatch = agent;
+            }
+          });
+
+          setSuggestedAgent(maxScore > 0 ? bestMatch : null);
+          setIsAnalyzing(false);
+          setHasSearched(true);
+        }, 500); 
+      };
+
+      // Tự động detect tabs
+      const allTabs = ['All', ...new Set(agentsData.map(item => item.type))].sort();
+
+      const filteredAgents = agentsData.filter(agent => {
+        const matchSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            agent.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            agent.call.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchGroup = activeGroup === 'All' ? true : agent.group === activeGroup;
+        const matchTab = activeTab === 'All' ? true : agent.type === activeTab;
+        
+        return matchSearch && matchGroup && matchTab;
+      });
+
+      const marketingCount = agentsData.filter(a => a.group === 'Marketing Kit').length;
+      const engineerCount = agentsData.filter(a => a.group === 'Engineer Kit').length;
+
+      // Icon mapper
+      const getIconForType = (type) => {
+        const iconStyle = "material-symbols-outlined mr-1.5 flex-shrink-0";
+        const iconSize = { fontSize: '18px' };
+        switch(type) {
+          case 'Analytics': return <span className={iconStyle} style={iconSize}>bar_chart</span>;
+          case 'Campaign': return <span className={iconStyle} style={iconSize}>track_changes</span>;
+          case 'SEO': return <span className={iconStyle} style={iconSize}>search</span>;
+          case 'Social': return <span className={iconStyle} style={iconSize}>share</span>;
+          case 'Content': return <span className={iconStyle} style={iconSize}>description</span>;
+          case 'Email': return <span className={iconStyle} style={iconSize}>mail</span>;
+          case 'Sale': return <span className={iconStyle} style={iconSize}>attach_money</span>;
+          case 'Design': return <span className={iconStyle} style={iconSize}>edit</span>;
+          case 'Management': return <span className={iconStyle} style={iconSize}>work</span>;
+          case 'Marketing': return <span className={iconStyle} style={iconSize}>campaign</span>;
+          case 'Architecture': return <span className={iconStyle} style={iconSize}>layers</span>;
+          case 'Backend': return <span className={iconStyle} style={iconSize}>dns</span>;
+          case 'Frontend': return <span className={iconStyle} style={iconSize}>dashboard</span>;
+          case 'Testing': return <span className={iconStyle} style={iconSize}>check_circle</span>;
+          case 'Workflow': return <span className={iconStyle} style={iconSize}>account_tree</span>;
+          case 'Ads': return <span className={iconStyle} style={iconSize}>ads_click</span>;
+          default: return <span className={iconStyle} style={iconSize}>bolt</span>;
+        }
+      };
+
+      return (
+        <div className="flex bg-gray-50 h-screen font-sans overflow-hidden">
+          {/* SIDEBAR */}
+          <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-2 cursor-pointer" onClick={() => {setActiveGroup('All'); setActiveTab('All')}}>
+                <div className="w-8 h-8 rounded-lg bg-black flex items-center justify-center text-white font-bold text-sm">
+                  CK
+                </div>
+                <div>
+                  <h1 className="text-sm font-semibold text-gray-900 leading-tight">ClaudeKit Map</h1>
+                  <p className="text-xs text-gray-500">Opti M.KI Engine</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pt-2 px-4 scrollbar-hide">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Workspaces</h2>
+                  <ul className="space-y-1 text-sm">
+                    <li>
+                      <button 
+                        onClick={() => setActiveGroup('Marketing Kit')}
+                        className={`w-full flex items-center justify-between px-2 py-2 rounded-md transition-colors ${activeGroup === 'Marketing Kit' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="material-symbols-outlined" style={{fontSize: '20px'}}>lightbulb</span>
+                          Marketing Kit
+                        </span>
+                        <span className="bg-gray-100 text-gray-500 py-0.5 px-2 rounded-full text-xs">{marketingCount}</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={() => setActiveGroup('Engineer Kit')}
+                        className={`w-full flex items-center justify-between px-2 py-2 rounded-md transition-colors ${activeGroup === 'Engineer Kit' ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className="material-symbols-outlined" style={{fontSize: '20px'}}>code</span>
+                          Engineer Kit
+                        </span>
+                        <span className="bg-gray-100 text-gray-500 py-0.5 px-2 rounded-full text-xs">{engineerCount}</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* AI Suggestion */}
+                <div className="pt-4 border-t border-gray-100">
+                  <h2 className="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-2 px-2 flex items-center gap-1.5">
+                    <span className="material-symbols-outlined shrink-0" style={{fontSize: '16px'}}>smart_toy</span>
+                    Hỏi AI Gợi Ý Lệnh
+                  </h2>
+                  <div className="px-2">
+                    <textarea 
+                      placeholder="Mô tả vấn đề (vd: xếp hạng từ khóa)..."
+                      className="w-full text-xs box-border border border-gray-200 rounded-md p-2 bg-gray-50 focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none h-16 mb-2 transition-colors placeholder-gray-400"
+                      value={problemQuery}
+                      onChange={(e) => {
+                         setProblemQuery(e.target.value);
+                         if(e.target.value === '') {
+                             setSuggestedAgent(null);
+                             setHasSearched(false);
+                         }
+                      }}
+                    ></textarea>
+                    <button 
+                      onClick={handleSuggest}
+                      disabled={isAnalyzing || !problemQuery.trim()}
+                      className="w-full bg-gray-900 text-white text-xs font-medium py-1.5 rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 shadow-sm"
+                    >
+                      {isAnalyzing ? (
+                        <span className="material-symbols-outlined animate-spin" style={{fontSize: '14px'}}>sync</span>
+                      ) : (
+                        <span className="material-symbols-outlined" style={{fontSize: '14px'}}>search_insights</span>
+                      )}
+                      {isAnalyzing ? 'Đang phân tích...' : 'Tìm lệnh xử lý'}
+                    </button>
+
+                    {suggestedAgent && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-md box-border break-words">
+                        <p className="text-[10px] text-blue-600 font-bold mb-1 tracking-wide">💡 LỆNH PHÙ HỢP NHẤT:</p>
+                        <p className="text-xs font-bold text-gray-900 mb-0.5">{suggestedAgent.name}</p>
+                        <p className="text-[11px] text-gray-600 mb-2 line-clamp-2 leading-tight" title={suggestedAgent.title}>{suggestedAgent.title}</p>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(suggestedAgent.call);
+                            // We can select the parent card text or just show a small native popup if needed, or rely on clipboard only
+                            alert('Đã copy lệnh: ' + suggestedAgent.call);
+                          }}
+                          className="w-full bg-white border border-blue-200 text-blue-700 text-[11px] py-1 rounded shadow-sm hover:bg-blue-100 transition-colors flex items-center justify-center gap-1 font-semibold box-border"
+                        >
+                          <span className="material-symbols-outlined" style={{fontSize: '14px'}}>content_copy</span> Copy Lệnh
+                        </button>
+                      </div>
+                    )}
+                    {suggestedAgent === null && hasSearched && !isAnalyzing && (
+                        <div className="mt-3 p-2 text-[11px] text-center text-rose-500 bg-rose-50 border border-rose-100 rounded-md box-border">
+                          Không tìm thấy Agent nào. Hãy thử từ khóa khác!
+                        </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-gray-100 mt-auto">
+              <div className="flex items-center gap-3">
+                <img src={`https://ui-avatars.com/api/?name=MK&background=0D8ABC&color=fff`} alt="User" className="w-8 h-8 rounded-full" />
+                <div className="text-sm">
+                  <p className="font-medium text-gray-900">Marketing Exec.</p>
+                  <p className="text-xs text-gray-500">Commander</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* MAIN CONTENT */}
+          <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+            
+            {/* Header / Filter area */}
+            <div className="px-8 pt-8 pb-4 shrink-0 bg-gray-50/80 backdrop-blur-md sticky top-0 z-10">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
+                  {activeGroup === 'All' ? 'Tất cả Agents & Skills' : activeGroup} 
+                  <span className="ml-2 text-sm font-medium text-gray-400 bg-gray-200 px-2 py-1 rounded-full">{filteredAgents.length}</span>
+                </h1>
+                
+                <div className="relative w-72">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                     <span className="material-symbols-outlined text-gray-400" style={{fontSize: '20px'}}>search</span>
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Tìm theo tên hoặc lệnh gọi..."
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm bg-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-shadow"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="flex items-center space-x-2 overflow-x-auto scrollbar-hide flex-nowrap pb-1">
+                {allTabs.map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                      activeTab === tab 
+                      ? 'bg-gray-900 text-white' 
+                      : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Content List */}
+            <div className="flex-1 px-8 pb-12 overflow-y-auto">
+              {filteredAgents.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-64 text-center">
+                  <span className="material-symbols-outlined text-gray-300 mb-4" style={{fontSize: '48px'}}>inbox</span>
+                  <p className="text-gray-500 font-medium">Không tìm thấy Agent hay Skill nào phù hợp.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredAgents.map((agent, index) => (
+                    <AgentCard key={index} agent={agent} getIconForType={getIconForType} />
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<SkillDashboard />);
+  </script>
+</body>
+</html>
