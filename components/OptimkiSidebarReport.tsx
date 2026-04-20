@@ -1000,7 +1000,7 @@ function PriorityBar({ score }: { score: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <div
           key={i}
-          className="h-1.5 w-6 rounded-full"
+          className="h-1.5 w-4 rounded-full"
           style={{
             backgroundColor: i <= score ? SWOT_BORDER : '#E8E5E1',
             opacity: i <= score ? 1 : 0.3,
@@ -1011,32 +1011,106 @@ function PriorityBar({ score }: { score: number }) {
   );
 }
 
-function extractFourPMetadata(lines: string[]): { priority: number; label?: string; filteredLines: string[] } {
+function BudgetBar({ allocations }: { allocations: Array<{ label: string; percent: number }> }) {
+  if (!allocations.length) return null;
+
+  return (
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[9px] font-bold uppercase tracking-wider text-stone-500">
+          Phân bổ ngân sách
+        </span>
+        <span className="text-[9px] font-bold text-stone-400">100%</span>
+      </div>
+      <div className="h-1.5 w-full flex rounded-full overflow-hidden bg-stone-100">
+        {allocations.map((item, i) => (
+          <div
+            key={i}
+            style={{ 
+              width: `${item.percent}%`, 
+              backgroundColor: BUDGET_SCALE[i % BUDGET_SCALE.length] 
+            }}
+            title={`${item.label}: ${item.percent}%`}
+          />
+        ))}
+      </div>
+      <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1">
+        {allocations.map((item, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div 
+              className="h-1.5 w-1.5 rounded-full" 
+              style={{ backgroundColor: BUDGET_SCALE[i % BUDGET_SCALE.length] }} 
+            />
+            <span className="text-[9.5px] font-medium text-stone-500 whitespace-nowrap">
+              {item.label} <span className="text-stone-400">({item.percent}%)</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const BUDGET_SCALE = [
+  '#1C1917', // Stone 950 (Primary)
+  '#44403C', // Stone 800
+  '#78716C', // Stone 600
+  '#A8A29E', // Stone 400
+  '#D6D3D1', // Stone 200
+];
+
+function extractFourPMetadata(lines: string[]): { 
+  priority: number; 
+  label?: string; 
+  budgetAllocations: Array<{ label: string; percent: number }>; 
+  filteredLines: string[] 
+} {
   let priority = 0;
   let label: string | undefined;
+  const budgetAllocations: Array<{ label: string; percent: number }> = [];
   const filteredLines: string[] = [];
 
   const priorityPattern = /ưu tiên\s*[:\-]?\s*(\d+)/i;
-  const labelsPattern = /(điểm yếu nhất|ngân sách|quan trọng nhất|mục tiêu chính)/i;
+  const budgetLinePattern = /ngân sách/i;
+  // Regex to match "Label (Value%)" or "Label: Value%"
+  const allocationPattern = /([A-ZÀ-ỴĂÂĐÊÔƠƯ\s&/]+?)\s*[:(]?\s*(\d+)\s*%\s*\)?/gi;
 
   for (const line of lines) {
     const pMatch = line.match(priorityPattern);
-    const lMatch = line.match(labelsPattern);
+    const bMatch = line.match(budgetLinePattern);
 
     if (pMatch && !priority) {
       priority = parseInt(pMatch[1], 10);
       continue;
     }
 
-    if (lMatch && !label) {
-      label = line.toUpperCase();
-      continue;
+    if (bMatch) {
+      const parts = line.split(':');
+      if (parts[0].toLowerCase().includes('ngân sách')) {
+        // Extract high-level label if exists like "TỪ 217 TRIÊU"
+        const topLabel = parts[0].trim().toUpperCase();
+        if (topLabel.length > 10) label = topLabel;
+      }
+      
+      let match;
+      while ((match = allocationPattern.exec(line)) !== null) {
+        const itemLabel = match[1].trim();
+        const percent = parseInt(match[2], 10);
+        if (itemLabel && percent > 0) {
+          budgetAllocations.push({
+            label: itemLabel,
+            percent,
+          });
+        }
+      }
+      
+      if (budgetAllocations.length > 0) continue;
     }
 
     filteredLines.push(line);
   }
 
-  return { priority, label, filteredLines };
+  return { priority, label, budgetAllocations, filteredLines };
 }
 
 function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
@@ -1053,7 +1127,12 @@ function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
         const displayTitle = getFourPDisplayTitle(card);
         const vietnameseLabel = getFourPVietnameseLabel(displayTitle);
         
-        const { priority: extractedPriority, label: metaLabel, filteredLines } = extractFourPMetadata(card.lines);
+        const { 
+          priority: extractedPriority, 
+          label: metaLabel, 
+          budgetAllocations, 
+          filteredLines 
+        } = extractFourPMetadata(card.lines);
         const priority = extractedPriority || (index + 1);
 
         const displayBlocks = buildFourPBlocks(
@@ -1067,40 +1146,60 @@ function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
         return (
           <article
             key={`4p-${card.badge}-${card.title}-${index}`}
-            className={`relative flex min-h-[260px] flex-col p-6 xl:p-8 ${
+            className={`relative flex min-h-[220px] flex-col p-5 xl:p-6 ${
               isLeft ? 'xl:border-r' : ''
             } ${isTop ? 'border-b xl:border-b' : ''}`}
             style={{ borderColor: SWOT_BORDER }}
           >
-            <div className="mb-8 flex flex-col items-start gap-1">
-              <div className="text-[10px] font-medium tracking-[0.2em] text-stone-400">
+            <div className="mb-4 flex flex-col items-start gap-0.5">
+              <div className="text-[9px] font-medium tracking-[0.2em] text-stone-400">
                 0{index + 1}/04
               </div>
               <h3 
-                className="text-[32px] font-bold tracking-tight text-stone-900 font-sans"
-                style={{ lineHeight: 1.1 }}
+                className="text-[22px] font-bold tracking-tight text-stone-900 font-sans" 
+                style={{ lineHeight: 1.2 }}
               >
                 {displayTitle}
               </h3>
             </div>
 
-            <div className="mb-8 flex items-center gap-4">
+            <div className="mb-6 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                    ƯU TIÊN {priority}/5
-                  </span>
-                  {metaLabel && (
-                    <>
-                      <span className="text-stone-300">—</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                        {metaLabel}
-                      </span>
-                    </>
-                  )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-stone-500">
+                      ƯU TIÊN {priority}/5
+                    </span>
+                    {metaLabel && !metaLabel.includes('NGÂN SÁCH') && (
+                      <>
+                        <span className="text-stone-300">—</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-stone-400">
+                          {metaLabel}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <span className="text-[9px] font-bold text-stone-300">Strategic Weight</span>
                 </div>
                 <PriorityBar score={priority} />
               </div>
+
+              {budgetAllocations.length > 0 ? (
+                 <div className="pt-3 border-t border-stone-100/50">
+                    <BudgetBar allocations={budgetAllocations} />
+                    {metaLabel && metaLabel.includes('NGÂN SÁCH') && (
+                      <div className="mt-2 text-[9px] font-bold uppercase tracking-widest text-stone-400 bg-stone-50 py-0.5 px-1.5 rounded-md inline-block">
+                        {metaLabel}
+                      </div>
+                    )}
+                 </div>
+              ) : metaLabel && (
+                <div className="pt-3 border-t border-stone-100/50">
+                  <div className="text-[9px] font-bold uppercase tracking-widest text-stone-400">
+                    {metaLabel}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="mt-0 space-y-4">
