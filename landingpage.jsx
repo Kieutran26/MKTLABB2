@@ -265,7 +265,7 @@ const STAT_VALUE_CLASS = {
 function onAppLink(e, setView) {
   if (setView) {
     e.preventDefault();
-    setView('HOME_DASHBOARD');
+    setView('LOGIN');
   }
 }
 

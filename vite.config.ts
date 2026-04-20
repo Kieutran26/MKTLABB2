@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
             proxy.on('proxyReq', (proxyReq: ClientRequest) => {
               if (geminiProxyKey) {
                 proxyReq.setHeader('x-goog-api-key', geminiProxyKey);
-                
+
                 const maskedKey = `${geminiProxyKey.slice(0, 4)}...${geminiProxyKey.slice(-4)}`;
                 console.info(`[Gemini Proxy] Attaching API Key: ${maskedKey}`);
               } else {

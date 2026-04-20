@@ -82,10 +82,10 @@ function AppContent() {
         return;
       }
     } else {
-      // If NOT logged in and trying to access protected routes, go to welcome
+      // If NOT logged in and trying to access protected routes, go to login
       const isPublicPath = path === '/welcome' || path === '/login';
       if (!isPublicPath && path !== '/') {
-        navigate('/welcome', { replace: true });
+        navigate('/login', { replace: true });
         return;
       }
     }

@@ -50,6 +50,8 @@ const BORDER_SUBTLE = '#E8E5E1';
 const SWOT_BORDER = '#1c1917';
 const SWOT_SOFT = 'rgba(28, 25, 23, 0.10)';
 const SWOT_SOFT_TEXT = 'rgba(28, 25, 23, 0.78)';
+const CMO_SECTION_CHIP_BG = '#f5f5f4';
+const CMO_SECTION_CHIP_TEXT = '#1c1917';
 const MIN_RERENDER_TEXT_LEN = 80;
 
 function extractPlainTextFromReportHtml(html: string): string {
@@ -85,7 +87,7 @@ function textOf(node: Element | null | undefined): string {
 function normalizeLine(text: string): string {
   return text
     .replace(/\s+/g, ' ')
-    .replace(/^[\s"'“”‘’•·\-–—:;,.!?()[\]{}]+|[\s"'“”‘’•·\-–—:;,.!?()[\]{}]+$/gu, '')
+    .replace(/^[\s"'“”‘’•·\-–—:;,.!?\[\]{}]+|[\s"'“”‘’•·\-–—:;,.!?\[\]{}]+$/gu, '')
     .trim();
 }
 
@@ -851,6 +853,199 @@ function stripAidaVietnamesePrefix(line: string, vietnameseLabel: string): strin
   return cleaned || line;
 }
 
+function getFiveWDisplayTitle(card: ParsedCard): string {
+  const badge = (card.badge ?? '').trim();
+  return badge || normalizeLine(card.title || '');
+}
+
+function getFiveWHeaderText(title: string): string {
+  const normalized = title.toLowerCase();
+  if (normalized === 'what' || normalized.includes('cái gì')) return 'WHAT • CÁI GÌ';
+  if (normalized === 'why' || normalized.includes('tại sao')) return 'WHY • TẠI SAO';
+  if (normalized === 'who' || normalized === 'ai') return 'WHO • AI';
+  if (normalized === 'when' || normalized.includes('khi nào')) return 'WHEN • KHI NÀO';
+  if (normalized === 'where' || normalized.includes('ở đâu')) return 'WHERE • Ở ĐÂU';
+  if (normalized === 'how' || normalized.includes('làm sao')) return 'HOW • LÀM SAO';
+  return normalizeLine(title);
+}
+
+function sortFiveWCards(cards: ParsedCard[]): ParsedCard[] {
+  const orderMap: Record<string, number> = {
+    WHAT: 0,
+    WHY: 1,
+    WHO: 2,
+    WHEN: 3,
+    WHERE: 4,
+    HOW: 5,
+  };
+
+  return [...cards].sort((a, b) => {
+    const ai = orderMap[getFiveWDisplayTitle(a).toUpperCase()] ?? 99;
+    const bi = orderMap[getFiveWDisplayTitle(b).toUpperCase()] ?? 99;
+    return ai - bi;
+  });
+}
+
+function sortSmartCards(cards: ParsedCard[]): ParsedCard[] {
+  const orderMap: Record<string, number> = {
+    S: 0,
+    M: 1,
+    A: 2,
+    R: 3,
+    T: 4,
+    SPECIFIC: 0,
+    MEASURABLE: 1,
+    ACHIEVABLE: 2,
+    RELEVANT: 3,
+    TIMEBOUND: 4,
+    'TIME-BOUND': 4,
+  };
+
+  return [...cards].sort((a, b) => {
+    const aKey = ((a.badge ?? '').trim().toUpperCase() || normalizeLine(a.title).toUpperCase());
+    const bKey = ((b.badge ?? '').trim().toUpperCase() || normalizeLine(b.title).toUpperCase());
+    const ai = orderMap[aKey] ?? 99;
+    const bi = orderMap[bKey] ?? 99;
+    return ai - bi;
+  });
+}
+
+function getSmartDisplayTitle(card: ParsedCard): string {
+  const rawTitle = normalizeLine(card.title || '');
+  if (
+    rawTitle &&
+    rawTitle.toLowerCase() !== 'nội dung' &&
+    rawTitle.toLowerCase() !== 'ná»™i dung'
+  ) {
+    return rawTitle;
+  }
+
+  const firstLine = normalizeLine(card.lines[0] ?? '');
+  if (/specific/i.test(firstLine)) return 'Specific';
+  if (/measurable/i.test(firstLine)) return 'Measurable';
+  if (/achievable/i.test(firstLine)) return 'Achievable';
+  if (/relevant/i.test(firstLine)) return 'Relevant';
+  if (/time[\s-]?bound/i.test(firstLine)) return 'Time-bound';
+
+  const badge = (card.badge ?? '').trim().toUpperCase();
+  if (badge === 'S') return 'Specific';
+  if (badge === 'M') return 'Measurable';
+  if (badge === 'A') return 'Achievable';
+  if (badge === 'R') return 'Relevant';
+  if (badge === 'T') return 'Time-bound';
+
+  return rawTitle || 'SMART';
+}
+
+function getSmartVietnameseLabel(title: string): string {
+  const normalized = title.toLowerCase();
+  if (normalized.includes('specific')) return 'Cụ thể';
+  if (normalized.includes('measurable')) return 'Đo lường';
+  if (normalized.includes('achievable')) return 'Khả thi';
+  if (normalized.includes('relevant')) return 'Liên quan';
+  if (normalized.includes('time-bound')) return 'Thời hạn';
+  return '';
+}
+
+function getSmartPercent(card: ParsedCard): number {
+  for (const line of card.lines) {
+    const match = line.match(/(\d{1,3})\s*%/);
+    if (match) {
+      const value = parseInt(match[1], 10);
+      if (!Number.isNaN(value)) return Math.max(0, Math.min(100, value));
+    }
+  }
+  return 0;
+}
+
+function stripSmartPrefix(line: string, title: string): string {
+  const normalized = normalizeLine(line);
+  if (!normalized) return '';
+
+  const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const patterns = [
+    new RegExp(`^\\d+%\\s*[SMART]?\\s*${escapedTitle}\\s*`, 'i'),
+    new RegExp(`^[SMART]?\\s*${escapedTitle}\\s*`, 'i'),
+  ];
+
+  for (const pattern of patterns) {
+    const cleaned = normalized.replace(pattern, '').trim();
+    if (cleaned !== normalized) return cleaned || normalized;
+  }
+
+  return normalized;
+}
+
+function getSmartAccent(title: string): string {
+  const normalized = title.toLowerCase();
+  if (normalized.includes('specific')) return '#1c1917';
+  if (normalized.includes('measurable')) return '#36302d';
+  if (normalized.includes('achievable')) return '#504844';
+  if (normalized.includes('relevant')) return '#6a625d';
+  if (normalized.includes('time-bound')) return '#1c1917';
+  return SWOT_BORDER;
+}
+
+function SmartRing({ value, accent }: { value: number; accent: string }) {
+  const sectionChipBg = '#f5f5f4';
+  const sectionChipText = '#1c1917';
+
+  return (
+    <div
+      className="relative h-16 w-16 rounded-full"
+      style={{
+        background: `conic-gradient(${accent} 0deg ${value * 3.6}deg, #ece7df ${value * 3.6}deg 360deg)`,
+      }}
+    >
+      <div className="absolute inset-[6px] rounded-full bg-white" />
+      <div className="absolute inset-0 flex items-center justify-center text-[14px] font-bold tracking-tight text-stone-800">
+        {value}%
+      </div>
+    </div>
+  );
+}
+
+function isLikelyFiveWHeading(line: string): boolean {
+  const normalized = normalizeLine(line);
+  if (!normalized) return false;
+
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+  const looksLikeSentence = /[.!?]/.test(normalized);
+
+  if (normalized.endsWith(':')) return true;
+  if (/\([^)]*\)/.test(normalized) && wordCount <= 8) return true;
+  if (wordCount <= 6 && !looksLikeSentence) return true;
+  if (normalized.length <= 48 && !looksLikeSentence) return true;
+
+  return false;
+}
+
+function buildFiveWBlocks(lines: string[]): Array<{ heading?: string; body?: string }> {
+  const blocks: Array<{ heading?: string; body?: string }> = [];
+
+  for (const rawLine of lines) {
+    const line = normalizeLine(rawLine);
+    if (!line) continue;
+
+    const isHeading = isLikelyFiveWHeading(line);
+    const previous = blocks[blocks.length - 1];
+
+    if (isHeading) {
+      blocks.push({ heading: line.replace(/:$/, '') });
+      continue;
+    }
+
+    if (previous && previous.heading && !previous.body) {
+      previous.body = line;
+      continue;
+    }
+
+    blocks.push({ body: line });
+  }
+
+  return blocks;
+}
+
 function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
   const orderedCards = sortSwotCards(cards);
 
@@ -1230,11 +1425,324 @@ function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
   );
 }
 
+function FiveWOneHMatrix({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortFiveWCards(cards);
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent md:grid-cols-2 2xl:grid-cols-3"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {orderedCards.map((card, index) => {
+        const displayTitle = getFiveWDisplayTitle(card);
+        const headerText = getFiveWHeaderText(displayTitle);
+        const displayBadge = displayTitle.charAt(0).toUpperCase();
+        const displayBlocks = buildFiveWBlocks(
+          card.lines.flatMap((line) => splitAidaLineIntoIdeas(line))
+        );
+
+        return (
+          <article
+            key={`5w1h-${card.badge}-${card.title}-${index}`}
+            className="relative min-h-[220px] border-b border-r p-4 xl:p-5 md:[&:nth-child(2n)]:border-r-0 2xl:[&:nth-child(2n)]:border-r 2xl:[&:nth-child(3n)]:border-r-0 [&:nth-last-child(-n+1)]:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0 2xl:[&:nth-last-child(-n+3)]:border-b-0"
+            style={{ borderColor: SWOT_BORDER }}
+          >
+            <div
+              className="absolute inset-x-0 top-0 h-1"
+              style={{ backgroundColor: SWOT_BORDER }}
+            />
+
+            <div className="relative z-10">
+              <div className="mb-4 flex items-center gap-3">
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold"
+                  style={{ backgroundColor: '#f5f5f4', color: '#44403c' }}
+                >
+                  {displayBadge}
+                </div>
+
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-700">
+                  {headerText}
+                </div>
+              </div>
+
+              <div className="space-y-4 pr-4">
+                {displayBlocks.map((block, blockIndex) => (
+                  <div key={`5w1h-block-${index}-${blockIndex}`} className="space-y-1.5">
+                    {block.heading ? (
+                      <div className="text-[13px] font-semibold leading-6 text-stone-800">
+                        {block.heading}
+                      </div>
+                    ) : null}
+
+                    {block.body ? (
+                      <div className="flex items-start gap-3.5">
+                        <div
+                          className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: SWOT_BORDER }}
+                        />
+                        <span className="text-[13px] leading-6 text-stone-600">{block.body}</span>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function SmartMatrix({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortSmartCards(cards);
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent md:grid-cols-2 xl:grid-cols-5"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {orderedCards.map((card, index) => {
+        const displayTitle = getSmartDisplayTitle(card);
+        const displayBadge = displayTitle.charAt(0).toUpperCase();
+        const vietnameseLabel = getSmartVietnameseLabel(displayTitle);
+        const percent = getSmartPercent(card);
+        const accent = getSmartAccent(displayTitle);
+        const displayLines = card.lines
+          .map((line, lineIndex) => (lineIndex === 0 ? stripSmartPrefix(line, displayTitle) : normalizeLine(line)))
+          .flatMap((line) => splitAidaLineIntoIdeas(line));
+
+        return (
+          <article
+            key={`smart-${card.badge}-${card.title}-${index}`}
+            className="relative min-h-[240px] border-b border-r p-4 xl:p-5 md:[&:nth-child(2n)]:border-r-0 xl:[&:nth-child(2n)]:border-r xl:[&:nth-child(5n)]:border-r-0 [&:nth-last-child(-n+1)]:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0 xl:[&:nth-last-child(-n+5)]:border-b-0"
+            style={{ borderColor: SWOT_BORDER }}
+          >
+            <div
+              className="absolute inset-x-0 top-0 h-1"
+              style={{ backgroundColor: SWOT_BORDER }}
+            />
+
+            <div className="relative z-10 flex h-full flex-col">
+              <div className="mb-4 mt-1 flex items-center justify-center">
+                <SmartRing value={percent} accent={accent} />
+              </div>
+
+              <div className="mb-3 flex items-center gap-3">
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[14px] font-bold"
+                  style={{ backgroundColor: '#f5f5f4', color: accent }}
+                >
+                  {displayBadge}
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-stone-700">
+                  {displayTitle}
+                  {vietnameseLabel ? ` • ${vietnameseLabel}` : ''}
+                </div>
+              </div>
+
+              <div className="mb-4 w-full border-t" style={{ borderColor: BORDER_SUBTLE }} />
+
+              <div className="space-y-2.5">
+                {displayLines.map((line, lineIndex) => (
+                  <div key={`smart-line-${index}-${lineIndex}`} className="flex items-start gap-3">
+                    <div
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: accent }}
+                    />
+                    <span className="text-[12.5px] leading-6 text-stone-600">{line}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function CmoAdviceSection({
+  suggestion,
+}: {
+  suggestion: NonNullable<OptimkiResult['suggestion']>;
+}) {
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          06
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
+            TỔNG HỢP CHIẾN LƯỢC
+          </div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Tổng hợp và lời khuyên từ CMO</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div
+          className="mb-4 rounded-xl border p-4"
+          style={{ borderColor: BORDER_SUBTLE, backgroundColor: '#fafaf9' }}
+        >
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+            Khuyến nghị chính
+          </div>
+          <div className="mb-3 flex items-center gap-3">
+            <div
+              className="inline-flex items-center rounded-lg px-2.5 py-1 text-[12px] font-semibold"
+              style={{ backgroundColor: '#f5f5f4', color: SWOT_BORDER }}
+            >
+              {suggestion.primary_model}
+            </div>
+          </div>
+          <p className="text-[13px] leading-6 text-stone-600">{suggestion.reason}</p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <div
+            className="rounded-xl border p-4"
+            style={{ borderColor: BORDER_SUBTLE, backgroundColor: SIDEBAR_BG }}
+          >
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+              Nên kết hợp
+            </div>
+            <div className="space-y-2.5">
+              {suggestion.combinations.length > 0 ? (
+                suggestion.combinations.map((item, index) => (
+                  <div key={`combo-${index}`} className="flex items-start gap-3">
+                    <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: SWOT_BORDER }} />
+                    <span className="text-[12.5px] leading-6 text-stone-600">{item}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12.5px] leading-6 text-stone-400">Không có gợi ý kết hợp thêm.</p>
+              )}
+            </div>
+          </div>
+
+          <div
+            className="rounded-xl border p-4"
+            style={{ borderColor: BORDER_SUBTLE, backgroundColor: SIDEBAR_BG }}
+          >
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+              Có thể lược bớt
+            </div>
+            <div className="space-y-2.5">
+              {suggestion.omit.length > 0 ? (
+                suggestion.omit.map((item, index) => (
+                  <div key={`omit-${index}`} className="flex items-start gap-3">
+                    <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-400" />
+                    <span className="text-[12.5px] leading-6 text-stone-600">{item}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12.5px] leading-6 text-stone-400">Không có model nào cần loại bỏ.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CmoAdviceSectionUnified({
+  suggestion,
+}: {
+  suggestion: NonNullable<OptimkiResult['suggestion']>;
+}) {
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          06
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
+            TỔNG HỢP
+          </div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Tổng hợp và lời khuyên từ CMO</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div
+          className="mb-4 rounded-xl border p-4"
+          style={{ borderColor: BORDER_SUBTLE, backgroundColor: '#fafaf9' }}
+        >
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+            KHUYẾN NGHỊ CHÍNH
+          </div>
+          <div className="mb-3 flex items-center gap-3">
+            <div
+              className="inline-flex items-center rounded-lg px-2.5 py-1 text-[12px] font-semibold"
+              style={{ backgroundColor: '#f5f5f4', color: SWOT_BORDER }}
+            >
+              {suggestion.primary_model}
+            </div>
+          </div>
+          <p className="text-[13px] leading-6 text-stone-600">{suggestion.reason}</p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <div
+            className="rounded-xl border p-4"
+            style={{ borderColor: BORDER_SUBTLE, backgroundColor: SIDEBAR_BG }}
+          >
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+              NÊN KẾT HỢP
+            </div>
+            <div className="space-y-2.5">
+              {suggestion.combinations.length > 0 ? (
+                suggestion.combinations.map((item, index) => (
+                  <div key={`combo-${index}`} className="flex items-start gap-3">
+                    <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: SWOT_BORDER }} />
+                    <span className="text-[12.5px] leading-6 text-stone-600">{item}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12.5px] leading-6 text-stone-400">Không có gợi ý kết hợp thêm.</p>
+              )}
+            </div>
+          </div>
+
+          <div
+            className="rounded-xl border p-4"
+            style={{ borderColor: BORDER_SUBTLE, backgroundColor: SIDEBAR_BG }}
+          >
+            <div className="mb-3 text-[10px] font-bold uppercase tracking-[0.18em] text-stone-500">
+              CÓ THỂ LƯỢC BỚT
+            </div>
+            <div className="space-y-2.5">
+              {suggestion.omit.length > 0 ? (
+                suggestion.omit.map((item, index) => (
+                  <div key={`omit-${index}`} className="flex items-start gap-3">
+                    <div className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-400" />
+                    <span className="text-[12.5px] leading-6 text-stone-600">{item}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12.5px] leading-6 text-stone-400">Không có model nào cần lược bỏ.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
-  const accentColor = getAccentColor(index);
-  const usesEditorialTone = section.kind === 'swot' || section.kind === 'aida' || section.kind === '4p';
-  const sectionChipBg = usesEditorialTone ? SWOT_SOFT : `${accentColor}15`;
-  const sectionChipText = usesEditorialTone ? SWOT_SOFT_TEXT : accentColor;
+  // Neutral stone theme colors
 
   return (
     <section
@@ -1243,15 +1751,15 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
       <div className="flex items-center gap-3 px-4 py-3.5">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
-          style={{ backgroundColor: sectionChipBg, color: sectionChipText }}
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
         >
           {section.number ?? String(index + 1).padStart(2, '0')}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: `${NAV_TEXT}99` }}>
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
             {section.label ?? 'MÔ HÌNH CHIẾN LƯỢC'}
           </div>
-          <div className="text-[14px] font-semibold text-stone-900">{section.title}</div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">{section.title}</div>
         </div>
       </div>
 
@@ -1270,8 +1778,8 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
           <div
             className="mb-4 rounded-xl p-3.5 text-[12px] font-medium leading-5 text-stone-800"
             style={{
-              backgroundColor: `${accentColor}10`,
-              borderLeft: `4px solid ${accentColor}`,
+              backgroundColor: '#f5f5f4',
+              borderLeft: `4px solid ${SWOT_BORDER}`,
             }}
           >
             {section.verdict}
@@ -1290,7 +1798,15 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
           <FourPMatrix cards={section.cards} />
         )}
 
-        {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && section.kind !== '4p' && (
+        {section.cards.length > 0 && section.kind === '5w1h' && (
+          <FiveWOneHMatrix cards={section.cards} />
+        )}
+
+        {section.cards.length > 0 && section.kind === 'smart' && (
+          <SmartMatrix cards={section.cards} />
+        )}
+
+        {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && section.kind !== '4p' && section.kind !== '5w1h' && section.kind !== 'smart' && (
           <div className={`grid gap-3 ${getSectionGridClass(section.kind, section.cards.length)}`}>
             {section.cards.map((card, cardIndex) => (
               <div
@@ -1481,6 +1997,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
               {parsedSections.map((section, index) => (
                 <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
               ))}
+              {result.suggestion ? <CmoAdviceSectionUnified suggestion={result.suggestion} /> : null}
             </div>
           </div>
         </div>
