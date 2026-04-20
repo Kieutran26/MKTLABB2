@@ -7,6 +7,7 @@ import { ApifyClient } from 'apify-client';
 import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
+import { resolveOpenAiModelCandidates } from './lib/ai-model-policy.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -58,24 +59,19 @@ function isOpenAIModelName(model) {
     );
 }
 
-function getOpenAIModelCandidates(preferredModel) {
-    const envModel = process.env.OPENAI_MODEL || process.env.VITE_OPENAI_MODEL || '';
-    const out = [];
-    const add = (value) => {
-        const model = typeof value === 'string' ? value.trim() : '';
-        if (model && isOpenAIModelName(model) && !out.includes(model)) {
-            out.push(model);
-        }
+function getOpenAIModelCandidates(policyInput) {
+    const resolved = resolveOpenAiModelCandidates({
+        plan: policyInput?.plan,
+        feature: policyInput?.feature,
+        taskType: policyInput?.taskType,
+        preferredModel: policyInput?.preferredModel,
+        env: process.env,
+    });
+
+    return {
+        ...resolved,
+        candidates: resolved.candidates.filter(isOpenAIModelName),
     };
-
-    add(preferredModel);
-    add(envModel);
-    add('gpt-4o-mini');
-    add('gpt-4o');
-    add('gpt-4.1-mini');
-    add('gpt-4.1');
-
-    return out;
 }
 
 function mapGeminiContentsToOpenAIMessages(requestBody) {
@@ -161,7 +157,13 @@ app.post('/api/openai/generate', async (req, res) => {
     const requestBody = req.body?.requestBody || {};
     const generationConfig = requestBody?.generationConfig || {};
     const messages = mapGeminiContentsToOpenAIMessages(requestBody);
-    const modelCandidates = getOpenAIModelCandidates(req.body?.preferredModel);
+    const modelPolicy = getOpenAIModelCandidates({
+        preferredModel: req.body?.preferredModel,
+        plan: req.body?.plan,
+        feature: req.body?.feature,
+        taskType: req.body?.taskType,
+    });
+    const modelCandidates = modelPolicy.candidates;
 
     if (!messages.length) {
         return res.status(400).json({
@@ -209,7 +211,8 @@ app.post('/api/openai/generate', async (req, res) => {
             return res.json({
                 text,
                 raw: response.data,
-                model
+                model,
+                modelPolicy
             });
         } catch (error) {
             lastError = error;

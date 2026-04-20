@@ -113,7 +113,7 @@ const PESTELBuilder: React.FC = () => {
         setThinkingStep('Đang khởi tạo radar vĩ mô...');
         
         try {
-            const result = await generatePESTELAnalysis(data, (step) => setThinkingStep(step));
+            const result = await generatePESTELAnalysis(data, (step) => setThinkingStep(step), tier);
             if (result) {
                 const reportId = Date.now().toString();
                 const newReport: SavedPESTEL = {

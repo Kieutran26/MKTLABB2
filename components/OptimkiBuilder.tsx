@@ -233,7 +233,7 @@ const OptimkiBuilder: React.FC = () => {
     setThinkingStep('Khởi động bộ não chiến lược...');
     
     try {
-      const res = await generateOptimkiAnalysis(data, (step) => setThinkingStep(step));
+      const res = await generateOptimkiAnalysis(data, (step) => setThinkingStep(step), tier);
       if (res) {
         setResult(res);
         toast.success('Đã hoàn thành phân tích chiến lược!');
@@ -291,7 +291,7 @@ const OptimkiBuilder: React.FC = () => {
     setIsRendering(true);
     setRenderStep('🎨 Đang render báo cáo HTML...');
     try {
-      const rendered_ = await renderOptimkiHtml(payload, setRenderStep);
+      const rendered_ = await renderOptimkiHtml(payload, setRenderStep, tier);
       if (rendered_) {
         setResult(rendered_);
         toast.success('Đã render lại báo cáo HTML.');

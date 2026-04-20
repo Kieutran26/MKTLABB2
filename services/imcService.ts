@@ -576,7 +576,10 @@ export const IMCService = {
     /**
      * Generate comprehensive IMC V2 strategy using Gemini AI
      */
-    async generateIMCPlan(input: IMCInput): Promise<IMCPlan | null> {
+    async generateIMCPlan(
+        input: IMCInput,
+        plan: 'free' | 'pro' | 'promax' = 'free'
+    ): Promise<IMCPlan | null> {
         try {
             const ai = getGeminiClient();
             if (!ai) {
@@ -897,6 +900,9 @@ Yêu cầu chất lượng: Văn phong Agency chuyên nghiệp · Số liệu th
 
             const response = await ai.models.generateContent({
                 model: 'gpt-4.1',
+                plan,
+                feature: 'imc',
+                taskType: 'strategic_report',
                 contents: prompt,
                 config: {
                     systemInstruction: systemPrompt,

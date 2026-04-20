@@ -1,5 +1,8 @@
 type GenerateContentParams = {
     model?: string;
+    plan?: 'free' | 'pro' | 'promax';
+    feature?: string;
+    taskType?: string;
     contents: any;
     config?: {
         systemInstruction?: string;
@@ -69,6 +72,9 @@ export function getGeminiClient(): OpenAICompatibleClient {
                     body: JSON.stringify({
                         requestBody,
                         preferredModel: params.model,
+                        plan: params.plan,
+                        feature: params.feature,
+                        taskType: params.taskType,
                     }),
                 });
 

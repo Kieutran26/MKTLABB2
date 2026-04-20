@@ -48,7 +48,7 @@ const IMCPlanner: React.FC = () => {
     const [saved, setSaved] = useState(false);
     const [viewMode, setViewMode] = useState<ViewMode>('create');
     const [expandedPhases, setExpandedPhases] = useState<Set<number>>(new Set());
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
     const [profile, setProfile] = useState<any>(null);
     const [quota, setQuota] = useState<any>(null);
@@ -230,7 +230,7 @@ const IMCPlanner: React.FC = () => {
             }
         };
 
-        const plan = await IMCService.generateIMCPlan(input);
+        const plan = await IMCService.generateIMCPlan(input, tier);
         if (plan) {
             setCurrentPlan(plan);
             setViewMode('detail');

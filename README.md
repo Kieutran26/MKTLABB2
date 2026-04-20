@@ -76,6 +76,9 @@ Tuỳ chọn:
 
 ```env
 VITE_BACKEND_URL=http://localhost:3011
+OPENAI_MODEL_FREE=gpt-4.1-mini
+OPENAI_MODEL_PRO=gpt-4.1
+OPENAI_MODEL_PROMAX=gpt-5.4
 VITE_FIREBASE_API_KEY=...
 VITE_FIREBASE_AUTH_DOMAIN=...
 VITE_FIREBASE_PROJECT_ID=...
@@ -192,6 +195,31 @@ Các pattern đã chuẩn hoá gồm:
 - section header pattern
 - badge / chip pattern
 - premium lock card / pro gate pattern
+
+## AI plan routing
+
+Repo hiện đã có lớp policy để map `subscription tier -> model` ở backend.
+
+Flow:
+
+1. Frontend gửi `plan`, `feature`, `taskType`
+2. Local backend chọn model thật
+3. Backend thử model ưu tiên trước, nếu model không available thì fallback sang candidate tiếp theo
+
+File chính:
+
+- [lib/ai-model-policy.js](D:\MKTLABB2\lib\ai-model-policy.js)
+- [server.js](D:\MKTLABB2\server.js)
+
+Biến môi trường có thể override theo plan:
+
+```env
+OPENAI_MODEL_FREE=gpt-4.1-mini
+OPENAI_MODEL_PRO=gpt-4.1
+OPENAI_MODEL_PROMAX=gpt-5.4
+```
+
+Ví dụ hiện tại `Opti M.KI Engine` đã gửi `tier` vào luồng generate để backend tự chọn model theo plan.
 
 ## Quy ước phát triển trong repo này
 

@@ -730,7 +730,7 @@ const STPModelGenerator: React.FC = () => {
             const result = await generateSTPAnalysis({
                 ...merged,
                 productBrand: context + merged.productBrand,
-            });
+            }, undefined, tier);
             if (!result) {
                 toast.error('Không nhận được kết quả. Kiểm tra GEMINI_API_KEY và kết nối mạng, rồi thử lại.');
                 return;

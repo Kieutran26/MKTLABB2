@@ -21,7 +21,7 @@ interface MastermindStrategyProps {
 }
 
 const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDeployToCalendar }) => {
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
 
     // UI State
@@ -138,7 +138,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         let vibeInfo = `Tính cách thương hiệu: ${tone}. Cảm xúc muốn tạo ra: ${emotion}. Kênh truyền thông chính: ${channels}. Đối thủ cạnh tranh: ${competitors}.`;
 
         try {
-            const result = await generateMastermindStrategy(brandInfo, audienceInfo, goalInfo, vibeInfo, tone);
+            const result = await generateMastermindStrategy(brandInfo, audienceInfo, goalInfo, vibeInfo, tone, tier);
             if (result) {
                 const newStrategy: MastermindStrategy = {
                     id: Date.now().toString(),

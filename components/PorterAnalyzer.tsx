@@ -146,7 +146,7 @@ const PorterAnalyzer: React.FC = () => {
         };
         setCurrentInput(data);
         try {
-            const result = await generatePorterAnalysis(payload, setThinkingStep);
+            const result = await generatePorterAnalysis(payload, setThinkingStep, tier);
             if (result) {
                 setAnalysisData(result);
                 toast.success('Hoàn tất phân tích Porter');

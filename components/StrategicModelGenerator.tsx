@@ -35,7 +35,7 @@ const MODELS = [
 ];
 
 const StrategicModelGenerator: React.FC = () => {
-    const { user } = useAuth();
+    const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
     const [productInfo, setProductInfo] = useState('');
     const [selectedModel, setSelectedModel] = useState('SWOT');
@@ -122,7 +122,7 @@ const StrategicModelGenerator: React.FC = () => {
         try {
             // Logic check quota/tier would go here if we want to block BEFORE generation
             // For now, let's just generate and then save which increments quota
-            const data = await generateStrategicModel(productInfo, selectedModel, getContext());
+            const data = await generateStrategicModel(productInfo, selectedModel, getContext(), tier);
             
             // Save to DB and check quota via the RPC function
             const savedData = await saasService.saveMarketingPlan(
@@ -161,7 +161,7 @@ const StrategicModelGenerator: React.FC = () => {
 
         setIsGenerating(true);
         try {
-            const allData = await generateAllStrategicModels(productInfo, getContext());
+            const allData = await generateAllStrategicModels(productInfo, getContext(), tier);
             setResults(prev => ({ ...prev, ...allData }));
             showToast("Đã tạo xong tất cả mô hình!", "success");
         } catch (error) {
