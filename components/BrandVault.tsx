@@ -353,7 +353,7 @@ const BrandVault: React.FC = () => {
             }
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gpt-4.1',
                 contents: prompt,
             });
 

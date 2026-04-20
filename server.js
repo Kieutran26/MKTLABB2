@@ -12,7 +12,7 @@ import path from 'path';
 dotenv.config({ path: '.env.local' });
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3011;
 const BASE_URL = process.env.VITE_BASE_URL || `http://localhost:${PORT}`;
 
 // Middleware
@@ -39,6 +39,205 @@ if (process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY) {
 } else {
     console.warn('⚠️ Supabase credentials missing. Database features will be disabled.');
 }
+
+// ================== OPENAI PROXY ENDPOINTS ==================
+
+function getOpenAIApiKey() {
+    const raw = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY || '';
+    return String(raw).trim();
+}
+
+function isOpenAIModelName(model) {
+    if (typeof model !== 'string') return false;
+    const value = model.trim().toLowerCase();
+    return (
+        value.startsWith('gpt-') ||
+        value.startsWith('o1') ||
+        value.startsWith('o3') ||
+        value.startsWith('o4')
+    );
+}
+
+function getOpenAIModelCandidates(preferredModel) {
+    const envModel = process.env.OPENAI_MODEL || process.env.VITE_OPENAI_MODEL || '';
+    const out = [];
+    const add = (value) => {
+        const model = typeof value === 'string' ? value.trim() : '';
+        if (model && isOpenAIModelName(model) && !out.includes(model)) {
+            out.push(model);
+        }
+    };
+
+    add(preferredModel);
+    add(envModel);
+    add('gpt-4o-mini');
+    add('gpt-4o');
+    add('gpt-4.1-mini');
+    add('gpt-4.1');
+
+    return out;
+}
+
+function mapGeminiContentsToOpenAIMessages(requestBody) {
+    const messages = [];
+    const systemText = requestBody?.systemInstruction?.parts
+        ?.map((part) => (typeof part?.text === 'string' ? part.text : ''))
+        .join('\n')
+        .trim();
+
+    if (systemText) {
+        messages.push({ role: 'system', content: systemText });
+    }
+
+    const contents = Array.isArray(requestBody?.contents) ? requestBody.contents : [];
+    for (const entry of contents) {
+        const parts = Array.isArray(entry?.parts) ? entry.parts : [];
+        const contentParts = [];
+
+        for (const part of parts) {
+            if (typeof part?.text === 'string' && part.text.trim()) {
+                contentParts.push({ type: 'text', text: part.text });
+                continue;
+            }
+
+            const mimeType = part?.inlineData?.mimeType;
+            const data = part?.inlineData?.data;
+            if (mimeType && data) {
+                contentParts.push({
+                    type: 'image_url',
+                    image_url: {
+                        url: `data:${mimeType};base64,${data}`,
+                    },
+                });
+            }
+        }
+
+        if (!contentParts.length) continue;
+
+        messages.push({
+            role: entry?.role === 'model' ? 'assistant' : 'user',
+            content:
+                contentParts.length === 1 && contentParts[0].type === 'text'
+                    ? contentParts[0].text
+                    : contentParts,
+        });
+    }
+
+    return messages;
+}
+
+function extractOpenAIText(payload) {
+    const content = payload?.choices?.[0]?.message?.content;
+    if (typeof content === 'string') return content;
+    if (Array.isArray(content)) {
+        return content
+            .map((part) => (part?.type === 'text' ? part.text || '' : ''))
+            .join('')
+            .trim();
+    }
+    return '';
+}
+
+app.get('/api/openai/test', (req, res) => {
+    const apiKey = getOpenAIApiKey();
+    res.json({
+        status: 'online',
+        server_time: new Date().toISOString(),
+        api_key_configured: !!(apiKey && apiKey.length > 10),
+        port: PORT,
+        message: 'OpenAI proxy is ready and listening.'
+    });
+});
+
+app.post('/api/openai/generate', async (req, res) => {
+    const apiKey = getOpenAIApiKey();
+    if (!apiKey || apiKey.length < 10) {
+        return res.status(500).json({
+            error: 'OpenAI API key not configured on server',
+            instruction: 'Add OPENAI_API_KEY to .env.local and restart the server.'
+        });
+    }
+
+    const requestBody = req.body?.requestBody || {};
+    const generationConfig = requestBody?.generationConfig || {};
+    const messages = mapGeminiContentsToOpenAIMessages(requestBody);
+    const modelCandidates = getOpenAIModelCandidates(req.body?.preferredModel);
+
+    if (!messages.length) {
+        return res.status(400).json({
+            error: 'Invalid request',
+            details: 'No valid message content was provided.'
+        });
+    }
+
+    let lastError = null;
+
+    for (const model of modelCandidates) {
+        const body = {
+            model,
+            messages,
+            temperature:
+                typeof generationConfig.temperature === 'number'
+                    ? generationConfig.temperature
+                    : 0.7,
+            max_tokens:
+                typeof generationConfig.maxOutputTokens === 'number'
+                    ? generationConfig.maxOutputTokens
+                    : 16384,
+            ...(generationConfig.response_mime_type === 'application/json'
+                ? { response_format: { type: 'json_object' } }
+                : {})
+        };
+
+        try {
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', body, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                },
+                timeout: 120000
+            });
+
+            const text = extractOpenAIText(response.data);
+            if (!text) {
+                return res.status(502).json({
+                    error: 'OpenAI returned no text output',
+                    details: response.data
+                });
+            }
+
+            return res.json({
+                text,
+                raw: response.data,
+                model
+            });
+        } catch (error) {
+            lastError = error;
+            const status = error.response?.status || 500;
+            const message = error.response?.data?.error?.message || error.message || '';
+            const shouldTryNextModel =
+                status === 404 ||
+                /model|does not exist|not found|access/i.test(message);
+
+            if (!shouldTryNextModel) {
+                return res.status(status).json({
+                    error: 'OpenAI Proxy Error',
+                    details: error.response?.data || { message: error.message },
+                    status
+                });
+            }
+        }
+    }
+
+    {
+        const status = lastError?.response?.status || 500;
+        return res.status(status).json({
+            error: 'OpenAI Proxy Error',
+            details: lastError?.response?.data || { message: lastError?.message || 'No compatible OpenAI model available.' },
+            status
+        });
+    }
+});
 
 // ================== CLAUDE (ANTHROPIC) PROXY ENDPOINTS ==================
 

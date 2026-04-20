@@ -3,8 +3,8 @@ import {
   AlertTriangle,
   Check,
   ChevronRight,
-  Copy,
   Download,
+  Pencil,
   LayoutGrid,
   Link2,
   Loader2,
@@ -28,6 +28,7 @@ interface OptimkiSidebarReportProps {
   ) => Promise<OptimkiResult | null>;
   isRendering?: boolean;
   renderStep?: string;
+  onRenameReport?: (brandName: string) => void;
 }
 
 type ParsedCard = {
@@ -1107,6 +1108,20 @@ function stripSmartPrefix(line: string, title: string): string {
   return normalized;
 }
 
+function normalizeSmartLine(line: string, title: string): string {
+  const normalized = normalizeLine(line);
+  if (!normalized) return '';
+
+  const cleaned = stripSmartPrefix(normalized, title)
+    .replace(/^(\d{1,3})%\s*[SMART]\s*/i, '')
+    .replace(/^(\d{1,3})%\s*/i, '')
+    .replace(/^[SMART](?=specific|measurable|achievable|relevant|time[\s-]?bound)/i, '')
+    .replace(/^(specific|measurable|achievable|relevant|time[\s-]?bound)\s*/i, '')
+    .trim();
+
+  return cleaned || normalized;
+}
+
 function getSmartAccent(title: string): string {
   const normalized = title.toLowerCase();
   if (normalized.includes('specific')) return '#1c1917';
@@ -1932,7 +1947,7 @@ function SmartMatrix({ cards }: { cards: ParsedCard[] }) {
         const percent = getSmartPercent(card);
         const accent = getSmartAccent(displayTitle);
         const displayLines = card.lines
-          .map((line, lineIndex) => (lineIndex === 0 ? stripSmartPrefix(line, displayTitle) : normalizeLine(line)))
+          .map((line, lineIndex) => (lineIndex === 0 ? normalizeSmartLine(line, displayTitle) : normalizeLine(line)))
           .flatMap((line) => splitAidaLineIntoIdeas(line));
 
         return (
@@ -2043,12 +2058,14 @@ function buildIntegrationInsights(sections: ParsedSection[]) {
   const byKind = (kind: ParsedSectionKind) => sections.find((section) => section.kind === kind);
   const firstLine = (kind: ParsedSectionKind, cardIndex = 0) =>
     byKind(kind)?.cards[cardIndex]?.lines?.find(Boolean) ?? '';
+  const smartSection = byKind('smart');
+  const smartTitle = smartSection?.cards?.[0] ? getSmartDisplayTitle(smartSection.cards[0]) : 'Specific';
 
   const swotLine = firstLine('swot', 0) || 'Điểm mạnh và khác biệt cốt lõi của thương hiệu';
   const aidaLine = firstLine('aida', 0) || 'Thông điệp cần khai thác để thu hút và tạo mong muốn';
   const fourPLine = firstLine('4p', 2) || firstLine('4p', 3) || 'Kênh triển khai và truyền thông chủ lực';
   const fiveWLine = firstLine('5w1h', 5) || firstLine('5w1h', 0) || 'Kế hoạch triển khai theo người, việc và thời điểm';
-  const smartLine = firstLine('smart', 0) || 'Mục tiêu và chỉ số đo lường rõ ràng';
+  const smartLine = normalizeSmartLine(firstLine('smart', 0), smartTitle) || 'M?c ti?u v? ch? s? ?o l??ng r? r?ng';
 
   return {
     chain: [
@@ -2540,7 +2557,94 @@ function ProAdviceLockedSection() {
       </div>
 
       <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
-        <div className="mx-auto w-full max-w-[760px]">
+        <div className="mx-auto w-full max-w-[600px]">
+          <div
+            className="overflow-hidden rounded-[22px] border shadow-[0_12px_28px_rgba(28,25,23,0.06)] md:grid md:grid-cols-[minmax(0,4fr)_minmax(0,3fr)]"
+            style={{
+              borderColor: 'rgba(28, 25, 23, 0.12)',
+              backgroundColor: '#fcfbf8',
+            }}
+          >
+            <div className="px-5 py-5.5 md:px-6 md:py-6">
+              <div
+                className="inline-flex items-center gap-1.5 rounded-[11px] border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.22em]"
+                style={{
+                  backgroundColor: '#f8f2de',
+                  borderColor: 'rgba(28, 25, 23, 0.10)',
+                  color: '#506783',
+                }}
+              >
+                <Lock className="h-3 w-3" strokeWidth={2.1} />
+                <span>PRO MAX</span>
+              </div>
+
+              <div className="mt-5">
+                <h3 className="text-[15px] font-semibold tracking-tight text-stone-900 md:text-[16px]">
+                  Lời khuyên chiến lược
+                </h3>
+                <p className="mt-2 text-[10.5px] leading-[1.6] text-stone-600">
+                  Chỉ có trên <span className="font-semibold text-stone-900">Pro Max</span>. Mở khóa phân tích
+                  chuyên sâu và lộ trình cho đội marketing.
+                </p>
+              </div>
+
+              <div className="my-6 h-px w-full bg-stone-200/80" />
+
+              <div className="space-y-2.5">
+                {perks.map((perk) => (
+                  <div key={`compact-${perk}`} className="flex items-start gap-2.5">
+                    <div
+                      className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] border"
+                      style={{
+                        backgroundColor: 'rgba(106, 137, 116, 0.08)',
+                        borderColor: 'rgba(106, 137, 116, 0.18)',
+                      }}
+                    >
+                      <Check className="h-3.5 w-3.5 text-[#315443]" strokeWidth={2.3} />
+                    </div>
+                    <p className="text-[10.5px] leading-[1.55] text-stone-700">{perk}</p>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="mt-6 inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[11px] font-semibold text-white transition-transform duration-200 hover:translate-y-[-1px]"
+                style={{
+                  backgroundColor: SWOT_BORDER,
+                  boxShadow: '0 8px 18px rgba(28, 25, 23, 0.12)',
+                }}
+              >
+                <span>Nâng cấp Pro Max</span>
+                <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.4} />
+              </button>
+            </div>
+
+            <div
+              className="relative hidden border-l md:flex md:min-h-full md:items-center md:justify-center"
+              style={{
+                borderColor: 'rgba(28, 25, 23, 0.06)',
+                background:
+                  'linear-gradient(180deg, rgba(28,25,23,0.01) 0%, rgba(28,25,23,0.02) 100%)',
+              }}
+            >
+              <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-end gap-1.5 opacity-35">
+                <span className="h-10 w-[2px] rounded-full bg-stone-200" />
+                <span className="h-14 w-[2px] rounded-full bg-stone-200" />
+                <span className="h-18 w-[2px] rounded-full bg-stone-200" />
+                <span className="h-12 w-[2px] rounded-full bg-stone-200" />
+                <span className="h-16 w-[2px] rounded-full bg-stone-200" />
+              </div>
+
+              <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-stone-200/80 bg-white shadow-[0_8px_20px_rgba(28,25,23,0.05)]">
+                <div className="absolute inset-[-8px] rounded-full border border-dashed border-stone-200/70" />
+                <Lock className="h-6 w-6 text-stone-400" strokeWidth={1.9} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="hidden mx-auto w-full max-w-[760px]">
           <div
             className="rounded-[24px] border px-5 py-4 shadow-[0_14px_36px_rgba(28,25,23,0.06)] xl:px-5 xl:py-4.5"
             style={{
@@ -2732,10 +2836,13 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
   onRenderHtml,
   isRendering,
   renderStep,
+  onRenameReport,
 }) => {
   const toast = useToast();
-  const reportRef = useRef<HTMLDivElement>(null);
-  const [copied, setCopied] = useState(false);
+  const reportContentRef = useRef<HTMLDivElement>(null);
+  const brandNameInputRef = useRef<HTMLInputElement>(null);
+  const [isEditingBrandName, setIsEditingBrandName] = useState(false);
+  const [draftBrandName, setDraftBrandName] = useState(result.brand_name);
 
   const analysisTextForReRender = useMemo(
     () => getAnalysisTextForReRender(result),
@@ -2796,33 +2903,57 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [result]);
 
-  const handleCopy = async () => {
-    const text = reportRef.current?.textContent?.trim() ?? '';
-    if (!text) return;
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
+  useEffect(() => {
+    setDraftBrandName(result.brand_name);
+    setIsEditingBrandName(false);
+  }, [result.brand_name]);
+
+  useEffect(() => {
+    if (!isEditingBrandName) return;
+    brandNameInputRef.current?.focus();
+    brandNameInputRef.current?.select();
+  }, [isEditingBrandName]);
+
+  const handleCommitBrandName = () => {
+    const nextBrandName = draftBrandName.trim();
+    if (!nextBrandName) {
+      setDraftBrandName(result.brand_name);
+      setIsEditingBrandName(false);
+      toast.error('Tên report không được để trống.');
+      return;
+    }
+
+    onRenameReport?.(nextBrandName);
+    setIsEditingBrandName(false);
   };
 
-  const handleExportHtml = () => {
-    const text = reportRef.current?.innerText?.trim() ?? '';
-    const content = `<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Opti M.KI - ${result.brand_name}</title>
-</head>
-<body style="font-family:Segoe UI,Arial,sans-serif;padding:32px;line-height:1.7;color:#2C3947;background:#fcfdfc;white-space:pre-wrap;">${text}</body>
-</html>`;
+  const handleExportPng = async () => {
+    const target = reportContentRef.current;
+    if (!target) return;
 
-    const blob = new Blob([content], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `OptiMKI_${result.brand_name.replace(/\s+/g, '_')}_${result.model_type}.html`;
-    link.click();
-    URL.revokeObjectURL(url);
+    try {
+      const { toPng } = await import('html-to-image');
+      const dataUrl = await toPng(target, {
+        cacheBust: true,
+        backgroundColor: SIDEBAR_BG,
+        width: target.scrollWidth,
+        height: target.scrollHeight,
+        pixelRatio: 2,
+        style: {
+          height: 'auto',
+          overflow: 'visible',
+          transform: 'none',
+        },
+      });
+
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `OptiMKI_${draftBrandName.trim().replace(/\s+/g, '_')}_${result.model_type}.png`;
+      link.click();
+    } catch (error) {
+      console.error('OptimkiSidebarReport: failed to export PNG', error);
+      toast.error('Không thể tải xuống PNG. Vui lòng thử lại.');
+    }
   };
 
   const handleReRender = async () => {
@@ -2833,7 +2964,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
     }
 
     await onRenderHtml({
-      brand_name: result.brand_name,
+      brand_name: draftBrandName.trim() || result.brand_name,
       model_type: result.model_type,
       analysis_content: analysisTextForReRender,
       suggestion: result.suggestion,
@@ -2842,50 +2973,80 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
 
   return (
     <div
-      className="flex h-full flex-col overflow-hidden"
+      className="flex h-full flex-col"
       style={{
         fontFamily: '"Plus Jakarta Sans", sans-serif',
         color: NAV_TEXT,
         backgroundColor: SIDEBAR_BG,
       }}
     >
-      <div ref={reportRef} className="flex-1 overflow-y-auto">
-        <div className="w-full py-3">
-          <div className="w-full border-b border-stone-200/60">
-            <div className="flex items-center justify-between px-6 pb-3">
-              <div className="flex items-center gap-3">
+      <div className="w-full pb-3">
+          <div className="sticky top-0 z-30 w-full border-b border-stone-200/80 bg-[#FCFDFC]/95 backdrop-blur">
+            <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 px-6 py-2.5">
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
                 <span className="inline-flex items-center rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-semibold tracking-tight text-stone-600">
                   {getModelLabel(result.model_type)}
                 </span>
-                <div className="flex items-center gap-2 text-[16px] font-bold tracking-tight text-stone-900">
+                <div className="flex min-w-0 items-center gap-2 text-[16px] font-bold tracking-tight text-stone-900">
                   <ModelIcon size={15} strokeWidth={1.8} style={{ color: modelColor }} />
-                  {result.brand_name}
+                  {isEditingBrandName ? (
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        ref={brandNameInputRef}
+                        type="text"
+                        value={draftBrandName}
+                        onChange={(event) => setDraftBrandName(event.target.value)}
+                        onBlur={handleCommitBrandName}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            handleCommitBrandName();
+                          }
+                          if (event.key === 'Escape') {
+                            setDraftBrandName(result.brand_name);
+                            setIsEditingBrandName(false);
+                          }
+                        }}
+                        className="h-8 min-w-[220px] max-w-[420px] rounded-lg border border-stone-200 bg-white px-3 text-[15px] font-semibold text-stone-900 outline-none transition-colors focus:border-stone-400"
+                        aria-label="Chỉnh sửa tên report"
+                      />
+                      <button
+                        type="button"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={handleCommitBrandName}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-black/[0.05] hover:text-stone-900"
+                        aria-label="Xác nhận tên report"
+                      >
+                        <Check size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="truncate">{draftBrandName}</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingBrandName(true)}
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-black/[0.05] hover:text-stone-900"
+                        aria-label="Chỉnh sửa tên report"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                    </>
+                  )}
                 </div>
                 <div className="text-[14px] text-stone-400">· {formattedDate}</div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => void handleCopy()}
-                    className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors hover:bg-black/[0.05]"
-                    style={{ color: NAV_TEXT }}
-                  >
-                    {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} className="opacity-70" />}
-                    {copied ? 'Đã sao chép' : 'Sao chép'}
-                  </button>
-                  <div className="mx-1 h-3.5 w-px bg-stone-200" />
-                  <button
-                    type="button"
-                    onClick={handleExportHtml}
-                    className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors hover:bg-black/[0.05]"
-                    style={{ color: NAV_TEXT }}
-                  >
-                    <Download size={13} className="opacity-70" />
-                    Xuất HTML
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleExportPng()}
+                  className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors hover:bg-black/[0.05]"
+                  style={{ color: NAV_TEXT }}
+                >
+                  <Download size={13} className="opacity-70" />
+                  {'Xu\u1ea5t PNG'}
+                </button>
 
                 <div className="h-4 w-px bg-stone-200" />
 
@@ -2902,7 +3063,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
             </div>
           </div>
 
-          <div className="px-6 pt-5">
+          <div ref={reportContentRef} className="px-6 pt-5">
             <div className="space-y-4">
             {displaySections.map((section, index) => (
               <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
@@ -2911,7 +3072,6 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
             {result.suggestion || cmoSummarySection ? <ProAdviceLockedSection /> : null}
           </div>
           </div>
-        </div>
       </div>
     </div>
   );

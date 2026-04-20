@@ -29,7 +29,7 @@ export class GeminiPermissionDeniedError extends Error {
  * ALWAYS call Google API directly — browser test confirmed ?key= query param works (200 OK).
  * Vite proxy was returning 404. Direct fetch with ?key= avoids CORS preflight issues.
  */
-const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const OPENAI_PROXY_PATH = '/api/openai/generate';
 
 /** Chuẩn hóa key từ .env — tránh 400 API_KEY_INVALID do CRLF, khoảng trắng, hoặc dấu ngoặc thừa. */
 function sanitizeGoogleApiKey(raw: unknown): string {
@@ -49,11 +49,20 @@ function sanitizeGoogleApiKey(raw: unknown): string {
 
 /** Key Gemini: ưu tiên VITE_GEMINI_API_KEY, sau đó GEMINI_API_KEY (xem vite.config envPrefix). */
 function getGeminiApiKey(): string {
-    const env = import.meta.env as ImportMetaEnv & { GEMINI_API_KEY?: string };
-    return sanitizeGoogleApiKey(env.VITE_GEMINI_API_KEY ?? env.GEMINI_API_KEY);
+    const env = import.meta.env as ImportMetaEnv & {
+        GEMINI_API_KEY?: string;
+        OPENAI_API_KEY?: string;
+        VITE_OPENAI_API_KEY?: string;
+    };
+    return sanitizeGoogleApiKey(
+        env.VITE_OPENAI_API_KEY ??
+            env.OPENAI_API_KEY ??
+            env.VITE_GEMINI_API_KEY ??
+            env.GEMINI_API_KEY
+    );
 }
 
-const GEMINI_API_KEY = getGeminiApiKey();
+const GEMINI_API_KEY = getGeminiApiKey() || '__SERVER_PROXY__';
 
 type GeminiRateLimitProfile = 'free' | 'paid';
 
@@ -110,7 +119,8 @@ const GEMINI_INTER_MODEL_COOLDOWN_MS = 400;
 const GEMINI_BUSY_MAX_RETRIES = 3;
 
 /** Free tier is roughly 1 RPM on many keys; paid tier can disable pacing via env profile. */
-const GEMINI_MIN_INTER_REQUEST_GAP_MS = GEMINI_IS_PAID_PROFILE ? 0 : 65000;
+const GEMINI_MIN_INTER_REQUEST_GAP_MS =
+    GEMINI_API_KEY === '__SERVER_PROXY__' ? 0 : GEMINI_IS_PAID_PROFILE ? 0 : 65000;
 
 /** Last model that returned 200 for this session — try first to avoid 404 chains. */
 let geminiLastSuccessfulModel: string | null = null;
@@ -274,6 +284,61 @@ async function postGeminiGenerateContentUnqueued(
     errorPrefix: string,
     opts?: { preferredModel?: string }
 ): Promise<string> {
+    const backendBaseUrl =
+        (typeof import.meta.env.VITE_BACKEND_URL === 'string' &&
+            import.meta.env.VITE_BACKEND_URL.trim()) ||
+        'http://localhost:3011';
+    const preferredModel = opts?.preferredModel || import.meta.env.VITE_OPENAI_MODEL || 'gpt-4.1';
+    const response = await fetch(`${backendBaseUrl}${OPENAI_PROXY_PATH}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            requestBody,
+            preferredModel,
+        }),
+    });
+
+    const raw = await response.text();
+    let payload: any = null;
+    try {
+        payload = raw ? JSON.parse(raw) : null;
+    } catch {
+        payload = null;
+    }
+
+    if (!response.ok) {
+        const apiMessage =
+            payload?.details?.error?.message ||
+            payload?.instruction ||
+            payload?.error ||
+            raw;
+
+        if (response.status === 429) {
+            throw new GeminiRateLimitError(
+                `${errorPrefix}: OpenAI đang giới hạn tốc độ. Vui lòng thử lại sau ít phút.`,
+                60
+            );
+        }
+
+        if (response.status === 401 || response.status === 403) {
+            throw new GeminiPermissionDeniedError(
+                `OpenAI từ chối truy cập (${response.status}). ${apiMessage || ''}`.trim()
+            );
+        }
+
+        throw new Error(
+            `${errorPrefix}: OpenAI API Error (Status ${response.status})` +
+                (apiMessage ? `: ${apiMessage}` : '')
+        );
+    }
+
+    const text = typeof payload?.text === 'string' ? payload.text.trim() : '';
+    if (!text) {
+        throw new Error(`${errorPrefix}: OpenAI returned no text.`);
+    }
+
+    return text;
+
     if (import.meta.env.PROD && !GEMINI_API_KEY) {
         throw new Error('VITE_GEMINI_API_KEY is not configured');
     }

@@ -42,7 +42,7 @@ Trả về CHÍNH XÁC theo format JSON array, không có markdown hay giải th
 ["Câu hỏi 1", "Câu hỏi 2", "Câu hỏi 3", "Câu hỏi 4", "Câu hỏi 5"]`;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gpt-4.1',
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",

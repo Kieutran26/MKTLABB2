@@ -1,32 +1,96 @@
-import { GoogleGenAI } from '@google/genai';
+type GenerateContentParams = {
+    model?: string;
+    contents: any;
+    config?: {
+        systemInstruction?: string;
+        responseMimeType?: string;
+        temperature?: number;
+        maxOutputTokens?: number;
+        safetySettings?: any[];
+    };
+};
 
-function sanitizeGeminiKey(raw: unknown): string {
-    if (raw == null) return '';
-    let s = String(raw)
-        .replace(/^\uFEFF/, '')
-        .replace(/\u200B/g, '')
-        .trim();
-    if (
-        (s.startsWith('"') && s.endsWith('"')) ||
-        (s.startsWith("'") && s.endsWith("'"))
-    ) {
-        s = s.slice(1, -1).trim();
-    }
-    return s;
-}
+type GenerateContentResult = {
+    text: string;
+    candidates: Array<{ content: { parts: Array<{ text: string }> } }>;
+    usageMetadata: Record<string, never>;
+};
 
-const apiKey = sanitizeGeminiKey(
-    import.meta.env.VITE_GEMINI_API_KEY ??
-        (import.meta.env as { GEMINI_API_KEY?: string }).GEMINI_API_KEY
-);
+type OpenAICompatibleClient = {
+    models: {
+        generateContent: (params: GenerateContentParams) => Promise<GenerateContentResult>;
+    };
+};
 
-export const isGeminiConfigured = Boolean(apiKey);
+const backendBaseUrl =
+    (typeof import.meta.env.VITE_BACKEND_URL === 'string' && import.meta.env.VITE_BACKEND_URL.trim()) ||
+    'http://localhost:3011';
 
-let client: GoogleGenAI | null = null;
+export const isGeminiConfigured = true;
 
-/** Returns a shared client, or null if VITE_GEMINI_API_KEY is missing. */
-export function getGeminiClient(): GoogleGenAI | null {
-    if (!apiKey) return null;
-    if (!client) client = new GoogleGenAI({ apiKey });
+let client: OpenAICompatibleClient | null = null;
+
+export function getGeminiClient(): OpenAICompatibleClient {
+    if (client) return client;
+
+    client = {
+        models: {
+            generateContent: async (params: GenerateContentParams) => {
+                const contents =
+                    typeof params.contents === 'string'
+                        ? [{ parts: [{ text: params.contents }] }]
+                        : Array.isArray(params.contents)
+                            ? params.contents
+                            : [params.contents];
+
+                const requestBody = {
+                    contents,
+                    generationConfig: {
+                        temperature: params.config?.temperature ?? 0.7,
+                        ...(params.config?.responseMimeType
+                            ? { response_mime_type: params.config.responseMimeType }
+                            : {}),
+                        ...(typeof params.config?.maxOutputTokens === 'number'
+                            ? { maxOutputTokens: params.config.maxOutputTokens }
+                            : {}),
+                    },
+                    ...(params.config?.systemInstruction
+                        ? {
+                              systemInstruction: {
+                                  parts: [{ text: params.config.systemInstruction }],
+                              },
+                          }
+                        : {}),
+                };
+
+                const response = await fetch(`${backendBaseUrl}/api/openai/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requestBody,
+                        preferredModel: params.model,
+                    }),
+                });
+
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(
+                        payload?.details?.error?.message ||
+                            payload?.instruction ||
+                            payload?.error ||
+                            'OpenAI request failed.'
+                    );
+                }
+
+                const text = typeof payload?.text === 'string' ? payload.text : '';
+                return {
+                    text,
+                    candidates: [{ content: { parts: [{ text }] } }],
+                    usageMetadata: {},
+                };
+            },
+        },
+    };
+
     return client;
 }

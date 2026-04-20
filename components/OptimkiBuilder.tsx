@@ -323,6 +323,10 @@ const OptimkiBuilder: React.FC = () => {
     toast.success('Đã mở bản phân tích từ lịch sử.');
   };
 
+  const handleRenameReport = (brandName: string) => {
+    setResult((prev) => (prev ? { ...prev, brand_name: brandName } : prev));
+  };
+
   const handleDeleteOptimki = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const ok = await StrategicModelService.deleteStrategicModel(id);
@@ -366,7 +370,7 @@ const OptimkiBuilder: React.FC = () => {
             onClick={() => {
               const nextMode = workspaceMode === 'history' ? 'main' : 'history';
               setWorkspaceMode(nextMode);
-              if (nextMode === 'history') {
+              if (nextMode === 'history' && savedOptimki.length === 0) {
                 void refreshOptimkiHistory();
               }
             }}
@@ -394,7 +398,7 @@ const OptimkiBuilder: React.FC = () => {
               <History size={20} strokeWidth={1.25} className="text-stone-400" aria-hidden />
               Lịch sử chiến lược ({savedOptimki.length})
             </h2>
-            {loadingOptimkiHistory ? (
+            {loadingOptimkiHistory && savedOptimki.length === 0 ? (
               <div className="py-16 text-center">
                 <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-800" />
               </div>
@@ -463,6 +467,7 @@ const OptimkiBuilder: React.FC = () => {
               onRenderHtml={handleReRenderHtml}
               isRendering={isRendering}
               renderStep={renderStep}
+              onRenameReport={handleRenameReport}
             />
           </div>
         ) : isGenerating ? (

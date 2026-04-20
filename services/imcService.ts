@@ -896,7 +896,7 @@ Yêu cầu chất lượng: Văn phong Agency chuyên nghiệp · Số liệu th
             const prompt = userPrompt; // single consolidated prompt
 
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: 'gpt-4.1',
                 contents: prompt,
                 config: {
                     systemInstruction: systemPrompt,

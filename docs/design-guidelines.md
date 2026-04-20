@@ -10,6 +10,7 @@ All result pages must share:
 - One typography system
 - One neutral color system
 - One border and elevation system
+- One sticky result navbar pattern
 - One section header pattern
 - One badge / chip language
 - One premium gate pattern
@@ -26,9 +27,11 @@ Global result tokens live in:
 Key tokens:
 
 - `--rk-ink`: main ink `#1c1917`
+- `--rk-ink-5`: ultra-soft ink for quiet framing
 - `--rk-paper`: app paper background
 - `--rk-surface`: white content surface
 - `--rk-surface-soft`: soft badge / chip background
+- `--rk-surface-muted`: muted right-column / utility surface
 - `--rk-border`: default hairline border
 - `--rk-border-strong`: stronger border for emphasis
 - `--rk-shadow-sm`, `--rk-shadow-md`, `--rk-shadow-lg`
@@ -102,6 +105,44 @@ Avoid:
 - Multiple competing shadows in one section
 - Colored glows on result pages
 
+## Result Navbar Pattern
+
+All result pages that render a completed report should share the same sticky report navbar pattern used in `OptimkiSidebarReport`.
+
+Structure:
+
+1. Left meta cluster
+2. Report type chip
+3. Brand / report title row
+4. Inline title edit affordance
+5. Date metadata
+6. Right action cluster
+7. Secondary export action
+8. Primary rerender action
+
+Behavior rules:
+
+- Navbar sticks directly below the page header
+- Vertical padding must feel optically centered, not top-heavy
+- Export actions must stay lightweight and secondary
+- Primary rerender action stays as a dark pill CTA
+- Inline title editing should support both confirm icon and Enter
+
+Shared classes:
+
+- `.rk-result-toolbar`
+- `.rk-result-toolbar__inner`
+- `.rk-result-toolbar__meta`
+- `.rk-result-toolbar__title`
+- `.rk-result-toolbar__name`
+- `.rk-result-toolbar__date`
+- `.rk-result-toolbar__actions`
+- `.rk-result-toolbar__ghost-action`
+- `.rk-result-toolbar__primary-action`
+- `.rk-result-toolbar__icon-button`
+- `.rk-result-toolbar__edit-shell`
+- `.rk-result-toolbar__edit-input`
+
 ## Section Pattern
 
 Every result section should follow this structure:
@@ -134,13 +175,42 @@ Do not use:
 Locked premium content should use:
 
 - Standard section header
-- Centered compact card
-- Filled dark `PRO MAX` badge with lock icon
-- Short supporting copy
-- Benefit list with subtle neutral icon tiles
-- Dark pill CTA
+- Compact two-column card
+- Max width `600px`
+- Left content column around `4/7`
+- Right lock visual column around `3/7`
+- Support copy that may wrap naturally across lines
+- Smaller `PRO MAX` badge
+- Smaller benefit tiles and CTA than legacy gate cards
+- Large but soft lock visual in the right column
+- Dark pill CTA anchored in the content column
 
 This is the canonical pattern for premium-gated result insights.
+
+Shared classes:
+
+- `.rk-pro-gate-card`
+- `.rk-pro-gate-card--compact`
+- `.rk-pro-gate-card__content`
+- `.rk-pro-gate-card__eyebrow`
+- `.rk-pro-gate-card__title`
+- `.rk-pro-gate-card__body`
+- `.rk-pro-gate-card__divider`
+- `.rk-pro-gate-card__features`
+- `.rk-pro-gate-card__feature`
+- `.rk-pro-gate-card__feature-icon`
+- `.rk-pro-gate-card__feature-copy`
+- `.rk-pro-gate-card__cta`
+- `.rk-pro-gate-card__visual`
+- `.rk-pro-gate-card__lock-ring`
+- `.rk-pro-gate-card__lock-bars`
+
+Layout notes:
+
+- Keep the card visually tighter than older upgrade blocks
+- On smaller screens the lock column stacks under the content
+- The right visual area should remain decorative, not information-dense
+- Avoid adding extra badges, pricing text, or multiple CTAs to this card
 
 ## Migration Rule For Older Result Pages
 
@@ -157,6 +227,7 @@ This means:
 These files now participate in the same result design language:
 
 - [components/OptimkiSidebarReport.tsx](D:\MKTLABB2\components\OptimkiSidebarReport.tsx)
+- [components/result-design-system.css](D:\MKTLABB2\components\result-design-system.css)
 - [components/MastermindStrategyEditorial.css](D:\MKTLABB2\components\MastermindStrategyEditorial.css)
 - [components/imc-planner-editorial.css](D:\MKTLABB2\components\imc-planner-editorial.css)
 - [components/porter-report-editorial.css](D:\MKTLABB2\components\porter-report-editorial.css)
