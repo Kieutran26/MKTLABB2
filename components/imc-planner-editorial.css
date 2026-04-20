@@ -1,21 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .imc-editorial-wrapper {
-  --ink: #304f74;
-  --ink-2: #3a3935;
-  --ink-3: #8a887f;
-  --ink-4: #b8b6ae;
-  --paper: #faf9f6;
-  --paper-2: #f2f0eb;
-  --paper-3: #e8e5de;
-  --accent: #1a5c3a;
-  --accent-warm: #c17f2a;
-  --accent-blue: #1a3a5c;
-  --danger: #8a1a1a;
-  --danger-light: #f5ebe8;
-  --rule: rgba(15, 15, 13, 0.1);
-  --serif: 'Playfair Display', serif;
-  --sans: 'DM Sans', system-ui, sans-serif;
+  --ink: var(--rk-ink);
+  --ink-2: var(--rk-ink-2);
+  --ink-3: var(--rk-ink-3);
+  --ink-4: var(--rk-ink-4);
+  --paper: var(--rk-paper);
+  --paper-2: var(--rk-paper-2);
+  --paper-3: var(--rk-paper-3);
+  --accent: var(--rk-ink);
+  --accent-warm: var(--rk-ink);
+  --accent-blue: var(--rk-ink);
+  --danger: var(--rk-ink);
+  --danger-light: var(--rk-surface-soft);
+  --rule: var(--rk-border);
+  --serif: var(--rk-font-display);
+  --sans: var(--rk-font-sans);
   
   background: var(--paper);
   font-family: var(--sans);

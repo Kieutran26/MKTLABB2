@@ -3,28 +3,28 @@
  * Toàn bộ rule nằm dưới .pestel-report để khớp HTML từ AI + tránh ảnh hưởng app.
  * Gồm class MỚI (ki-strip, factor…) và class CŨ từ geminiService (pestel-summary, pf-tree…).
  */
-@import url('https://fonts.googleapis.com/css2?family=Prata&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .pestel-report {
-  --ink: #304f74;
-  --ink-2: #3a3935;
-  --ink-3: #8a887f;
-  --ink-4: #b8b6ae;
-  --paper: #faf9f6;
-  --paper-2: #f2f0eb;
-  --paper-3: #e8e5de;
-  --p-color: #1a3a5c;
-  --e-color: #1a5c3a;
-  --s-color: #c17f2a;
-  --t-color: #5c1a5c;
-  --env-color: #2a7f3a;
-  --l-color: #8a1a1a;
+  --ink: var(--rk-ink);
+  --ink-2: var(--rk-ink-2);
+  --ink-3: var(--rk-ink-3);
+  --ink-4: var(--rk-ink-4);
+  --paper: var(--rk-paper);
+  --paper-2: var(--rk-paper-2);
+  --paper-3: var(--rk-paper-3);
+  --p-color: var(--rk-ink);
+  --e-color: var(--rk-ink);
+  --s-color: var(--rk-ink);
+  --t-color: var(--rk-ink);
+  --env-color: var(--rk-ink);
+  --l-color: var(--rk-ink);
   /* Vạch trái cơ hội / rủi ro (ma trận Top 3) — khớp ảnh mẫu */
-  --or-line-opp: #1e5c38;
-  --or-line-risk: #8b1e1e;
-  --rule: rgba(15, 15, 13, 0.1);
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'DM Sans', system-ui, sans-serif;
+  --or-line-opp: var(--rk-ink);
+  --or-line-risk: var(--rk-ink);
+  --rule: var(--rk-border);
+  --serif: var(--rk-font-display);
+  --sans: var(--rk-font-sans);
 
   /* Full-bleed giống STP Optimizer: không max-width hẹp, padding ngang rộng */
   max-width: none;

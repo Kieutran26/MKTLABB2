@@ -1,38 +1,38 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ─── TOKENS ─────────────────────────────────────────────── */
 :root {
-  --ms-ink:        #1d1d1b;
-  --ms-ink-2:      #333330;
-  --ms-ink-3:      #7a7a75;
-  --ms-ink-4:      #b5b5ad;
-  --ms-paper:      #F9F7F3;
-  --ms-paper-2:    #f0ede8;
-  --ms-paper-3:    #e5e2dd;
+  --ms-ink:        var(--rk-ink);
+  --ms-ink-2:      var(--rk-ink-2);
+  --ms-ink-3:      var(--rk-ink-3);
+  --ms-ink-4:      var(--rk-ink-4);
+  --ms-paper:      var(--rk-paper);
+  --ms-paper-2:    var(--rk-paper-2);
+  --ms-paper-3:    var(--rk-paper-3);
 
-  --ms-green:      #1e4d34;
-  --ms-green-bg:   #f2f7f4;
-  --ms-green-mid:  #ceddd4;
+  --ms-green:      var(--rk-ink);
+  --ms-green-bg:   var(--rk-surface-soft);
+  --ms-green-mid:  var(--rk-border);
 
-  --ms-amber:      #8f5e16;
-  --ms-amber-bg:   #fdf8f0;
-  --ms-amber-mid:  #ecdfcc;
+  --ms-amber:      var(--rk-ink);
+  --ms-amber-bg:   var(--rk-surface-soft);
+  --ms-amber-mid:  var(--rk-border);
 
-  --ms-blue:       #203852;
-  --ms-blue-bg:    #f1f4f8;
-  --ms-blue-mid:   #d8dee8;
+  --ms-blue:       var(--rk-ink);
+  --ms-blue-bg:    var(--rk-surface-soft);
+  --ms-blue-mid:   var(--rk-border);
 
-  --ms-rose:       #8a3232;
-  --ms-rose-bg:    #fdf3f3;
-  --ms-rose-mid:   #ead0d0;
+  --ms-rose:       var(--rk-ink);
+  --ms-rose-bg:    var(--rk-surface-soft);
+  --ms-rose-mid:   var(--rk-border);
 
-  --ms-rule:       rgba(26,25,22,0.10);
-  --ms-serif:      'Playfair Display', Georgia, serif;
-  --ms-sans:       'DM Sans', system-ui, sans-serif;
+  --ms-rule:       var(--rk-border);
+  --ms-serif:      var(--rk-font-display);
+  --ms-sans:       var(--rk-font-sans);
 
-  --ms-radius:     8px;
-  --ms-shadow:     0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --ms-radius:     var(--rk-radius-sm);
+  --ms-shadow:     var(--rk-shadow-sm);
 }
 
 /* ─── WRAPPER ─────────────────────────────────────────────── */

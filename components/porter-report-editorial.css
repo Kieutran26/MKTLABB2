@@ -1,31 +1,31 @@
-/* Porter's Five Forces - Editorial Minimalism Styles */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
+/* Porter's Five Forces - Opti Result Design System styles */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 .porter-report {
-  --ink: #304f74;
-  --ink-2: #3a3935;
-  --ink-3: #8a887f;
-  --ink-4: #b8b6ae;
-  --paper: #faf9f6;
-  --paper-2: #f2f0eb;
-  --paper-3: #e8e5de;
-  --f1: #8a1a1a; /* Competitive Rivalry */
-  --f2: #1a3a5c; /* New Entrants */
-  --f3: #1a5c3a; /* Buyers */
-  --f4: #c17f2a; /* Suppliers */
-  --f5: #5c1a5c; /* Substitutes */
-  --rule: rgba(15, 15, 13, 0.1);
+  --ink: var(--rk-ink);
+  --ink-2: var(--rk-ink-2);
+  --ink-3: var(--rk-ink-3);
+  --ink-4: var(--rk-ink-4);
+  --paper: var(--rk-paper);
+  --paper-2: var(--rk-paper-2);
+  --paper-3: var(--rk-paper-3);
+  --f1: var(--rk-ink); /* Competitive Rivalry */
+  --f2: var(--rk-ink); /* New Entrants */
+  --f3: var(--rk-ink); /* Buyers */
+  --f4: var(--rk-ink); /* Suppliers */
+  --f5: var(--rk-ink); /* Substitutes */
+  --rule: var(--rk-border);
   /* Roadmap 30·60·90 — palette theo mock kem / viền đá */
-  --pr-roadmap-cream: #fdfbf7;
-  --pr-roadmap-border: #e0ddd5;
-  --pr-roadmap-head-bg: #f5f3ef;
-  --pr-roadmap-title: #7a756b;
-  --pr-roadmap-accent: #c17f2a;
-  --pr-roadmap-bullet-r: #8b1a1a;
-  --pr-roadmap-bullet-o: #c17f2a;
-  --pr-roadmap-bullet-g: #1a5c3a;
-  --serif: 'Playfair Display', Georgia, serif;
-  --sans: 'DM Sans', system-ui, sans-serif;
+  --pr-roadmap-cream: var(--rk-paper);
+  --pr-roadmap-border: var(--rk-border);
+  --pr-roadmap-head-bg: var(--rk-surface-soft);
+  --pr-roadmap-title: var(--rk-ink-3);
+  --pr-roadmap-accent: var(--rk-ink);
+  --pr-roadmap-bullet-r: var(--rk-ink);
+  --pr-roadmap-bullet-o: var(--rk-ink);
+  --pr-roadmap-bullet-g: var(--rk-ink);
+  --serif: var(--rk-font-display);
+  --sans: var(--rk-font-sans);
 
   background: var(--paper);
   font-family: var(--sans);

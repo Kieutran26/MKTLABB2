@@ -1,102 +1,191 @@
-# Editorial Minimalism Design Guidelines
+# Opti Result Design System
 
-This document defines the visual standards and implementation rules for the **Editorial Minimalism** design system used across the Mastermind Strategy and IMC Planner tools. These guidelines ensure a consistent, premium, and publication-ready experience.
+This document defines the single design system for all result pages in the product.  
+`Opti M.KI Engine` is now the visual source of truth. Older `Editorial Minimalism` styling is deprecated and must only survive as class-level structure, not as an independent visual language.
 
-## Global Tokens
+## Core Principle
 
-### Typography
-- **Serif (Display/Headlines)**: `'Prata', serif` (e.g., `Strategic Mastermind Pro`, Main Titles).
-- **Sans (Body/Forms)**: `'DM Sans', system-ui, sans-serif`.
-- **Font Sizes**:
-    - **Eyebrow/Label**: 9px - 10px (Uppercase, 0.22em tracking).
-    - **Form Section Title**: 16px (Medium).
-    - **Card Title**: 26px - 32px (Serif).
-    - **Body Copy**: 13px - 15px (Line-height 1.5 - 1.7).
-    - **Meta Info**: 11px.
+All result pages must share:
 
-### Color Palette
-- **Ink (Text/Rule)**:
-    - `Ink 1 (#1d1d1b)`: Primary black/ink.
-    - `Ink 2 (#333330)`: Balanced body text.
-    - `Ink 3 (#7a7a75)`: Subtle insights and descriptions.
-    - `Ink 4 (#b5b5ad)`: Placeholder, labels, and decorative rules.
-- **Paper (Backgrounds)**:
-    - `Paper 1 (#faf9f6)`: The core "off-white" paper tone.
-    - `Rule Color`: `rgba(26,25,22,0.10)`.
-- **App Master Background**: `#FCFDFC`.
+- One typography system
+- One neutral color system
+- One border and elevation system
+- One section header pattern
+- One badge / chip language
+- One premium gate pattern
 
-### Elevation & Borders
-- **Card Border**: `1px solid rgba(26, 25, 22, 0.06)` or `stone-200/90`.
-- **Card Radius**: `24px` for large container cards, `16px` for small list items.
-- **Card Shadow**: `0 4px 10px rgba(0,0,0,0.02), 0 32px 64px -16px rgba(0,0,0,0.08)`.
+Feature-specific pages may still have different layouts, grids, charts, or content structures.  
+They must not introduce a second visual system.
 
----
+## Token Source Of Truth
 
-## Component Standards
+Global result tokens live in:
 
-### 1. The Input Form Layout
-- **Header**: Use `FeatureHeader` with:
-    - Icon (Lucide, 20px-24px).
-    - Eyebrow (10px, uppercase).
-    - Subline (Descriptive, Ink-3 color).
-- **Field Groups**: Wrapped in `.ms-editorial-wrapper` (transparent background).
-- **Input Fields**:
-    - Textareas for strategic content (`min-h-[4rem]` or matching height).
-    - Borderless or very subtle border (stone-200) focused on typography.
-    - Title size for Brand ID label: 10px.
-    - Title size for Phase/Logic label: 16px.
+- [components/result-design-system.css](D:\MKTLABB2\components\result-design-system.css)
 
-### 2. The History Page (Grid)
-- **View Mode**: Full-page state (`viewMode === 'history'`), not a modal.
-- **Layout**: Grid system `grid-cols-1 md:grid-cols-2 xl:grid-cols-3` with `gap-4`.
-- **Card Content**:
-    - Title (Line-clamp 1, font-medium text-stone-900).
-    - Source Badge (Brand Vault vs Manual, 10px uppercase).
-    - Date Meta (11px, with `Calendar` icon).
-    - Actions (Trash icon, rose-50 hover state).
+Key tokens:
 
-### 3. The Brand Vault "Upgrade" Card
-- **Layout**: `display: grid; grid-template-columns: 1.15fr 0.85fr`.
-- **Container**: `ms-vault-card` with `24px` radius and white background.
-- **Left Side (Content)**:
-    - Padding: `2.5rem 3rem`.
-    - Gap between elements: `1.125rem`.
-    - Benefit List Gap: `0.5rem`.
-    - Benefit Icon: `22px x 22px`, `5px` radius.
-- **Right Side (Visuals)**:
-    - Background: `var(--ms-paper)` or `#faf9f6`.
-    - Elements: Animated DNA bars, Dash-ring spinning lock circle.
-    - Lock Icon Size: `32px`, `1.5` stroke width.
+- `--rk-ink`: main ink `#1c1917`
+- `--rk-paper`: app paper background
+- `--rk-surface`: white content surface
+- `--rk-surface-soft`: soft badge / chip background
+- `--rk-border`: default hairline border
+- `--rk-border-strong`: stronger border for emphasis
+- `--rk-shadow-sm`, `--rk-shadow-md`, `--rk-shadow-lg`
+- `--rk-radius-sm`, `--rk-radius-md`, `--rk-radius-lg`
+- `--rk-font-sans`, `--rk-font-display`
 
----
+## Typography
 
-## Implementation Rules
-- **Consistency**: Any new strategic model must use the `FeatureHeader` and the `viewMode` toggle logic.
-- **Icon Set**: Always use `lucide-react`. Standard icons: `Diamond` for Vault, `Pencil` for Manual, `History` for history, `Trash2` for delete.
-- **Buttons**:
-    - **Primary**: `bg-stone-950`, `text-white`, `rounded-2xl`, `py-2.5 px-6`.
-    - **Header Actions**: `size-10`, `rounded-2xl`, `border-stone-200`.
+Use one font family only:
 
----
+- Display: `Plus Jakarta Sans`
+- Body: `Plus Jakarta Sans`
 
-## Navigation & Controls
+Recommended sizes:
 
-### The "Back" (Quay lại) Button
-- **Visibility**: The Back button must be **hidden** during the first step (Step 1) of any wizard or creation flow to maintain a clean entry point.
-- **Visual Style**:
-    - **Shape**: `rounded-full` (Pill-shape).
-    - **Border**: `1px solid var(--ms-rule)` or `stone-200`.
-    - **Background**: `bg-white` or `transparent`.
-    - **Text**: `text-stone-600` or `text-stone-700`, `font-medium`, `text-sm`.
-    - **Padding**: `px-8 py-2.5` (IMC) or `px-8 h-10` (Mastermind).
-    - **Effects**: `transition-all`, `hover:bg-stone-50`, `shadow-sm`.
+- Eyebrow / meta: `10px`
+- Small support copy: `12px`
+- Body copy: `13px` to `14px`
+- Card title: `16px` to `22px`
+- Section title: `14px` to `18px`
+- Hero / large summary title: `28px` to `36px`
 
-### The "Next" (Kế tiếp) Button
-- **Shape**: `rounded-full`.
-- **Background**: `bg-stone-950` (Primary Ink).
-- **Text**: `text-white`, `font-medium`.
-- **Padding**: `px-8` to `px-10`, `h-10`.
+Typography rules:
 
----
-*Created: 2026-04-03*
-*Based on: Mastermind Strategy & IMC Planner sync*
+- Use tighter tracking only for large headings
+- Use uppercase with high letter spacing only for meta labels and badges
+- Avoid decorative serif display styles on result pages
+
+## Color System
+
+The result UI is monochrome and must scale from the web base color:
+
+- Base ink: `#1c1917`
+- Supporting text: alpha variations of base ink
+- Soft backgrounds: warm stone neutrals only
+- Borders: alpha variations of base ink
+
+Rules:
+
+- Do not use green, amber, blue, rose, purple as independent semantic themes for result-page chrome
+- If a chart needs multiple series colors, keep them inside chart-only scopes
+- Section chips, labels, locked states, and cards must stay inside the neutral system
+
+## Surfaces
+
+Standard surfaces:
+
+- App background: `--rk-paper`
+- Elevated report surface: `--rk-surface`
+- Soft utility surface: `--rk-surface-soft`
+
+Standard radii:
+
+- Large page card: `24px`
+- Content card: `18px`
+- Chip / mini badge: `12px` to `14px`
+- Pill CTA: full radius
+
+## Borders And Shadow
+
+Use subtle, editorial-like structure with modern app polish:
+
+- Default border: `1px solid var(--rk-border)`
+- Strong divider: `1px solid var(--rk-border-strong)` when hierarchy truly needs it
+- Default card shadow: `var(--rk-shadow-sm)`
+- Premium / gated card: `var(--rk-shadow-md)` or `var(--rk-shadow-lg)`
+
+Avoid:
+
+- Heavy dark borders on every nested block
+- Multiple competing shadows in one section
+- Colored glows on result pages
+
+## Section Pattern
+
+Every result section should follow this structure:
+
+1. Number chip
+2. Eyebrow label
+3. Section title
+4. Top divider
+5. Content block
+
+This pattern is now the standard reference taken from `OptimkiSidebarReport`.
+
+## Badge Pattern
+
+Badges and title chips must use:
+
+- Filled dark background
+- White text
+- Uppercase
+- Tight but readable tracking
+- Rounded corners
+
+Do not use:
+
+- Pastel semantic badge families per category
+- Gold / cream “editorial luxury” badges on result pages
+
+## Pro Gate Pattern
+
+Locked premium content should use:
+
+- Standard section header
+- Centered compact card
+- Filled dark `PRO MAX` badge with lock icon
+- Short supporting copy
+- Benefit list with subtle neutral icon tiles
+- Dark pill CTA
+
+This is the canonical pattern for premium-gated result insights.
+
+## Migration Rule For Older Result Pages
+
+Legacy result pages may keep their existing DOM/class structure temporarily, but they must map their local variables to the global result tokens.
+
+This means:
+
+- Old local `--ink`, `--paper`, `--accent`, `--serif`, `--sans` variables should alias to `--rk-*`
+- Old pages should not define a separate color identity anymore
+- Layout can remain custom per feature
+
+## Files Currently Covered By The Unified System
+
+These files now participate in the same result design language:
+
+- [components/OptimkiSidebarReport.tsx](D:\MKTLABB2\components\OptimkiSidebarReport.tsx)
+- [components/MastermindStrategyEditorial.css](D:\MKTLABB2\components\MastermindStrategyEditorial.css)
+- [components/imc-planner-editorial.css](D:\MKTLABB2\components\imc-planner-editorial.css)
+- [components/porter-report-editorial.css](D:\MKTLABB2\components\porter-report-editorial.css)
+- [components/pestel-report-editorial.css](D:\MKTLABB2\components\pestel-report-editorial.css)
+- [components/ProMaxAdviceGate.css](D:\MKTLABB2\components\ProMaxAdviceGate.css)
+
+## Deprecated System
+
+`Editorial Minimalism` is deprecated as a standalone design system.
+
+What remains allowed:
+
+- Legacy class names
+- Legacy layout structure
+- Transitional CSS selectors
+
+What is no longer allowed:
+
+- A second palette
+- Serif-led result-page typography
+- Feature-specific visual systems that conflict with Opti M.KI
+
+## Implementation Notes
+
+- For new result pages: start from `--rk-*` tokens first
+- For old result pages: migrate tokens first, then refine layout later
+- Do not hardcode colors if an `--rk-*` token already exists
+- If a new shared token is needed, add it to `result-design-system.css`
+
+## Unresolved Questions
+
+- None at this time

@@ -2,11 +2,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   Check,
+  ChevronRight,
   Copy,
   Download,
   LayoutGrid,
   Link2,
   Loader2,
+  Lock,
   MessageSquare,
   RefreshCw,
   Sparkles,
@@ -1280,7 +1282,7 @@ function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
 
             <div
               className="pointer-events-none absolute right-5 top-7 select-none text-[68px] font-semibold leading-none tracking-[-0.08em] opacity-60"
-              style={{ color: '#1c19171c' }}
+              style={{ color: '#2C39471c' }}
             >
               {card.badge}
             </div>
@@ -1326,7 +1328,7 @@ function PriorityBar({ score }: { score: number }) {
           key={i}
           className="h-1.5 w-4 rounded-full"
           style={{
-            backgroundColor: i <= score ? SWOT_BORDER : '#E8E5E1',
+            backgroundColor: i <= score ? SWOT_BORDER : '#d8dde3',
             opacity: i <= score ? 1 : 0.3,
           }}
         />
@@ -1820,7 +1822,7 @@ function SwotCrossMatrix({ cards }: { cards: ParsedCard[] }) {
             <div className="mb-3 flex items-center gap-3">
               <div
                 className="inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em]"
-                style={{ backgroundColor: tone.accent, color: tone.label }}
+                style={{ backgroundColor: SWOT_BORDER, color: '#ffffff' }}
               >
                 {card.title}
               </div>
@@ -1984,7 +1986,7 @@ function SmartMatrix({ cards }: { cards: ParsedCard[] }) {
 }
 
 function SmartTimelineMatrix({ cards }: { cards: ParsedCard[] }) {
-  const tones = ['#1c1917', '#4e463f', '#6b625c'];
+  const tones = ['#2C3947', '#4e5c6b', '#6c7a88'];
 
   return (
     <div
@@ -2436,7 +2438,7 @@ function CmoAdviceEditorialSection() {
     {
       roman: 'I.',
       title: 'Điều quan trọng nhất phải làm đúng',
-      titleColor: '#1c1917',
+      titleColor: '#2C3947',
       backgroundColor: '#f5f5f4',
       body:
         'Tập trung định vị thương hiệu rõ ràng dựa trên USP độc đáo: tour du lịch có điều dưỡng đi kèm và không shopping ép buộc. Đây là lợi thế cạnh tranh cốt lõi giúp Blue Vigor Travel nổi bật giữa thị trường đại trà đang bão hòa.',
@@ -2444,7 +2446,7 @@ function CmoAdviceEditorialSection() {
     {
       roman: 'II.',
       title: 'Cạm bẫy lớn nhất cần tránh',
-      titleColor: '#1c1917',
+      titleColor: '#2C3947',
       backgroundColor: '#fafaf9',
       body:
         'Cố gắng cạnh tranh về giá với các công ty tour đại trà. Điều này sẽ làm mất đi giá trị cao cấp và sự khác biệt, khiến khách hàng không còn nhận thấy sự đặc biệt của dịch vụ điều dưỡng đang là lợi thế cốt lõi.',
@@ -2452,7 +2454,7 @@ function CmoAdviceEditorialSection() {
     {
       roman: 'III.',
       title: 'Cơ hội đang bị bỏ ngỏ',
-      titleColor: '#1c1917',
+      titleColor: '#2C3947',
       backgroundColor: '#fafaf9',
       body:
         'Khai thác mạnh hơn kênh offline. Hợp tác với phòng khám, bệnh viện, tổ chức sức khỏe giúp tiếp cận trực tiếp tệp khách hàng có nhu cầu chăm sóc sức khỏe và khả năng chi trả cao nhất.',
@@ -2460,7 +2462,7 @@ function CmoAdviceEditorialSection() {
     {
       roman: 'IV.',
       title: 'Nếu chỉ được làm 1 điều',
-      titleColor: '#1c1917',
+      titleColor: '#2C3947',
       backgroundColor: '#fafaf9',
       body:
         'Đầu tư vào kể câu chuyện về sự an tâm và tận hưởng trọn vẹn thông qua hình ảnh và lời chứng thực chân thực từ khách hàng đã trải nghiệm. Đây là thứ xây dựng niềm tin nhanh nhất cho thương hiệu mới.',
@@ -2510,6 +2512,94 @@ function CmoAdviceEditorialSection() {
           style={{ backgroundColor: '#fafaf9', borderLeft: `4px solid ${SWOT_BORDER}` }}
         >
           <p className="text-[13px] italic leading-7 text-stone-800">{closingQuote}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProAdviceLockedSection() {
+  const perks = [
+    'Insight chiến lược, rủi ro và cơ hội dễ bị bỏ lỡ',
+    'Lộ trình hành động 30 · 60 · 90 ngày cho đội marketing',
+  ];
+
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          07
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">TÍNH NĂNG PRO</div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Lời khuyên</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div className="mx-auto w-full max-w-[760px]">
+          <div
+            className="rounded-[24px] border px-5 py-4 shadow-[0_14px_36px_rgba(28,25,23,0.06)] xl:px-5 xl:py-4.5"
+            style={{
+              borderColor: 'rgba(28, 25, 23, 0.12)',
+              backgroundColor: '#fcfbf8',
+            }}
+          >
+            <div className="max-w-[640px]">
+            <div
+              className="inline-flex items-center gap-2 rounded-[12px] border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.24em]"
+              style={{
+                backgroundColor: SWOT_BORDER,
+                borderColor: SWOT_BORDER,
+                color: '#ffffff',
+              }}
+            >
+              <Lock className="h-3.5 w-3.5" strokeWidth={2.1} />
+              <span>PRO MAX</span>
+            </div>
+
+            <div className="mt-4">
+              <p className="max-w-[560px] text-[13px] leading-6 text-stone-600">
+                Chỉ có trên <span className="font-semibold text-stone-900">Pro Max</span>. Mở khóa phân tích chuyên sâu
+                và lộ trình rõ ràng cho đội marketing.
+              </p>
+            </div>
+
+            <div className="my-4 h-px w-full bg-stone-200/80" />
+
+            <div className="space-y-2.5">
+              {perks.map((perk) => (
+                <div key={perk} className="flex items-start gap-3">
+                  <div
+                    className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border"
+                    style={{
+                      backgroundColor: SWOT_SOFT,
+                      borderColor: 'rgba(28, 25, 23, 0.12)',
+                    }}
+                  >
+                    <Check className="h-4.5 w-4.5 text-stone-900" strokeWidth={2.3} />
+                  </div>
+                  <p className="text-[13px] leading-5.5 text-stone-700">{perk}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-semibold text-white transition-transform duration-200 hover:translate-y-[-1px]"
+              style={{
+                backgroundColor: SWOT_BORDER,
+                boxShadow: '0 10px 24px rgba(28, 25, 23, 0.14)',
+              }}
+            >
+              <span>Nâng cấp Pro Max</span>
+              <ChevronRight className="h-4.5 w-4.5" strokeWidth={2.4} />
+            </button>
+          </div>
+        </div>
         </div>
       </div>
     </section>
@@ -2723,7 +2813,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Opti M.KI - ${result.brand_name}</title>
 </head>
-<body style="font-family:Segoe UI,Arial,sans-serif;padding:32px;line-height:1.7;color:#1c1917;background:#fcfdfc;white-space:pre-wrap;">${text}</body>
+<body style="font-family:Segoe UI,Arial,sans-serif;padding:32px;line-height:1.7;color:#2C3947;background:#fcfdfc;white-space:pre-wrap;">${text}</body>
 </html>`;
 
     const blob = new Blob([content], { type: 'text/html' });
@@ -2818,7 +2908,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
               <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
             ))}
             {displaySections.length >= 5 ? <IntegrationAllModelsSection sections={displaySections} /> : null}
-            {result.suggestion || cmoSummarySection ? <CmoAdviceEditorialSection /> : null}
+            {result.suggestion || cmoSummarySection ? <ProAdviceLockedSection /> : null}
           </div>
           </div>
         </div>

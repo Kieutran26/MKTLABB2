@@ -1624,7 +1624,7 @@ export const generateMastermindStrategy = async (
 - Cấm chèn từ tiếng Anh lẫn vào giữa câu tiếng Việt (kiểu "Tạo ra một strategy rất hiệu quả").
 - Mỗi section tiêu đề có thể giữ tiếng Anh nếu đó là tên model framework quốc tế (SWOT, AIDA, PESTEL, STP, SMART, 4P, 5W1H).
 
-Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ) dưới dạng HTML chuẩn SEO theo phong cách Editorial Minimalism.
+Nhiệm vụ: Tổng hợp bối cảnh và tạo ra một chiến lược marketing hoàn chỉnh, có chiều sâu và CỰC KỲ CHI TIẾT (1500-2000 chữ) dưới dạng HTML chuẩn SEO theo Opti Result Design System.
 
 **INPUT DATA:**
 - Bối cảnh thương hiệu: ${brandInfo}
@@ -4116,7 +4116,7 @@ NGUYÊN TẮC TUYỆT ĐỐI — ĐỌC TRƯỚC KHI LÀM BẤT CỨ ĐIỀU GÌ
 • PESTEL phải phục vụ quyết định — không phải bài viết học thuật
 
 ═══════════════════════════════════════
-HÌNH THỨC TRÌNH BÀY (Editorial Minimalism):
+HÌNH THỨC TRÌNH BÀY (Opti Result Design System):
 ═══════════════════════════════════════
 Bạn phải sử dụng chính xác các class và cấu trúc HTML sau để tạo ra báo cáo. Wrapper ngoài cùng phải là <div class="pestel-report">.
 
@@ -4322,7 +4322,7 @@ QUAN TRỌNG — JSON HỢP LỆ (DÀNH CHO CEO):
         await new Promise(r => setTimeout(r, 600));
         onProgress?.('🤝 Đang phân tích tác động doanh nghiệp...');
         await new Promise(r => setTimeout(r, 500));
-        onProgress?.('🎯 Đang viết báo cáo Editorial Minimalism...');
+        onProgress?.('🎯 Đang viết báo cáo theo Opti Result Design System...');
 
         const userPrompt = `PHÂN TÍCH PESTEL CHI TIẾT:
 - Ngành hàng: \${input.industry}

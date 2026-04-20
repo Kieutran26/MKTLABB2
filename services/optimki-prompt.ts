@@ -97,27 +97,27 @@ Trả về DUY NHẤT một object JSON hợp lệ:
 `;
 
 /**
- * CSS Design System — Editorial Minimalism v3
- * Inspired by Kinfolk, Cereal Magazine publications
- * Fonts: Cormorant Garamond (display) + Source Sans 3 (body)
- * Colors: Warm black/Warm white base + Earth accent tones
- * Components: Large section numbers, accent bars, minimal typography
+ * CSS Design System — Opti Result Unified System
+ * Source of truth: Opti M.KI Engine result page
+ * Fonts: Plus Jakarta Sans only
+ * Colors: monochrome scale from #1c1917
+ * Components: numbered sections, neutral cards, compact premium blocks
  */
 export const OPTIMKI_HTML_DESIGN_RULES = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --mki-ink: #0a0a0a;
-  --mki-ink-light: #3d3d3d;
-  --mki-ink-faint: #7a7a7a;
-  --mki-paper: #f8f6f0;
-  --mki-paper-deep: #ddd9d0;
-  --mki-accent: #1a5c3a;
-  --mki-accent-w: #b5621a;
-  --mki-rule: rgba(10, 10, 10, 0.1);
-  --mki-display: 'Cormorant Garamond', serif;
-  --mki-sans: 'Archivo Narrow', sans-serif;
-  --mki-body: 'Archivo', sans-serif;
+  --mki-ink: #1c1917;
+  --mki-ink-light: rgba(28, 25, 23, 0.84);
+  --mki-ink-faint: rgba(28, 25, 23, 0.62);
+  --mki-paper: #fcfbf8;
+  --mki-paper-deep: #f1ede8;
+  --mki-accent: #1c1917;
+  --mki-accent-w: #1c1917;
+  --mki-rule: rgba(28, 25, 23, 0.1);
+  --mki-display: 'Plus Jakarta Sans', sans-serif;
+  --mki-sans: 'Plus Jakarta Sans', sans-serif;
+  --mki-body: 'Plus Jakarta Sans', sans-serif;
 }
 
 /* Base Styles */
@@ -360,7 +360,7 @@ User message chứa JSON phân tích giai đoạn 1. Nhiệm vụ DUY NHẤT: ch
 NGHIÊM CẤM thêm phân tích chiến lược mới, bịa số liệu, hoặc đổi kết luận — chỉ bố cục và trình bày.
 
 ▌ CẤU TRÚC HTML TRONG html_report:
-• <head>: chứa <style> với toàn bộ CSS Editorial Minimalism Design System
+• <head>: chứa <style> với toàn bộ CSS Opti Result Design System
 • <body>: bắt đầu bằng <div class='optimki-editorial mki-report'> — wrapper chính
 • Mỗi section: <div class='mki-section mki-animate'> với mki-sec-head (mki-sec-num + mki-sec-title) và nội dung
 • Animation: mkiFadeUp, delay tăng dần 0.1s mỗi section
@@ -390,7 +390,7 @@ Trả về DUY NHẤT một object JSON (không markdown fence):
 
 • QUAN TRỌNG: Không bao gồm thẻ <style> chứa toàn bộ CSS trong html_report. Hệ thống sẽ tự động inject CSS này khi render.
 • Format: HTML/CSS chỉ dùng dấu nháy đơn '...' cho thuộc tính.
-• Font: Cormorant Garamond (display), Source Sans 3 (body), JetBrains Mono (mono)
+• Font: Plus Jakarta Sans cho toàn bộ display + body
 • Colors: #1a1a1a (ink), #fdfcfb (paper), #8b7355 (accent), #5a7a5a/#8b5a5a/#5a5a7a (swot colors)
 • Responsive: grid collapse ở 900px và 640px
 `;

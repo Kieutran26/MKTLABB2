@@ -9,12 +9,12 @@
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  background: #ffffff;
-  border: 1px solid rgba(26, 25, 22, 0.05);
-  border-radius: 28px;
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius-lg);
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.04),
-    0 20px 48px -24px rgba(0, 0, 0, 0.1);
+    var(--rk-shadow-sm),
+    0 20px 48px -24px rgba(28, 25, 23, 0.08);
   box-sizing: border-box;
 }
 
@@ -36,7 +36,7 @@
 }
 
 .pmg-visual-side {
-  background: #faf9f6;
+  background: var(--rk-surface-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,17 +46,17 @@
 
 /* Badge PRO MAX — nền kem, viền vàng nhạt */
 .pmg-compact-card .ms-vault-label {
-  background: #faf6f0 !important;
-  border: 1px solid rgba(200, 170, 120, 0.45) !important;
-  color: #3a3935 !important;
+  background: var(--rk-ink) !important;
+  border: 1px solid var(--rk-ink) !important;
+  color: #ffffff !important;
   box-shadow: none !important;
   letter-spacing: 0.2em !important;
   padding: 7px 14px 7px 11px !important;
-  border-radius: 8px !important;
+  border-radius: 12px !important;
 }
 
 .pmg-compact-card .ms-vault-label-diamond {
-  color: #5c5348 !important;
+  color: #ffffff !important;
 }
 
 .pmg-compact-title {
@@ -64,7 +64,7 @@
   line-height: 1.2 !important;
   margin: 0.35rem 0 0 !important;
   font-weight: 400 !important;
-  color: #304f74 !important;
+  color: var(--rk-ink) !important;
 }
 
 .pmg-compact-desc {
@@ -72,11 +72,11 @@
   line-height: 1.55 !important;
   max-width: none !important;
   margin: 0.25rem 0 0 !important;
-  color: #6b6560 !important;
+  color: var(--rk-ink-3) !important;
 }
 
 .pmg-desc-strong {
-  color: #304f74 !important;
+  color: var(--rk-ink) !important;
   font-weight: 700 !important;
 }
 
@@ -92,16 +92,16 @@
 .pmg-compact-benefits .ms-vault-benefit-item {
   font-size: 12px !important;
   line-height: 1.4 !important;
-  color: #5c5348 !important;
+  color: var(--rk-ink-2) !important;
 }
 
 .pmg-compact-benefits .ms-vault-benefit-icon {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: rgba(30, 92, 56, 0.1) !important;
-  border: 1px solid rgba(30, 92, 56, 0.35) !important;
-  color: #166534 !important;
+  background: var(--rk-surface-soft) !important;
+  border: 1px solid var(--rk-border-strong) !important;
+  color: var(--rk-ink) !important;
 }
 
 .pmg-compact-cta {

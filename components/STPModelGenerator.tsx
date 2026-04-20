@@ -175,33 +175,33 @@ const STPModelGenerator: React.FC = () => {
     const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Editorial styles for STP output
+    // Unified result-page styles for STP output
     const editorialStyles = `
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Prata&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         .stp-editorial-wrapper * { box-sizing: border-box; margin: 0; padding: 0; }
         
         :root {
-            --ink: #304f74;
-            --ink-2: #3a3935;
-            --ink-3: #8a887f;
-            --ink-4: #b8b6ae;
-            --paper: #faf9f6;
-            --paper-2: #f2f0eb;
-            --paper-3: #e8e5de;
-            --accent: #1a5c3a;
-            --accent-w: #c17f2a;
-            --accent-b: #1a3a5c;
-            --rule: rgba(15,15,13,0.1);
-            --serif: 'Playfair Display', Georgia, serif;
-            --sans: 'DM Sans', system-ui, sans-serif;
+            --ink: #1c1917;
+            --ink-2: rgba(28,25,23,0.84);
+            --ink-3: rgba(28,25,23,0.62);
+            --ink-4: rgba(28,25,23,0.34);
+            --paper: #fcfbf8;
+            --paper-2: #f8f6f3;
+            --paper-3: #f1ede8;
+            --accent: #1c1917;
+            --accent-w: #1c1917;
+            --accent-b: #1c1917;
+            --rule: rgba(28,25,23,0.10);
+            --serif: 'Plus Jakarta Sans', sans-serif;
+            --sans: 'Plus Jakarta Sans', sans-serif;
             /* Targeting card — nền mint nhạt giống thẻ editorial xanh (CH / roadmap) */
-            --stp-tg-bg: #f0f7f4;
-            --stp-tg-border: #b8d4c4;
+            --stp-tg-bg: #f5f5f4;
+            --stp-tg-border: rgba(28,25,23,0.12);
             --stp-tg-title: var(--ink);
-            --stp-tg-body: #3d5248;
-            --stp-tg-label: #5c7568;
-            --stp-tg-rule: rgba(30, 77, 52, 0.14);
+            --stp-tg-body: var(--ink-2);
+            --stp-tg-label: var(--ink-3);
+            --stp-tg-rule: rgba(28,25,23,0.10);
         }
         
         .stp-editorial {

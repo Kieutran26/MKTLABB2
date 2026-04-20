@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --rk-ink: #1c1917;
+  --rk-ink-2: rgba(28, 25, 23, 0.84);
+  --rk-ink-3: rgba(28, 25, 23, 0.62);
+  --rk-ink-4: rgba(28, 25, 23, 0.34);
+
+  --rk-paper: #fcfbf8;
+  --rk-paper-2: #f8f6f3;
+  --rk-paper-3: #f1ede8;
+  --rk-surface: #ffffff;
+  --rk-surface-soft: #f5f5f4;
+
+  --rk-border: rgba(28, 25, 23, 0.10);
+  --rk-border-strong: rgba(28, 25, 23, 0.16);
+
+  --rk-shadow-sm: 0 4px 18px rgba(28, 25, 23, 0.05);
+  --rk-shadow-md: 0 14px 36px rgba(28, 25, 23, 0.08);
+  --rk-shadow-lg: 0 22px 52px rgba(28, 25, 23, 0.10);
+
+  --rk-radius-sm: 12px;
+  --rk-radius-md: 18px;
+  --rk-radius-lg: 24px;
+  --rk-radius-pill: 999px;
+
+  --rk-font-sans: 'Plus Jakarta Sans', sans-serif;
+  --rk-font-display: 'Plus Jakarta Sans', sans-serif;
+
+  --rk-text-xs: 10px;
+  --rk-text-sm: 12px;
+  --rk-text-md: 14px;
+  --rk-text-lg: 16px;
+  --rk-text-xl: 22px;
+  --rk-text-hero: 36px;
+}
+
+body {
+  background: var(--rk-paper);
+  color: var(--rk-ink);
+  font-family: var(--rk-font-sans);
+}
+
+.rk-result-surface {
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius-lg);
+  box-shadow: var(--rk-shadow-sm);
+}
+
+.rk-result-card {
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius-md);
+}
+
+.rk-result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: var(--rk-ink);
+  color: #fff;
+  font-size: var(--rk-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.rk-result-divider {
+  height: 1px;
+  background: var(--rk-border);
+}
+
+.rk-result-eyebrow {
+  font-size: var(--rk-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rk-ink-4);
+}
+
+.rk-result-title {
+  font-family: var(--rk-font-display);
+  font-size: var(--rk-text-xl);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--rk-ink);
+}
+
+.rk-result-copy {
+  font-size: var(--rk-text-md);
+  line-height: 1.75;
+  color: var(--rk-ink-3);
+}
