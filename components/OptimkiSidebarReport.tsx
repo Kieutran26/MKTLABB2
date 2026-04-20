@@ -698,6 +698,61 @@ function sortAidaCards(cards: ParsedCard[]): ParsedCard[] {
   });
 }
 
+function sortFourPCards(cards: ParsedCard[]): ParsedCard[] {
+  const orderMap: Record<string, number> = {
+    PRODUCT: 0,
+    PRICE: 1,
+    PLACE: 2,
+    PROMOTION: 3,
+  };
+
+  return [...cards].sort((a, b) => {
+    const ai = orderMap[getFourPDisplayTitle(a).toUpperCase()] ?? 99;
+    const bi = orderMap[getFourPDisplayTitle(b).toUpperCase()] ?? 99;
+    return ai - bi;
+  });
+}
+
+function isLikelyFourPHeading(line: string): boolean {
+  const normalized = normalizeLine(line);
+  if (!normalized) return false;
+
+  const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+  const looksLikeSentence = /[.!?]/.test(normalized);
+
+  if (normalized.endsWith(':')) return true;
+  if (wordCount <= 7 && !looksLikeSentence) return true;
+  if (normalized.length <= 52 && !looksLikeSentence) return true;
+
+  return false;
+}
+
+function buildFourPBlocks(lines: string[]): Array<{ heading?: string; body?: string }> {
+  const blocks: Array<{ heading?: string; body?: string }> = [];
+
+  for (const rawLine of lines) {
+    const line = normalizeLine(rawLine);
+    if (!line) continue;
+
+    const isHeading = isLikelyFourPHeading(line);
+    const previous = blocks[blocks.length - 1];
+
+    if (isHeading) {
+      blocks.push({ heading: line.replace(/:$/, '') });
+      continue;
+    }
+
+    if (previous && previous.heading && !previous.body) {
+      previous.body = line;
+      continue;
+    }
+
+    blocks.push({ body: line });
+  }
+
+  return blocks;
+}
+
 function getAidaDisplayTitle(card: ParsedCard): string {
   const rawTitle = (card.title ?? '').trim();
   if (rawTitle && rawTitle.toLowerCase() !== 'nội dung' && rawTitle.toLowerCase() !== 'ná»™i dung') {
@@ -748,6 +803,31 @@ function splitAidaLineIntoIdeas(line: string): string[] {
     .filter((part) => part.length > 3);
 
   return parts.length > 0 ? parts : [normalized];
+}
+
+function getFourPDisplayTitle(card: ParsedCard): string {
+  return normalizeLine(card.title || '4P');
+}
+
+function getFourPVietnameseLabel(title: string): string {
+  if (/product/i.test(title)) return 'Sản phẩm';
+  if (/price/i.test(title)) return 'Giá';
+  if (/place/i.test(title)) return 'Phân phối';
+  if (/promotion/i.test(title)) return 'Xúc tiến';
+  return '';
+}
+
+function getFourPHeaderText(title: string): string {
+  const vietnameseLabel = getFourPVietnameseLabel(title);
+  return vietnameseLabel ? `${title} • ${vietnameseLabel}` : title;
+}
+
+function stripFourPVietnamesePrefix(line: string, vietnameseLabel: string): string {
+  if (!line || !vietnameseLabel) return line;
+  const escaped = vietnameseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^${escaped}\\s*[•·:\\-–—]?\\s*`, 'i');
+  const cleaned = line.replace(pattern, '').trim();
+  return cleaned || line;
 }
 
 function getAidaVietnameseLabel(title: string): string {
@@ -914,9 +994,146 @@ function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
   );
 }
 
+function PriorityBar({ score }: { score: number }) {
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="h-1.5 w-6 rounded-full"
+          style={{
+            backgroundColor: i <= score ? SWOT_BORDER : '#E8E5E1',
+            opacity: i <= score ? 1 : 0.3,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function extractFourPMetadata(lines: string[]): { priority: number; label?: string; filteredLines: string[] } {
+  let priority = 0;
+  let label: string | undefined;
+  const filteredLines: string[] = [];
+
+  const priorityPattern = /ưu tiên\s*[:\-]?\s*(\d+)/i;
+  const labelsPattern = /(điểm yếu nhất|ngân sách|quan trọng nhất|mục tiêu chính)/i;
+
+  for (const line of lines) {
+    const pMatch = line.match(priorityPattern);
+    const lMatch = line.match(labelsPattern);
+
+    if (pMatch && !priority) {
+      priority = parseInt(pMatch[1], 10);
+      continue;
+    }
+
+    if (lMatch && !label) {
+      label = line.toUpperCase();
+      continue;
+    }
+
+    filteredLines.push(line);
+  }
+
+  return { priority, label, filteredLines };
+}
+
+function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortFourPCards(cards);
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-2"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {orderedCards.map((card, index) => {
+        const isLeft = index % 2 === 0;
+        const isTop = index < 2;
+        const displayTitle = getFourPDisplayTitle(card);
+        const vietnameseLabel = getFourPVietnameseLabel(displayTitle);
+        
+        const { priority: extractedPriority, label: metaLabel, filteredLines } = extractFourPMetadata(card.lines);
+        const priority = extractedPriority || (index + 1);
+
+        const displayBlocks = buildFourPBlocks(
+          filteredLines
+            .map((line, lineIndex) =>
+              lineIndex === 0 ? stripFourPVietnamesePrefix(line, vietnameseLabel) : line
+            )
+            .flatMap((line) => splitAidaLineIntoIdeas(line))
+        );
+
+        return (
+          <article
+            key={`4p-${card.badge}-${card.title}-${index}`}
+            className={`relative flex min-h-[260px] flex-col p-6 xl:p-8 ${
+              isLeft ? 'xl:border-r' : ''
+            } ${isTop ? 'border-b xl:border-b' : ''}`}
+            style={{ borderColor: SWOT_BORDER }}
+          >
+            <div className="mb-8 flex flex-col items-start gap-1">
+              <div className="text-[10px] font-medium tracking-[0.2em] text-stone-400">
+                0{index + 1}/04
+              </div>
+              <h3 
+                className="text-[32px] font-bold tracking-tight text-stone-900 font-sans"
+                style={{ lineHeight: 1.1 }}
+              >
+                {displayTitle}
+              </h3>
+            </div>
+
+            <div className="mb-8 flex items-center gap-4">
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                    ƯU TIÊN {priority}/5
+                  </span>
+                  {metaLabel && (
+                    <>
+                      <span className="text-stone-300">—</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                        {metaLabel}
+                      </span>
+                    </>
+                  )}
+                </div>
+                <PriorityBar score={priority} />
+              </div>
+            </div>
+
+            <div className="mt-0 space-y-4">
+              {displayBlocks.map((block, blockIndex) => (
+                <div key={`4p-block-${index}-${blockIndex}`} className="flex items-start gap-3">
+                   <div className="mt-2 flex shrink-0 items-center justify-center">
+                    <span className="text-stone-400 text-[12px]">→</span>
+                  </div>
+                  <div className="flex-1">
+                    {block.heading ? (
+                      <span className="text-[14px] font-bold text-stone-800">
+                        {block.heading}:{' '}
+                      </span>
+                    ) : null}
+                    {block.body ? (
+                      <span className="text-[14px] leading-relaxed text-stone-600">
+                        {block.body}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
   const accentColor = getAccentColor(index);
-  const usesEditorialTone = section.kind === 'swot' || section.kind === 'aida';
+  const usesEditorialTone = section.kind === 'swot' || section.kind === 'aida' || section.kind === '4p';
   const sectionChipBg = usesEditorialTone ? SWOT_SOFT : `${accentColor}15`;
   const sectionChipText = usesEditorialTone ? SWOT_SOFT_TEXT : accentColor;
 
@@ -970,7 +1187,11 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
           <AidaMatrix cards={section.cards} />
         )}
 
-        {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && (
+        {section.cards.length > 0 && section.kind === '4p' && (
+          <FourPMatrix cards={section.cards} />
+        )}
+
+        {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && section.kind !== '4p' && (
           <div className={`grid gap-3 ${getSectionGridClass(section.kind, section.cards.length)}`}>
             {section.cards.map((card, cardIndex) => (
               <div
