@@ -457,43 +457,13 @@ const OptimkiBuilder: React.FC = () => {
             )}
           </div>
         ) : result ? (
-          <div className="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col animate-in fade-in slide-in-from-right-4 overflow-hidden duration-500 relative bg-[#faf9f6]">
-            <div className="flex p-4 shrink-0 justify-end z-10">
-                <button
-                    type="button"
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className={`flex shrink-0 items-center gap-2 rounded-xl border px-3.5 py-2 backdrop-blur-sm transition-all duration-300 shadow-sm ${
-                        isSaved
-                            ? 'border-emerald-300/80 bg-emerald-50/80'
-                            : 'border-stone-200 bg-white/80 hover:border-stone-300 hover:bg-white'
-                    }`}
-                >
-                    {isSaving ? (
-                        <Loader2 size={17} className="animate-spin text-stone-400" />
-                    ) : (
-                        <span className="relative inline-flex h-[17px] w-[17px] shrink-0 items-center justify-center">
-                            <span className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
-                                <Check size={17} strokeWidth={1.15} className="text-emerald-500" />
-                            </span>
-                            <span className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSaved ? 'scale-0 opacity-0' : 'scale-100 opacity-100'}`}>
-                                <Save size={17} strokeWidth={1.15} className="text-stone-500" />
-                            </span>
-                        </span>
-                    )}
-                    <span className={`text-[13px] font-extralight tracking-wide transition-colors duration-300 ${isSaved ? 'text-emerald-600' : 'text-stone-600'}`}>
-                        {isSaved ? 'Đã lưu' : 'Lưu'}
-                    </span>
-                </button>
-            </div>
-            <div className="flex-1 min-h-0 -mt-14 overflow-y-auto">
-              <EditorialOptimkiReport
-                result={result}
-                onRenderHtml={handleReRenderHtml}
-                isRendering={isRendering}
-                renderStep={renderStep}
-              />
-            </div>
+          <div className="flex-1 min-h-0 animate-in fade-in slide-in-from-right-4 duration-500">
+            <EditorialOptimkiReport
+              result={result}
+              onRenderHtml={handleReRenderHtml}
+              isRendering={isRendering}
+              renderStep={renderStep}
+            />
           </div>
         ) : isGenerating ? (
           <div className="flex h-full flex-col items-center justify-center p-12 text-center space-y-6">

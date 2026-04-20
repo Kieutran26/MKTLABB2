@@ -214,14 +214,21 @@ const STPModelGenerator: React.FC = () => {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .stp-editorial-inner {
             box-sizing: border-box;
             width: 100%;
             padding-top: 1rem;
             padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
-            padding-left: calc(50px + env(safe-area-inset-left, 0px));
-            padding-right: calc(50px + env(safe-area-inset-right, 0px));
+            padding-left: max(50px, 1.5rem);
+            padding-right: max(50px, 1.5rem);
+        }
+        .stp-editorial-inner > * {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
         
         @keyframes fadeUp {
@@ -298,14 +305,21 @@ const STPModelGenerator: React.FC = () => {
         /* Segmentation */
         .stp-seg-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 0;
             border: 1px solid var(--rule);
             border-radius: 3px;
             overflow: hidden;
             margin-bottom: 2rem;
+            min-width: 0;
         }
-        .stp-seg-col { padding: 1.25rem 1.1rem; border-right: 1px solid var(--rule); }
+        .stp-seg-col { 
+            padding: 1.25rem 1.1rem; 
+            border-right: 1px solid var(--rule); 
+            min-width: 0;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
         .stp-seg-col:last-child { border-right: none; }
         .stp-seg-num { font-family: var(--serif); font-size: 32px; color: var(--paper-3); line-height: 1; margin-bottom: 0.5rem; }
         .stp-seg-name {
@@ -316,8 +330,11 @@ const STPModelGenerator: React.FC = () => {
             line-height: 1.3;
             margin-bottom: 0.875rem;
             letter-spacing: -0.01em;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
-        .stp-seg-block { margin-bottom: 0.75rem; }
+        .stp-seg-block { margin-bottom: 0.75rem; min-width: 0; }
         .stp-seg-bl {
             font-size: 9px;
             letter-spacing: 0.1em;
@@ -326,7 +343,7 @@ const STPModelGenerator: React.FC = () => {
             color: var(--accent);
             margin-bottom: 0.25rem;
         }
-        .stp-seg-bt { font-size: 11.5px; color: var(--ink-2); line-height: 1.65; }
+        .stp-seg-bt { font-size: 11.5px; color: var(--ink-2); line-height: 1.65; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; }
         .stp-seg-bt-list {
             list-style: none;
             padding: 0;
@@ -334,6 +351,7 @@ const STPModelGenerator: React.FC = () => {
             display: flex;
             flex-direction: column;
             gap: 0.45rem;
+            min-width: 0;
         }
         .stp-seg-bt-list--grid {
             display: grid;
@@ -352,6 +370,9 @@ const STPModelGenerator: React.FC = () => {
             margin: 0;
             padding-left: 0.55rem;
             border-left: 2px solid rgba(26, 92, 58, 0.35);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
         .stp-seg-barrier { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--rule); }
         .stp-seg-bar-label { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: #8a1a1a; font-weight: 500; margin-bottom: 0.25rem; }
