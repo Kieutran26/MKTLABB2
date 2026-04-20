@@ -37,7 +37,7 @@ import { useAuth } from './AuthContext';
 import { useBrand } from './BrandContext';
 import { useToast } from './Toast';
 import { StpOptimizerField } from './stp-optimizer-field';
-import { EditorialOptimkiReport } from './EditorialOptimkiReport';
+import { OptimkiSidebarReport } from './OptimkiSidebarReport';
 import BrandSelector from './BrandSelector';
 import BrandVaultUpsellCard from './BrandVaultUpsellCard';
 import { StrategicModelService, SavedOptimkiHistoryItem } from '../services/strategicModelService';
@@ -458,7 +458,7 @@ const OptimkiBuilder: React.FC = () => {
           </div>
         ) : result ? (
           <div className="flex-1 min-h-0 animate-in fade-in slide-in-from-right-4 duration-500">
-            <EditorialOptimkiReport
+            <OptimkiSidebarReport
               result={result}
               onRenderHtml={handleReRenderHtml}
               isRendering={isRendering}
