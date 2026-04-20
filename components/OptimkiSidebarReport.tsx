@@ -47,6 +47,9 @@ type ParsedSection = {
 const SIDEBAR_BG = '#FCFDFC';
 const NAV_TEXT = '#4A4A4A';
 const BORDER_SUBTLE = '#E8E5E1';
+const SWOT_BORDER = '#1c1917';
+const SWOT_SOFT = 'rgba(28, 25, 23, 0.10)';
+const SWOT_SOFT_TEXT = 'rgba(28, 25, 23, 0.78)';
 const MIN_RERENDER_TEXT_LEN = 80;
 
 function extractPlainTextFromReportHtml(html: string): string {
@@ -621,11 +624,11 @@ function getSectionGridClass(kind: ParsedSectionKind, cardCount: number): string
 
 function getSwotTone(badge?: string) {
   return {
-    line: '#d6d3d1',
+    line: SWOT_BORDER,
     pillBg: '#f5f5f4',
     pillText: '#44403c',
     watermark: '#e7e5e4',
-    panelBg: '#fafaf9',
+    panelBg: 'transparent',
     iconBg: '#f1f5f9',
     iconText: '#57534e',
   };
@@ -644,7 +647,10 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
   const orderedCards = sortSwotCards(cards);
 
   return (
-    <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-stone-200 bg-white xl:grid-cols-2">
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-2"
+      style={{ borderColor: SWOT_BORDER }}
+    >
       {orderedCards.map((card, index) => {
         const tone = getSwotTone(card.badge);
         const isLeft = index % 2 === 0;
@@ -653,10 +659,10 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
         return (
           <article
             key={`swot-${card.badge}-${card.title}-${index}`}
-            className={`relative min-h-[270px] p-5 xl:p-6 ${
+            className={`relative min-h-[220px] p-4 xl:p-5 ${
               isLeft ? 'xl:border-r' : ''
             } ${isTop ? 'border-b xl:border-b' : ''}`}
-            style={{ borderColor: BORDER_SUBTLE, backgroundColor: tone.panelBg }}
+            style={{ borderColor: SWOT_BORDER, backgroundColor: tone.panelBg }}
           >
             <div
               className="absolute inset-x-0 top-0 h-1"
@@ -671,7 +677,7 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
             </div>
 
             <div className="relative z-10">
-              <div className="mb-6 flex items-center gap-3">
+              <div className="mb-5 flex items-center gap-3">
                 {card.badge ? (
                   <div
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold"
@@ -686,7 +692,7 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
                 </div>
               </div>
 
-              <div className="space-y-4 pr-8">
+              <div className="space-y-3.5 pr-6">
                 {card.lines.map((line, lineIndex) => (
                   <div key={`swot-line-${index}-${lineIndex}`} className="flex items-start gap-4">
                     <div
@@ -709,6 +715,8 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
 
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
   const accentColor = getAccentColor(index);
+  const sectionChipBg = section.kind === 'swot' ? SWOT_SOFT : `${accentColor}15`;
+  const sectionChipText = section.kind === 'swot' ? SWOT_SOFT_TEXT : accentColor;
 
   return (
     <section
@@ -717,7 +725,7 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
       <div className="flex items-center gap-3 px-4 py-3.5">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
-          style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+          style={{ backgroundColor: sectionChipBg, color: sectionChipText }}
         >
           {section.number ?? String(index + 1).padStart(2, '0')}
         </div>
