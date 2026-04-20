@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AlertTriangle,
   Check,
   Copy,
   Download,
   LayoutGrid,
+  Link2,
   Loader2,
   MessageSquare,
   RefreshCw,
@@ -41,6 +43,8 @@ type ParsedSection = {
   kind: ParsedSectionKind;
   paragraphs: string[];
   cards: ParsedCard[];
+  crossCards?: ParsedCard[];
+  timelineCards?: ParsedCard[];
   verdict?: string;
 };
 
@@ -219,6 +223,24 @@ function parseCards(
     .filter((card) => card.title || card.lines.length > 0);
 }
 
+function parseTimelineCards(container: Element): ParsedCard[] {
+  return Array.from(container.querySelectorAll('.mki-tl'))
+    .map((phase, index) => {
+      const month = normalizeLine(textOf(phase.querySelector('.mki-tl-month')));
+      const title = normalizeLine(textOf(phase.querySelector('.mki-tl-title'))) || `Giai đoạn ${index + 1}`;
+      const lines = Array.from(phase.querySelectorAll('.mki-tl-item'))
+        .map((item) => normalizeLine(textOf(item)))
+        .filter(Boolean);
+
+      return {
+        badge: month || String(index + 1).padStart(2, '0'),
+        title,
+        lines,
+      };
+    })
+    .filter((card) => card.title || card.lines.length > 0);
+}
+
 function normalizeAidaCards(cards: ParsedCard[]): ParsedCard[] {
   return cards.map((card) => {
     const badge = (card.badge ?? '').trim().toUpperCase();
@@ -276,6 +298,10 @@ function parseOptimkiSections(html: string): ParsedSection[] {
     addClassAliases(doc, '.swot-list, .mki-swot-list', ['mki-swot-list']);
     addClassAliases(doc, '.swot-item, .mki-swot-item', ['mki-swot-item']);
     addClassAliases(doc, '.swot-icon, .swot-tick, .mki-swot-icon', ['mki-swot-icon']);
+    addClassAliases(doc, '.swot-cross, .mki-swot-cross', ['mki-swot-cross']);
+    addClassAliases(doc, '.sc-cell, .swot-cross-cell, .mki-swot-cross-cell', ['mki-swot-cross-cell']);
+    addClassAliases(doc, '.sc-label, .swot-cross-label, .mki-swot-cross-label', ['mki-swot-cross-label']);
+    addClassAliases(doc, '.sc-body, .swot-cross-body, .mki-swot-cross-body', ['mki-swot-cross-body']);
 
     addClassAliases(doc, '.aida-funnel, .em-aida, .mki-aida', ['mki-aida']);
     addClassAliases(doc, '.aida-step, .em-aida-step, .mki-aida-step', ['mki-aida-step']);
@@ -300,6 +326,9 @@ function parseOptimkiSections(html: string): ParsedSection[] {
 
     addClassAliases(doc, '.timeline-wrap, .mki-timeline', ['mki-timeline']);
     addClassAliases(doc, '.tl-phase, .tl, .mki-tl', ['mki-tl']);
+    addClassAliases(doc, '.tl-month-tag, .tl-month, .mki-tl-month', ['mki-tl-month']);
+    addClassAliases(doc, '.tl-phase-title, .tl-title, .mki-tl-title', ['mki-tl-title']);
+    addClassAliases(doc, '.tl-item, .mki-tl-item', ['mki-tl-item']);
 
     const sections = Array.from(doc.querySelectorAll('.mki-section'));
     if (sections.length === 0) {
@@ -313,6 +342,8 @@ function parseOptimkiSections(html: string): ParsedSection[] {
               kind: 'generic',
               paragraphs: [text],
               cards: [],
+              crossCards: [],
+              timelineCards: [],
             },
           ]
         : [];
@@ -325,6 +356,8 @@ function parseOptimkiSections(html: string): ParsedSection[] {
 
       let kind: ParsedSectionKind = 'generic';
       let cards: ParsedCard[] = [];
+      let crossCards: ParsedCard[] = [];
+      let timelineCards: ParsedCard[] = [];
 
       const swot = section.querySelector('.mki-swot');
       const aida = section.querySelector('.mki-aida');
@@ -336,6 +369,18 @@ function parseOptimkiSections(html: string): ParsedSection[] {
       if (swot) {
         kind = 'swot';
         cards = parseCards(swot, '.mki-swot-cell', '.mki-swot-label', '.mki-swot-letter');
+        const swotCross = section.querySelector('.mki-swot-cross');
+        if (swotCross) {
+          crossCards = Array.from(swotCross.querySelectorAll('.mki-swot-cross-cell'))
+            .map((card) => {
+              const title = normalizeLine(textOf(card.querySelector('.mki-swot-cross-label'))) || 'Nội dung';
+              const body = normalizeLine(textOf(card.querySelector('.mki-swot-cross-body')));
+              const lines = body ? splitAidaLineIntoIdeas(body) : [];
+              const badge = title.split(/\s+/)[0]?.toUpperCase() || undefined;
+              return { badge, title, lines };
+            })
+            .filter((card) => card.title || card.lines.length > 0);
+        }
       } else if (aida) {
         kind = 'aida';
         cards = parseCards(aida, '.mki-aida-step', '.mki-aida-name', '.mki-aida-letter');
@@ -348,6 +393,9 @@ function parseOptimkiSections(html: string): ParsedSection[] {
       } else if (smart) {
         kind = 'smart';
         cards = parseCards(smart, '.mki-smart-g', '.mki-smart-name', '.mki-smart-letter');
+        if (timeline) {
+          timelineCards = parseTimelineCards(timeline);
+        }
       } else if (timeline) {
         kind = 'timeline';
         cards = parseCards(timeline, '.mki-tl', '.mki-tl');
@@ -366,7 +414,7 @@ function parseOptimkiSections(html: string): ParsedSection[] {
 
       const verdict = normalizeLine(textOf(section.querySelector('.mki-verdict'))) || undefined;
 
-      return { number, label, title, kind, paragraphs, cards, verdict };
+      return { number, label, title, kind, paragraphs, cards, crossCards, timelineCards, verdict };
     });
   } catch {
     const text = extractPlainTextFromReportHtml(raw);
@@ -379,6 +427,8 @@ function parseOptimkiSections(html: string): ParsedSection[] {
             kind: 'generic',
             paragraphs: [text],
             cards: [],
+            crossCards: [],
+            timelineCards: [],
           },
         ]
       : [];
@@ -435,6 +485,49 @@ function parseSwotBucketsFromAnalysis(analysis: string): Record<'S' | 'W' | 'O' 
 
   const total = buckets.S.length + buckets.W.length + buckets.O.length + buckets.T.length;
   return total > 0 ? buckets : null;
+}
+
+function parseSwotCrossCardsFromAnalysis(analysis: string): ParsedCard[] {
+  const raw = analysis?.trim() ?? '';
+  if (!raw) return [];
+
+  const compact = raw.replace(/\r/g, '');
+  const headingPattern =
+    /(?:^|\n)\s*(?:→\s*)?(SO|ST|WO|WT)\b(?:\s*[•·\-–—]\s*[^\n:]{0,80})?\s*[:\-–—]\s*/gi;
+  const matches = Array.from(compact.matchAll(headingPattern));
+  if (matches.length === 0) return [];
+
+  const titleMap: Record<string, string> = {
+    SO: 'SO • Mạnh × Cơ hội',
+    ST: 'ST • Mạnh × Thách thức',
+    WO: 'WO • Yếu × Cơ hội',
+    WT: 'WT • Yếu × Thách thức',
+  };
+
+  const cards = matches.map((match, index) => {
+    const key = (match[1] ?? '').toUpperCase();
+    const start = (match.index ?? 0) + match[0].length;
+    const end = index + 1 < matches.length ? matches[index + 1].index ?? compact.length : compact.length;
+    const chunk = compact.slice(start, end).trim();
+    const lines = mergeBrokenLines(
+      chunk
+        .split(/\n+/)
+        .flatMap((line) => splitByBulletIndicators(line).length > 1 ? splitByBulletIndicators(line) : [line])
+        .map((line) => normalizeLine(line))
+        .filter(Boolean)
+    );
+
+    return {
+      badge: key,
+      title: titleMap[key] ?? key,
+      lines: lines.length > 0 ? lines : splitAidaLineIntoIdeas(chunk),
+    };
+  });
+
+  const order = ['SO', 'ST', 'WO', 'WT'];
+  return cards
+    .filter((card) => card.lines.length > 0)
+    .sort((a, b) => order.indexOf(a.badge ?? '') - order.indexOf(b.badge ?? ''));
 }
 
 function parse5w1hBucketsFromAnalysis(analysis: string): Record<'What' | 'Why' | 'Who' | 'When' | 'Where' | 'How', string[]> | null {
@@ -570,8 +663,18 @@ function hydrateSectionsFromAnalysis(
       expectedKind === 'swot'
         ? parseSwotBucketsFromAnalysis(analysis)
         : parse5w1hBucketsFromAnalysis(analysis);
+    const swotCrossCards = expectedKind === 'swot' ? parseSwotCrossCardsFromAnalysis(analysis) : [];
 
-    if (!buckets) return sections;
+    if (!buckets) {
+      if (expectedKind === 'swot' && swotCrossCards.length > 0) {
+        return sections.map((section) => {
+          if (section.kind !== 'swot' && detectKindFromTitle(section.title) !== 'swot') return section;
+          if (section.crossCards?.length) return section;
+          return { ...section, crossCards: swotCrossCards };
+        });
+      }
+      return sections;
+    }
 
     const totalBuckets = Object.values(buckets).reduce((sum, arr) => sum + arr.length, 0);
     if (totalBuckets === 0) return sections;
@@ -586,7 +689,7 @@ function hydrateSectionsFromAnalysis(
 
       if (cards.length === 0) {
         cards = createCardsFromBuckets(buckets, expectedKind);
-        return { ...section, cards };
+        return expectedKind === 'swot' ? { ...section, cards, crossCards: section.crossCards?.length ? section.crossCards : swotCrossCards } : { ...section, cards };
       }
 
       const nextCards = cards.map((card) => {
@@ -602,10 +705,22 @@ function hydrateSectionsFromAnalysis(
       });
 
       if (hasAllBuckets) {
-        return { ...section, cards: nextCards };
+        return expectedKind === 'swot'
+          ? {
+              ...section,
+              cards: nextCards,
+              crossCards: section.crossCards?.length ? section.crossCards : swotCrossCards,
+            }
+          : { ...section, cards: nextCards };
       }
 
-      return { ...section, cards: nextCards };
+      return expectedKind === 'swot'
+        ? {
+            ...section,
+            cards: nextCards,
+            crossCards: section.crossCards?.length ? section.crossCards : swotCrossCards,
+          }
+        : { ...section, cards: nextCards };
     });
   }
 
@@ -884,6 +999,24 @@ function sortFiveWCards(cards: ParsedCard[]): ParsedCard[] {
     const bi = orderMap[getFiveWDisplayTitle(b).toUpperCase()] ?? 99;
     return ai - bi;
   });
+}
+
+function sortSwotCrossCards(cards: ParsedCard[]): ParsedCard[] {
+  const order = ['SO', 'ST', 'WO', 'WT'];
+  return [...cards].sort((a, b) => {
+    const ai = order.indexOf((a.badge ?? '').toUpperCase());
+    const bi = order.indexOf((b.badge ?? '').toUpperCase());
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+}
+
+function getSwotCrossTone(badge?: string) {
+  const key = (badge ?? '').toUpperCase();
+  if (key === 'SO') return { label: '#1c1917', accent: '#d6efe5' };
+  if (key === 'ST') return { label: '#2f3f57', accent: '#e7edf5' };
+  if (key === 'WO') return { label: '#8a5a2b', accent: '#f7ede0' };
+  if (key === 'WT') return { label: '#7b3530', accent: '#f7e8e5' };
+  return { label: SWOT_BORDER, accent: '#f5f5f4' };
 }
 
 function sortSmartCards(cards: ParsedCard[]): ParsedCard[] {
@@ -1425,6 +1558,297 @@ function FourPMatrix({ cards }: { cards: ParsedCard[] }) {
   );
 }
 
+function getAidaPriorityActions(displayTitle: string): string[] {
+  const normalized = displayTitle.toLowerCase();
+
+  if (normalized.includes('attention')) {
+    return [
+      'Rút gọn câu mở đầu để nỗi đau và khác biệt xuất hiện ngay trong 1-2 dòng đầu.',
+      'Đưa lợi ích nổi bật nhất của thương hiệu vào hook để tăng tỷ lệ dừng lại đọc tiếp.',
+    ];
+  }
+
+  if (normalized.includes('interest')) {
+    return [
+      'Bổ sung storytelling hoặc bằng chứng cụ thể để giữ mạch quan tâm lâu hơn.',
+      'Chia nội dung thành các ý ngắn, rõ lợi ích để người đọc dễ lướt và dễ nhớ.',
+    ];
+  }
+
+  if (normalized.includes('desire')) {
+    return [
+      'Nhấn mạnh lợi ích cá nhân và kết quả người dùng thực sự nhận được sau trải nghiệm.',
+      'Bổ sung social proof hoặc ví dụ thực tế để tăng cảm giác đáng tin và đáng muốn.',
+    ];
+  }
+
+  return [
+    'Viết CTA trực tiếp hơn, nói rõ hành động tiếp theo mà khách hàng cần thực hiện.',
+    'Thêm yếu tố khẩn cấp hoặc giới hạn để tăng động lực chuyển đổi ngay tại điểm chốt.',
+  ];
+}
+
+function AidaPriorityCallout({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortAidaCards(cards);
+  const weakestCard =
+    [...orderedCards]
+      .map((card) => {
+        const displayTitle = getAidaDisplayTitle(card);
+        const vietnameseLabel = getAidaVietnameseLabel(displayTitle);
+        const displayLines = getAidaDisplayLines(card)
+          .map((line, lineIndex) =>
+            lineIndex === 0 ? stripAidaVietnamesePrefix(line, vietnameseLabel) : line
+          )
+          .flatMap((line) => splitAidaLineIntoIdeas(line))
+          .filter(Boolean);
+
+        return {
+          card,
+          displayTitle,
+          vietnameseLabel,
+          displayLines,
+          score: displayLines.join(' ').length,
+        };
+      })
+      .sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+        const fallbackOrder: Record<string, number> = {
+          Action: 0,
+          Desire: 1,
+          Interest: 2,
+          Attention: 3,
+        };
+        return (fallbackOrder[a.displayTitle] ?? 99) - (fallbackOrder[b.displayTitle] ?? 99);
+      })[0] ?? null;
+
+  if (!weakestCard) return null;
+
+  const summary =
+    weakestCard.displayLines[0] ??
+    `${weakestCard.vietnameseLabel} hiện chưa đủ rõ để tạo tác động mạnh trong hành trình chuyển đổi.`;
+  const actions = getAidaPriorityActions(weakestCard.displayTitle);
+
+  return (
+    <div
+      className="rounded-xl border p-4 xl:p-5"
+      style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+    >
+      <div className="flex gap-4">
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
+          style={{ borderColor: SWOT_BORDER, color: SWOT_BORDER, backgroundColor: '#fcfdfc' }}
+        >
+          <AlertTriangle size={22} strokeWidth={1.8} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: `${SWOT_BORDER}cc` }}>
+            Bước cần ưu tiên cải thiện
+          </div>
+
+          <div className="mb-3 text-[20px] font-semibold leading-tight tracking-tight text-stone-900">
+            {weakestCard.displayTitle} ({weakestCard.vietnameseLabel}) — Cần làm rõ hơn
+          </div>
+
+          <p className="mb-4 text-[13px] leading-6 text-stone-600">{summary}</p>
+
+          <div className="space-y-2.5">
+            {actions.map((action, index) => (
+              <div key={`aida-priority-${index}`} className="flex items-start gap-3">
+                <div
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
+                  style={{ backgroundColor: SWOT_BORDER }}
+                >
+                  {index + 1}
+                </div>
+                <p className="pt-0.5 text-[12.5px] leading-6 text-stone-600">{action}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function getFourPPriorityDisplayTitle(card: ParsedCard): string {
+  const badge = (card.badge ?? '').trim().toUpperCase();
+  if (badge === 'P') {
+    const title = normalizeLine(card.title || '');
+    if (/product|sản phẩm/i.test(title)) return 'Product';
+    if (/price|giá/i.test(title)) return 'Price';
+    if (/place|phân phối/i.test(title)) return 'Place';
+    if (/promotion|xúc tiến/i.test(title)) return 'Promotion';
+  }
+
+  const normalizedTitle = normalizeLine(card.title || '');
+  if (/product|sản phẩm/i.test(normalizedTitle)) return 'Product';
+  if (/price|giá/i.test(normalizedTitle)) return 'Price';
+  if (/place|phân phối/i.test(normalizedTitle)) return 'Place';
+  if (/promotion|xúc tiến/i.test(normalizedTitle)) return 'Promotion';
+  return normalizedTitle || '4P';
+}
+
+function getFourPPriorityVietnameseLabel(title: string): string {
+  if (/product/i.test(title)) return 'Sản phẩm';
+  if (/price/i.test(title)) return 'Giá';
+  if (/place/i.test(title)) return 'Phân phối';
+  if (/promotion/i.test(title)) return 'Xúc tiến';
+  return title;
+}
+
+function getFourPPriorityActions(title: string): string[] {
+  if (/product/i.test(title)) {
+    return [
+      'Làm rõ USP cốt lõi và giá trị khác biệt ngay trong phần mô tả sản phẩm.',
+      'Chuẩn hóa các gói sản phẩm để khách hàng dễ hiểu và dễ so sánh hơn.',
+    ];
+  }
+
+  if (/price/i.test(title)) {
+    return [
+      'Diễn giải rõ logic định giá theo giá trị thay vì chỉ nêu mức giá.',
+      'Thiết kế thêm lựa chọn gói hoặc mức giá để giảm rào cản ra quyết định.',
+    ];
+  }
+
+  if (/promotion/i.test(title)) {
+    return [
+      'Ưu tiên 1-2 kênh chủ lực thay vì dàn trải thông điệp trên quá nhiều điểm chạm.',
+      'Gắn từng hoạt động truyền thông với một CTA rõ ràng để tăng khả năng chuyển đổi.',
+    ];
+  }
+
+  return [
+    'Mở rộng thêm điểm chạm offline hoặc đối tác phân phối để tăng độ tin cậy.',
+    'Tối ưu trải nghiệm từ lúc khách tìm hiểu đến lúc được tư vấn để giảm rơi rụng.',
+  ];
+}
+
+function FourPPriorityCallout({ cards }: { cards: ParsedCard[] }) {
+  const weakestCard =
+    [...cards]
+      .map((card) => {
+        const displayTitle = getFourPPriorityDisplayTitle(card);
+        const displayLines = card.lines.flatMap((line) => splitAidaLineIntoIdeas(line)).filter(Boolean);
+
+        return {
+          card,
+          displayTitle,
+          vietnameseLabel: getFourPPriorityVietnameseLabel(displayTitle),
+          displayLines,
+          score: displayLines.join(' ').length,
+        };
+      })
+      .sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+        const fallbackOrder: Record<string, number> = {
+          Place: 0,
+          Promotion: 1,
+          Price: 2,
+          Product: 3,
+        };
+        return (fallbackOrder[a.displayTitle] ?? 99) - (fallbackOrder[b.displayTitle] ?? 99);
+      })[0] ?? null;
+
+  if (!weakestCard) return null;
+
+  const summary =
+    weakestCard.displayLines[0] ??
+    `${weakestCard.vietnameseLabel} hiện là phần cần được làm rõ hơn để hỗ trợ toàn bộ chiến lược 4P.`;
+  const actions = getFourPPriorityActions(weakestCard.displayTitle);
+
+  return (
+    <div
+      className="rounded-xl border p-4 xl:p-5"
+      style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+    >
+      <div className="flex gap-4">
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border"
+          style={{ borderColor: SWOT_BORDER, color: SWOT_BORDER, backgroundColor: '#fcfdfc' }}
+        >
+          <AlertTriangle size={22} strokeWidth={1.8} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: `${SWOT_BORDER}cc` }}>
+            P yếu nhất cần cải thiện ngay
+          </div>
+
+          <div className="mb-3 text-[20px] font-semibold leading-tight tracking-tight text-stone-900">
+            {weakestCard.vietnameseLabel} ({weakestCard.displayTitle}) — Cần ưu tiên tối ưu
+          </div>
+
+          <p className="mb-4 text-[13px] leading-6 text-stone-600">{summary}</p>
+
+          <div className="space-y-2.5">
+            {actions.map((action, index) => (
+              <div key={`fourp-priority-${index}`} className="flex items-start gap-3">
+                <div
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold text-white"
+                  style={{ backgroundColor: SWOT_BORDER }}
+                >
+                  {index + 1}
+                </div>
+                <p className="pt-0.5 text-[12.5px] leading-6 text-stone-600">{action}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SwotCrossMatrix({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortSwotCrossCards(cards);
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-2"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {orderedCards.map((card, index) => {
+        const tone = getSwotCrossTone(card.badge);
+        const isLeft = index % 2 === 0;
+        const isTop = index < 2;
+        const blocks = buildFiveWBlocks(card.lines);
+
+        return (
+          <article
+            key={`swot-cross-${card.badge}-${index}`}
+            className={`p-4 xl:p-4.5 ${isLeft ? 'xl:border-r' : ''} ${isTop ? 'border-b xl:border-b' : ''}`}
+            style={{ borderColor: BORDER_SUBTLE }}
+          >
+            <div className="mb-3 flex items-center gap-3">
+              <div
+                className="inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em]"
+                style={{ backgroundColor: tone.accent, color: tone.label }}
+              >
+                {card.title}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {blocks.map((block, lineIndex) => (
+                <div key={`swot-cross-line-${index}-${lineIndex}`} className="space-y-1.5">
+                  {block.heading ? (
+                    <div className="text-[12px] font-semibold leading-5 text-stone-800">{block.heading}</div>
+                  ) : null}
+                  {block.body ? (
+                    <p className="text-[12.5px] leading-6 text-stone-600">{block.body}</p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function FiveWOneHMatrix({ cards }: { cards: ParsedCard[] }) {
   const orderedCards = sortFiveWCards(cards);
 
@@ -1563,6 +1987,235 @@ function SmartMatrix({ cards }: { cards: ParsedCard[] }) {
   );
 }
 
+function SmartTimelineMatrix({ cards }: { cards: ParsedCard[] }) {
+  const tones = ['#1c1917', '#4e463f', '#6b625c'];
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-3"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {cards.map((card, index) => {
+        const accent = tones[index % tones.length];
+
+        return (
+          <article
+            key={`smart-timeline-${card.badge}-${index}`}
+            className={`p-3.5 xl:p-4 ${index < cards.length - 1 ? 'border-b xl:border-b-0 xl:border-r' : ''}`}
+            style={{ borderColor: SWOT_BORDER }}
+          >
+            <div className="mb-2.5 h-1 w-full rounded-full" style={{ backgroundColor: accent, opacity: 0.9 }} />
+            <div className="mb-2 text-[9px] font-bold uppercase tracking-[0.18em] text-stone-400">
+              {card.badge}
+            </div>
+            <div className="mb-3 text-[17px] font-semibold leading-tight tracking-tight text-stone-900">
+              {card.title}
+            </div>
+
+            <div className="space-y-2.5">
+              {card.lines.map((line, lineIndex) => (
+                <div key={`smart-tl-line-${index}-${lineIndex}`} className="flex items-start gap-3">
+                  <div
+                    className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: accent }}
+                  />
+                  <p className="text-[12px] leading-5.5 text-stone-600">{line}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function SmartVerdictBlock({ verdict }: { verdict: string }) {
+  return (
+    <div
+      className="rounded-xl px-4 py-3.5 xl:px-5 xl:py-4"
+      style={{ backgroundColor: SWOT_BORDER }}
+    >
+      <p className="text-[13px] italic leading-7 text-stone-100">{verdict}</p>
+    </div>
+  );
+}
+
+function buildIntegrationInsights(sections: ParsedSection[]) {
+  const byKind = (kind: ParsedSectionKind) => sections.find((section) => section.kind === kind);
+  const firstLine = (kind: ParsedSectionKind, cardIndex = 0) =>
+    byKind(kind)?.cards[cardIndex]?.lines?.find(Boolean) ?? '';
+
+  const swotLine = firstLine('swot', 0) || 'Điểm mạnh và khác biệt cốt lõi của thương hiệu';
+  const aidaLine = firstLine('aida', 0) || 'Thông điệp cần khai thác để thu hút và tạo mong muốn';
+  const fourPLine = firstLine('4p', 2) || firstLine('4p', 3) || 'Kênh triển khai và truyền thông chủ lực';
+  const fiveWLine = firstLine('5w1h', 5) || firstLine('5w1h', 0) || 'Kế hoạch triển khai theo người, việc và thời điểm';
+  const smartLine = firstLine('smart', 0) || 'Mục tiêu và chỉ số đo lường rõ ràng';
+
+  return {
+    chain: [
+      {
+        title: 'SWOT → AIDA',
+        body: `${swotLine} nên được đẩy thành hook và thông điệp chính trong AIDA để tăng thu hút ngay từ đầu.`,
+      },
+      {
+        title: '4P → 5W1H',
+        body: `${fourPLine} được chuyển thành kế hoạch hành động chi tiết trong 5W1H để triển khai theo từng giai đoạn.`,
+      },
+      {
+        title: 'SMART ← 5 mô hình',
+        body: `${smartLine} là đích đo lường chung, còn các mô hình trước cung cấp insight, thông điệp, kênh và cách thực thi.`,
+      },
+    ],
+    priorities: [
+      `Chuẩn hóa USP và thông điệp cốt lõi: ${swotLine}.`,
+      `Tập trung nguồn lực vào kênh và kế hoạch triển khai rõ ràng: ${fourPLine} và ${fiveWLine}.`,
+      `Bám theo mục tiêu đo lường cụ thể để tối ưu liên tục: ${smartLine}.`,
+    ],
+    descriptors: {
+      swot: swotLine,
+      aida: aidaLine,
+      fourP: fourPLine,
+      fiveW: fiveWLine,
+      smart: smartLine,
+    },
+  };
+}
+
+function IntegrationAllModelsSection({ sections }: { sections: ParsedSection[] }) {
+  const integration = buildIntegrationInsights(sections);
+  const flowCards = [
+    { name: 'SWOT', desc: 'Xác định lợi thế & điểm yếu cốt lõi' },
+    { name: 'AIDA', desc: 'Khai thác lợi thế trong thông điệp' },
+    { name: '4P', desc: 'Cấu trúc kênh & ngân sách' },
+    { name: '5W1H', desc: 'Chi tiết hóa hoạt động triển khai' },
+    { name: 'SMART', desc: 'Đo lường và giám sát kết quả' },
+  ];
+
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          06
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
+            TÍCH HỢP • ALL MODELS
+          </div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Tổng hợp liên kết 5 mô hình</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div className="space-y-3.5">
+          <div className="grid grid-cols-1 gap-2.5 xl:grid-cols-12">
+            <div
+              className="rounded-xl border px-4 py-3 text-center xl:col-span-3"
+              style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+            >
+              <div className="mb-1 text-[17px] font-semibold tracking-tight text-stone-900">{flowCards[0].name}</div>
+              <p className="text-[11px] leading-4.5 text-stone-500">{flowCards[0].desc}</p>
+            </div>
+            <div className="hidden items-center justify-center xl:col-span-1 xl:flex">
+              <div className="flex items-center gap-1.5 text-stone-300">
+                <div className="h-px w-5 bg-stone-300" />
+                <Link2 size={14} />
+                <div className="h-px w-5 bg-stone-300" />
+              </div>
+            </div>
+            <div
+              className="rounded-xl border px-4 py-3 text-center xl:col-span-3"
+              style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+            >
+              <div className="mb-1 text-[17px] font-semibold tracking-tight text-stone-900">{flowCards[1].name}</div>
+              <p className="text-[11px] leading-4.5 text-stone-500">{flowCards[1].desc}</p>
+            </div>
+            <div className="hidden items-center justify-center xl:col-span-1 xl:flex">
+              <div className="flex items-center gap-1.5 text-stone-300">
+                <div className="h-px w-5 bg-stone-300" />
+                <Link2 size={14} />
+                <div className="h-px w-5 bg-stone-300" />
+              </div>
+            </div>
+            <div
+              className="rounded-xl border px-4 py-3 text-center xl:col-span-4"
+              style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+            >
+              <div className="mb-1 text-[17px] font-semibold tracking-tight text-stone-900">{flowCards[2].name}</div>
+              <p className="text-[11px] leading-4.5 text-stone-500">{flowCards[2].desc}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2.5 xl:grid-cols-12">
+            <div
+              className="rounded-xl border px-4 py-3 text-center xl:col-span-5"
+              style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+            >
+              <div className="mb-1 text-[17px] font-semibold tracking-tight text-stone-900">{flowCards[3].name}</div>
+              <p className="text-[11px] leading-4.5 text-stone-500">{flowCards[3].desc}</p>
+            </div>
+            <div className="hidden items-center justify-center xl:col-span-1 xl:flex">
+              <div className="flex items-center gap-1.5 text-stone-300">
+                <div className="h-px w-5 bg-stone-300" />
+                <Link2 size={14} />
+                <div className="h-px w-5 bg-stone-300" />
+              </div>
+            </div>
+            <div
+              className="rounded-xl border px-4 py-3 text-center xl:col-span-6"
+              style={{ borderColor: SWOT_BORDER, backgroundColor: '#fafaf9' }}
+            >
+              <div className="mb-1 text-[17px] font-semibold tracking-tight text-stone-900">{flowCards[4].name}</div>
+              <p className="text-[11px] leading-4.5 text-stone-500">{flowCards[4].desc}</p>
+            </div>
+          </div>
+
+          <div
+            className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-3"
+            style={{ borderColor: BORDER_SUBTLE }}
+          >
+            {integration.chain.map((item, index) => (
+              <div
+                key={`integration-chain-${index}`}
+                className={`p-4 ${index < integration.chain.length - 1 ? 'border-b xl:border-b-0 xl:border-r' : ''}`}
+                style={{ borderColor: BORDER_SUBTLE }}
+              >
+                <div className="mb-2 text-[12px] font-bold tracking-tight text-stone-800">{item.title}</div>
+                <p className="text-[12.5px] leading-6 text-stone-600">{item.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="overflow-hidden rounded-xl border" style={{ borderColor: SWOT_BORDER }}>
+            <div className="px-4 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white" style={{ backgroundColor: SWOT_BORDER }}>
+              3 ưu tiên tổng thể từ toàn bộ 5 mô hình
+            </div>
+            <div className="divide-y" style={{ borderColor: BORDER_SUBTLE }}>
+              {integration.priorities.map((item, index) => (
+                <div
+                  key={`integration-priority-${index}`}
+                  className="grid grid-cols-[56px_minmax(0,1fr)] items-start gap-0"
+                  style={{ borderColor: BORDER_SUBTLE }}
+                >
+                  <div className="flex h-full items-center justify-center border-r py-4 text-[26px] font-light text-stone-300" style={{ borderColor: BORDER_SUBTLE }}>
+                    {index + 1}
+                  </div>
+                  <div className="p-4">
+                    <p className="text-[13px] leading-6 text-stone-700">{item}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CmoAdviceSection({
   suggestion,
 }: {
@@ -1664,7 +2317,7 @@ function CmoAdviceSectionUnified({
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
           style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
         >
-          06
+          07
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
@@ -1741,6 +2394,47 @@ function CmoAdviceSectionUnified({
   );
 }
 
+function CmoAdviceFallbackSection({ section }: { section: ParsedSection }) {
+  const content = [...section.paragraphs, section.verdict].filter(Boolean) as string[];
+
+  if (content.length === 0) return null;
+
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          07
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">
+            TỔNG HỢP
+          </div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Tổng hợp và lời khuyên từ CMO</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div
+          className="rounded-xl p-4 text-[13px] leading-7 text-stone-700"
+          style={{
+            backgroundColor: '#f5f5f4',
+            borderLeft: `4px solid ${SWOT_BORDER}`,
+          }}
+        >
+          {content.map((item, index) => (
+            <p key={`cmo-fallback-${index}`} className={index < content.length - 1 ? 'mb-3' : ''}>
+              {item}
+            </p>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
   // Neutral stone theme colors
 
@@ -1774,7 +2468,7 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
           </div>
         )}
 
-        {section.verdict && (
+        {section.verdict && section.kind !== 'smart' && (
           <div
             className="mb-4 rounded-xl p-3.5 text-[12px] font-medium leading-5 text-stone-800"
             style={{
@@ -1787,15 +2481,25 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
         )}
 
         {section.cards.length > 0 && section.kind === 'swot' && (
-          <SwotMatrix cards={section.cards} />
+          <div className="space-y-3.5">
+            <SwotMatrix cards={section.cards} />
+            {section.crossCards && section.crossCards.length > 0 ? (
+              <SwotCrossMatrix cards={section.crossCards} />
+            ) : null}
+          </div>
         )}
 
         {section.cards.length > 0 && section.kind === 'aida' && (
-          <AidaMatrix cards={section.cards} />
+          <div className="space-y-3.5">
+            <AidaMatrix cards={section.cards} />
+          </div>
         )}
 
         {section.cards.length > 0 && section.kind === '4p' && (
-          <FourPMatrix cards={section.cards} />
+          <div className="space-y-3.5">
+            <FourPMatrix cards={section.cards} />
+            <FourPPriorityCallout cards={section.cards} />
+          </div>
         )}
 
         {section.cards.length > 0 && section.kind === '5w1h' && (
@@ -1803,7 +2507,13 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
         )}
 
         {section.cards.length > 0 && section.kind === 'smart' && (
-          <SmartMatrix cards={section.cards} />
+          <div className="space-y-3.5">
+            <SmartMatrix cards={section.cards} />
+            {section.timelineCards && section.timelineCards.length > 0 ? (
+              <SmartTimelineMatrix cards={section.timelineCards} />
+            ) : null}
+            {section.verdict ? <SmartVerdictBlock verdict={section.verdict} /> : null}
+          </div>
         )}
 
         {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && section.kind !== '4p' && section.kind !== '5w1h' && section.kind !== 'smart' && (
@@ -1867,6 +2577,35 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
       result.model_type
     ),
     [result.html_report, result.analysis_content, result.model_type]
+  );
+  const displaySections = useMemo(
+    () =>
+      parsedSections.filter((section) => {
+        const normalizedTitle = normalizeLine(section.title || '').toLowerCase();
+        const normalizedLabel = normalizeLine(section.label || '').toLowerCase();
+        const looksLikeCmoSummary =
+          normalizedTitle.includes('tổng hợp') ||
+          normalizedTitle.includes('loi khuyen tu cmo') ||
+          normalizedTitle.includes('lời khuyên từ cmo') ||
+          normalizedLabel.includes('tổng hợp');
+
+        return !looksLikeCmoSummary;
+      }),
+    [parsedSections]
+  );
+  const cmoSummarySection = useMemo(
+    () =>
+      parsedSections.find((section) => {
+        const normalizedTitle = normalizeLine(section.title || '').toLowerCase();
+        const normalizedLabel = normalizeLine(section.label || '').toLowerCase();
+        return (
+          normalizedTitle.includes('tổng hợp') ||
+          normalizedTitle.includes('loi khuyen tu cmo') ||
+          normalizedTitle.includes('lời khuyên từ cmo') ||
+          normalizedLabel.includes('tổng hợp')
+        );
+      }),
+    [parsedSections]
   );
   const canReRender = Boolean(onRenderHtml && analysisTextForReRender.length >= MIN_RERENDER_TEXT_LEN);
   const formattedDate = useMemo(
@@ -1994,11 +2733,16 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
 
           <div className="px-6 pt-5">
             <div className="space-y-4">
-              {parsedSections.map((section, index) => (
-                <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
-              ))}
-              {result.suggestion ? <CmoAdviceSectionUnified suggestion={result.suggestion} /> : null}
-            </div>
+            {displaySections.map((section, index) => (
+              <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
+            ))}
+            {displaySections.length >= 5 ? <IntegrationAllModelsSection sections={displaySections} /> : null}
+            {result.suggestion ? (
+              <CmoAdviceSectionUnified suggestion={result.suggestion} />
+            ) : cmoSummarySection ? (
+              <CmoAdviceFallbackSection section={cmoSummarySection} />
+            ) : null}
+          </div>
           </div>
         </div>
       </div>
