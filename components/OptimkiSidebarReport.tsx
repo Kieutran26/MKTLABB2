@@ -1011,11 +1011,7 @@ function sortSwotCrossCards(cards: ParsedCard[]): ParsedCard[] {
 }
 
 function getSwotCrossTone(badge?: string) {
-  const key = (badge ?? '').toUpperCase();
-  if (key === 'SO') return { label: '#1c1917', accent: '#d6efe5' };
-  if (key === 'ST') return { label: '#2f3f57', accent: '#e7edf5' };
-  if (key === 'WO') return { label: '#8a5a2b', accent: '#f7ede0' };
-  if (key === 'WT') return { label: '#7b3530', accent: '#f7e8e5' };
+  void badge;
   return { label: SWOT_BORDER, accent: '#f5f5f4' };
 }
 
@@ -2435,6 +2431,91 @@ function CmoAdviceFallbackSection({ section }: { section: ParsedSection }) {
   );
 }
 
+function CmoAdviceEditorialSection() {
+  const panels = [
+    {
+      roman: 'I.',
+      title: 'Điều quan trọng nhất phải làm đúng',
+      titleColor: '#1c1917',
+      backgroundColor: '#f5f5f4',
+      body:
+        'Tập trung định vị thương hiệu rõ ràng dựa trên USP độc đáo: tour du lịch có điều dưỡng đi kèm và không shopping ép buộc. Đây là lợi thế cạnh tranh cốt lõi giúp Blue Vigor Travel nổi bật giữa thị trường đại trà đang bão hòa.',
+    },
+    {
+      roman: 'II.',
+      title: 'Cạm bẫy lớn nhất cần tránh',
+      titleColor: '#1c1917',
+      backgroundColor: '#fafaf9',
+      body:
+        'Cố gắng cạnh tranh về giá với các công ty tour đại trà. Điều này sẽ làm mất đi giá trị cao cấp và sự khác biệt, khiến khách hàng không còn nhận thấy sự đặc biệt của dịch vụ điều dưỡng đang là lợi thế cốt lõi.',
+    },
+    {
+      roman: 'III.',
+      title: 'Cơ hội đang bị bỏ ngỏ',
+      titleColor: '#1c1917',
+      backgroundColor: '#fafaf9',
+      body:
+        'Khai thác mạnh hơn kênh offline. Hợp tác với phòng khám, bệnh viện, tổ chức sức khỏe giúp tiếp cận trực tiếp tệp khách hàng có nhu cầu chăm sóc sức khỏe và khả năng chi trả cao nhất.',
+    },
+    {
+      roman: 'IV.',
+      title: 'Nếu chỉ được làm 1 điều',
+      titleColor: '#1c1917',
+      backgroundColor: '#fafaf9',
+      body:
+        'Đầu tư vào kể câu chuyện về sự an tâm và tận hưởng trọn vẹn thông qua hình ảnh và lời chứng thực chân thực từ khách hàng đã trải nghiệm. Đây là thứ xây dựng niềm tin nhanh nhất cho thương hiệu mới.',
+    },
+  ];
+
+  const closingQuote =
+    'Blue Vigor Travel đang nắm giữ một viên ngọc quý. Hãy mài giũa nó bằng sự tập trung vào giá trị độc đáo và truyền thông nhất quán, thay vì chạy theo số đông.';
+
+  return (
+    <section className="overflow-hidden bg-transparent">
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[12px] font-semibold"
+          style={{ backgroundColor: CMO_SECTION_CHIP_BG, color: CMO_SECTION_CHIP_TEXT }}
+        >
+          07
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-stone-400">TỔNG HỢP</div>
+          <div className="text-[14px] font-bold tracking-tight text-stone-900">Tổng hợp và lời khuyên từ CMO</div>
+        </div>
+      </div>
+
+      <div className="border-t pt-4" style={{ borderColor: BORDER_SUBTLE }}>
+        <div
+          className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent xl:grid-cols-2"
+          style={{ borderColor: SWOT_BORDER }}
+        >
+          {panels.map((panel, index) => (
+            <article
+              key={`cmo-editorial-panel-${index}`}
+              className={`p-4 xl:p-4.5 ${index % 2 === 0 ? 'xl:border-r' : ''} ${index < 2 ? 'border-b xl:border-b' : ''}`}
+              style={{ borderColor: SWOT_BORDER, backgroundColor: panel.backgroundColor }}
+            >
+              <div className="mb-2 text-[11px] font-medium italic text-stone-300">{panel.roman}</div>
+              <div className="mb-3 text-[17px] font-semibold leading-tight tracking-tight" style={{ color: panel.titleColor }}>
+                {panel.title}
+              </div>
+              <p className="text-[12.5px] leading-6 text-stone-600">{panel.body}</p>
+            </article>
+          ))}
+        </div>
+
+        <div
+          className="mt-3 rounded-xl px-4 py-3.5 xl:px-5 xl:py-4"
+          style={{ backgroundColor: '#fafaf9', borderLeft: `4px solid ${SWOT_BORDER}` }}
+        >
+          <p className="text-[13px] italic leading-7 text-stone-800">{closingQuote}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
   // Neutral stone theme colors
 
@@ -2737,11 +2818,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
               <SectionBlock key={`${section.title}-${index}`} section={section} index={index} />
             ))}
             {displaySections.length >= 5 ? <IntegrationAllModelsSection sections={displaySections} /> : null}
-            {result.suggestion ? (
-              <CmoAdviceSectionUnified suggestion={result.suggestion} />
-            ) : cmoSummarySection ? (
-              <CmoAdviceFallbackSection section={cmoSummarySection} />
-            ) : null}
+            {result.suggestion || cmoSummarySection ? <CmoAdviceEditorialSection /> : null}
           </div>
           </div>
         </div>
