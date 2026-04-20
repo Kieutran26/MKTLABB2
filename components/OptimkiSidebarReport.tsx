@@ -214,6 +214,43 @@ function parseCards(
     .filter((card) => card.title || card.lines.length > 0);
 }
 
+function normalizeAidaCards(cards: ParsedCard[]): ParsedCard[] {
+  return cards.map((card) => {
+    const badge = (card.badge ?? '').trim().toUpperCase();
+    const fallbackTitle = badge === 'A'
+      ? card.lines.some((line) => /action/i.test(line))
+        ? 'Action'
+        : 'Attention'
+      : AIDA_TITLE_MAP[badge];
+
+    const title = card.title === 'Nội dung' || card.title === 'Ná»™i dung'
+      ? fallbackTitle || card.title
+      : card.title;
+
+    const titlePattern = title ? new RegExp(`^${badge}?\\s*${title}\\s*[•·\\-–—:]?\\s*`, 'i') : null;
+
+    const nextLines = card.lines
+      .map((line) => {
+        const normalized = normalizeLine(line);
+        if (!normalized) return '';
+
+        if (titlePattern) {
+          const cleaned = normalized.replace(titlePattern, '').trim();
+          return cleaned || normalized;
+        }
+
+        return normalized;
+      })
+      .filter(Boolean);
+
+    return {
+      ...card,
+      title: title || card.title,
+      lines: nextLines,
+    };
+  });
+}
+
 function parseOptimkiSections(html: string): ParsedSection[] {
   const raw = html?.trim() ?? '';
   if (!raw) return [];
@@ -643,6 +680,56 @@ function sortSwotCards(cards: ParsedCard[]): ParsedCard[] {
   });
 }
 
+function sortAidaCards(cards: ParsedCard[]): ParsedCard[] {
+  const orderMap: Record<string, number> = {
+    ATTENTION: 0,
+    INTEREST: 1,
+    DESIRE: 2,
+    ACTION: 3,
+  };
+
+  return [...cards].sort((a, b) => {
+    const ai = orderMap[getAidaDisplayTitle(a).toUpperCase()] ?? 99;
+    const bi = orderMap[getAidaDisplayTitle(b).toUpperCase()] ?? 99;
+    return ai - bi;
+  });
+}
+
+function getAidaDisplayTitle(card: ParsedCard): string {
+  const rawTitle = (card.title ?? '').trim();
+  if (rawTitle && rawTitle.toLowerCase() !== 'nội dung' && rawTitle.toLowerCase() !== 'ná»™i dung') {
+    return rawTitle;
+  }
+
+  const firstLine = normalizeLine(card.lines[0] ?? '');
+  if (/action/i.test(firstLine)) return 'Action';
+  if (/attention/i.test(firstLine)) return 'Attention';
+  if (/interest/i.test(firstLine)) return 'Interest';
+  if (/desire/i.test(firstLine)) return 'Desire';
+
+  const badge = (card.badge ?? '').trim().toUpperCase();
+  if (badge === 'I') return 'Interest';
+  if (badge === 'D') return 'Desire';
+  if (badge === 'A') return /action/i.test(firstLine) ? 'Action' : 'Attention';
+
+  return rawTitle || 'Nội dung';
+}
+
+function getAidaDisplayLines(card: ParsedCard): string[] {
+  const title = getAidaDisplayTitle(card);
+  const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const prefixPattern = new RegExp(`^[AIDA]?\\s*${escapedTitle}\\s*[•·:\\-–—]?\\s*`, 'i');
+
+  return card.lines
+    .map((line) => {
+      const normalized = normalizeLine(line);
+      if (!normalized) return '';
+      const cleaned = normalized.replace(prefixPattern, '').trim();
+      return cleaned || normalized;
+    })
+    .filter(Boolean);
+}
+
 function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
   const orderedCards = sortSwotCards(cards);
 
@@ -713,10 +800,79 @@ function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
   );
 }
 
+function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
+  const orderedCards = sortAidaCards(cards);
+
+  return (
+    <div
+      className="grid grid-cols-1 overflow-hidden rounded-xl border bg-transparent md:grid-cols-2 2xl:grid-cols-4"
+      style={{ borderColor: SWOT_BORDER }}
+    >
+      {orderedCards.map((card, index) => {
+        const isLastColumn = index === orderedCards.length - 1;
+        const displayTitle = getAidaDisplayTitle(card);
+        const displayLines = getAidaDisplayLines(card);
+
+        return (
+          <article
+            key={`aida-${card.badge}-${card.title}-${index}`}
+            className={`relative min-h-[220px] p-4 xl:p-5 ${
+              !isLastColumn ? 'border-b md:border-b 2xl:border-b-0 2xl:border-r' : ''
+            }`}
+            style={{ borderColor: SWOT_BORDER }}
+          >
+            <div
+              className="absolute inset-x-0 top-0 h-1"
+              style={{ backgroundColor: SWOT_BORDER }}
+            />
+
+            <div
+              className="pointer-events-none absolute right-5 top-7 select-none text-[68px] font-semibold leading-none tracking-[-0.08em] opacity-60"
+              style={{ color: '#1c19171c' }}
+            >
+              {card.badge}
+            </div>
+
+            <div className="relative z-10">
+              <div className="mb-4 flex items-center gap-3">
+                {card.badge ? (
+                  <div
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold"
+                    style={{ backgroundColor: SWOT_SOFT, color: SWOT_SOFT_TEXT }}
+                  >
+                    {card.badge}
+                  </div>
+                ) : null}
+
+                <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-700">
+                  {displayTitle}
+                </div>
+              </div>
+
+              <div className="space-y-3 pr-5">
+                {displayLines.map((line, lineIndex) => (
+                  <div key={`aida-line-${index}-${lineIndex}`} className="flex items-start gap-3.5">
+                    <div
+                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                      style={{ backgroundColor: SWOT_BORDER }}
+                    />
+                    <span className="text-[13px] leading-6 text-stone-600">{line}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function SectionBlock({ section, index }: { section: ParsedSection; index: number }) {
   const accentColor = getAccentColor(index);
-  const sectionChipBg = section.kind === 'swot' ? SWOT_SOFT : `${accentColor}15`;
-  const sectionChipText = section.kind === 'swot' ? SWOT_SOFT_TEXT : accentColor;
+  const usesEditorialTone = section.kind === 'swot' || section.kind === 'aida';
+  const sectionChipBg = usesEditorialTone ? SWOT_SOFT : `${accentColor}15`;
+  const sectionChipText = usesEditorialTone ? SWOT_SOFT_TEXT : accentColor;
 
   return (
     <section
@@ -764,7 +920,11 @@ function SectionBlock({ section, index }: { section: ParsedSection; index: numbe
           <SwotMatrix cards={section.cards} />
         )}
 
-        {section.cards.length > 0 && section.kind !== 'swot' && (
+        {section.cards.length > 0 && section.kind === 'aida' && (
+          <AidaMatrix cards={section.cards} />
+        )}
+
+        {section.cards.length > 0 && section.kind !== 'swot' && section.kind !== 'aida' && (
           <div className={`grid gap-3 ${getSectionGridClass(section.kind, section.cards.length)}`}>
             {section.cards.map((card, cardIndex) => (
               <div
