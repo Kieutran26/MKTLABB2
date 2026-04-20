@@ -83,7 +83,10 @@ function textOf(node: Element | null | undefined): string {
 }
 
 function normalizeLine(text: string): string {
-  return text.replace(/\s+/g, ' ').replace(/^\W+|\W+$/g, '').trim();
+  return text
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s"'“”‘’•·\-–—:;,.!?()[\]{}]+|[\s"'“”‘’•·\-–—:;,.!?()[\]{}]+$/gu, '')
+    .trim();
 }
 
 function shouldMergeWithPrevious(previous: string, current: string): boolean {
