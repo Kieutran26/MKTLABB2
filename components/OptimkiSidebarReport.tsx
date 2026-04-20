@@ -730,6 +730,44 @@ function getAidaDisplayLines(card: ParsedCard): string[] {
     .filter(Boolean);
 }
 
+function splitAidaLineIntoIdeas(line: string): string[] {
+  const normalized = normalizeLine(line);
+  if (!normalized) return [];
+
+  const withBreaks = normalized
+    .replace(/([.!?])(?=(?:["'“”‘’(]*[A-ZÀ-Ỵ]))/g, '$1\n')
+    .replace(/(:)(?=\s*(?:["'“”‘’(]*[A-ZÀ-Ỵ]))/g, '$1\n')
+    .replace(/(;)(?=\s*(?:["'“”‘’(]*[A-ZÀ-Ỵ]))/g, '$1\n');
+
+  const parts = withBreaks
+    .split(/\n+/)
+    .map((part) => normalizeLine(part))
+    .filter((part) => part.length > 3);
+
+  return parts.length > 0 ? parts : [normalized];
+}
+
+function getAidaVietnameseLabel(title: string): string {
+  if (/attention/i.test(title)) return 'Thu hút';
+  if (/interest/i.test(title)) return 'Quan tâm';
+  if (/desire/i.test(title)) return 'Mong muốn';
+  if (/action/i.test(title)) return 'Hành động';
+  return '';
+}
+
+function getAidaHeaderText(title: string): string {
+  const vietnameseLabel = getAidaVietnameseLabel(title);
+  return vietnameseLabel ? `${title} • ${vietnameseLabel}` : title;
+}
+
+function stripAidaVietnamesePrefix(line: string, vietnameseLabel: string): string {
+  if (!line || !vietnameseLabel) return line;
+  const escaped = vietnameseLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^${escaped}\\s*[•·:\\-–—]?\\s*`, 'i');
+  const cleaned = line.replace(pattern, '').trim();
+  return cleaned || line;
+}
+
 function SwotMatrix({ cards }: { cards: ParsedCard[] }) {
   const orderedCards = sortSwotCards(cards);
 
@@ -811,7 +849,14 @@ function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
       {orderedCards.map((card, index) => {
         const isLastColumn = index === orderedCards.length - 1;
         const displayTitle = getAidaDisplayTitle(card);
-        const displayLines = getAidaDisplayLines(card);
+        const vietnameseLabel = getAidaVietnameseLabel(displayTitle);
+        const headerText = getAidaHeaderText(displayTitle);
+        const displayBadge = displayTitle.charAt(0).toUpperCase();
+        const displayLines = getAidaDisplayLines(card)
+          .map((line, lineIndex) =>
+            lineIndex === 0 ? stripAidaVietnamesePrefix(line, vietnameseLabel) : line
+          )
+          .flatMap((line) => splitAidaLineIntoIdeas(line));
 
         return (
           <article
@@ -835,17 +880,15 @@ function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
 
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                {card.badge ? (
-                  <div
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold"
-                    style={{ backgroundColor: SWOT_SOFT, color: SWOT_SOFT_TEXT }}
-                  >
-                    {card.badge}
-                  </div>
-                ) : null}
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[15px] font-bold"
+                  style={{ backgroundColor: '#f5f5f4', color: '#44403c' }}
+                >
+                  {displayBadge}
+                </div>
 
                 <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-700">
-                  {displayTitle}
+                  {headerText}
                 </div>
               </div>
 
@@ -853,7 +896,7 @@ function AidaMatrix({ cards }: { cards: ParsedCard[] }) {
                 {displayLines.map((line, lineIndex) => (
                   <div key={`aida-line-${index}-${lineIndex}`} className="flex items-start gap-3.5">
                     <div
-                      className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                      className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full"
                       style={{ backgroundColor: SWOT_BORDER }}
                     />
                     <span className="text-[13px] leading-6 text-stone-600">{line}</span>
