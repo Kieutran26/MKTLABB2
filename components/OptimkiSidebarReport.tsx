@@ -5,6 +5,7 @@ import {
   ChevronRight,
   Download,
   Pencil,
+  Save,
   LayoutGrid,
   Link2,
   Loader2,
@@ -29,6 +30,7 @@ interface OptimkiSidebarReportProps {
   isRendering?: boolean;
   renderStep?: string;
   onRenameReport?: (brandName: string) => void;
+  onSave?: () => Promise<void> | void;
 }
 
 type ParsedCard = {
@@ -2837,6 +2839,7 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
   isRendering,
   renderStep,
   onRenameReport,
+  onSave,
 }) => {
   const toast = useToast();
   const reportContentRef = useRef<HTMLDivElement>(null);
@@ -3038,6 +3041,18 @@ export const OptimkiSidebarReport: React.FC<OptimkiSidebarReportProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void onSave?.()}
+                  className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors hover:bg-black/[0.05]"
+                  style={{ color: NAV_TEXT }}
+                >
+                  <Save size={13} className="opacity-70" />
+                  {'Lưu'}
+                </button>
+
+                <div className="h-4 w-px bg-stone-200" />
+
                 <button
                   type="button"
                   onClick={() => void handleExportPng()}

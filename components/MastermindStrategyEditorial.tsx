@@ -1,8 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import './MastermindStrategyEditorial.css';
 import { MastermindStrategy } from '../types';
-import { renderMarkdownBoldSegments } from '../utils/renderMarkdownBold';
-import { Check, X, Zap } from 'lucide-react';
 import ProMaxAdviceGate from './ProMaxAdviceGate';
 import type { SubscriptionTier } from './AuthContext';
 
@@ -11,315 +9,377 @@ interface MastermindStrategyEditorialProps {
   subscriptionTier?: SubscriptionTier | string | null;
 }
 
-/* ── small helpers ── */
-const Band = ({ color, children }: { color: string; children: React.ReactNode }) => (
-  <div className={`ms-band ms-band-${color}`}>{children}</div>
-);
+type KeyValueCard = { label: string; value: string; number?: string };
+type TextCard = { title: string; body: string; eyebrow?: string; lines?: string[]; accent?: string };
+type ParsedReport = {
+  vision: { title: string; summary: string; analysis: string };
+  metrics: KeyValueCard[];
+  persona?: TextCard;
+  competition?: TextCard;
+  roadmap: TextCard[];
+  channels: TextCard[];
+  content: TextCard[];
+  advice: TextCard[];
+  adviceQuote?: string;
+};
 
-const SectionLabel = ({
-  num, label, dotClass = 'ms-band-label-dot',
-  dotStyle,
-}: {
-  num: string; label: string; dotClass?: string; dotStyle?: React.CSSProperties;
-}) => (
-  <div className="ms-band-label">
-    <div className={dotClass} style={dotStyle} />
-    <span className="ms-band-label-text">{label}</span>
-    <div className="ms-band-label-line" />
-    <span className="ms-band-label-num">{num}</span>
-  </div>
-);
+const clean = (value: string | null | undefined) => (value ?? '').replace(/\s+/g, ' ').trim();
+const first = (...values: Array<string | null | undefined>) => values.map(clean).find(Boolean) ?? '';
+
+function fromStructuredResult(strategy: MastermindStrategy): ParsedReport {
+  const { result } = strategy;
+  const smartGoals = result.strategic_goals?.smart_goals ?? [];
+  const budgetSplit = result.strategic_goals?.resource_allocation?.budget_split ?? {};
+  const roadmapMonths = result.strategic_goals?.roadmap_90day?.months ?? [];
+  const pains = (result.brand_context?.pain_gain?.ranked_pains ?? []).slice(0, 3).map((item) => item.content);
+  const gains = result.brand_context?.pain_gain?.top_gains ?? [];
+
+  return {
+    vision: {
+      title: first(result.coreMessage, strategy.name, 'Strategic direction'),
+      summary: first(result.conclusion?.summary, result.brand_context?.positioning?.current_state, result.insight),
+      analysis: first(result.insight, result.conclusion?.final_notes),
+    },
+    metrics: [
+      { number: '01', label: 'Core Insight', value: first(result.insight, 'Chưa có insight cụ thể') },
+      { number: '02', label: 'Baseline hiện tại', value: first(smartGoals[0]?.baseline, 'Chưa có số liệu cụ thể') },
+      { number: '03', label: 'Mục tiêu chiến dịch', value: first(smartGoals[0]?.target, smartGoals[0]?.goal, 'Tăng trưởng bền vững') },
+    ],
+    persona: {
+      title: first(result.brand_context?.persona?.demographics, 'Target Persona'),
+      eyebrow: first(result.brand_context?.persona?.behaviors),
+      body: first(result.brand_context?.persona?.psychographics, result.brand_context?.persona?.journey),
+      lines: [...pains, ...gains].filter(Boolean).slice(0, 5),
+      accent: 'persona',
+    },
+    competition: {
+      title: 'Competitive Space',
+      eyebrow: first(result.brand_context?.positioning?.competitive_map?.description, 'Bối cảnh cạnh tranh'),
+      body: first(result.brand_context?.positioning?.current_state),
+      lines: [
+        first(result.brand_context?.positioning?.competitive_map?.x_axis),
+        first(result.brand_context?.positioning?.competitive_map?.y_axis),
+        first(result.brand_context?.positioning?.differentiator),
+      ].filter(Boolean),
+      accent: 'competition',
+    },
+    roadmap: roadmapMonths.slice(0, 3).map((month, index) => ({
+      title: first(month.month_name, `Giai đoạn ${index + 1}`),
+      eyebrow: first(month.priority),
+      body: first(month.kpi, month.owner),
+      lines: (month.actions ?? []).filter(Boolean).slice(0, 4),
+      accent: 'roadmap',
+    })),
+    channels: Object.entries(budgetSplit).map(([name, data]) => ({
+      title: name,
+      eyebrow: first(data.percent),
+      body: first(data.kpi),
+      lines: [first(data.rationale)].filter(Boolean),
+      accent: 'channel',
+    })),
+    content: [
+      { title: 'Visual', eyebrow: `${result.contentAngles?.visual?.length ?? 0}x`, body: first(result.contentAngles?.visual?.[0]), lines: result.contentAngles?.visual?.slice(1, 3) ?? [], accent: 'content' },
+      { title: 'Story', eyebrow: `${result.contentAngles?.story?.length ?? 0}x`, body: first(result.contentAngles?.story?.[0]), lines: result.contentAngles?.story?.slice(1, 3) ?? [], accent: 'content' },
+      { title: 'Action', eyebrow: `${result.contentAngles?.action?.length ?? 0}x`, body: first(result.contentAngles?.action?.[0]), lines: result.contentAngles?.action?.slice(1, 3) ?? [], accent: 'content' },
+    ],
+    advice: [
+      { title: 'Việc phải làm', body: first(result.action_plan?.expert_advice?.the_must_do), accent: 'advice' },
+      { title: 'Cần tránh', body: first(result.action_plan?.expert_advice?.common_pitfall), accent: 'advice' },
+      { title: 'Cơ hội ẩn', body: first(result.action_plan?.expert_advice?.hidden_opportunity), accent: 'advice' },
+    ].filter((item) => item.body),
+    adviceQuote: first(result.conclusion?.positioning_statement),
+  };
+}
+
+function mergeTextCard(base?: TextCard, override?: TextCard): TextCard | undefined {
+  if (!base && !override) return undefined;
+  return {
+    title: first(override?.title, base?.title),
+    eyebrow: first(override?.eyebrow, base?.eyebrow),
+    body: first(override?.body, base?.body),
+    lines: (override?.lines?.length ? override.lines : base?.lines) ?? [],
+    accent: override?.accent ?? base?.accent,
+  };
+}
+
+function mergeReports(base: ParsedReport, override: ParsedReport | null): ParsedReport {
+  if (!override) return base;
+  return {
+    vision: {
+      title: first(override.vision.title, base.vision.title),
+      summary: first(override.vision.summary, base.vision.summary),
+      analysis: first(override.vision.analysis, base.vision.analysis),
+    },
+    metrics: base.metrics.map((item, index) => ({
+      number: first(override.metrics[index]?.number, item.number),
+      label: first(override.metrics[index]?.label, item.label),
+      value: first(override.metrics[index]?.value, item.value),
+    })),
+    persona: mergeTextCard(base.persona, override.persona),
+    competition: mergeTextCard(base.competition, override.competition),
+    roadmap: override.roadmap.length ? override.roadmap : base.roadmap,
+    channels: override.channels.length ? override.channels : base.channels,
+    content: override.content.length ? override.content : base.content,
+    advice: override.advice.length ? override.advice : base.advice,
+    adviceQuote: first(override.adviceQuote, base.adviceQuote),
+  };
+}
+
+function parseTextCards(root: ParentNode, selector: string, accent: string): TextCard[] {
+  return Array.from(root.querySelectorAll(selector)).map((node) => ({
+    title: first((node.querySelector('.rm-month, .ch-name, .ct-type, .cmo-item-title') as HTMLElement | null)?.textContent, 'Untitled'),
+    eyebrow: first((node.querySelector('.rm-theme, .ch-pct, .ct-ratio') as HTMLElement | null)?.textContent),
+    body: first(
+      (node.querySelector('.rm-kpi, .ch-kpi, .ct-example, .cmo-item-copy') as HTMLElement | null)?.textContent,
+      clean((node as HTMLElement).textContent)
+    ),
+    lines: Array.from(node.querySelectorAll('.rm-item span, .ch-rationale, .ct-hook')).map((item) => clean(item.textContent)).filter(Boolean).slice(0, 4),
+    accent,
+  })).filter((item) => item.title || item.body || (item.lines?.length ?? 0) > 0);
+}
+
+function fromHtmlOutput(strategy: MastermindStrategy): ParsedReport | null {
+  const raw = strategy.result?.htmlOutput?.trim();
+  if (!raw || typeof DOMParser === 'undefined') return null;
+
+  const doc = new DOMParser().parseFromString(raw, 'text/html');
+  doc.querySelectorAll('script, iframe, object, embed').forEach((node) => node.remove());
+
+  const bigIdea = doc.querySelector('.big-idea');
+  const insightStrip = doc.querySelector('.insight-strip');
+  const pairedCards = Array.from(doc.querySelectorAll('.two-col .section, .two-col .section-card'));
+  const cmoQuote = doc.querySelector('.cmo-quote');
+
+  const metrics = insightStrip
+    ? Array.from(insightStrip.querySelectorAll('.ins-item')).map((item, index) => ({
+        number: first((item.querySelector('.ins-num') as HTMLElement | null)?.textContent, String(index + 1).padStart(2, '0')),
+        label: first((item.querySelector('.ins-label') as HTMLElement | null)?.textContent, `Metric ${index + 1}`),
+        value: first((item.querySelector('.ins-val') as HTMLElement | null)?.textContent, 'Chưa có dữ liệu'),
+      }))
+    : [];
+
+  const persona = pairedCards[0]
+    ? {
+        title: first((pairedCards[0].querySelector('.persona-name, .section-title') as HTMLElement | null)?.textContent, 'Target Persona'),
+        eyebrow: first((pairedCards[0].querySelector('.persona-tag') as HTMLElement | null)?.textContent),
+        body: first((pairedCards[0].querySelector('.persona-body') as HTMLElement | null)?.textContent),
+        lines: Array.from(pairedCards[0].querySelectorAll('.pain-item')).map((item) => clean(item.textContent)).filter(Boolean).slice(0, 5),
+        accent: 'persona',
+      }
+    : undefined;
+
+  const competition = pairedCards[1]
+    ? {
+        title: first((pairedCards[1].querySelector('.section-title') as HTMLElement | null)?.textContent, 'Competitive Space'),
+        eyebrow: first((pairedCards[1].querySelector('.mini-label, .axis-label') as HTMLElement | null)?.textContent),
+        body: first((pairedCards[1].querySelector('.comp-body') as HTMLElement | null)?.textContent),
+        lines: [
+          ...Array.from(pairedCards[1].querySelectorAll('.comp-axis-copy, .diff-pill-text, .axis-label, .leg')).map((item) => clean(item.textContent)),
+        ].filter(Boolean).slice(0, 4),
+        accent: 'competition',
+      }
+    : undefined;
+
+  const advice = Array.from(doc.querySelectorAll('.cmo-grid .cmo-item')).map((item, index) => {
+    const roman = first((item.querySelector('.cmo-num') as HTMLElement | null)?.textContent);
+    const defaultTitle = index === 0 ? 'Việc phải làm' : index === 1 ? 'Cần tránh' : 'Cơ hội ẩn';
+    return {
+      title: defaultTitle,
+      eyebrow: roman,
+      body: first(
+        (item.querySelector('.cmo-text, .cmo-item-copy') as HTMLElement | null)?.textContent,
+        clean((item as HTMLElement).textContent)
+      ),
+      accent: 'advice',
+    };
+  }).filter((item) => item.body);
+
+  return {
+    vision: {
+      title: first((bigIdea?.querySelector('.bi-quote') as HTMLElement | null)?.textContent, strategy.result.coreMessage, strategy.name),
+      summary: first((bigIdea?.querySelector('.bi-sub') as HTMLElement | null)?.textContent, strategy.result.conclusion?.summary),
+      analysis: first((bigIdea?.querySelector('.bi-side-copy') as HTMLElement | null)?.textContent, strategy.result.insight),
+    },
+    metrics: metrics.length ? metrics : fromStructuredResult(strategy).metrics,
+    persona: persona ?? fromStructuredResult(strategy).persona,
+    competition: competition ?? fromStructuredResult(strategy).competition,
+    roadmap: parseTextCards(doc, '.roadmap-grid .rm-col', 'roadmap'),
+    channels: parseTextCards(doc, '.channel-grid .ch-card', 'channel'),
+    content: parseTextCards(doc, '.content-tabs .ct-tab', 'content'),
+    advice: advice.length ? advice : parseTextCards(doc, '.cmo-grid .cmo-item', 'advice'),
+    adviceQuote: first(cmoQuote?.textContent, strategy.result.conclusion?.positioning_statement),
+  };
+}
+
+function renderSectionHeader(number: string, eyebrow: string, title: string) {
+  return (
+    <div className="ms-report-section__header">
+      <div className="ms-report-section__number">{number}</div>
+      <div className="ms-report-section__meta">
+        <div className="ms-report-section__eyebrow">{eyebrow}</div>
+        <h2 className="ms-report-section__title">{title}</h2>
+      </div>
+    </div>
+  );
+}
 
 const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = ({ strategy, subscriptionTier }) => {
-  const { result } = strategy;
   const isPromax = subscriptionTier === 'promax';
-  if (!result) return null;
-
-  /** API / DB có thể thiếu nhánh — tránh crash khi đọc nested */
-  const contentAngles = {
-    text: [] as string[],
-    visual: [] as string[],
-    story: [] as string[],
-    data: [] as string[],
-    action: [] as string[],
-    weekly_distribution: 'hàng tuần',
-    sample_week_schedule: '',
-    ...result.contentAngles,
-  };
-
-  const createdAt = new Date(strategy.createdAt);
-  const quarter   = `Q${Math.floor(createdAt.getMonth() / 3) + 1} · ${createdAt.getFullYear()}`;
+  const report = useMemo(() => {
+    const structured = fromStructuredResult(strategy);
+    const legacyFacts = fromHtmlOutput(strategy);
+    return mergeReports(structured, legacyFacts);
+  }, [strategy]);
 
   return (
-    <div className="ms-editorial-wrapper">
+    <div className="mastermind-report-shell">
+      <div className="ms-report">
+        <section className="ms-report-section">
+          {renderSectionHeader('01', 'Mô hình chiến lược', 'Strategic Vision & Core Message')}
+          <div className="ms-hero-board">
+            <div className="ms-hero-board__main">
+              <div className="ms-hero-board__kicker">Strategic Vision · Core Message</div>
+              <blockquote className="ms-hero-board__quote">{report.vision.title}</blockquote>
+              {report.vision.summary ? <p className="ms-hero-board__summary">{report.vision.summary}</p> : null}
+            </div>
+            <aside className="ms-hero-board__side">
+              <div className="ms-hero-board__side-title">Expert Analysis</div>
+              <p className="ms-hero-board__side-copy">{report.vision.analysis || 'Chưa có expert analysis cụ thể.'}</p>
+            </aside>
+          </div>
+        </section>
 
-      {/* ── 0. HEADER ─────────────────────────────────────────── */}
-      <div className="ms-header-band">
-        <div className="ms-header-left">
-          <div className="ms-eyebrow">Mastermind Strategy • Framework v1.0</div>
-          <h1 className="ms-main-title">
-            {strategy.name.split(' - ')[0]}
-          </h1>
-          <div className="ms-header-subline">
-            <span className="ms-sub-accent">Context</span>
-            <span className="ms-sub-text">{result.brand_context?.persona.demographics || 'Khách hàng mục tiêu'}</span>
+        <section className="ms-report-section">
+          {renderSectionHeader('02', 'Mô hình chiến lược', 'Chỉ số chiến lược')}
+          <div className="ms-metric-grid">
+            {report.metrics.map((item, index) => (
+              <article key={`${item.label}-${index}`} className="ms-metric-card">
+                <div className="ms-metric-card__eyebrow">{item.label}</div>
+                <div className="ms-metric-card__number">{item.number ?? String(index + 1).padStart(2, '0')}</div>
+                <div className="ms-metric-card__value">{item.value}</div>
+              </article>
+            ))}
           </div>
-        </div>
-        <div className="ms-header-right">
-          <div className="ms-meta-stack">
-            <div className="ms-meta-item">
-              <span className="ms-meta-label">Period</span>
-              <span className="ms-meta-value">{quarter}</span>
+        </section>
+
+        {report.persona || report.competition ? (
+          <section className="ms-report-section">
+            {renderSectionHeader('03', 'Mô hình chiến lược', 'Persona & Competitive Space')}
+            <div className="ms-split-board">
+              {[report.persona, report.competition].filter(Boolean).map((item, index) => (
+                <article key={`${item?.title}-${index}`} className={`ms-split-board__card ms-split-board__card--${item?.accent}`}>
+                  <div className="ms-split-board__card-head">
+                    <div className="ms-split-board__card-kicker">{item?.eyebrow || (index === 0 ? 'Target Persona' : 'Competitive Space')}</div>
+                    <h3 className="ms-split-board__card-title">{item?.title}</h3>
+                  </div>
+                  {item?.body ? <p className="ms-split-board__card-copy">{item.body}</p> : null}
+                  {item?.lines?.length ? (
+                    <ul className="ms-split-board__list">
+                      {item.lines.map((line, lineIndex) => (
+                        <li key={`${line}-${lineIndex}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
             </div>
-            <div className="ms-meta-item">
-              <span className="ms-meta-label">Output Type</span>
-              <span className="ms-meta-value accent">Chiến lược tổng thể</span>
+          </section>
+        ) : null}
+
+        {report.roadmap.length ? (
+          <section className="ms-report-section">
+            {renderSectionHeader('04', 'Mô hình chiến lược', 'Lộ trình 90 ngày')}
+            <div className="ms-card-grid ms-card-grid--thirds">
+              {report.roadmap.map((item, index) => (
+                <article key={`${item.title}-${index}`} className="ms-detail-card">
+                  <div className="ms-detail-card__eyebrow">{item.eyebrow || `Giai đoạn ${index + 1}`}</div>
+                  <h3 className="ms-detail-card__title">{item.title}</h3>
+                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
+                  {item.lines?.length ? (
+                    <ul className="ms-detail-card__list">
+                      {item.lines.map((line, lineIndex) => (
+                        <li key={`${line}-${lineIndex}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
             </div>
-          </div>
-        </div>
+          </section>
+        ) : null}
+
+        {report.channels.length ? (
+          <section className="ms-report-section">
+            {renderSectionHeader('05', 'Mô hình chiến lược', 'Kênh truyền thông & ngân sách')}
+            <div className="ms-card-grid ms-card-grid--auto">
+              {report.channels.map((item, index) => (
+                <article key={`${item.title}-${index}`} className="ms-detail-card ms-detail-card--compact">
+                  <div className="ms-detail-card__eyebrow">{item.eyebrow || 'Channel'}</div>
+                  <h3 className="ms-detail-card__title">{item.title}</h3>
+                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
+                  {item.lines?.length ? (
+                    <ul className="ms-detail-card__list">
+                      {item.lines.map((line, lineIndex) => (
+                        <li key={`${line}-${lineIndex}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {report.content.length ? (
+          <section className="ms-report-section">
+            {renderSectionHeader('06', 'Mô hình chiến lược', 'Content Mix hàng tuần')}
+            <div className="ms-card-grid ms-card-grid--thirds">
+              {report.content.map((item, index) => (
+                <article key={`${item.title}-${index}`} className="ms-detail-card">
+                  <div className="ms-detail-card__eyebrow">{item.eyebrow || 'Content angle'}</div>
+                  <h3 className="ms-detail-card__title">{item.title}</h3>
+                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
+                  {item.lines?.length ? (
+                    <ul className="ms-detail-card__list">
+                      {item.lines.map((line, lineIndex) => (
+                        <li key={`${line}-${lineIndex}`}>{line}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {isPromax && (report.advice.length || report.adviceQuote) ? (
+          <section className="ms-report-section">
+            {renderSectionHeader('07', 'Mô hình chiến lược', 'CMO Advice')}
+            <div className="ms-card-grid ms-card-grid--thirds">
+              {report.advice.map((item, index) => (
+                <article key={`${item.title}-${index}`} className="ms-detail-card ms-detail-card--soft">
+                  <div className="ms-detail-card__eyebrow">Strategic advice</div>
+                  <h3 className="ms-detail-card__title">{item.title}</h3>
+                  <p className="ms-detail-card__copy">{item.body}</p>
+                </article>
+              ))}
+            </div>
+            {report.adviceQuote ? <blockquote className="ms-advice-quote">{report.adviceQuote}</blockquote> : null}
+          </section>
+        ) : null}
       </div>
 
-      {/* ── 1. BIG IDEA ─────────────────────────────────────── */}
-      <Band color="white">
-        <SectionLabel num="01" label="Strategic Vision · Core Message" dotStyle={{ background: 'var(--ms-green)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-big-idea-grid">
-          <div className="ms-core-message">
-            <div className="ms-quote-wrap">
-              <span className="ms-quote-symbol">“</span>
-              <h2 className="ms-quote-headline">
-                {result.coreMessage}
-              </h2>
-            </div>
-            <div className="ms-vision-copy">
-              {result.conclusion?.summary || 'Chiến lược tập trung vào việc xây dựng giá trị cốt lõi và kết nối sâu sắc với khách hàng mục tiêu.'}
-            </div>
-          </div>
-          <div className="ms-side-insight">
-            <div className="ms-side-insight-label">Expert Analysis</div>
-            <div className="ms-side-insight-text">
-              {result.insight}
-            </div>
-          </div>
+      {!isPromax && (report.advice.length || report.adviceQuote) ? (
+        <div className="mastermind-promax-advice-gate">
+          <ProMaxAdviceGate
+            subscriptionTier={subscriptionTier}
+            benefits={[
+              'Việc cần làm, bẫy phổ biến và cơ hội ẩn',
+              'Positioning statement hoàn chỉnh để chốt chiến lược',
+            ]}
+          />
         </div>
-      </Band>
-
-      {/* ── 2. KEY METRICS ──────────────────────────────────── */}
-      <Band color="paper2">
-        <SectionLabel num="02" label="Chỉ số chiến lược" dotStyle={{ background: 'var(--ms-blue)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-metrics-row">
-          <div className="ms-metric-card">
-            <div className="ms-metric-num">01</div>
-            <div className="ms-metric-label">Core Insight</div>
-            <div className="ms-metric-val">{result.insight}</div>
-          </div>
-          <div className="ms-metric-card">
-            <div className="ms-metric-num">02</div>
-            <div className="ms-metric-label">Baseline hiện tại</div>
-            <div className="ms-metric-val">
-              {result.strategic_goals?.smart_goals[0]?.baseline || 'Chưa có số liệu cụ thể'}
-            </div>
-          </div>
-          <div className="ms-metric-card">
-            <div className="ms-metric-num">03</div>
-            <div className="ms-metric-label">Mục tiêu chiến dịch</div>
-            <div className="ms-metric-val">
-              {result.strategic_goals?.smart_goals[0]?.target || 'Tăng trưởng bền vững'}
-            </div>
-          </div>
-        </div>
-      </Band>
-
-      {/* ── 3. PERSONA + COMPETITIVE ────────────────────────── */}
-      <Band color="paper">
-        <SectionLabel num="03" label="Persona & Competitive Space" dotStyle={{ background: 'var(--ms-amber)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-two-col-grid">
-
-          {/* Persona */}
-          <div className="ms-col-card">
-            <div className="ms-col-heading">Target Persona</div>
-            <div className="ms-col-sub">
-              {result.brand_context?.persona.demographics}<br />
-              {result.brand_context?.persona.behaviors}
-            </div>
-            <div className="ms-col-body">{result.brand_context?.persona.psychographics}</div>
-
-            <div className="ms-col-micro-label">Nỗi đau chính</div>
-            {(result.brand_context?.pain_gain?.ranked_pains ?? []).slice(0, 3).map((pain, i) => (
-              <div key={i} className="ms-list-item">
-                <div className={`ms-list-dot ${pain.impact === 'High' ? 'ms-list-dot-red' : 'ms-list-dot-amber'}`} />
-                {pain.content}
-              </div>
-            ))}
-
-            <div className="ms-col-micro-label">Khao khát thật sự</div>
-            {(result.brand_context?.pain_gain?.top_gains ?? []).slice(0, 2).map((gain, i) => (
-              <div key={i} className="ms-list-item">
-                <div className="ms-list-dot ms-list-dot-green" />
-                {gain}
-              </div>
-            ))}
-          </div>
-
-          {/* Competitive */}
-          <div className="ms-col-card">
-            <div className="ms-col-heading">Competitive Space</div>
-            <div className="ms-col-body">{result.brand_context?.positioning.current_state}</div>
-
-            <div className="ms-col-micro-label">Trục cạnh tranh</div>
-            <div className="ms-col-body" style={{ fontSize: 12, color: 'var(--ms-ink-3)' }}>
-              {result.brand_context?.positioning?.competitive_map?.x_axis ?? '—'}
-              {' · '}
-              {result.brand_context?.positioning?.competitive_map?.y_axis ?? '—'}
-            </div>
-
-            <div className="ms-diff-pill">
-              <div className="ms-diff-pill-label">Our Differentiator</div>
-              <div className="ms-diff-pill-text">{result.brand_context?.positioning.differentiator}</div>
-            </div>
-          </div>
-        </div>
-      </Band>
-
-      {/* ── 4. ROADMAP 90 NGÀY ──────────────────────────────── */}
-      <Band color="blue">
-        <SectionLabel num="04" label="Lộ trình 90 ngày" dotStyle={{ background: 'var(--ms-blue)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-roadmap-cols">
-          {(result.strategic_goals?.roadmap_90day?.months ?? []).map((month, i) => (
-            <div key={i} className="ms-rm-card">
-              <div className="ms-rm-card-top">
-                <div className="ms-rm-month-label">{month.month_name}</div>
-                <div className="ms-rm-priority">{month.priority}</div>
-              </div>
-              <div className="ms-rm-card-body">
-                {(month.actions ?? []).slice(0, 3).map((action, j) => (
-                  <div key={j} className="ms-rm-action-item">
-                    <span className="ms-rm-action-num">{j + 1}.</span>
-                    {action}
-                  </div>
-                ))}
-                <div className="ms-rm-kpi-strip">
-                  Target KPI: <span>{month.kpi}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Band>
-
-      {/* ── 5. CHANNEL ALLOCATION ───────────────────────────── */}
-      <Band color="paper">
-        <SectionLabel num="05" label="Kênh truyền thông & Ngân sách" dotStyle={{ background: 'var(--ms-green)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-channel-grid">
-          {Object.entries(result.strategic_goals?.resource_allocation.budget_split || {}).map(([channel, data], i) => (
-            <div key={i} className="ms-ch-card">
-              <div className="ms-ch-header">
-                <div className="ms-ch-name">{channel}</div>
-                <div className="ms-ch-pct">{data.percent}</div>
-              </div>
-              <div className="ms-ch-bar-track">
-                <div className="ms-ch-bar-fill" style={{ width: data.percent }} />
-              </div>
-              <div className="ms-ch-kpi-text">KPI: {data.kpi}</div>
-              <div className="ms-ch-rationale">{data.rationale}</div>
-            </div>
-          ))}
-        </div>
-      </Band>
-
-      {/* ── 6. CONTENT MIX ──────────────────────────────────── */}
-      <Band color="paper2">
-        <SectionLabel num="06" label={`Content Mix · ${contentAngles.weekly_distribution || 'hàng tuần'}`} dotStyle={{ background: 'var(--ms-amber)', width: 8, height: 8, borderRadius: '50%' }} />
-        <div className="ms-content-grid">
-          {/* Visual */}
-          <div className="ms-ct-card">
-            <div className="ms-ct-card-top visual">
-              <div className="ms-ct-type-label visual">Visual</div>
-              <div className="ms-ct-count">{contentAngles.visual?.length ?? 0}×</div>
-            </div>
-            <div className="ms-ct-card-body">
-              {contentAngles.visual?.[0] && (
-                <div className="ms-ct-example-text">"{contentAngles.visual[0]}"</div>
-              )}
-              <div className="ms-ct-direction">
-                <strong>Định hướng:</strong> Tập trung vào cảm xúc và hình ảnh thương hiệu nhất quán.
-              </div>
-            </div>
-          </div>
-          {/* Story */}
-          <div className="ms-ct-card">
-            <div className="ms-ct-card-top story">
-              <div className="ms-ct-type-label story">Story</div>
-              <div className="ms-ct-count">{contentAngles.story?.length ?? 0}×</div>
-            </div>
-            <div className="ms-ct-card-body">
-              {contentAngles.story?.[0] && (
-                <div className="ms-ct-example-text">"{contentAngles.story[0]}"</div>
-              )}
-              <div className="ms-ct-direction">
-                <strong>Định hướng:</strong> Kể chuyện để xây dựng trust và kết nối persona.
-              </div>
-            </div>
-          </div>
-          {/* Action */}
-          <div className="ms-ct-card">
-            <div className="ms-ct-card-top action">
-              <div className="ms-ct-type-label action">Action</div>
-              <div className="ms-ct-count">{contentAngles.action?.length ?? 0}×</div>
-            </div>
-            <div className="ms-ct-card-body">
-              {contentAngles.action?.[0] && (
-                <div className="ms-ct-example-text">"{contentAngles.action[0]}"</div>
-              )}
-              <div className="ms-ct-direction">
-                <strong>Định hướng:</strong> Call-to-action rõ ràng, thúc đẩy chuyển đổi trực tiếp.
-              </div>
-            </div>
-          </div>
-        </div>
-      </Band>
-
-      {/* ── 7. LỜI KHUYÊN ─────────────────────────────────────── */}
-      <Band color="paper">
-        <SectionLabel num="07" label="Lời khuyên" dotStyle={{ background: 'var(--ms-rose)', width: 8, height: 8, borderRadius: '50%' }} />
-        <ProMaxAdviceGate
-          subscriptionTier={subscriptionTier}
-          className={`ms-cmo-gate${isPromax ? ' ms-cmo-gate--open' : ''}`}
-          benefits={[
-            'Việc cần làm, bẫy phổ biến & cơ hội ẩn',
-            'Positioning statement chuẩn bài bản',
-          ]}
-        >
-          <div className="ms-cmo-grid">
-            <div className="ms-cmo-card must">
-              <div className="ms-cmo-card-label">
-                <Check size={14} strokeWidth={2.5} /> Việc phải làm
-              </div>
-              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.the_must_do}</div>
-            </div>
-            <div className="ms-cmo-card avoid">
-              <div className="ms-cmo-card-label">
-                <X size={14} strokeWidth={2.5} /> Cần tránh
-              </div>
-              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.common_pitfall}</div>
-            </div>
-            <div className="ms-cmo-card oppt">
-              <div className="ms-cmo-card-label">
-                <Zap size={14} strokeWidth={2.5} /> Cơ hội ẩn
-              </div>
-              <div className="ms-cmo-card-text">{result.action_plan?.expert_advice.hidden_opportunity}</div>
-            </div>
-          </div>
-          <div className="ms-final-positioning">
-            <div className="ms-fp-label">Positioning Statement</div>
-            <div className="ms-fp-text">
-              &ldquo;{renderMarkdownBoldSegments(result.conclusion?.positioning_statement)}
-              &rdquo;
-            </div>
-            <div className="ms-fp-underline" />
-          </div>
-        </ProMaxAdviceGate>
-      </Band>
-
+      ) : null}
     </div>
   );
 };

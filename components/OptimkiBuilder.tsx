@@ -468,6 +468,7 @@ const OptimkiBuilder: React.FC = () => {
               isRendering={isRendering}
               renderStep={renderStep}
               onRenameReport={handleRenameReport}
+              onSave={handleSave}
             />
           </div>
         ) : isGenerating ? (

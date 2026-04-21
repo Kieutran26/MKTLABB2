@@ -1,5 +1,332 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+.mastermind-report-shell {
+  width: 100%;
+}
+
+.ms-report,
+.mastermind-report-host {
+  width: 100%;
+  min-height: 0;
+  background: var(--rk-paper);
+}
+
+.ms-report {
+  padding-bottom: 28px;
+  color: var(--rk-ink);
+  font-family: var(--rk-font-sans);
+}
+
+.ms-report * {
+  box-sizing: border-box;
+}
+
+.ms-report-section {
+  padding-top: 18px;
+}
+
+.ms-report-section + .ms-report-section {
+  margin-top: 18px;
+}
+
+.ms-report-section__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--rk-border);
+}
+
+.ms-report-section__number {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--rk-surface-soft);
+  color: var(--rk-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ms-report-section__meta {
+  min-width: 0;
+}
+
+.ms-report-section__eyebrow,
+.ms-hero-board__kicker,
+.ms-split-board__card-kicker,
+.ms-detail-card__eyebrow,
+.ms-metric-card__eyebrow,
+.ms-hero-board__side-title {
+  color: var(--rk-ink-3);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.ms-report-section__eyebrow {
+  margin-bottom: 4px;
+}
+
+.ms-report-section__title {
+  margin: 0;
+  color: var(--rk-ink);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ms-hero-board,
+.ms-split-board,
+.ms-detail-card,
+.ms-metric-card {
+  background: var(--rk-surface);
+  border: 1px solid var(--rk-border);
+  box-shadow: var(--rk-shadow-sm);
+}
+
+.ms-hero-board,
+.ms-split-board {
+  display: grid;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.ms-hero-board {
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.8fr);
+}
+
+.ms-hero-board__main,
+.ms-hero-board__side {
+  min-width: 0;
+  padding: 26px 28px 28px;
+}
+
+.ms-hero-board__side {
+  border-left: 1px solid var(--rk-border);
+  background: var(--rk-surface-muted);
+}
+
+.ms-hero-board__quote {
+  margin: 14px 0 0;
+  color: var(--rk-ink);
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
+}
+
+.ms-hero-board__summary,
+.ms-hero-board__side-copy,
+.ms-split-board__card-copy,
+.ms-detail-card__copy,
+.ms-metric-card__value,
+.ms-advice-quote {
+  color: var(--rk-ink-2);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.ms-hero-board__summary {
+  margin: 20px 0 0;
+  max-width: 92%;
+}
+
+.ms-hero-board__side-copy {
+  margin: 16px 0 0;
+}
+
+.ms-metric-grid,
+.ms-card-grid {
+  display: grid;
+  margin-top: 18px;
+}
+
+.ms-metric-grid,
+.ms-card-grid--thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ms-card-grid--auto {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.ms-metric-card {
+  position: relative;
+  min-height: 172px;
+  padding: 26px 28px 30px;
+  border-radius: 0;
+}
+
+.ms-metric-card + .ms-metric-card,
+.ms-card-grid--thirds .ms-detail-card + .ms-detail-card {
+  border-left: 0;
+}
+
+.ms-metric-grid .ms-metric-card:first-child,
+.ms-card-grid--thirds .ms-detail-card:first-child {
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+}
+
+.ms-metric-grid .ms-metric-card:last-child,
+.ms-card-grid--thirds .ms-detail-card:last-child {
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
+
+.ms-metric-card__number {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  color: var(--rk-ink-5);
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.ms-metric-card__value {
+  position: relative;
+  z-index: 1;
+  margin-top: 18px;
+  max-width: 80%;
+}
+
+.ms-split-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ms-split-board__card {
+  min-width: 0;
+  padding: 28px;
+}
+
+.ms-split-board__card + .ms-split-board__card {
+  border-left: 1px solid var(--rk-border);
+}
+
+.ms-split-board__card-title,
+.ms-detail-card__title {
+  margin: 10px 0 0;
+  color: var(--rk-ink);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.ms-split-board__card-copy {
+  margin: 16px 0 0;
+}
+
+.ms-split-board__list,
+.ms-detail-card__list {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-split-board__list li,
+.ms-detail-card__list li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--rk-ink-2);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.ms-split-board__list li + li,
+.ms-detail-card__list li + li {
+  margin-top: 10px;
+}
+
+.ms-split-board__list li::before,
+.ms-detail-card__list li::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--rk-ink);
+}
+
+.ms-detail-card {
+  min-width: 0;
+  padding: 24px 26px 26px;
+  border-radius: 0;
+}
+
+.ms-detail-card--compact,
+.ms-detail-card--soft {
+  border-radius: 18px;
+}
+
+.ms-detail-card--soft {
+  background: var(--rk-surface-soft);
+}
+
+.ms-detail-card__copy {
+  margin: 14px 0 0;
+}
+
+.ms-advice-quote {
+  margin: 18px 0 0;
+  padding: 22px 24px;
+  border-left: 4px solid var(--rk-ink);
+  border-radius: 0 18px 18px 0;
+  background: var(--rk-surface);
+  font-size: 16px;
+  font-style: italic;
+}
+
+.mastermind-promax-advice-gate {
+  padding-top: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .ms-hero-board,
+  .ms-split-board,
+  .ms-metric-grid,
+  .ms-card-grid--thirds {
+    grid-template-columns: 1fr;
+  }
+
+  .ms-metric-card + .ms-metric-card,
+  .ms-card-grid--thirds .ms-detail-card + .ms-detail-card {
+    border-left: 1px solid var(--rk-border);
+  }
+
+  .ms-hero-board__side {
+    border-left: 0;
+    border-top: 1px solid var(--rk-border);
+  }
+}
+
+@media (max-width: 768px) {
+  .ms-report-section__header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ms-hero-board__main,
+  .ms-hero-board__side,
+  .ms-split-board__card,
+  .ms-detail-card,
+  .ms-metric-card {
+    padding: 22px 20px;
+  }
+
+  .ms-hero-board__quote {
+    font-size: 28px;
+  }
+}
 
 /* ─── TOKENS ─────────────────────────────────────────────── */
 :root {
@@ -35,7 +362,7 @@
   --ms-shadow:     var(--rk-shadow-sm);
 }
 
-/* ─── WRAPPER ─────────────────────────────────────────────── */
+/* ─── WRAPPER ────────────────────────────────────────────── */
 .ms-editorial-wrapper {
   background: transparent;
   font-family: var(--ms-sans);
@@ -63,7 +390,7 @@
 .ms-band-rose    { background: var(--ms-rose-bg); }
 .ms-band-dark    { background: var(--ms-ink); color: #f8f7f3; }
 
-/* ─── SECTION LABEL ─────────────────────────────────────── */
+/* ─── SECTION LABEL ──────────────────────────────────────── */
 .ms-band-label {
   display: flex;
   align-items: center;
@@ -250,7 +577,7 @@
   font-style: italic;
 }
 
-/* ─── METRICS ROW ───────────────────────────────────────── */
+/* ─── METRICS ROW ────────────────────────────────────────── */
 .ms-metrics-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -289,7 +616,7 @@
   padding-right: 2rem;
 }
 
-/* ─── TWO COLUMNS ─────────────────────────────────────── */
+/* ─── TWO COLUMNS ────────────────────────────────────────── */
 .ms-two-col-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -331,7 +658,7 @@
   margin-top: 1rem;
 }
 
-/* ─── PAIN / GAIN LIST ───────────────────────────────── */
+/* ─── PAIN / GAIN LIST ───────────────────────────────────── */
 .ms-list-item {
   display: flex;
   gap: 10px;
@@ -352,7 +679,7 @@
 .ms-list-dot-red   { background: #c03030; }
 .ms-list-dot-amber { background: var(--ms-amber); }
 
-/* ─── DIFFERENTIATOR PILL ────────────────────────────── */
+/* ─── DIFFERENTIATOR PILL ────────────────────────────────── */
 .ms-diff-pill {
   margin-top: 1rem;
   padding: 0.875rem 1.125rem;
@@ -374,7 +701,7 @@
   line-height: 1.6;
 }
 
-/* ─── ROADMAP GRID ───────────────────────────────────── */
+/* ─── ROADMAP GRID ───────────────────────────────────────── */
 .ms-roadmap-cols {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -436,7 +763,7 @@
   color: var(--ms-ink-3);
 }
 
-/* ─── CHANNEL CARDS ──────────────────────────────────── */
+/* ─── CHANNEL CARDS ──────────────────────────────────────── */
 .ms-channel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -492,7 +819,7 @@
   line-height: 1.5;
 }
 
-/* ─── CONTENT MIX ────────────────────────────────────── */
+/* ─── CONTENT MIX ────────────────────────────────────────── */
 .ms-content-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -552,7 +879,7 @@
   color: var(--ms-ink-2);
 }
 
-/* ─── CMO SECTION ────────────────────────────────────── */
+/* ─── CMO SECTION ────────────────────────────────────────── */
 .ms-cmo-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -587,7 +914,7 @@
   color: var(--ms-ink-2);
   line-height: 1.7;
 }
-/* ─── FINAL POSITIONING ─────────────────────────────────── */
+/* ─── FINAL POSITIONING ──────────────────────────────────── */
 .ms-final-positioning {
   margin-top: 4rem;
   padding: 3rem 0;
@@ -627,7 +954,7 @@
   border-radius: 99px;
 }
 
-/* ─── ANIMATIONS ─────────────────────────────────────── */
+/* ─── ANIMATIONS ─────────────────────────────────────────── */
 .ms-band { animation: msFadeUp 0.45s ease both; }
 .ms-band:nth-child(2)  { animation-delay: 0.05s; }
 .ms-band:nth-child(3)  { animation-delay: 0.10s; }
@@ -637,7 +964,7 @@
 .ms-band:nth-child(7)  { animation-delay: 0.30s; }
 .ms-band:nth-child(8)  { animation-delay: 0.35s; }
 
-/* ─── BRAND VAULT PROMAX CARD ──────────────────────────── */
+/* ─── BRAND VAULT PROMAX CARD ────────────────────────────── */
 .ms-vault-centered {
   display: flex;
   align-items: center;
@@ -668,7 +995,7 @@
   border-right: none;
 }
 
-/* ── LEFT: Content ─────────────────────────────────────── */
+/* ── LEFT: Content ───────────────────────────────────────── */
 .ms-vault-content {
   padding: 2.5rem 3rem;
   display: flex;
@@ -749,7 +1076,7 @@
   margin-bottom: 0;
 }
 
-/* ── Benefits strip ──────────────────────────────────── */
+/* ── Benefits strip ──────────────────────────────────────── */
 .ms-vault-benefits {
   padding-top: 1rem;
   margin-top: 0.25rem;
@@ -780,7 +1107,7 @@
   color: var(--ms-green);
 }
 
-/* ── CTA Footer ──────────────────────────────────────── */
+/* ── CTA Footer ──────────────────────────────────────────── */
 .ms-vault-footer {
   display: flex;
   align-items: center;
@@ -815,7 +1142,7 @@
   flex-shrink: 0;
 }
 
-/* ── RIGHT: Visual ────────────────────────────────────── */
+/* ── RIGHT: Visual ───────────────────────────────────────── */
 .ms-vault-visual {
   background: #faf9f6;
   display: flex;

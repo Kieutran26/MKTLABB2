@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Brain, Target, Compass, ArrowRight, Loader2, Sparkles, Map as LucideMap, Heart, Lightbulb, Users,
-    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar
+    CalendarDays, History, X, Save, Check, Rocket, Diamond, Lock, ChevronRight, Edit3, Plus, Pencil, Trash2, Calendar, Download, RefreshCw
 } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import { generateMastermindStrategy } from '../services/geminiService';
-import MastermindStrategyEditorial from './MastermindStrategyEditorial';
+import MastermindStrategyOptiReport from './MastermindStrategyOptiReport';
 import FeatureHeader from './FeatureHeader';
+import {
+    WS_PRIMARY_CTA,
+    WS_SEGMENT_SHELL,
+    wsHistoryToggleClass,
+    wsWorkspaceTabClass,
+} from './workspace-toolbar-classes';
 import { MastermindService } from '../services/mastermindService';
 import { StorageService } from '../services/storageService';
 import { useBrand } from './BrandContext';
@@ -23,6 +30,7 @@ interface MastermindStrategyProps {
 const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDeployToCalendar }) => {
     const { user, tier } = useAuth();
     const { currentBrand } = useBrand();
+    const reportContentRef = useRef<HTMLDivElement>(null);
 
     // UI State
     const [profile, setProfile] = useState<any>(null);
@@ -91,6 +99,8 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     // Results
     const [strategyResult, setStrategyResult] = useState<MastermindStrategy | null>(null);
+    const [isEditingStrategyName, setIsEditingStrategyName] = useState(false);
+    const [draftStrategyName, setDraftStrategyName] = useState('');
 
     useEffect(() => {
         const loadUser = async () => {
@@ -109,6 +119,11 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
             setSelectedPersona(null);
         }
     }, [currentBrand, activeTab]);
+
+    useEffect(() => {
+        setDraftStrategyName(strategyResult?.name ?? '');
+        setIsEditingStrategyName(false);
+    }, [strategyResult?.id, strategyResult?.name]);
 
     const showToast = (message: string, type: ToastType = 'info') => {
         setToast({ message, type });
@@ -174,6 +189,39 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         setViewMode('dashboard');
     };
 
+    const updateStrategyCache = (updatedStrategy: MastermindStrategy) => {
+        setStrategyResult(updatedStrategy);
+        setAvailableStrategies((prev) =>
+            prev.map((strategy) => strategy.id === updatedStrategy.id ? updatedStrategy : strategy)
+        );
+
+        const localRaw = localStorage.getItem('mktlab_mastermind_history');
+        const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
+        const nextLocal = local.some((strategy) => strategy.id === updatedStrategy.id)
+            ? local.map((strategy) => strategy.id === updatedStrategy.id ? updatedStrategy : strategy)
+            : [updatedStrategy, ...local];
+
+        localStorage.setItem('mktlab_mastermind_history', JSON.stringify(nextLocal.slice(0, 50)));
+    };
+
+    const handleCommitStrategyName = () => {
+        if (!strategyResult) return;
+
+        const nextName = draftStrategyName.trim();
+        if (!nextName) {
+            setDraftStrategyName(strategyResult.name);
+            setIsEditingStrategyName(false);
+            showToast("Tên chiến lược không được để trống", "error");
+            return;
+        }
+
+        if (nextName !== strategyResult.name) {
+            updateStrategyCache({ ...strategyResult, name: nextName });
+        }
+
+        setIsEditingStrategyName(false);
+    };
+
     const handleDeleteStrategy = async (id: string) => {
         if (!confirm('Bạn có chắc chắn muốn xóa chiến lược này?')) return;
         
@@ -215,6 +263,43 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
     const handleDeploy = () => {
         setShowDeploySuccessModal(true);
+    };
+
+    const handleExportPng = async () => {
+        if (!reportContentRef.current || !strategyResult) return;
+
+        try {
+            const element = reportContentRef.current;
+            const dataUrl = await toPng(element, {
+                cacheBust: true,
+                backgroundColor: '#FCFDFC',
+                width: element.scrollWidth,
+                height: element.scrollHeight,
+                style: {
+                    height: 'auto',
+                    overflow: 'visible',
+                    transform: 'none',
+                },
+            });
+
+            const link = document.createElement('a');
+            link.download = `mastermind-strategy-${strategyResult.id}.png`;
+            link.href = dataUrl;
+            link.click();
+            showToast("Đã xuất PNG thành công", "success");
+        } catch (error) {
+            console.error('Mastermind export PNG error:', error);
+            showToast("Lỗi khi xuất PNG", "error");
+        }
+    };
+
+    const handleRerenderReport = () => {
+        if (!strategyResult) return;
+        setStrategyResult({
+            ...strategyResult,
+            result: { ...strategyResult.result },
+        });
+        showToast("Đã render lại báo cáo", "success");
     };
 
     const confirmDeploy = () => {
@@ -650,25 +735,155 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
     }
 
     if (viewMode === 'dashboard' && strategyResult) {
-        const { result } = strategyResult;
+        const formattedDate = new Date(strategyResult.createdAt).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
         return (
             <div className="flex h-screen flex-col overflow-hidden bg-[#FCFDFC]">
-                <header className="z-20 flex shrink-0 border-b border-stone-200/70 bg-[#FCFDFC] px-8 py-5 items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setViewMode('create')} className="p-2 hover:bg-stone-100 rounded-full transition-colors"><ArrowRight size={20} className="rotate-180" /></button>
-                        <div><h2 className="text-xl font-medium">{strategyResult.name}</h2><p className="text-xs text-stone-400 mt-0.5">Chiến lược tổng thể Mastermind</p></div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button onClick={handleSave} className="px-5 py-2.5 rounded-full border border-stone-200 text-sm font-medium hover:bg-stone-50 flex items-center gap-2"><Save size={16} /> Lưu</button>
-                        <button onClick={handleDeploy} className="px-6 py-2.5 rounded-full bg-stone-900 text-white text-sm font-medium hover:bg-stone-800 flex items-center gap-2"><CalendarDays size={16} /> Deploy to Calendar</button>
-                    </div>
-                </header>
-
                 <div className="flex-1 overflow-y-auto">
-                    <MastermindStrategyEditorial strategy={strategyResult} />
+                    <FeatureHeader
+                        icon={Brain}
+                        eyebrow="STRATEGIC MASTERMIND"
+                        title="Mastermind Strategy"
+                        subline="Xây dựng strategic vision, persona direction và kế hoạch 90 ngày bằng AI."
+                    >
+                        <div className="flex shrink-0 items-center justify-end gap-2">
+                            <div className={WS_SEGMENT_SHELL}>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveTab('manual');
+                                        setViewMode('create');
+                                    }}
+                                    className={wsWorkspaceTabClass(activeTab === 'manual')}
+                                >
+                                    <Pencil size={14} /> Thủ công
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setActiveTab('vault');
+                                        setViewMode('create');
+                                    }}
+                                    className={wsWorkspaceTabClass(activeTab === 'vault')}
+                                >
+                                    <Diamond size={14} className={profile?.subscription_tier === 'promax' ? "text-amber-500 fill-amber-500" : "text-stone-400"} /> Brand Vault
+                                </button>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setViewMode('history')}
+                                className={wsHistoryToggleClass(viewMode === 'history')}
+                                aria-label="Open history"
+                            >
+                                <History size={17} strokeWidth={1.5} />
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setViewMode('create')}
+                                className={WS_PRIMARY_CTA}
+                            >
+                                <Plus size={18} strokeWidth={2.5} /> Tạo mới
+                            </button>
+                        </div>
+                    </FeatureHeader>
+
+                    <div className="sticky top-0 z-30 border-b border-stone-200/80 bg-[#FCFDFC]/95 backdrop-blur">
+                        <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 px-6 py-2.5">
+                            <div className="flex min-w-0 flex-wrap items-center gap-3">
+                                <div className="flex min-w-0 items-center gap-2 text-[16px] font-bold tracking-tight text-stone-900">
+                                    {isEditingStrategyName ? (
+                                        <div className="flex items-center gap-1.5">
+                                            <input
+                                                type="text"
+                                                value={draftStrategyName}
+                                                onChange={(e) => setDraftStrategyName(e.target.value)}
+                                                onBlur={handleCommitStrategyName}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleCommitStrategyName();
+                                                    }
+                                                    if (e.key === 'Escape') {
+                                                        setDraftStrategyName(strategyResult.name);
+                                                        setIsEditingStrategyName(false);
+                                                    }
+                                                }}
+                                                className="h-8 min-w-[220px] max-w-[420px] rounded-lg border border-stone-200 bg-white px-3 text-[15px] font-semibold text-stone-900 outline-none transition-colors focus:border-stone-400"
+                                                aria-label="Edit strategy name"
+                                            />
+                                            <button
+                                                type="button"
+                                                onMouseDown={(e) => e.preventDefault()}
+                                                onClick={handleCommitStrategyName}
+                                                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-black/[0.05] hover:text-stone-900"
+                                                aria-label="Confirm strategy name"
+                                            >
+                                                <Check size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="truncate">{strategyResult.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEditingStrategyName(true)}
+                                                className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-black/[0.05] hover:text-stone-900"
+                                                aria-label="Edit strategy name"
+                                            >
+                                                <Pencil size={13} />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+
+                                <div className="text-[14px] text-stone-400">· {formattedDate}</div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={handleSave}
+                                    className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium text-stone-600 transition-colors hover:bg-black/[0.05]"
+                                >
+                                    <Save size={13} className="opacity-70" />
+                                    Lưu
+                                </button>
+
+                                <div className="h-4 w-px bg-stone-200" />
+
+                                <button
+                                    type="button"
+                                    onClick={() => void handleExportPng()}
+                                    className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium text-stone-600 transition-colors hover:bg-black/[0.05]"
+                                >
+                                    <Download size={13} className="opacity-70" />
+                                    Xuất PNG
+                                </button>
+
+                                <div className="h-4 w-px bg-stone-200" />
+
+                                <button
+                                    type="button"
+                                    onClick={handleRerenderReport}
+                                    className="inline-flex h-7 min-w-[148px] items-center justify-center gap-1.5 rounded-xl bg-stone-900 px-4 text-[12px] font-semibold text-white shadow-sm transition-all hover:bg-stone-800"
+                                >
+                                    <RefreshCw size={13} />
+                                    Render lại
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div ref={reportContentRef} className="px-6 pt-5">
+                        <MastermindStrategyOptiReport strategy={strategyResult} subscriptionTier={tier} />
+                    </div>
                 </div>
 
-                
                 {showDeploySuccessModal && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                         <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative">

@@ -1,5 +1,6 @@
 import { ContentPillar, AdsHealthInput, AdsHealthResult, BrandPositioningInput, BrandPositioningResult, PricingAnalyzerInput, PricingAnalyzerResult, AudienceEmotionMapInput, AudienceEmotionMapResult, StrategicSolution } from "../types";
 import { callClaudeAPI } from "./anthropicService";
+import { getGeminiClient } from "../lib/geminiClient";
 
 /** Thrown when Gemini returns 429 / free-tier quota; UI can show a specific toast. */
 export class GeminiRateLimitError extends Error {
@@ -764,7 +765,8 @@ export const analyzeImages = async (
 };
 
 // Compatibility wrapper to maintain existing code structure
-const ai = {
+const ai = getGeminiClient();
+/*
     models: {
         generateContent: async (params: any) => {
             const { contents, config, model } = params;
@@ -823,7 +825,7 @@ const ai = {
             };
         }
     }
-};
+*/
 
 // ... (SAFETY_SETTINGS omitted as it is used above or can be reused)
 // ...
