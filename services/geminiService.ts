@@ -288,6 +288,7 @@ async function postGeminiGenerateContentUnqueued(
     const backendBaseUrl =
         (typeof import.meta.env.VITE_BACKEND_URL === 'string' &&
             import.meta.env.VITE_BACKEND_URL.trim()) ||
+        (typeof window !== 'undefined' && window.location?.origin) ||
         'http://localhost:3011';
     const preferredModel = opts?.preferredModel || import.meta.env.VITE_OPENAI_MODEL || 'gpt-4.1';
     const response = await fetch(`${backendBaseUrl}${OPENAI_PROXY_PATH}`, {

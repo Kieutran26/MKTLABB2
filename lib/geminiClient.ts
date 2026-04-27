@@ -27,6 +27,7 @@ type OpenAICompatibleClient = {
 
 const backendBaseUrl =
     (typeof import.meta.env.VITE_BACKEND_URL === 'string' && import.meta.env.VITE_BACKEND_URL.trim()) ||
+    (typeof window !== 'undefined' && window.location?.origin) ||
     'http://localhost:3011';
 
 export const isGeminiConfigured = true;
@@ -78,7 +79,21 @@ export function getGeminiClient(): OpenAICompatibleClient {
                     }),
                 });
 
-                const payload = await response.json();
+                const raw = await response.text();
+                let payload: any = null;
+                try {
+                    payload = raw ? JSON.parse(raw) : null;
+                } catch {
+                    payload = null;
+                }
+
+                if (!payload) {
+                    throw new Error(
+                        `AI proxy returned an invalid response (status ${response.status}). ` +
+                        `Expected JSON but received ${raw ? 'non-JSON content' : 'an empty body'}.`
+                    );
+                }
+
                 if (!response.ok) {
                     throw new Error(
                         payload?.details?.error?.message ||

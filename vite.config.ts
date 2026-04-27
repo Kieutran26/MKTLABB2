@@ -56,6 +56,17 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
+        // OpenAI and Claude proxies pointing to local Express server
+        '/api/openai': {
+          target: 'http://localhost:3011',
+          changeOrigin: true,
+          secure: false,
+        },
+        '/api/claude': {
+          target: 'http://localhost:3011',
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
     plugins: [react()],

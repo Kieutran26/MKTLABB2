@@ -51,7 +51,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 const dbHistory = await MastermindService.getMastermindStrategies();
                 
                 // Fallback / Merge with LocalStorage
-                const localHistoryRaw = localStorage.getItem('mktlab_mastermind_history');
+                const localHistoryRaw = localStorage.getItem('eng_app_mastermind_strategies');
                 const localHistory: MastermindStrategy[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
                 
                 // Merge and remove duplicates by ID
@@ -63,13 +63,13 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 setAvailableStrategies(finalHistory);
             } catch (e) {
                 // If DB fails, just show Local
-                const localHistoryRaw = localStorage.getItem('mktlab_mastermind_history');
+                const localHistoryRaw = localStorage.getItem('eng_app_mastermind_strategies');
                 const localHistory: MastermindStrategy[] = localHistoryRaw ? JSON.parse(localHistoryRaw) : [];
                 setAvailableStrategies(localHistory.sort((a: MastermindStrategy, b: MastermindStrategy) => b.createdAt - a.createdAt));
             }
         };
         loadHistory();
-    }, []);
+    }, [user, viewMode]);
 
     // Manual Inputs - Brand
     const [manualBrandName, setManualBrandName] = useState('');
@@ -169,10 +169,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
                 setStrategyResult(newStrategy);
                 
                 // Temp save to LocalStorage
-                const localRaw = localStorage.getItem('mktlab_mastermind_history');
+                const localRaw = localStorage.getItem('eng_app_mastermind_strategies');
                 const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
                 const updatedLocal = [newStrategy, ...local].slice(0, 50); // Keep top 50
-                localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updatedLocal));
+                localStorage.setItem('eng_app_mastermind_strategies', JSON.stringify(updatedLocal));
                 setAvailableStrategies(updatedLocal);
 
                 setViewMode('dashboard');
@@ -195,13 +195,13 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
             prev.map((strategy) => strategy.id === updatedStrategy.id ? updatedStrategy : strategy)
         );
 
-        const localRaw = localStorage.getItem('mktlab_mastermind_history');
+        const localRaw = localStorage.getItem('eng_app_mastermind_strategies');
         const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
         const nextLocal = local.some((strategy) => strategy.id === updatedStrategy.id)
             ? local.map((strategy) => strategy.id === updatedStrategy.id ? updatedStrategy : strategy)
             : [updatedStrategy, ...local];
 
-        localStorage.setItem('mktlab_mastermind_history', JSON.stringify(nextLocal.slice(0, 50)));
+        localStorage.setItem('eng_app_mastermind_strategies', JSON.stringify(nextLocal.slice(0, 50)));
     };
 
     const handleCommitStrategyName = () => {
@@ -233,7 +233,7 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
             setAvailableStrategies(updated);
             
             // Update LocalStorage
-            localStorage.setItem('mktlab_mastermind_history', JSON.stringify(updated));
+            localStorage.setItem('eng_app_mastermind_strategies', JSON.stringify(updated));
             
             showToast("Đã xóa chiến lược", "info");
         } catch (e) {
@@ -248,10 +248,10 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
             await MastermindService.saveMastermindStrategy(strategyResult);
             
             // Also ensure it's in LocalStorage for redundancy
-            const localRaw = localStorage.getItem('mktlab_mastermind_history');
+            const localRaw = localStorage.getItem('eng_app_mastermind_strategies');
             const local: MastermindStrategy[] = localRaw ? JSON.parse(localRaw) : [];
             if (!local.find(s => s.id === strategyResult.id)) {
-                localStorage.setItem('mktlab_mastermind_history', JSON.stringify([strategyResult, ...local]));
+                localStorage.setItem('eng_app_mastermind_strategies', JSON.stringify([strategyResult, ...local]));
             }
             
             showToast("Đã lưu chiến lược thành công", "success");
@@ -293,13 +293,91 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
         }
     };
 
-    const handleRerenderReport = () => {
-        if (!strategyResult) return;
-        setStrategyResult({
-            ...strategyResult,
-            result: { ...strategyResult.result },
-        });
-        showToast("Đã render lại báo cáo", "success");
+    const buildRerenderPayload = (strategy: MastermindStrategy) => {
+        const result = strategy.result;
+        const smartGoal = result.strategic_goals?.smart_goals?.[0];
+        const roadmapMonths = result.strategic_goals?.roadmap_90day?.months ?? [];
+        const budgetSplit = result.strategic_goals?.resource_allocation?.budget_split ?? {};
+        const rankedPains = (result.brand_context?.pain_gain?.ranked_pains ?? [])
+            .map((item: any) => item?.content)
+            .filter(Boolean)
+            .slice(0, 3);
+        const topGains = (result.brand_context?.pain_gain?.top_gains ?? [])
+            .filter(Boolean)
+            .slice(0, 3);
+
+        return {
+            brandInfo: [
+                `Tên thương hiệu: ${strategy.name}.`,
+                result.brand_context?.positioning?.current_state ? `Bối cảnh thương hiệu: ${result.brand_context.positioning.current_state}.` : '',
+                result.coreMessage ? `Thông điệp cốt lõi hiện tại: ${result.coreMessage}.` : '',
+                result.brand_context?.positioning?.differentiator ? `Điểm khác biệt: ${result.brand_context.positioning.differentiator}.` : '',
+            ].filter(Boolean).join(' '),
+            audienceInfo: [
+                `Tên khách hàng: ${result.brand_context?.persona?.demographics || 'Khách hàng mục tiêu hiện tại'}.`,
+                result.brand_context?.persona?.behaviors ? `Hành vi: ${result.brand_context.persona.behaviors}.` : '',
+                result.brand_context?.persona?.psychographics ? `Tâm lý: ${result.brand_context.persona.psychographics}.` : '',
+                result.brand_context?.persona?.journey ? `Hành trình: ${result.brand_context.persona.journey}.` : '',
+                rankedPains.length ? `Nỗi đau: ${rankedPains.join(', ')}.` : '',
+                topGains.length ? `Khao khát: ${topGains.join(', ')}.` : '',
+            ].filter(Boolean).join(' '),
+            goalInfo: [
+                `Mục tiêu kinh doanh: ${strategy.objective || smartGoal?.goal || result.conclusion?.summary || 'Tăng trưởng bền vững'}.`,
+                strategy.perception ? `Kỳ vọng cụ thể: ${strategy.perception}.` : '',
+                smartGoal?.baseline ? `Số liệu hiện tại (Baseline): ${smartGoal.baseline}.` : '',
+                smartGoal?.target ? `Mục tiêu 90 ngày: ${smartGoal.target}.` : '',
+                roadmapMonths.length
+                    ? `Lộ trình 90 ngày: ${roadmapMonths.map((month: any) => `${month.month_name}: ${(month.actions ?? []).filter(Boolean).join(', ')}`).join(' | ')}.`
+                    : '',
+            ].filter(Boolean).join(' '),
+            vibeInfo: [
+                strategy.tone ? `Tính cách thương hiệu: ${strategy.tone}.` : '',
+                result.insight ? `Insight chiến lược: ${result.insight}.` : '',
+                Object.keys(budgetSplit).length
+                    ? `Kênh truyền thông chính: ${Object.entries(budgetSplit)
+                        .map(([channel, data]: [string, any]) => `${channel} ${data?.percent || ''}`.trim())
+                        .join(', ')}.`
+                    : '',
+                result.brand_context?.positioning?.competitive_map?.description
+                    ? `Bối cảnh cạnh tranh: ${result.brand_context.positioning.competitive_map.description}.`
+                    : '',
+            ].filter(Boolean).join(' '),
+        };
+    };
+
+    const handleRegenerateReport = async () => {
+        if (!strategyResult || isRerendering) return;
+
+        try {
+            setIsRerendering(true);
+            const payload = buildRerenderPayload(strategyResult);
+            const rerenderedResult = await generateMastermindStrategy(
+                payload.brandInfo,
+                payload.audienceInfo,
+                payload.goalInfo,
+                payload.vibeInfo,
+                strategyResult.tone || tone,
+                tier
+            );
+
+            if (!rerenderedResult) {
+                showToast("Không kết nối được AI server.", "error");
+                return;
+            }
+
+            const updatedStrategy: MastermindStrategy = {
+                ...strategyResult,
+                result: rerenderedResult,
+            };
+
+            updateStrategyCache(updatedStrategy);
+            showToast("Đã render lại báo cáo", "success");
+        } catch (error) {
+            console.error('Mastermind rerender error:', error);
+            showToast("Không kết nối được AI server.", "error");
+        } finally {
+            setIsRerendering(false);
+        }
     };
 
     const confirmDeploy = () => {
@@ -869,11 +947,12 @@ const MastermindStrategyComponent: React.FC<MastermindStrategyProps> = ({ onDepl
 
                                 <button
                                     type="button"
-                                    onClick={handleRerenderReport}
-                                    className="inline-flex h-7 min-w-[148px] items-center justify-center gap-1.5 rounded-xl bg-stone-900 px-4 text-[12px] font-semibold text-white shadow-sm transition-all hover:bg-stone-800"
+                                    onClick={handleRegenerateReport}
+                                    disabled={isRerendering}
+                                    className="inline-flex h-7 min-w-[148px] items-center justify-center gap-1.5 rounded-xl bg-stone-900 px-4 text-[12px] font-semibold text-white shadow-sm transition-all hover:bg-stone-800 disabled:opacity-70"
                                 >
-                                    <RefreshCw size={13} />
-                                    Render lại
+                                    {isRerendering ? <Loader2 className="animate-spin" size={13} /> : <RefreshCw size={13} />}
+                                    {isRerendering ? 'Đang render...' : 'Render lại'}
                                 </button>
                             </div>
                         </div>

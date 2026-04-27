@@ -213,13 +213,25 @@ function fromHtmlOutput(strategy: MastermindStrategy): ParsedReport | null {
 
 function renderSectionHeader(number: string, eyebrow: string, title: string) {
   return (
-    <div className="ms-report-section__header">
-      <div className="ms-report-section__number">{number}</div>
-      <div className="ms-report-section__meta">
-        <div className="ms-report-section__eyebrow">{eyebrow}</div>
-        <h2 className="ms-report-section__title">{title}</h2>
+    <div className="msr-section-head">
+      <div className="msr-section-head__number">{number}</div>
+      <div className="msr-section-head__meta">
+        <div className="msr-section-head__eyebrow">{eyebrow}</div>
+        <h2 className="msr-section-head__title">{title}</h2>
       </div>
     </div>
+  );
+}
+
+function renderBulletList(lines?: string[]) {
+  if (!lines?.length) return null;
+
+  return (
+    <ul className="msr-list">
+      {lines.map((line, index) => (
+        <li key={`${line}-${index}`}>{line}</li>
+      ))}
+    </ul>
   );
 }
 
@@ -232,54 +244,58 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
   }, [strategy]);
 
   return (
-    <div className="mastermind-report-shell">
-      <div className="ms-report">
-        <section className="ms-report-section">
+    <div className="mastermind-report-shell msr-report">
+      <div className="msr-stack">
+        <section className="msr-section">
           {renderSectionHeader('01', 'Mô hình chiến lược', 'Strategic Vision & Core Message')}
-          <div className="ms-hero-board">
-            <div className="ms-hero-board__main">
-              <div className="ms-hero-board__kicker">Strategic Vision · Core Message</div>
-              <blockquote className="ms-hero-board__quote">{report.vision.title}</blockquote>
-              {report.vision.summary ? <p className="ms-hero-board__summary">{report.vision.summary}</p> : null}
+          <div className="msr-hero rk-result-surface">
+            <div className="msr-hero__main">
+              <div className="rk-result-badge">Mastermind Strategy</div>
+              <blockquote className="msr-hero__quote">{report.vision.title}</blockquote>
+              {report.vision.summary ? <p className="msr-hero__summary">{report.vision.summary}</p> : null}
             </div>
-            <aside className="ms-hero-board__side">
-              <div className="ms-hero-board__side-title">Expert Analysis</div>
-              <p className="ms-hero-board__side-copy">{report.vision.analysis || 'Chưa có expert analysis cụ thể.'}</p>
+            <aside className="msr-hero__side">
+              <div className="msr-panel-card msr-panel-card--soft">
+                <div className="rk-result-eyebrow">Expert Analysis</div>
+                <p className="rk-result-copy">{report.vision.analysis || 'Chưa có expert analysis cụ thể.'}</p>
+              </div>
+              <div className="msr-panel-card">
+                <div className="rk-result-eyebrow">Strategic Summary</div>
+                <p className="rk-result-copy">
+                  {report.vision.summary || report.metrics[0]?.value || 'Chưa có tổng quan chiến lược.'}
+                </p>
+              </div>
             </aside>
           </div>
         </section>
 
-        <section className="ms-report-section">
+        <section className="msr-section">
           {renderSectionHeader('02', 'Mô hình chiến lược', 'Chỉ số chiến lược')}
-          <div className="ms-metric-grid">
+          <div className="msr-kpi-grid">
             {report.metrics.map((item, index) => (
-              <article key={`${item.label}-${index}`} className="ms-metric-card">
-                <div className="ms-metric-card__eyebrow">{item.label}</div>
-                <div className="ms-metric-card__number">{item.number ?? String(index + 1).padStart(2, '0')}</div>
-                <div className="ms-metric-card__value">{item.value}</div>
+              <article key={`${item.label}-${index}`} className="msr-kpi-card rk-result-card">
+                <div className="msr-kpi-card__top">
+                  <div className="rk-result-eyebrow">{item.label}</div>
+                  <div className="msr-kpi-card__number">{item.number ?? String(index + 1).padStart(2, '0')}</div>
+                </div>
+                <div className="msr-kpi-card__value">{item.value}</div>
               </article>
             ))}
           </div>
         </section>
 
         {report.persona || report.competition ? (
-          <section className="ms-report-section">
+          <section className="msr-section">
             {renderSectionHeader('03', 'Mô hình chiến lược', 'Persona & Competitive Space')}
-            <div className="ms-split-board">
+            <div className="msr-split-grid">
               {[report.persona, report.competition].filter(Boolean).map((item, index) => (
-                <article key={`${item?.title}-${index}`} className={`ms-split-board__card ms-split-board__card--${item?.accent}`}>
-                  <div className="ms-split-board__card-head">
-                    <div className="ms-split-board__card-kicker">{item?.eyebrow || (index === 0 ? 'Target Persona' : 'Competitive Space')}</div>
-                    <h3 className="ms-split-board__card-title">{item?.title}</h3>
+                <article key={`${item?.title}-${index}`} className="msr-insight-card rk-result-surface">
+                  <div className="msr-insight-card__head">
+                    <div className="rk-result-eyebrow">{item?.eyebrow || (index === 0 ? 'Target Persona' : 'Competitive Space')}</div>
+                    <h3 className="rk-result-title">{item?.title}</h3>
                   </div>
-                  {item?.body ? <p className="ms-split-board__card-copy">{item.body}</p> : null}
-                  {item?.lines?.length ? (
-                    <ul className="ms-split-board__list">
-                      {item.lines.map((line, lineIndex) => (
-                        <li key={`${line}-${lineIndex}`}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : null}
+                  {item?.body ? <p className="rk-result-copy">{item.body}</p> : null}
+                  {renderBulletList(item?.lines)}
                 </article>
               ))}
             </div>
@@ -287,21 +303,16 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         ) : null}
 
         {report.roadmap.length ? (
-          <section className="ms-report-section">
+          <section className="msr-section">
             {renderSectionHeader('04', 'Mô hình chiến lược', 'Lộ trình 90 ngày')}
-            <div className="ms-card-grid ms-card-grid--thirds">
+            <div className="msr-roadmap-grid">
               {report.roadmap.map((item, index) => (
-                <article key={`${item.title}-${index}`} className="ms-detail-card">
-                  <div className="ms-detail-card__eyebrow">{item.eyebrow || `Giai đoạn ${index + 1}`}</div>
-                  <h3 className="ms-detail-card__title">{item.title}</h3>
-                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
-                  {item.lines?.length ? (
-                    <ul className="ms-detail-card__list">
-                      {item.lines.map((line, lineIndex) => (
-                        <li key={`${line}-${lineIndex}`}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : null}
+                <article key={`${item.title}-${index}`} className="msr-roadmap-card rk-result-surface">
+                  <div className="msr-roadmap-card__step">{String(index + 1).padStart(2, '0')}</div>
+                  <div className="rk-result-eyebrow">{item.eyebrow || `Giai đoạn ${index + 1}`}</div>
+                  <h3 className="rk-result-title">{item.title}</h3>
+                  {item.body ? <p className="rk-result-copy">{item.body}</p> : null}
+                  {renderBulletList(item.lines)}
                 </article>
               ))}
             </div>
@@ -309,21 +320,18 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         ) : null}
 
         {report.channels.length ? (
-          <section className="ms-report-section">
+          <section className="msr-section">
             {renderSectionHeader('05', 'Mô hình chiến lược', 'Kênh truyền thông & ngân sách')}
-            <div className="ms-card-grid ms-card-grid--auto">
+            <div className="msr-card-grid msr-card-grid--auto">
               {report.channels.map((item, index) => (
-                <article key={`${item.title}-${index}`} className="ms-detail-card ms-detail-card--compact">
-                  <div className="ms-detail-card__eyebrow">{item.eyebrow || 'Channel'}</div>
-                  <h3 className="ms-detail-card__title">{item.title}</h3>
-                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
-                  {item.lines?.length ? (
-                    <ul className="ms-detail-card__list">
-                      {item.lines.map((line, lineIndex) => (
-                        <li key={`${line}-${lineIndex}`}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : null}
+                <article key={`${item.title}-${index}`} className="msr-detail-card rk-result-card">
+                  <div className="msr-detail-card__top">
+                    <div className="rk-result-eyebrow">{item.eyebrow || 'Channel'}</div>
+                    <div className="msr-detail-card__pill">Media</div>
+                  </div>
+                  <h3 className="rk-result-title">{item.title}</h3>
+                  {item.body ? <p className="rk-result-copy">{item.body}</p> : null}
+                  {renderBulletList(item.lines)}
                 </article>
               ))}
             </div>
@@ -331,21 +339,18 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         ) : null}
 
         {report.content.length ? (
-          <section className="ms-report-section">
+          <section className="msr-section">
             {renderSectionHeader('06', 'Mô hình chiến lược', 'Content Mix hàng tuần')}
-            <div className="ms-card-grid ms-card-grid--thirds">
+            <div className="msr-card-grid msr-card-grid--thirds">
               {report.content.map((item, index) => (
-                <article key={`${item.title}-${index}`} className="ms-detail-card">
-                  <div className="ms-detail-card__eyebrow">{item.eyebrow || 'Content angle'}</div>
-                  <h3 className="ms-detail-card__title">{item.title}</h3>
-                  {item.body ? <p className="ms-detail-card__copy">{item.body}</p> : null}
-                  {item.lines?.length ? (
-                    <ul className="ms-detail-card__list">
-                      {item.lines.map((line, lineIndex) => (
-                        <li key={`${line}-${lineIndex}`}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : null}
+                <article key={`${item.title}-${index}`} className="msr-detail-card rk-result-card">
+                  <div className="msr-detail-card__top">
+                    <div className="rk-result-eyebrow">{item.eyebrow || 'Content angle'}</div>
+                    <div className="msr-detail-card__pill">Weekly</div>
+                  </div>
+                  <h3 className="rk-result-title">{item.title}</h3>
+                  {item.body ? <p className="rk-result-copy">{item.body}</p> : null}
+                  {renderBulletList(item.lines)}
                 </article>
               ))}
             </div>
@@ -353,18 +358,26 @@ const MastermindStrategyEditorial: React.FC<MastermindStrategyEditorialProps> = 
         ) : null}
 
         {isPromax && (report.advice.length || report.adviceQuote) ? (
-          <section className="ms-report-section">
+          <section className="msr-section">
             {renderSectionHeader('07', 'Mô hình chiến lược', 'CMO Advice')}
-            <div className="ms-card-grid ms-card-grid--thirds">
+            <div className="msr-card-grid msr-card-grid--thirds">
               {report.advice.map((item, index) => (
-                <article key={`${item.title}-${index}`} className="ms-detail-card ms-detail-card--soft">
-                  <div className="ms-detail-card__eyebrow">Strategic advice</div>
-                  <h3 className="ms-detail-card__title">{item.title}</h3>
-                  <p className="ms-detail-card__copy">{item.body}</p>
+                <article key={`${item.title}-${index}`} className="msr-detail-card msr-detail-card--soft rk-result-card">
+                  <div className="msr-detail-card__top">
+                    <div className="rk-result-eyebrow">Strategic advice</div>
+                    <div className="msr-detail-card__pill">CMO</div>
+                  </div>
+                  <h3 className="rk-result-title">{item.title}</h3>
+                  <p className="rk-result-copy">{item.body}</p>
                 </article>
               ))}
             </div>
-            {report.adviceQuote ? <blockquote className="ms-advice-quote">{report.adviceQuote}</blockquote> : null}
+            {report.adviceQuote ? (
+              <blockquote className="msr-advice-quote rk-result-surface">
+                <div className="rk-result-eyebrow">Positioning Statement</div>
+                <p>{report.adviceQuote}</p>
+              </blockquote>
+            ) : null}
           </section>
         ) : null}
       </div>

@@ -6,8 +6,9 @@ export const MastermindService = {
     async getMastermindStrategies(): Promise<MastermindStrategy[]> {
         try {
             const { data, error } = await supabase
-                .from('mastermind_strategies')
+                .from('marketing_plans')
                 .select('*')
+                .eq('type', 'MASTERMIND')
                 .order('created_at', { ascending: false });
 
             if (error) {
@@ -20,11 +21,12 @@ export const MastermindService = {
                 id: item.id,
                 name: item.name,
                 brandId: item.brand_id,
-                personaId: item.persona_id,
-                objective: item.objective,
-                perception: item.perception,
-                tone: item.tone,
-                result: item.result,
+                personaId: item.input_data?.personaId,
+                objective: item.input_data?.objective,
+                perception: item.input_data?.perception,
+                tone: item.input_data?.tone,
+                input: item.input_data?.input,
+                result: item.generated_output,
                 createdAt: new Date(item.created_at).getTime()
             }));
         } catch (error) {
@@ -40,16 +42,20 @@ export const MastermindService = {
                 id: strategy.id,
                 name: strategy.name,
                 brand_id: strategy.brandId,
-                persona_id: strategy.personaId,
-                objective: strategy.objective,
-                perception: strategy.perception,
-                tone: strategy.tone,
-                result: strategy.result,
+                type: 'MASTERMIND',
+                input_data: {
+                    personaId: strategy.personaId,
+                    objective: strategy.objective,
+                    perception: strategy.perception,
+                    tone: strategy.tone,
+                    input: strategy.input
+                },
+                generated_output: strategy.result,
                 created_at: new Date(strategy.createdAt).toISOString()
             };
 
             const { error } = await supabase
-                .from('mastermind_strategies')
+                .from('marketing_plans')
                 .upsert(dbStrategy, { onConflict: 'id' });
 
             if (error) {
@@ -68,7 +74,7 @@ export const MastermindService = {
     async deleteMastermindStrategy(id: string): Promise<boolean> {
         try {
             const { error } = await supabase
-                .from('mastermind_strategies')
+                .from('marketing_plans')
                 .delete()
                 .eq('id', id);
 
